@@ -1,0 +1,15 @@
+{
+ "source": "gitleaks",
+ "title": "Gitleaks (MIT): the JSON report the customer's pipeline writes",
+ "readScopes": [
+  "None for the collector: it reads the report file. Gitleaks runs in the customer's pipeline (`gitleaks git --report-format json --report-path <file>`)."
+ ],
+ "checks": [
+  {
+   "id": "gitleaks.no_findings",
+   "title": "Gitleaks finds no hard-coded secret in the repository",
+   "scope": "The history or directory Gitleaks scanned, minus what its .gitleaksignore or baseline excludes.",
+   "evidenceType": "Report"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "source": "fleet",
+ "title": "Fleet device management (REST API, read-only API-only user)",
+ "readScopes": [
+  "A Fleet API-only user with the global Observer role (read-only; Fleet Free), created with `fleetctl user create --name 'Sagentix collector' --api-only --global-role observer`; its API token is FLEET_API_TOKEN. The collector calls GET /api/v1/fleet/hosts only."
+ ],
+ "checks": [
+  {
+   "id": "fleet.disk_encryption",
+   "title": "Each host reports its disk as encrypted (FileVault, BitLocker or LUKS)",
+   "scope": "Every host enrolled in Fleet, one result per host, from Fleet's disk_encryption_enabled field; a host whose status Fleet does not know is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.screen_lock",
+   "title": "Each host passes the Fleet policy that checks its screen lock",
+   "scope": "Hosts on which a screen-lock policy runs; what the policy's osquery SQL tests is the customer's, so the idle time it enforces is not judged here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.os_up_to_date",
+   "title": "Each host passes the Fleet OS-currency policy, or runs an OS at or above the given version floor",
+   "scope": "Hosts with an OS-currency policy or a --fleet-min-os floor for their platform; vendor support dates are not looked up.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.firewall",
+   "title": "Each host passes the Fleet policy that checks its host firewall",
+   "scope": "Hosts on which a firewall policy runs; firewall rules themselves are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.edr_present",
+   "title": "Each host passes the Fleet policy that checks for an EDR or antivirus agent",
+   "scope": "Hosts on which an EDR or antivirus policy runs; whether the agent's signatures are current or its alerts are reviewed is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.mdm_enrolled",
+   "title": "Each host is enrolled in an MDM",
+   "scope": "Hosts for which Fleet reports an MDM enrollment status (any MDM it detects); Linux and ChromeOS hosts have none and are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "fleet.last_seen",
+   "title": "Each host has checked in to Fleet within the last 14 days",
+   "scope": "Every host enrolled in Fleet; the window is --fleet-seen-days. Devices never enrolled in Fleet are not seen at all.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

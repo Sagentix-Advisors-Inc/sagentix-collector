@@ -1,0 +1,20 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: GitHub (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "Repository: Administration (read)",
+  "Repository: Contents (read)",
+  "Repository: Metadata (read)",
+  "Repository: Dependabot alerts (read)",
+  "Organization: Administration (read)",
+  "Organization: Members (read)"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "github",
+ "checks": []
+}

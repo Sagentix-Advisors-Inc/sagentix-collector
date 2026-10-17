@@ -1,0 +1,135 @@
+{
+ "source": "aws",
+ "title": "AWS (read-only IAM role: SecurityAudit managed policy)",
+ "readScopes": [
+  "arn:aws:iam::aws:policy/SecurityAudit"
+ ],
+ "checks": [
+  {
+   "id": "aws.root_mfa",
+   "title": "The root user has MFA enabled",
+   "scope": "The AWS account's root user only; IAM Identity Center and federated users are not visible here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.root_no_access_keys",
+   "title": "The root user has no access keys",
+   "scope": "The AWS account's root user only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.iam_users_mfa",
+   "title": "Each IAM user with a console password has MFA",
+   "scope": "IAM users in the account (from the IAM credential report); federated and Identity Center users are not IAM users and are not seen.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.access_keys_rotated",
+   "title": "Each active IAM access key was rotated within 90 days",
+   "scope": "Long-term access keys of IAM users; roles and temporary credentials have no keys to rotate.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.password_policy",
+   "title": "The account password policy requires 14 characters and prevents reuse",
+   "scope": "Console passwords of IAM users in the account.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.cloudtrail_multi_region",
+   "title": "A multi-region CloudTrail trail is logging, with log file validation",
+   "scope": "Management events in the account; data events and what reads the logs are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.cloudtrail_kms_encrypted",
+   "title": "Each CloudTrail trail encrypts its log files with a KMS key",
+   "scope": "Log files the trail delivers to S3; who can read the bucket is not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.guardduty_enabled",
+   "title": "GuardDuty has an enabled detector in the region",
+   "scope": "Each region given with --aws-regions; which protection plans are on and how findings are handled are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.securityhub_enabled",
+   "title": "Security Hub is enabled in the region",
+   "scope": "Each region given with --aws-regions; enabled standards and the findings themselves are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.config_recorder_on",
+   "title": "An AWS Config recorder is recording in the region",
+   "scope": "Each region given with --aws-regions; which resource types are recorded is not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.s3_account_public_access_block",
+   "title": "S3 Block Public Access is on at the account level (all four settings)",
+   "scope": "Every S3 bucket in the account; access points and other services' public endpoints are not covered.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.s3_bucket_encryption",
+   "title": "Each S3 bucket has default encryption",
+   "scope": "S3 buckets the account owns. S3 has applied SSE-S3 to every new object since January 2023; the detail names the algorithm.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.ebs_encryption_default",
+   "title": "EBS encryption by default is on in the region",
+   "scope": "New EBS volumes in each region given; volumes created before the setting are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.rds_encrypted",
+   "title": "Each RDS DB instance has encrypted storage",
+   "scope": "RDS and Aurora DB instances in the regions given.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.rds_not_public",
+   "title": "Each RDS DB instance is not publicly accessible",
+   "scope": "RDS and Aurora DB instances in the regions given; security groups in front of them are judged by sg_no_open_admin_ports.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.rds_automated_backups",
+   "title": "Each RDS DB instance keeps automated backups (retention of 1 day or more)",
+   "scope": "RDS and Aurora DB instances in the regions given; whether the retention meets the recovery objectives is a person's call.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.sg_no_open_admin_ports",
+   "title": "No security group allows SSH (22) or RDP (3389) from 0.0.0.0/0 or ::/0",
+   "scope": "Ingress rules of security groups in the regions given; network ACLs and prefix lists are not evaluated.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.kms_rotation",
+   "title": "Each enabled symmetric customer-managed KMS key has automatic rotation on",
+   "scope": "Customer-managed KMS keys with AWS_KMS key material in the regions given; imported, asymmetric and HMAC keys cannot rotate automatically and are left out.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.backup_plans_exist",
+   "title": "At least one AWS Backup plan exists in the region",
+   "scope": "Each region given; which resources the plans select and whether restores work are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.vpc_flow_logs",
+   "title": "Each VPC has an active flow log",
+   "scope": "VPCs in the regions given; subnet- and interface-level flow logs are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.access_analyzer_enabled",
+   "title": "IAM Access Analyzer has an active analyzer in the region",
+   "scope": "Each region given; the analyzer's findings are not read.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

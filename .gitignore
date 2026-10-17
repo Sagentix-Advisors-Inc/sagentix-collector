@@ -1,0 +1,5 @@
+node_modules/
+collector/build/
+__pycache__/
+*.pem
+.env

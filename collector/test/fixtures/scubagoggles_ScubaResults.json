@@ -1,0 +1,1528 @@
+{
+ "MetaData": {
+  "TenantId": "ABCDEFG",
+  "ProductSuite": "Google Workspace",
+  "Tool": "ScubaGoggles",
+  "ToolVersion": "1.0.0",
+  "TimestampZulu": "2026-07-20T19:43:08.863Z",
+  "ReportUUID": "5134dab6-be86-4c35-81f4-70b2ade7e3ea",
+  "DisplayName": "Example Org (sample)",
+  "DomainName": "example.org"
+ },
+ "Summary": {
+  "assuredcontrols": {
+   "Manual": 2,
+   "Passes": 0,
+   "Errors": 0,
+   "Failures": 0,
+   "Warnings": 1,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "calendar": {
+   "Manual": 1,
+   "Passes": 4,
+   "Errors": 0,
+   "Failures": 1,
+   "Warnings": 0,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "chat": {
+   "Manual": 0,
+   "Passes": 5,
+   "Errors": 0,
+   "Failures": 0,
+   "Warnings": 2,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "classroom": {
+   "Manual": 0,
+   "Passes": 4,
+   "Errors": 0,
+   "Failures": 0,
+   "Warnings": 2,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "commoncontrols": {
+   "Manual": 13,
+   "Passes": 6,
+   "Errors": 0,
+   "Failures": 19,
+   "Warnings": 4,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "drive": {
+   "Manual": 3,
+   "Passes": 3,
+   "Errors": 0,
+   "Failures": 7,
+   "Warnings": 4,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "gemini": {
+   "Manual": 3,
+   "Passes": 2,
+   "Errors": 0,
+   "Failures": 0,
+   "Warnings": 0,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "gmail": {
+   "Manual": 2,
+   "Passes": 22,
+   "Errors": 0,
+   "Failures": 9,
+   "Warnings": 3,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "groups": {
+   "Manual": 0,
+   "Passes": 5,
+   "Errors": 0,
+   "Failures": 1,
+   "Warnings": 0,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "meet": {
+   "Manual": 0,
+   "Passes": 4,
+   "Errors": 0,
+   "Failures": 4,
+   "Warnings": 0,
+   "Omit": 0,
+   "IncorrectResults": 0
+  },
+  "sites": {
+   "Manual": 0,
+   "Passes": 0,
+   "Errors": 0,
+   "Failures": 0,
+   "Warnings": 1,
+   "Omit": 0,
+   "IncorrectResults": 0
+  }
+ },
+ "Results": {
+  "assuredcontrols": [
+   {
+    "GroupName": "Google Support Staff Data Access",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.ASSUREDCONTROLS.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.ASSUREDCONTROLS.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Data Regions Advanced Settings",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.ASSUREDCONTROLS.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "calendar": [
+   {
+    "GroupName": "External Sharing Options",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.CALENDAR.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.CALENDAR.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External Invitations Warnings",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.CALENDAR.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Calendar Interop Management",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.CALENDAR.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.CALENDAR.3.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Paid Appointments",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.CALENDAR.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "chat": [
+   {
+    "GroupName": "Chat History",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.CHAT.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.CHAT.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External File Sharing",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.CHAT.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "History for Spaces",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.CHAT.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External Chat Messaging",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.CHAT.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Content Reporting",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.CHAT.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.CHAT.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "classroom": [
+   {
+    "GroupName": "Class Membership",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.CLASSROOM.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.CLASSROOM.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Classroom API",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.CLASSROOM.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Roster Import",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.CLASSROOM.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Student Unenrollment",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.CLASSROOM.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Class Creation",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.CLASSROOM.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "commoncontrols": [
+   {
+    "GroupName": "Phishing-Resistant Multifactor Authentication",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.1.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.1.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Context-aware Access",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Login Challenges",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.3.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "User Session Duration",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Secure Passwords",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.5.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Privileged Accounts",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.6.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Conflicting Account Management",
+    "GroupNumber": "7",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.7.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Account Recovery Options",
+    "GroupNumber": "8",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.8.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.8.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.8.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "GWS Advanced Protection Program",
+    "GroupNumber": "9",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.9.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.9.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "App Access to Google APIs",
+    "GroupNumber": "10",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.10.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.10.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.10.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.10.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.10.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Authorized Google Marketplace Apps",
+    "GroupNumber": "11",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.11.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Google Takeout Services for Users",
+    "GroupNumber": "12",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.12.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "System-defined Rules",
+    "GroupNumber": "13",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.13.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Google Workspace Logs",
+    "GroupNumber": "14",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.14.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.14.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Data Regions and Storage",
+    "GroupNumber": "15",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.15.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.15.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Additional Google Services",
+    "GroupNumber": "16",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.16.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.16.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.16.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.16.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Multi-Party Approval",
+    "GroupNumber": "17",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.17.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Data Loss Prevention",
+    "GroupNumber": "18",
+    "Controls": [
+     {
+      "Control ID": "GWS.COMMONCONTROLS.18.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.COMMONCONTROLS.18.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "drive": [
+   {
+    "GroupName": "Sharing Outside the Organization",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.7v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.8v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.9v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.10v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.1.11v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Shared Drive Creation",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.DRIVEDOCS.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.2.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Security Updates for Files",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.DRIVEDOCS.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Drive SDK",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.DRIVEDOCS.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Drive for Desktop",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.DRIVEDOCS.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.DRIVEDOCS.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "gemini": [
+   {
+    "GroupName": "Gemini App Access",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.GEMINI.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Gemini Alpha features",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.GEMINI.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Gemini Conversation History",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.GEMINI.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GEMINI.3.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Gemini Conversation Sharing",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.GEMINI.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "gmail": [
+   {
+    "GroupName": "Mail Delegation",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "DomainKeys Identified Mail",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Sender Policy Framework",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Domain-based Message Authentication, Reporting, and Conformance",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.4.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.4.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.4.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Attachment Protections",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.5.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.5.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.5.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Links and External Images Protection",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.6.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.6.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.6.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Spoofing and Authentication Protection",
+    "GroupNumber": "7",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.7.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.7.7v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "User Email Uploads",
+    "GroupNumber": "8",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.8.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "POP and IMAP Access for Users",
+    "GroupNumber": "9",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.9.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Google Workspace Sync",
+    "GroupNumber": "10",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.10.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Automatic Forwarding",
+    "GroupNumber": "11",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.11.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Per-user Outbound Gateways",
+    "GroupNumber": "12",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.12.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Unintended External Reply Warning",
+    "GroupNumber": "13",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.13.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Email Allowlist",
+    "GroupNumber": "14",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.14.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Enhanced Pre-Delivery Message Scanning",
+    "GroupNumber": "15",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.15.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Security Sandbox",
+    "GroupNumber": "16",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.16.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "No events found",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Comprehensive Mail Storage",
+    "GroupNumber": "17",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.17.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Spam Filtering",
+    "GroupNumber": "18",
+    "Controls": [
+     {
+      "Control ID": "GWS.GMAIL.18.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.18.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GMAIL.18.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "GroupName": "External Group Access",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.GROUPS.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GROUPS.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.GROUPS.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Group Creation",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.GROUPS.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Default Permissions for Viewing Conversations",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.GROUPS.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Ability to Hide Groups from the Directory",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.GROUPS.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "meet": [
+   {
+    "GroupName": "Meeting Access",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Internal Access to External Meetings",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Host Management Meeting Features",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External Participants",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Video Meeting Settings",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.MEET.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Gemini Settings",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "GWS.MEET.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "GWS.MEET.6.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "sites": [
+   {
+    "GroupName": "Sites Service Status",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "GWS.SITES.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ]
+ }
+}

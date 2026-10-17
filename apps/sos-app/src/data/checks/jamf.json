@@ -1,0 +1,33 @@
+{
+ "source": "jamf",
+ "title": "Jamf Pro (Jamf Pro API, API client with Read Computers)",
+ "readScopes": [
+  "A Jamf Pro API client whose only API role holds the single privilege \"Read Computers\" (GET /api/v4/computers-inventory, falling back to v3, v2 or v1); its client id and secret are JAMF_CLIENT_ID and JAMF_CLIENT_SECRET, exchanged at POST /api/v1/oauth/token."
+ ],
+ "checks": [
+  {
+   "id": "jamf.filevault",
+   "title": "Each Mac's boot partition is encrypted with FileVault 2",
+   "scope": "Every computer in Jamf Pro, one result per computer, from bootPartitionEncryptionDetails.partitionFileVault2State (ENCRYPTED passes) or else fileVault2Enabled.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jamf.os_minimum",
+   "title": "Each Mac runs macOS at or above the given minimum version",
+   "scope": "Every computer, against --jamf-min-os; without that option the check is skipped. Apple's support dates are not looked up.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jamf.last_inventory",
+   "title": "Each Mac has submitted inventory to Jamf Pro within the last 14 days",
+   "scope": "Every computer, from general.reportDate; the window is --jamf-inventory-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jamf.managed",
+   "title": "Each Mac is under Jamf Pro remote management",
+   "scope": "Every computer, from general.remoteManagement.managed.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

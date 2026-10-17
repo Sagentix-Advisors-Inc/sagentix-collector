@@ -1,0 +1,27 @@
+{
+ "source": "trivy",
+ "title": "Trivy (Aqua Security, Apache-2.0): the JSON report the customer's pipeline writes",
+ "readScopes": [
+  "None for the collector: it reads the report file. Trivy runs in the customer's pipeline (`trivy image|fs|config --format json --output <file>`)."
+ ],
+ "checks": [
+  {
+   "id": "trivy.iac_no_high_misconfig",
+   "title": "No high or critical misconfiguration in the infrastructure-as-code Trivy scanned",
+   "scope": "IaC files (Terraform, CloudFormation, Kubernetes, Dockerfile, Helm) in the scanned artifact; resources deployed outside that code are not seen.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "trivy.image_no_critical_vulns",
+   "title": "The container image has no vulnerability at the failing severities (default critical)",
+   "scope": "OS and language packages in the scanned image, matched against Trivy's database on the day of the scan.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "trivy.dependencies_no_critical_vulns",
+   "title": "The repository's dependencies have no vulnerability at the failing severities (default critical)",
+   "scope": "Lock files and manifests in the scanned filesystem or repository; dependencies resolved only at build time may be missing.",
+   "evidenceType": "Report"
+  }
+ ]
+}

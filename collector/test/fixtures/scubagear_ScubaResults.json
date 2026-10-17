@@ -1,0 +1,936 @@
+{
+ "MetaData": {
+  "TenantId": "ca08493a-c9c8-4db0-a9e8-d3b4bafac269",
+  "ProductSuite": "Microsoft 365",
+  "Tool": "ScubaGear",
+  "ToolVersion": "1.8.0",
+  "TimestampZulu": "2026-05-04T17:15:48.307Z",
+  "ReportUUID": "fa5589b7-d528-4f80-8e7d-5c20eda7b6d8",
+  "DisplayName": "Example Org (sample)",
+  "DomainName": "example.org"
+ },
+ "Summary": {
+  "AAD": {
+   "Manual": 3,
+   "Failures": 11,
+   "Warnings": 4,
+   "Errors": 0,
+   "Passes": 12,
+   "Omits": 0,
+   "IncorrectResults": 0
+  },
+  "Defender": {
+   "Manual": 4,
+   "Failures": 2,
+   "Warnings": 3,
+   "Errors": 0,
+   "Passes": 10,
+   "Omits": 0,
+   "IncorrectResults": 0
+  },
+  "EXO": {
+   "Manual": 0,
+   "Failures": 0,
+   "Warnings": 1,
+   "Errors": 0,
+   "Passes": 11,
+   "Omits": 0,
+   "IncorrectResults": 0
+  },
+  "PowerPlatform": {
+   "Manual": 2,
+   "Failures": 1,
+   "Warnings": 1,
+   "Errors": 0,
+   "Passes": 5,
+   "Omits": 0,
+   "IncorrectResults": 0
+  },
+  "SharePoint": {
+   "Manual": 0,
+   "Failures": 0,
+   "Warnings": 0,
+   "Errors": 0,
+   "Passes": 8,
+   "Omits": 0,
+   "IncorrectResults": 0
+  },
+  "Teams": {
+   "Manual": 0,
+   "Failures": 0,
+   "Warnings": 3,
+   "Errors": 0,
+   "Passes": 11,
+   "Omits": 0,
+   "IncorrectResults": 0
+  }
+ },
+ "Results": {
+  "AAD": [
+   {
+    "GroupName": "Legacy Authentication",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Risk Based Policies",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.2.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.2.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Strong Authentication and a Secure Registration Process",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.2v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.3v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.5v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.7v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.8v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.3.9v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Centralized Log Collection",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Application Registration and Consent",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.5.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Passwords",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Highly Privileged User Access",
+    "GroupNumber": "7",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.7.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.7v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.8v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.7.9v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Guest User Access",
+    "GroupNumber": "8",
+    "Controls": [
+     {
+      "Control ID": "MS.AAD.8.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.8.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.AAD.8.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "Defender": [
+   {
+    "GroupName": "Preset Security Profiles",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.1.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.1.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Impersonation Protection",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.2.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.2.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Safe Attachments",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Data Loss Prevention",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.4.1v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.4.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.4.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.4.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.4.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.4.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Alerts",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.5.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Audit Logging",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "MS.DEFENDER.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.DEFENDER.6.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "EXO": [
+   {
+    "GroupName": "Automatic Forwarding to External Domains",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.1.1v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Sender Policy Framework",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.2.2v3",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "DomainKeys Identified Mail",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Domain-Based Message Authentication, Reporting, and Conformance (DMARC)",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.EXO.4.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.EXO.4.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.EXO.4.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Simple Mail Transfer Protocol Authentication",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Calendar and Contact Sharing",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.EXO.6.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External Sender Warnings",
+    "GroupNumber": "7",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.7.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Mailbox Auditing",
+    "GroupNumber": "13",
+    "Controls": [
+     {
+      "Control ID": "MS.EXO.13.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "PowerPlatform": [
+   {
+    "GroupName": "Creation of Power Platform Environments",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.POWERPLATFORM.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Power Platform Data Loss Prevention Policies",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Fail",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.POWERPLATFORM.2.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Power Platform Tenant Isolation",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.POWERPLATFORM.3.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Should/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Power Apps Content Security Policy",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "N/A",
+      "Criticality": "Shall/Not-Implemented",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Power Pages Creation",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.5.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Power Apps Sharing Controls",
+    "GroupNumber": "6",
+    "Controls": [
+     {
+      "Control ID": "MS.POWERPLATFORM.6.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "SharePoint": [
+   {
+    "GroupName": "External Sharing",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.SHAREPOINT.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.SHAREPOINT.1.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.SHAREPOINT.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "File and Folder Default Sharing Settings",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.SHAREPOINT.2.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.SHAREPOINT.2.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Securing Anyone Links and Verification Code Users",
+    "GroupNumber": "3",
+    "Controls": [
+     {
+      "Control ID": "MS.SHAREPOINT.3.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.SHAREPOINT.3.2v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.SHAREPOINT.3.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ],
+  "Teams": [
+   {
+    "GroupName": "Meeting Policies",
+    "GroupNumber": "1",
+    "Controls": [
+     {
+      "Control ID": "MS.TEAMS.1.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.2v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.3v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.4v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.5v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.6v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.1.7v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "External User Access",
+    "GroupNumber": "2",
+    "Controls": [
+     {
+      "Control ID": "MS.TEAMS.2.1v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.2.2v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.2.3v2",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "Teams Email Integration",
+    "GroupNumber": "4",
+    "Controls": [
+     {
+      "Control ID": "MS.TEAMS.4.1v1",
+      "Requirement": "(trimmed)",
+      "Result": "Pass",
+      "Criticality": "Shall",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   },
+   {
+    "GroupName": "App Management",
+    "GroupNumber": "5",
+    "Controls": [
+     {
+      "Control ID": "MS.TEAMS.5.1v2",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.5.2v2",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     },
+     {
+      "Control ID": "MS.TEAMS.5.3v2",
+      "Requirement": "(trimmed)",
+      "Result": "Warning",
+      "Criticality": "Should",
+      "Details": "alice@example.org in OU Finance (personal data the collector must never copy)"
+     }
+    ]
+   }
+  ]
+ }
+}

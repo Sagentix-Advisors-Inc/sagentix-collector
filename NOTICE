@@ -1,0 +1,8 @@
+Sagentix evidence collector
+Copyright 2026 Sagentix Advisors Inc.
+
+This product is licensed under the Apache License, Version 2.0 (LICENSE).
+
+The collector runs third-party programs as separate processes and reads
+their output; THIRD_PARTY_NOTICES.md names each one, its version and its
+licence.

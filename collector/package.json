@@ -1,0 +1,28 @@
+{
+  "name": "@sagentix-inc/evidence-collector",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Customer-side evidence collector: reads systems read-only, runs checks, signs the results and pushes them outbound to sos-app.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "collector": "src/cli.ts"
+  },
+  "scripts": {
+    "collector": "node src/cli.ts",
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "node scripts/stage-package.mjs"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.6",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,1280 @@
+{
+ "source": "stig",
+ "title": "DISA STIG for Canonical Ubuntu 22.04 LTS (MITRE SAF InSpec profile 2.7.2, run by Cinc Auditor)",
+ "readScopes": [
+  "SSH (ssh://) or WinRM (winrm://) login to the scanned host, or a JSON report the customer produced. The profile only reads: it runs commands such as stat, grep, rpm -q and sysctl. Many rules read root-only files, so give a non-root account sudo for those reads (--stig-sudo); without it they fail to read and report skipped or failed, never passed."
+ ],
+ "engine": {
+  "name": "Cinc Auditor + MITRE SAF STIG profile",
+  "profile": "canonical-ubuntu-22.04-lts-stig-baseline",
+  "version": "2.7.2",
+  "tag": "v2.7.2",
+  "commit": "334fdbc52e53e4ee54c4a62cdfe65c789a429b28",
+  "tarballSha256": "7697c7a66fd2ce72fdbc83a75430de9641d157151de2a7ee7cfb87552292637f",
+  "licence": "Apache-2.0 (MITRE profile, with MITRE's NOTICE); STIG rule titles and ids are DISA's, a US Government work",
+  "url": "https://github.com/mitre/canonical-ubuntu-22.04-lts-stig-baseline"
+ },
+ "profile": "ubuntu2204",
+ "checks": [
+  {
+   "id": "stig.ubuntu2204.v-260468",
+   "title": "UBTU-22-211010 (V-260468): Ubuntu 22.04 LTS must deploy an Endpoint Security Solution.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260468 (DISA rule V-260468, STIG ID UBTU-22-211010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260469",
+   "title": "UBTU-22-211015 (V-260469): Ubuntu 22.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260469 (DISA rule V-260469, STIG ID UBTU-22-211015, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260470",
+   "title": "UBTU-22-212010 (V-260470): Ubuntu 22.04 LTS, when booted, must require authentication upon booting into single-user and maintenance modes.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260470 (DISA rule V-260470, STIG ID UBTU-22-212010, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260471",
+   "title": "UBTU-22-212015 (V-260471): Ubuntu 22.04 LTS must initiate session audits at system startup.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260471 (DISA rule V-260471, STIG ID UBTU-22-212015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260472",
+   "title": "UBTU-22-213010 (V-260472): Ubuntu 22.04 LTS must restrict access to the kernel message buffer.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260472 (DISA rule V-260472, STIG ID UBTU-22-213010, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260473",
+   "title": "UBTU-22-213015 (V-260473): Ubuntu 22.04 LTS must disable kernel core dumps so that it can fail to a secure state if system initialization fails, shutdown fails or aborts fail.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260473 (DISA rule V-260473, STIG ID UBTU-22-213015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260474",
+   "title": "UBTU-22-213020 (V-260474): Ubuntu 22.04 LTS must implement address space layout randomization to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260474 (DISA rule V-260474, STIG ID UBTU-22-213020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260475",
+   "title": "UBTU-22-213025 (V-260475): Ubuntu 22.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260475 (DISA rule V-260475, STIG ID UBTU-22-213025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260476",
+   "title": "UBTU-22-214010 (V-260476): Ubuntu 22.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system compon...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260476 (DISA rule V-260476, STIG ID UBTU-22-214010, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260478",
+   "title": "UBTU-22-215010 (V-260478): Ubuntu 22.04 LTS must have the \"libpam-pwquality\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260478 (DISA rule V-260478, STIG ID UBTU-22-215010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260479",
+   "title": "UBTU-22-215015 (V-260479): Ubuntu 22.04 LTS must have the \"chrony\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260479 (DISA rule V-260479, STIG ID UBTU-22-215015, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260480",
+   "title": "UBTU-22-215020 (V-260480): Ubuntu 22.04 LTS must not have the \"systemd-timesyncd\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260480 (DISA rule V-260480, STIG ID UBTU-22-215020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260481",
+   "title": "UBTU-22-215025 (V-260481): Ubuntu 22.04 LTS must not have the \"ntp\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260481 (DISA rule V-260481, STIG ID UBTU-22-215025, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260482",
+   "title": "UBTU-22-215030 (V-260482): Ubuntu 22.04 LTS must not have the \"rsh-server\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260482 (DISA rule V-260482, STIG ID UBTU-22-215030, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260483",
+   "title": "UBTU-22-215035 (V-260483): Ubuntu 22.04 LTS must not have the \"telnet\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260483 (DISA rule V-260483, STIG ID UBTU-22-215035, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260484",
+   "title": "UBTU-22-231010 (V-260484): Ubuntu 22.04 LTS must implement cryptographic mechanisms to prevent unauthorized disclosure and modification of all information that requires protection at rest.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260484 (DISA rule V-260484, STIG ID UBTU-22-231010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260485",
+   "title": "UBTU-22-232010 (V-260485): Ubuntu 22.04 LTS must have directories that contain system commands set to a mode of \"755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260485 (DISA rule V-260485, STIG ID UBTU-22-232010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260488",
+   "title": "UBTU-22-232025 (V-260488): Ubuntu 22.04 LTS must configure the \"/var/log\" directory to have mode \"755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260488 (DISA rule V-260488, STIG ID UBTU-22-232025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260489",
+   "title": "UBTU-22-232026 (V-260489): Ubuntu 22.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260489 (DISA rule V-260489, STIG ID UBTU-22-232026, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260490",
+   "title": "UBTU-22-232027 (V-260490): Ubuntu 22.04 LTS must generate system journal entries without revealing information that could be exploited by adversaries.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260490 (DISA rule V-260490, STIG ID UBTU-22-232027, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260491",
+   "title": "UBTU-22-232030 (V-260491): Ubuntu 22.04 LTS must configure \"/var/log/syslog\" file with mode \"640\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260491 (DISA rule V-260491, STIG ID UBTU-22-232030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260492",
+   "title": "UBTU-22-232035 (V-260492): Ubuntu 22.04 LTS must configure audit tools with a mode of \"755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260492 (DISA rule V-260492, STIG ID UBTU-22-232035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260493",
+   "title": "UBTU-22-232040 (V-260493): Ubuntu 22.04 LTS must have directories that contain system commands owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260493 (DISA rule V-260493, STIG ID UBTU-22-232040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260494",
+   "title": "UBTU-22-232045 (V-260494): Ubuntu 22.04 LTS must have directories that contain system commands group-owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260494 (DISA rule V-260494, STIG ID UBTU-22-232045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260501",
+   "title": "UBTU-22-232080 (V-260501): Ubuntu 22.04 LTS must configure the directories used by the system journal to be owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260501 (DISA rule V-260501, STIG ID UBTU-22-232080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260502",
+   "title": "UBTU-22-232085 (V-260502): Ubuntu 22.04 LTS must configure the directories used by the system journal to be group-owned by \"systemd-journal\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260502 (DISA rule V-260502, STIG ID UBTU-22-232085, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260503",
+   "title": "UBTU-22-232090 (V-260503): Ubuntu 22.04 LTS must configure the files used by the system journal to be owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260503 (DISA rule V-260503, STIG ID UBTU-22-232090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260504",
+   "title": "UBTU-22-232095 (V-260504): Ubuntu 22.04 LTS must configure the files used by the system journal to be group-owned by \"systemd-journal\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260504 (DISA rule V-260504, STIG ID UBTU-22-232095, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260505",
+   "title": "UBTU-22-232100 (V-260505): Ubuntu 22.04 LTS must be configured so that the \"journalctl\" command is owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260505 (DISA rule V-260505, STIG ID UBTU-22-232100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260506",
+   "title": "UBTU-22-232105 (V-260506): Ubuntu 22.04 LTS must be configured so that the \"journalctl\" command is group-owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260506 (DISA rule V-260506, STIG ID UBTU-22-232105, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260507",
+   "title": "UBTU-22-232110 (V-260507): Ubuntu 22.04 LTS must configure audit tools to be owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260507 (DISA rule V-260507, STIG ID UBTU-22-232110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260508",
+   "title": "UBTU-22-232120 (V-260508): Ubuntu 22.04 LTS must configure the \"/var/log\" directory to be owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260508 (DISA rule V-260508, STIG ID UBTU-22-232120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260509",
+   "title": "UBTU-22-232125 (V-260509): Ubuntu 22.04 LTS must configure the \"/var/log\" directory to be group-owned by \"syslog\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260509 (DISA rule V-260509, STIG ID UBTU-22-232125, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260510",
+   "title": "UBTU-22-232130 (V-260510): Ubuntu 22.04 LTS must configure \"/var/log/syslog\" file to be owned by \"syslog\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260510 (DISA rule V-260510, STIG ID UBTU-22-232130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260511",
+   "title": "UBTU-22-232135 (V-260511): Ubuntu 22.04 LTS must configure the \"/var/log/syslog\" file to be group-owned by \"adm\".",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260511 (DISA rule V-260511, STIG ID UBTU-22-232135, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260512",
+   "title": "UBTU-22-232140 (V-260512): Ubuntu 22.04 LTS must be configured so that the \"journalctl\" command is not accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260512 (DISA rule V-260512, STIG ID UBTU-22-232140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260513",
+   "title": "UBTU-22-232145 (V-260513): Ubuntu 22.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260513 (DISA rule V-260513, STIG ID UBTU-22-232145, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260514",
+   "title": "UBTU-22-251010 (V-260514): Ubuntu 22.04 LTS must have an application firewall installed in order to control remote access methods.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260514 (DISA rule V-260514, STIG ID UBTU-22-251010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260515",
+   "title": "UBTU-22-251015 (V-260515): Ubuntu 22.04 LTS must enable and run the Uncomplicated Firewall (ufw).",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260515 (DISA rule V-260515, STIG ID UBTU-22-251015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260516",
+   "title": "UBTU-22-251020 (V-260516): Ubuntu 22.04 LTS must have an application firewall enabled.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260516 (DISA rule V-260516, STIG ID UBTU-22-251020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260517",
+   "title": "UBTU-22-251025 (V-260517): Ubuntu 22.04 LTS must configure the Uncomplicated Firewall (ufw) to rate-limit impacted network interfaces.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260517 (DISA rule V-260517, STIG ID UBTU-22-251025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260518",
+   "title": "UBTU-22-251030 (V-260518): Ubuntu 22.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessme...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260518 (DISA rule V-260518, STIG ID UBTU-22-251030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260519",
+   "title": "UBTU-22-252010 (V-260519): Ubuntu 22.04 LTS must, for networked systems, compare internal information system clocks at least every 24 hours with a server synchronized to one of the redundant United...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260519 (DISA rule V-260519, STIG ID UBTU-22-252010, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260520",
+   "title": "UBTU-22-252015 (V-260520): Ubuntu 22.04 LTS must synchronize internal information system clocks to the authoritative time source when the time difference is greater than one second.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260520 (DISA rule V-260520, STIG ID UBTU-22-252015, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260521",
+   "title": "UBTU-22-252020 (V-260521): Ubuntu 22.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC).",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260521 (DISA rule V-260521, STIG ID UBTU-22-252020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260522",
+   "title": "UBTU-22-253010 (V-260522): Ubuntu 22.04 LTS must be configured to use TCP syncookies.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260522 (DISA rule V-260522, STIG ID UBTU-22-253010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260523",
+   "title": "UBTU-22-255010 (V-260523): Ubuntu 22.04 LTS must have SSH installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260523 (DISA rule V-260523, STIG ID UBTU-22-255010, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260524",
+   "title": "UBTU-22-255015 (V-260524): Ubuntu 22.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260524 (DISA rule V-260524, STIG ID UBTU-22-255015, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260525",
+   "title": "UBTU-22-255020 (V-260525): Ubuntu 22.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting any local or remote connection to the system.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260525 (DISA rule V-260525, STIG ID UBTU-22-255020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260526",
+   "title": "UBTU-22-255025 (V-260526): Ubuntu 22.04 LTS must not allow unattended or automatic login via SSH.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260526 (DISA rule V-260526, STIG ID UBTU-22-255025, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260527",
+   "title": "UBTU-22-255030 (V-260527): Ubuntu 22.04 LTS must be configured so that all network connections associated with SSH traffic terminate after becoming unresponsive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260527 (DISA rule V-260527, STIG ID UBTU-22-255030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260528",
+   "title": "UBTU-22-255035 (V-260528): Ubuntu 22.04 LTS must be configured so that all network connections associated with SSH traffic are terminated after 10 minutes of becoming unresponsive.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260528 (DISA rule V-260528, STIG ID UBTU-22-255035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260529",
+   "title": "UBTU-22-255040 (V-260529): Ubuntu 22.04 LTS must be configured so that remote X connections are disabled, unless to fulfill documented and validated mission requirements.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260529 (DISA rule V-260529, STIG ID UBTU-22-255040, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260530",
+   "title": "UBTU-22-255045 (V-260530): Ubuntu 22.04 LTS SSH daemon must prevent remote hosts from connecting to the proxy display.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260530 (DISA rule V-260530, STIG ID UBTU-22-255045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260531",
+   "title": "UBTU-22-255050 (V-260531): Ubuntu 22.04 LTS must configure the SSH daemon to use FIPS 140-3-approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to informati...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260531 (DISA rule V-260531, STIG ID UBTU-22-255050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260532",
+   "title": "UBTU-22-255055 (V-260532): Ubuntu 22.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3-approved cryptographic hashes to prevent the unauthorized d...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260532 (DISA rule V-260532, STIG ID UBTU-22-255055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260533",
+   "title": "UBTU-22-255060 (V-260533): Ubuntu 22.04 LTS SSH server must be configured to use only FIPS-validated key exchange algorithms.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260533 (DISA rule V-260533, STIG ID UBTU-22-255060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260534",
+   "title": "UBTU-22-255065 (V-260534): Ubuntu 22.04 LTS must use strong authenticators in establishing nonlocal maintenance and diagnostic sessions.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260534 (DISA rule V-260534, STIG ID UBTU-22-255065, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260535",
+   "title": "UBTU-22-271010 (V-260535): Ubuntu 22.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system vi...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260535 (DISA rule V-260535, STIG ID UBTU-22-271010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260536",
+   "title": "UBTU-22-271015 (V-260536): Ubuntu 22.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260536 (DISA rule V-260536, STIG ID UBTU-22-271015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260537",
+   "title": "UBTU-22-271020 (V-260537): Ubuntu 22.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260537 (DISA rule V-260537, STIG ID UBTU-22-271020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260538",
+   "title": "UBTU-22-271025 (V-260538): Ubuntu 22.04 LTS must initiate a graphical session lock after 15 minutes of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260538 (DISA rule V-260538, STIG ID UBTU-22-271025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260539",
+   "title": "UBTU-22-271030 (V-260539): Ubuntu 22.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260539 (DISA rule V-260539, STIG ID UBTU-22-271030, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260540",
+   "title": "UBTU-22-291010 (V-260540): Ubuntu 22.04 LTS must disable automatic mounting of Universal Serial Bus (USB) mass storage driver.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260540 (DISA rule V-260540, STIG ID UBTU-22-291010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260541",
+   "title": "UBTU-22-291015 (V-260541): Ubuntu 22.04 LTS must disable all wireless network adapters.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260541 (DISA rule V-260541, STIG ID UBTU-22-291015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260542",
+   "title": "UBTU-22-411010 (V-260542): Ubuntu 22.04 LTS must prevent direct login into the root account.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260542 (DISA rule V-260542, STIG ID UBTU-22-411010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260543",
+   "title": "UBTU-22-411015 (V-260543): Ubuntu 22.04 LTS must uniquely identify interactive users.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260543 (DISA rule V-260543, STIG ID UBTU-22-411015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260544",
+   "title": "UBTU-22-411020 (V-260544): Ubuntu 22.04 LTS must allow the use of a temporary password for system logons with an immediate change to a permanent password.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260544 (DISA rule V-260544, STIG ID UBTU-22-411020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260545",
+   "title": "UBTU-22-411025 (V-260545): Ubuntu 22.04 LTS must enforce 24 hours/one day as the minimum password lifetime. Passwords for new users must have a 24 hours/one day minimum password lifetime restriction.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260545 (DISA rule V-260545, STIG ID UBTU-22-411025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260546",
+   "title": "UBTU-22-411030 (V-260546): Ubuntu 22.04 LTS must enforce a 60-day maximum password lifetime restriction. Passwords for new users must have a 60-day maximum password lifetime restriction.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260546 (DISA rule V-260546, STIG ID UBTU-22-411030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260547",
+   "title": "UBTU-22-411035 (V-260547): Ubuntu 22.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260547 (DISA rule V-260547, STIG ID UBTU-22-411035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260548",
+   "title": "UBTU-22-411040 (V-260548): Ubuntu 22.04 LTS must automatically expire temporary accounts within 72 hours.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260548 (DISA rule V-260548, STIG ID UBTU-22-411040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260549",
+   "title": "UBTU-22-411045 (V-260549): Ubuntu 22.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260549 (DISA rule V-260549, STIG ID UBTU-22-411045, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260550",
+   "title": "UBTU-22-412010 (V-260550): Ubuntu 22.04 LTS must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260550 (DISA rule V-260550, STIG ID UBTU-22-412010, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260551",
+   "title": "UBTU-22-412015 (V-260551): Ubuntu 22.04 LTS must display the date and time of the last successful account logon upon logon.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260551 (DISA rule V-260551, STIG ID UBTU-22-412015, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260552",
+   "title": "UBTU-22-412020 (V-260552): Ubuntu 22.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260552 (DISA rule V-260552, STIG ID UBTU-22-412020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260553",
+   "title": "UBTU-22-412025 (V-260553): Ubuntu 22.04 LTS must allow users to directly initiate a session lock for all connection types.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260553 (DISA rule V-260553, STIG ID UBTU-22-412025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260554",
+   "title": "UBTU-22-412030 (V-260554): Ubuntu 22.04 LTS must automatically exit interactive command shell user sessions after 15 minutes of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260554 (DISA rule V-260554, STIG ID UBTU-22-412030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260555",
+   "title": "UBTU-22-412035 (V-260555): Ubuntu 22.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260555 (DISA rule V-260555, STIG ID UBTU-22-412035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260556",
+   "title": "UBTU-22-431010 (V-260556): Ubuntu 22.04 LTS must have the \"apparmor\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260556 (DISA rule V-260556, STIG ID UBTU-22-431010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260557",
+   "title": "UBTU-22-431015 (V-260557): Ubuntu 22.04 LTS must be configured to use AppArmor.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260557 (DISA rule V-260557, STIG ID UBTU-22-431015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260558",
+   "title": "UBTU-22-432010 (V-260558): Ubuntu 22.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260558 (DISA rule V-260558, STIG ID UBTU-22-432010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260559",
+   "title": "UBTU-22-432015 (V-260559): Ubuntu 22.04 LTS must ensure only users who need access to security functions are part of sudo group.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260559 (DISA rule V-260559, STIG ID UBTU-22-432015, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260560",
+   "title": "UBTU-22-611010 (V-260560): Ubuntu 22.04 LTS must enforce password complexity by requiring at least one uppercase character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260560 (DISA rule V-260560, STIG ID UBTU-22-611010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260561",
+   "title": "UBTU-22-611015 (V-260561): Ubuntu 22.04 LTS must enforce password complexity by requiring at least one lowercase character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260561 (DISA rule V-260561, STIG ID UBTU-22-611015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260562",
+   "title": "UBTU-22-611020 (V-260562): Ubuntu 22.04 LTS must enforce password complexity by requiring that at least one numeric character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260562 (DISA rule V-260562, STIG ID UBTU-22-611020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260563",
+   "title": "UBTU-22-611025 (V-260563): Ubuntu 22.04 LTS must enforce password complexity by requiring that at least one special character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260563 (DISA rule V-260563, STIG ID UBTU-22-611025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260564",
+   "title": "UBTU-22-611030 (V-260564): Ubuntu 22.04 LTS must prevent the use of dictionary words for passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260564 (DISA rule V-260564, STIG ID UBTU-22-611030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260565",
+   "title": "UBTU-22-611035 (V-260565): Ubuntu 22.04 LTS must enforce a minimum 15-character password length.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260565 (DISA rule V-260565, STIG ID UBTU-22-611035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260566",
+   "title": "UBTU-22-611040 (V-260566): Ubuntu 22.04 LTS must require the change of at least eight characters when passwords are changed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260566 (DISA rule V-260566, STIG ID UBTU-22-611040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260567",
+   "title": "UBTU-22-611045 (V-260567): Ubuntu 22.04 LTS must be configured so that when passwords are changed or new passwords are established, pwquality must be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260567 (DISA rule V-260567, STIG ID UBTU-22-611045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260568",
+   "title": "UBTU-22-611050 (V-260568): Ubuntu 22.04 LTS must prohibit password reuse for a minimum of five generations.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260568 (DISA rule V-260568, STIG ID UBTU-22-611050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260569",
+   "title": "UBTU-22-611055 (V-260569): Ubuntu 22.04 LTS must store only encrypted representations of passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260569 (DISA rule V-260569, STIG ID UBTU-22-611055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260570",
+   "title": "UBTU-22-611060 (V-260570): Ubuntu 22.04 LTS must not allow accounts configured with blank or null passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260570 (DISA rule V-260570, STIG ID UBTU-22-611060, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260571",
+   "title": "UBTU-22-611065 (V-260571): Ubuntu 22.04 LTS must not have accounts configured with blank or null passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260571 (DISA rule V-260571, STIG ID UBTU-22-611065, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260572",
+   "title": "UBTU-22-611070 (V-260572): Ubuntu 22.04 LTS must encrypt all stored passwords with a FIPS 140-3-approved cryptographic hashing algorithm.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260572 (DISA rule V-260572, STIG ID UBTU-22-611070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260573",
+   "title": "UBTU-22-612010 (V-260573): Ubuntu 22.04 LTS must implement multifactor authentication for remote access to privileged accounts in such a way that one of the factors is provided by a device separate...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260573 (DISA rule V-260573, STIG ID UBTU-22-612010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260575",
+   "title": "UBTU-22-612020 (V-260575): Ubuntu 22.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260575 (DISA rule V-260575, STIG ID UBTU-22-612020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260577",
+   "title": "UBTU-22-612030 (V-260577): Ubuntu 22.04 LTS, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust a...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260577 (DISA rule V-260577, STIG ID UBTU-22-612030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260578",
+   "title": "UBTU-22-612035 (V-260578): Ubuntu 22.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260578 (DISA rule V-260578, STIG ID UBTU-22-612035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260579",
+   "title": "UBTU-22-612040 (V-260579): Ubuntu 22.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260579 (DISA rule V-260579, STIG ID UBTU-22-612040, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260581",
+   "title": "UBTU-22-631015 (V-260581): Ubuntu 22.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260581 (DISA rule V-260581, STIG ID UBTU-22-631015, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260582",
+   "title": "UBTU-22-651010 (V-260582): Ubuntu 22.04 LTS must use a file integrity tool to verify correct operation of all security functions.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260582 (DISA rule V-260582, STIG ID UBTU-22-651010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260583",
+   "title": "UBTU-22-651015 (V-260583): Ubuntu 22.04 LTS must configure Advanced Intrusion Detection Environment (AIDE) to perform file integrity checking on the file system.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260583 (DISA rule V-260583, STIG ID UBTU-22-651015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260584",
+   "title": "UBTU-22-651020 (V-260584): Ubuntu 22.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system adminis...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260584 (DISA rule V-260584, STIG ID UBTU-22-651020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260585",
+   "title": "UBTU-22-651025 (V-260585): Ubuntu 22.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260585 (DISA rule V-260585, STIG ID UBTU-22-651025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260586",
+   "title": "UBTU-22-651030 (V-260586): Ubuntu 22.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260586 (DISA rule V-260586, STIG ID UBTU-22-651030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260587",
+   "title": "UBTU-22-651035 (V-260587): Ubuntu 22.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260587 (DISA rule V-260587, STIG ID UBTU-22-651035, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260588",
+   "title": "UBTU-22-652010 (V-260588): Ubuntu 22.04 LTS must be configured to preserve log records from failure events.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260588 (DISA rule V-260588, STIG ID UBTU-22-652010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260589",
+   "title": "UBTU-22-652015 (V-260589): Ubuntu 22.04 LTS must monitor remote access methods.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260589 (DISA rule V-260589, STIG ID UBTU-22-652015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260590",
+   "title": "UBTU-22-653010 (V-260590): Ubuntu 22.04 LTS must have the \"auditd\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260590 (DISA rule V-260590, STIG ID UBTU-22-653010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260591",
+   "title": "UBTU-22-653015 (V-260591): Ubuntu 22.04 LTS must produce audit records and reports containing information to establish when, where, what type, the source, and the outcome for all DOD-defined audita...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260591 (DISA rule V-260591, STIG ID UBTU-22-653015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260592",
+   "title": "UBTU-22-653020 (V-260592): Ubuntu 22.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system from the system being audited.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260592 (DISA rule V-260592, STIG ID UBTU-22-653020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260593",
+   "title": "UBTU-22-653025 (V-260593): Ubuntu 22.04 LTS must alert the information system security officer (ISSO) and system administrator (SA) in the event of an audit processing failure.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260593 (DISA rule V-260593, STIG ID UBTU-22-653025, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260594",
+   "title": "UBTU-22-653030 (V-260594): Ubuntu 22.04 LTS must shut down by default upon audit failure.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260594 (DISA rule V-260594, STIG ID UBTU-22-653030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260595",
+   "title": "UBTU-22-653035 (V-260595): Ubuntu 22.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260595 (DISA rule V-260595, STIG ID UBTU-22-653035, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260596",
+   "title": "UBTU-22-653040 (V-260596): Ubuntu 22.04 LTS must immediately notify the system administrator (SA) and information system security officer (ISSO) when the audit record storage volume reaches 25 perc...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260596 (DISA rule V-260596, STIG ID UBTU-22-653040, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260597",
+   "title": "UBTU-22-653045 (V-260597): Ubuntu 22.04 LTS must be configured so that audit log files are not read- or write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260597 (DISA rule V-260597, STIG ID UBTU-22-653045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260598",
+   "title": "UBTU-22-653050 (V-260598): Ubuntu 22.04 LTS must be configured to permit only authorized users ownership of the audit log files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260598 (DISA rule V-260598, STIG ID UBTU-22-653050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260599",
+   "title": "UBTU-22-653055 (V-260599): Ubuntu 22.04 LTS must permit only authorized groups ownership of the audit log files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260599 (DISA rule V-260599, STIG ID UBTU-22-653055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260600",
+   "title": "UBTU-22-653060 (V-260600): Ubuntu 22.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260600 (DISA rule V-260600, STIG ID UBTU-22-653060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260601",
+   "title": "UBTU-22-653065 (V-260601): Ubuntu 22.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260601 (DISA rule V-260601, STIG ID UBTU-22-653065, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260602",
+   "title": "UBTU-22-653070 (V-260602): Ubuntu 22.04 LTS must permit only authorized accounts to own the audit configuration files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260602 (DISA rule V-260602, STIG ID UBTU-22-653070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260603",
+   "title": "UBTU-22-653075 (V-260603): Ubuntu 22.04 LTS must permit only authorized groups to own the audit configuration files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260603 (DISA rule V-260603, STIG ID UBTU-22-653075, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260604",
+   "title": "UBTU-22-654010 (V-260604): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the apparmor_parser command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260604 (DISA rule V-260604, STIG ID UBTU-22-654010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260605",
+   "title": "UBTU-22-654015 (V-260605): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chacl command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260605 (DISA rule V-260605, STIG ID UBTU-22-654015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260606",
+   "title": "UBTU-22-654020 (V-260606): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chage command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260606 (DISA rule V-260606, STIG ID UBTU-22-654020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260607",
+   "title": "UBTU-22-654025 (V-260607): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chcon command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260607 (DISA rule V-260607, STIG ID UBTU-22-654025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260608",
+   "title": "UBTU-22-654030 (V-260608): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chfn command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260608 (DISA rule V-260608, STIG ID UBTU-22-654030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260609",
+   "title": "UBTU-22-654035 (V-260609): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chsh command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260609 (DISA rule V-260609, STIG ID UBTU-22-654035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260610",
+   "title": "UBTU-22-654040 (V-260610): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the crontab command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260610 (DISA rule V-260610, STIG ID UBTU-22-654040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260611",
+   "title": "UBTU-22-654045 (V-260611): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful attempts to use the fdisk command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260611 (DISA rule V-260611, STIG ID UBTU-22-654045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260612",
+   "title": "UBTU-22-654050 (V-260612): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the gpasswd command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260612 (DISA rule V-260612, STIG ID UBTU-22-654050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260613",
+   "title": "UBTU-22-654055 (V-260613): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful attempts to use the kmod command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260613 (DISA rule V-260613, STIG ID UBTU-22-654055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260614",
+   "title": "UBTU-22-654060 (V-260614): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful attempts to use modprobe command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260614 (DISA rule V-260614, STIG ID UBTU-22-654060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260615",
+   "title": "UBTU-22-654065 (V-260615): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the mount command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260615 (DISA rule V-260615, STIG ID UBTU-22-654065, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260616",
+   "title": "UBTU-22-654070 (V-260616): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the newgrp command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260616 (DISA rule V-260616, STIG ID UBTU-22-654070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260617",
+   "title": "UBTU-22-654075 (V-260617): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the pam_timestamp_check command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260617 (DISA rule V-260617, STIG ID UBTU-22-654075, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260618",
+   "title": "UBTU-22-654080 (V-260618): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the passwd command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260618 (DISA rule V-260618, STIG ID UBTU-22-654080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260619",
+   "title": "UBTU-22-654085 (V-260619): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the setfacl command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260619 (DISA rule V-260619, STIG ID UBTU-22-654085, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260620",
+   "title": "UBTU-22-654090 (V-260620): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-agent command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260620 (DISA rule V-260620, STIG ID UBTU-22-654090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260621",
+   "title": "UBTU-22-654095 (V-260621): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-keysign command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260621 (DISA rule V-260621, STIG ID UBTU-22-654095, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260622",
+   "title": "UBTU-22-654100 (V-260622): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the su command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260622 (DISA rule V-260622, STIG ID UBTU-22-654100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260623",
+   "title": "UBTU-22-654105 (V-260623): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the sudo command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260623 (DISA rule V-260623, STIG ID UBTU-22-654105, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260624",
+   "title": "UBTU-22-654110 (V-260624): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the sudoedit command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260624 (DISA rule V-260624, STIG ID UBTU-22-654110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260625",
+   "title": "UBTU-22-654115 (V-260625): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the umount command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260625 (DISA rule V-260625, STIG ID UBTU-22-654115, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260626",
+   "title": "UBTU-22-654120 (V-260626): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the unix_update command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260626 (DISA rule V-260626, STIG ID UBTU-22-654120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260627",
+   "title": "UBTU-22-654125 (V-260627): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the usermod command.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260627 (DISA rule V-260627, STIG ID UBTU-22-654125, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260628",
+   "title": "UBTU-22-654130 (V-260628): Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260628 (DISA rule V-260628, STIG ID UBTU-22-654130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260629",
+   "title": "UBTU-22-654135 (V-260629): Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260629 (DISA rule V-260629, STIG ID UBTU-22-654135, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260630",
+   "title": "UBTU-22-654140 (V-260630): Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/opasswd.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260630 (DISA rule V-260630, STIG ID UBTU-22-654140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260631",
+   "title": "UBTU-22-654145 (V-260631): Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260631 (DISA rule V-260631, STIG ID UBTU-22-654145, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260632",
+   "title": "UBTU-22-654150 (V-260632): Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260632 (DISA rule V-260632, STIG ID UBTU-22-654150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260633",
+   "title": "UBTU-22-654155 (V-260633): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chmod, fchmod, and fchmodat system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260633 (DISA rule V-260633, STIG ID UBTU-22-654155, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260634",
+   "title": "UBTU-22-654160 (V-260634): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the chown, fchown, fchownat, and lchown system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260634 (DISA rule V-260634, STIG ID UBTU-22-654160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260635",
+   "title": "UBTU-22-654165 (V-260635): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the creat, open, openat, open_by_handle_at, truncate, and ftruncate system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260635 (DISA rule V-260635, STIG ID UBTU-22-654165, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260636",
+   "title": "UBTU-22-654170 (V-260636): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the delete_module system call.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260636 (DISA rule V-260636, STIG ID UBTU-22-654170, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260637",
+   "title": "UBTU-22-654175 (V-260637): Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the init_module and finit_module system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260637 (DISA rule V-260637, STIG ID UBTU-22-654175, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260638",
+   "title": "UBTU-22-654180 (V-260638): Ubuntu 22.04 LTS must generate audit records for any use of the setxattr, fsetxattr, lsetxattr, removexattr, fremovexattr, and lremovexattr system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260638 (DISA rule V-260638, STIG ID UBTU-22-654180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260639",
+   "title": "UBTU-22-654185 (V-260639): Ubuntu 22.04 LTS must generate audit records for any successful/unsuccessful use of unlink, unlinkat, rename, renameat, and rmdir system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260639 (DISA rule V-260639, STIG ID UBTU-22-654185, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260640",
+   "title": "UBTU-22-654190 (V-260640): Ubuntu 22.04 LTS must generate audit records for all events that affect the systemd journal files.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260640 (DISA rule V-260640, STIG ID UBTU-22-654190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260641",
+   "title": "UBTU-22-654195 (V-260641): Ubuntu 22.04 LTS must generate audit records for the /var/log/btmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260641 (DISA rule V-260641, STIG ID UBTU-22-654195, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260642",
+   "title": "UBTU-22-654200 (V-260642): Ubuntu 22.04 LTS must generate audit records for the /var/log/wtmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260642 (DISA rule V-260642, STIG ID UBTU-22-654200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260643",
+   "title": "UBTU-22-654205 (V-260643): Ubuntu 22.04 LTS must generate audit records for the /var/run/utmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260643 (DISA rule V-260643, STIG ID UBTU-22-654205, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260644",
+   "title": "UBTU-22-654210 (V-260644): Ubuntu 22.04 LTS must generate audit records for the use and modification of faillog file.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260644 (DISA rule V-260644, STIG ID UBTU-22-654210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260645",
+   "title": "UBTU-22-654215 (V-260645): Ubuntu 22.04 LTS must generate audit records for the use and modification of the lastlog file.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260645 (DISA rule V-260645, STIG ID UBTU-22-654215, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260646",
+   "title": "UBTU-22-654220 (V-260646): Ubuntu 22.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers file occur.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260646 (DISA rule V-260646, STIG ID UBTU-22-654220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260647",
+   "title": "UBTU-22-654225 (V-260647): Ubuntu 22.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers.d directory occur.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260647 (DISA rule V-260647, STIG ID UBTU-22-654225, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260648",
+   "title": "UBTU-22-654230 (V-260648): Ubuntu 22.04 LTS must prevent all software from executing at higher privilege levels than users executing the software and the audit system must be configured to audit th...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260648 (DISA rule V-260648, STIG ID UBTU-22-654230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260649",
+   "title": "UBTU-22-654235 (V-260649): Ubuntu 22.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions and other system-level access.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260649 (DISA rule V-260649, STIG ID UBTU-22-654235, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-260650",
+   "title": "UBTU-22-671010 (V-260650): Ubuntu 22.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cry...",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-260650 (DISA rule V-260650, STIG ID UBTU-22-671010, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274860",
+   "title": "UBTU-22-432011 (V-274860): Ubuntu 22.04 LTS must require users to provide a password for privilege escalation.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274860 (DISA rule V-274860, STIG ID UBTU-22-432011, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274861",
+   "title": "UBTU-22-654224 (V-274861): The operating system must restrict privilege elevation to authorized personnel.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274861 (DISA rule V-274861, STIG ID UBTU-22-654224, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274862",
+   "title": "UBTU-22-654041 (V-274862): Ubuntu 22.04 LTS must audit any script or executable called by cron as root or by any privileged user.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274862 (DISA rule V-274862, STIG ID UBTU-22-654041, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274864",
+   "title": "UBTU-22-254010 (V-274864): Ubuntu 22.04 LTS must have the \"SSSD\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274864 (DISA rule V-274864, STIG ID UBTU-22-254010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274865",
+   "title": "UBTU-22-254030 (V-274865): Ubuntu 22.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274865 (DISA rule V-274865, STIG ID UBTU-22-254030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274866",
+   "title": "UBTU-22-254015 (V-274866): Ubuntu 22.04 LTS must use the \"SSSD\" package for multifactor authentication services.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274866 (DISA rule V-274866, STIG ID UBTU-22-254015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-274867",
+   "title": "UBTU-22-254020 (V-274867): Ubuntu 22.04 LTS must ensure SSSD performs certificate path validation, including revocation checking, against a trusted anchor for PKI-based authentication.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-274867 (DISA rule V-274867, STIG ID UBTU-22-254020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2204.v-278951",
+   "title": "UBTU-22-211000 (V-278951): Ubuntu 22.04 LTS must be a vendor-supported release.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-278951 (DISA rule V-278951, STIG ID UBTU-22-211000, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2204.v-279937",
+   "title": "UBTU-22-215040 (V-279937): Ubuntu 22.04 LTS must not have the nfs-kernel-server package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 22.04 LTS STIG profile 2.7.2, control SV-279937 (DISA rule V-279937, STIG ID UBTU-22-215040, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
+}

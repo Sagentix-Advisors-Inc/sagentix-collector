@@ -1,0 +1,25 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: Okta (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "okta.policies.read",
+  "okta.brands.read",
+  "okta.apps.read",
+  "okta.authenticators.read",
+  "okta.networkZones.read",
+  "okta.apiTokens.read",
+  "okta.roles.read",
+  "okta.groups.read",
+  "okta.logStreams.read",
+  "okta.idps.read",
+  "admin role: Read-Only Administrator"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "okta",
+ "checks": []
+}

@@ -1,0 +1,9 @@
+# Allowlist for collector/runner/Dockerfile (BuildKit uses this file instead of the root .dockerignore).
+*
+!collector/package.json
+!collector/package-lock.json
+!collector/src
+!collector/scripts/public-catalogue.mjs
+!collector/THIRD_PARTY_NOTICES.md
+!apps/sos-app/src/data/checks
+!apps/sos-app/src/data/fedramp_rules.json

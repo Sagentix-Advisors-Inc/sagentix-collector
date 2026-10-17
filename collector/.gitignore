@@ -1,0 +1,4 @@
+node_modules/
+*.pem
+# scripts/stage-package.mjs output: the npm package, built in CI and never committed.
+build/

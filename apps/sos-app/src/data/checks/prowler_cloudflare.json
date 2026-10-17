@@ -1,0 +1,21 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: Cloudflare (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "Account Settings Read",
+  "Zone Read",
+  "Zone Settings Read",
+  "DNS Read",
+  "SSL and Certificates Read",
+  "Bot Management Read",
+  "Zone WAF Read"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "cloudflare",
+ "checks": []
+}

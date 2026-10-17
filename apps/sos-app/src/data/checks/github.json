@@ -1,0 +1,117 @@
+{
+ "source": "github",
+ "title": "GitHub (fine-grained personal access token or GitHub App, read-only permissions)",
+ "readScopes": [
+  "Organization: Administration (read)",
+  "Organization: Members (read)",
+  "Repository: Metadata (read)",
+  "Repository: Administration (read)",
+  "Repository: Contents (read)",
+  "Repository: Dependabot alerts (read)",
+  "Repository: Code scanning alerts (read)"
+ ],
+ "checks": [
+  {
+   "id": "github.org_requires_2fa",
+   "title": "The organization requires two-factor authentication",
+   "scope": "Organization members on github.com; the factor kind is not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.actions_token_read_only",
+   "title": "The default GITHUB_TOKEN is read-only and cannot approve pull requests",
+   "scope": "Organization default; a workflow can still ask for more with its own permissions block.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.actions_allowed_restricted",
+   "title": "Actions are limited to the organization's own or selected actions",
+   "scope": "Organization setting; the selected list itself is not reviewed.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.org_owners_limited",
+   "title": "At most --github-max-owners members are organization owners",
+   "scope": "Organization owners only; repository admins are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.outside_collaborators",
+   "title": "At most --github-max-outside-collaborators outside collaborators",
+   "scope": "Count only; what each collaborator can reach is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.audit_log_available",
+   "title": "The organization audit log is readable and not empty",
+   "scope": "GitHub Enterprise Cloud only; streaming to a SIEM is not visible.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "github.default_branch_reviews",
+   "title": "The default branch requires a pull request with at least one approving review",
+   "scope": "Classic branch protection or an active ruleset; admins who may bypass are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.default_branch_dismiss_stale",
+   "title": "The default branch dismisses stale approvals when new commits are pushed",
+   "scope": "Classic branch protection or an active ruleset.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.default_branch_status_checks",
+   "title": "The default branch requires at least one status check to pass",
+   "scope": "That a check is required, not what it tests.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.default_branch_no_force_push",
+   "title": "The default branch blocks force pushes",
+   "scope": "Classic branch protection or an active ruleset.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.default_branch_signed_commits",
+   "title": "The default branch requires signed commits",
+   "scope": "Optional hardening; a fail here is advisory for most baselines.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.codeowners",
+   "title": "The repository has a CODEOWNERS file",
+   "scope": "Presence only; whether code-owner review is required is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.secret_scanning",
+   "title": "Secret scanning is enabled",
+   "scope": "Repository setting; shown to repository admins only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.push_protection",
+   "title": "Secret scanning push protection is enabled",
+   "scope": "Repository setting; shown to repository admins only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.dependabot_alerts_enabled",
+   "title": "Dependabot alerts are enabled",
+   "scope": "Dependency manifests GitHub can read; vendored code is not covered.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.dependabot_aged_critical_high",
+   "title": "No open critical or high Dependabot alert is older than --github-alert-days days",
+   "scope": "Open alerts only; dismissed alerts are not reviewed.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "github.code_scanning_enabled",
+   "title": "Code scanning has produced at least one analysis",
+   "scope": "That an analysis exists, not its findings; skipped when GitHub Advanced Security is not licensed for a private repository.",
+   "evidenceType": "Report"
+  }
+ ]
+}

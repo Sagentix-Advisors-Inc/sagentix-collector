@@ -1,0 +1,52 @@
+{
+ "source": "intune",
+ "title": "Microsoft Intune (Microsoft Graph v1.0, read-only application permissions)",
+ "readScopes": [
+  "Microsoft Graph application permission DeviceManagementManagedDevices.Read.All (GET /deviceManagement/managedDevices), with admin consent.",
+  "Microsoft Graph application permission DeviceManagementConfiguration.Read.All (GET /deviceManagement/deviceCompliancePolicies and its /assignments), with admin consent."
+ ],
+ "checks": [
+  {
+   "id": "intune.policy_requires_encryption",
+   "title": "An assigned compliance policy requires encryption for each laptop platform in use",
+   "scope": "Windows (storageRequireEncryption or bitLockerEnabled) and macOS (storageRequireEncryption) compliance policies with at least one assignment, for platforms that have a managed device.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.policy_requires_screen_lock",
+   "title": "An assigned compliance policy requires a password and a lock after at most 15 idle minutes",
+   "scope": "Windows and macOS compliance policies with an assignment: passwordRequired and passwordMinutesOfInactivityBeforeLock within --intune-max-lock-minutes. Settings delivered by configuration profiles rather than compliance policies are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.policy_min_os",
+   "title": "An assigned compliance policy sets a minimum OS version for each laptop platform in use",
+   "scope": "Windows and macOS compliance policies with an assignment and an osMinimumVersion (at or above --intune-min-os when given).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.device_compliant",
+   "title": "Each managed device is compliant with its Intune compliance policies",
+   "scope": "Every Intune managed device, one result per device; unknown and configManager states are skipped. A device is only as compliant as the policies assigned to it.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.device_encrypted",
+   "title": "Each managed device reports its storage as encrypted",
+   "scope": "Every Intune managed device, from isEncrypted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.device_os_minimum",
+   "title": "Each managed device runs an OS at or above the minimum version",
+   "scope": "Managed devices whose platform has a minimum from --intune-min-os or from the assigned compliance policies' osMinimumVersion; others are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.device_last_sync",
+   "title": "Each managed device has synced with Intune within the last 14 days",
+   "scope": "Every Intune managed device, from lastSyncDateTime; the window is --intune-sync-days.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+// Emits the publishable JavaScript (scripts/stage-package.mjs). The repo itself runs the .ts files through
+// Node's type stripping, which Node refuses inside node_modules, so an installed package needs .js.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": "src",
+    "outDir": "build/collector/src",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts"]
+}

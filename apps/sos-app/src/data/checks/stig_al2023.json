@@ -1,0 +1,1266 @@
+{
+ "source": "stig",
+ "title": "DISA STIG for Amazon Linux 2023 (MITRE SAF InSpec profile 1.3.2, run by Cinc Auditor)",
+ "readScopes": [
+  "SSH (ssh://) or WinRM (winrm://) login to the scanned host, or a JSON report the customer produced. The profile only reads: it runs commands such as stat, grep, rpm -q and sysctl. Many rules read root-only files, so give a non-root account sudo for those reads (--stig-sudo); without it they fail to read and report skipped or failed, never passed."
+ ],
+ "engine": {
+  "name": "Cinc Auditor + MITRE SAF STIG profile",
+  "profile": "amazon-linux-2023-stig-baseline",
+  "version": "1.3.2",
+  "tag": "v1.3.2",
+  "commit": "41568eae5dccafa1c5368559cfd64d9de0ab462d",
+  "tarballSha256": "d01638c133c93de1e4e55d15b810f94ff9c30aa2c14760467748846e1d37aff0",
+  "licence": "Apache-2.0 (MITRE profile, with MITRE's NOTICE); STIG rule titles and ids are DISA's, a US Government work",
+  "url": "https://github.com/mitre/amazon-linux-2023-stig-baseline"
+ },
+ "profile": "al2023",
+ "checks": [
+  {
+   "id": "stig.al2023.v-273994",
+   "title": "AZLX-23-000100 (V-273994): Amazon Linux 2023 local disk partitions must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of all information that requires at res...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273994 (DISA rule V-273994, STIG ID AZLX-23-000100, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-273995",
+   "title": "AZLX-23-000110 (V-273995): Amazon Linux 2023 must ensure cryptographic verification of vendor software packages.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273995 (DISA rule V-273995, STIG ID AZLX-23-000110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-273996",
+   "title": "AZLX-23-000115 (V-273996): Amazon Linux 2023 must check the GPG signature of locally installed software packages before installation.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273996 (DISA rule V-273996, STIG ID AZLX-23-000115, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-273997",
+   "title": "AZLX-23-000120 (V-273997): Amazon Linux 2023 must check the GPG signature of software packages originating from external software repositories before installation.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273997 (DISA rule V-273997, STIG ID AZLX-23-000120, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-273998",
+   "title": "AZLX-23-000125 (V-273998): Amazon Linux 2023 must have GPG signature verification enabled for all software repositories.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273998 (DISA rule V-273998, STIG ID AZLX-23-000125, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-273999",
+   "title": "AZLX-23-000130 (V-273999): Amazon Linux 2023 must be a vendor-supported release.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-273999 (DISA rule V-273999, STIG ID AZLX-23-000130, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274000",
+   "title": "AZLX-23-000135 (V-274000): Amazon Linux 2023 systemd-journald service must be enabled.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274000 (DISA rule V-274000, STIG ID AZLX-23-000135, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274001",
+   "title": "AZLX-23-000200 (V-274001): Amazon Linux 2023 must restrict access to the kernel message buffer.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274001 (DISA rule V-274001, STIG ID AZLX-23-000200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274002",
+   "title": "AZLX-23-000205 (V-274002): Amazon Linux 2023 must prevent kernel profiling by nonprivileged users.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274002 (DISA rule V-274002, STIG ID AZLX-23-000205, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274003",
+   "title": "AZLX-23-000210 (V-274003): Amazon Linux 2023 must restrict exposed kernel pointer addresses access.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274003 (DISA rule V-274003, STIG ID AZLX-23-000210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274004",
+   "title": "AZLX-23-000215 (V-274004): Amazon Linux 2023 must disable access to network bpf system call from nonprivileged processes.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274004 (DISA rule V-274004, STIG ID AZLX-23-000215, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274005",
+   "title": "AZLX-23-000220 (V-274005): Amazon Linux 2023 must restrict usage of ptrace to descendant processes.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274005 (DISA rule V-274005, STIG ID AZLX-23-000220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274006",
+   "title": "AZLX-23-000225 (V-274006): Amazon Linux 2023 must implement address space layout randomization (ASLR) to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274006 (DISA rule V-274006, STIG ID AZLX-23-000225, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274007",
+   "title": "AZLX-23-000300 (V-274007): Amazon Linux 2023 must not have the vsftpd package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274007 (DISA rule V-274007, STIG ID AZLX-23-000300, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274008",
+   "title": "AZLX-23-000305 (V-274008): Amazon Linux 2023 must not have the sendmail package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274008 (DISA rule V-274008, STIG ID AZLX-23-000305, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274009",
+   "title": "AZLX-23-000310 (V-274009): Amazon Linux 2023 must not have the nfs-utils package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274009 (DISA rule V-274009, STIG ID AZLX-23-000310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274010",
+   "title": "AZLX-23-000315 (V-274010): Amazon Linux 2023 must not have the telnet-server package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274010 (DISA rule V-274010, STIG ID AZLX-23-000315, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274011",
+   "title": "AZLX-23-000320 (V-274011): Amazon Linux 2023 must not have the gssproxy package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274011 (DISA rule V-274011, STIG ID AZLX-23-000320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274012",
+   "title": "AZLX-23-001000 (V-274012): Amazon Linux 2023 must have the sudo package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274012 (DISA rule V-274012, STIG ID AZLX-23-001000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274013",
+   "title": "AZLX-23-001005 (V-274013): Amazon Linux 2023 must not be configured to bypass password requirements for privilege escalation.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274013 (DISA rule V-274013, STIG ID AZLX-23-001005, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274014",
+   "title": "AZLX-23-001010 (V-274014): Amazon Linux 2023 must require reauthentication when using the \"sudo\" command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274014 (DISA rule V-274014, STIG ID AZLX-23-001010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274015",
+   "title": "AZLX-23-001015 (V-274015): Amazon Linux 2023 must require users to reauthenticate for privilege escalation.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274015 (DISA rule V-274015, STIG ID AZLX-23-001015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274016",
+   "title": "AZLX-23-001020 (V-274016): Amazon Linux 2023 must require users to provide a password for privilege escalation.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274016 (DISA rule V-274016, STIG ID AZLX-23-001020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274017",
+   "title": "AZLX-23-001025 (V-274017): Amazon Linux 2023 must have the audit package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274017 (DISA rule V-274017, STIG ID AZLX-23-001025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274018",
+   "title": "AZLX-23-001030 (V-274018): Amazon Linux 2023 must produce audit records containing information to establish what type of events occurred.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274018 (DISA rule V-274018, STIG ID AZLX-23-001030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274019",
+   "title": "AZLX-23-001035 (V-274019): Amazon Linux 2023 audispd-plugins package must be installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274019 (DISA rule V-274019, STIG ID AZLX-23-001035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274020",
+   "title": "AZLX-23-001040 (V-274020): Amazon Linux 2023 must have the rsyslog package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274020 (DISA rule V-274020, STIG ID AZLX-23-001040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274021",
+   "title": "AZLX-23-001045 (V-274021): Amazon Linux 2023 must monitor remote access methods.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274021 (DISA rule V-274021, STIG ID AZLX-23-001045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274022",
+   "title": "AZLX-23-001050 (V-274022): Amazon Linux 2023 must have the chrony package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274022 (DISA rule V-274022, STIG ID AZLX-23-001050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274023",
+   "title": "AZLX-23-001055 (V-274023): Amazon Linux 2023 chronyd service must be enabled.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274023 (DISA rule V-274023, STIG ID AZLX-23-001055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274024",
+   "title": "AZLX-23-001060 (V-274024): Amazon Linux 2023 must have the Advanced Intrusion Detection Environment (AIDE) package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274024 (DISA rule V-274024, STIG ID AZLX-23-001060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274025",
+   "title": "AZLX-23-001065 (V-274025): Amazon Linux 2023 must routinely check the baseline configuration for unauthorized changes and notify the system administrator (SA) when anomalies in the operation of any...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274025 (DISA rule V-274025, STIG ID AZLX-23-001065, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274026",
+   "title": "AZLX-23-001070 (V-274026): Amazon Linux 2023 must use cryptographic mechanisms to protect the integrity of audit tools.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274026 (DISA rule V-274026, STIG ID AZLX-23-001070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274027",
+   "title": "AZLX-23-001075 (V-274027): Amazon Linux 2023 must have the firewalld package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274027 (DISA rule V-274027, STIG ID AZLX-23-001075, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274028",
+   "title": "AZLX-23-001080 (V-274028): Amazon Linux 2023 must have the firewalld service active.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274028 (DISA rule V-274028, STIG ID AZLX-23-001080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274030",
+   "title": "AZLX-23-001090 (V-274030): Amazon Linux 2023 must manage excess capacity, bandwidth, or other redundancy to limit the effects of information flooding types of denial-of-service (DoS) attacks.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274030 (DISA rule V-274030, STIG ID AZLX-23-001090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274031",
+   "title": "AZLX-23-001095 (V-274031): Amazon Linux 2023 must have the s-nail package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274031 (DISA rule V-274031, STIG ID AZLX-23-001095, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274032",
+   "title": "AZLX-23-001105 (V-274032): Amazon Linux 2023 must have the libreswan package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274032 (DISA rule V-274032, STIG ID AZLX-23-001105, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274033",
+   "title": "AZLX-23-001110 (V-274033): Amazon Linux 2023 must have the policycoreutils package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274033 (DISA rule V-274033, STIG ID AZLX-23-001110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274034",
+   "title": "AZLX-23-001115 (V-274034): Amazon Linux 2023 must have the pcsc-lite package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274034 (DISA rule V-274034, STIG ID AZLX-23-001115, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274035",
+   "title": "AZLX-23-001120 (V-274035): Amazon Linux 2023 must have the packages required for encrypting off-loaded audit logs installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274035 (DISA rule V-274035, STIG ID AZLX-23-001120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274036",
+   "title": "AZLX-23-001125 (V-274036): Amazon Linux 2023 must have the opensc package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274036 (DISA rule V-274036, STIG ID AZLX-23-001125, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274037",
+   "title": "AZLX-23-001130 (V-274037): Amazon Linux 2023 must have the openssl-pkcs11 package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274037 (DISA rule V-274037, STIG ID AZLX-23-001130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274038",
+   "title": "AZLX-23-001180 (V-274038): Amazon Linux 2023 must have SSH installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274038 (DISA rule V-274038, STIG ID AZLX-23-001180, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274039",
+   "title": "AZLX-23-001185 (V-274039): Amazon Linux 2023 must implement SSH to protect the confidentiality and integrity of transmitted and received information, as well as information during preparation for t...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274039 (DISA rule V-274039, STIG ID AZLX-23-001185, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274040",
+   "title": "AZLX-23-001195 (V-274040): Amazon Linux 2023 must have the crypto-policies package installed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274040 (DISA rule V-274040, STIG ID AZLX-23-001195, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274042",
+   "title": "AZLX-23-001205 (V-274042): Amazon Linux 2023 server must be configured to use only DOD-approved encryption ciphers employing FIPS 140-2/140-3 validated cryptographic hash algorithms to protect the...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274042 (DISA rule V-274042, STIG ID AZLX-23-001205, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274043",
+   "title": "AZLX-23-001210 (V-274043): Amazon Linux 2023 SSH server must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-2/140-3 validated cryptographic hash algorithms to prot...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274043 (DISA rule V-274043, STIG ID AZLX-23-001210, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274044",
+   "title": "AZLX-23-001215 (V-274044): Amazon Linux 2023 SSH daemon must not allow Generic Security Service Application Program Interface (GSSAPI) authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274044 (DISA rule V-274044, STIG ID AZLX-23-001215, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274045",
+   "title": "AZLX-23-001220 (V-274045): Amazon Linux 2023 SSH daemon must not allow Kerberos authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274045 (DISA rule V-274045, STIG ID AZLX-23-001220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274046",
+   "title": "AZLX-23-001225 (V-274046): Amazon Linux 2023 must force a frequent session key renegotiation for SSH connections to the server.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274046 (DISA rule V-274046, STIG ID AZLX-23-001225, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274047",
+   "title": "AZLX-23-001230 (V-274047): Amazon Linux 2023 SSHD must accept public key authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274047 (DISA rule V-274047, STIG ID AZLX-23-001230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274048",
+   "title": "AZLX-23-001235 (V-274048): Amazon Linux 2023 SSHD must not allow blank passwords.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274048 (DISA rule V-274048, STIG ID AZLX-23-001235, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274049",
+   "title": "AZLX-23-001240 (V-274049): Amazon Linux 2023 must not permit direct logons to the root account using remote access via SSH.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274049 (DISA rule V-274049, STIG ID AZLX-23-001240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274050",
+   "title": "AZLX-23-001245 (V-274050): Amazon Linux 2023 must be configured so that all network connections associated with SSH traffic are terminated after 10 minutes of becoming unresponsive.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274050 (DISA rule V-274050, STIG ID AZLX-23-001245, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274051",
+   "title": "AZLX-23-001250 (V-274051): Amazon Linux 2023 must be configured so that all network connections associated with SSH traffic terminate after becoming unresponsive.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274051 (DISA rule V-274051, STIG ID AZLX-23-001250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274052",
+   "title": "AZLX-23-001255 (V-274052): Amazon Linux 2023 must enable the Pluggable Authentication Module (PAM) interface for SSHD.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274052 (DISA rule V-274052, STIG ID AZLX-23-001255, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274057",
+   "title": "AZLX-23-001280 (V-274057): Amazon Linux 2023 must enable FIPS mode.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274057 (DISA rule V-274057, STIG ID AZLX-23-001280, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274058",
+   "title": "AZLX-23-001285 (V-274058): Amazon Linux 2023 crypto policy must not be overridden.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274058 (DISA rule V-274058, STIG ID AZLX-23-001285, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274059",
+   "title": "AZLX-23-001290 (V-274059): Amazon Linux 2023 must enable certificate-based smart card authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274059 (DISA rule V-274059, STIG ID AZLX-23-001290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274060",
+   "title": "AZLX-23-001295 (V-274060): Amazon Linux 2023 must map the authenticated identity to the user or group account for PKI-based authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274060 (DISA rule V-274060, STIG ID AZLX-23-001295, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274061",
+   "title": "AZLX-23-001300 (V-274061): Amazon Linux 2023 must implement certificate status checking for multifactor authentication.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274061 (DISA rule V-274061, STIG ID AZLX-23-001300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274062",
+   "title": "AZLX-23-001305 (V-274062): Amazon Linux 2023 must prohibit the use of cached authenticators after one day.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274062 (DISA rule V-274062, STIG ID AZLX-23-001305, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274063",
+   "title": "AZLX-23-001310 (V-274063): Amazon Linux 2023, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274063 (DISA rule V-274063, STIG ID AZLX-23-001310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274064",
+   "title": "AZLX-23-001315 (V-274064): Amazon Linux 2023, for PKI-based authentication, must enforce authorized access to the corresponding private key.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274064 (DISA rule V-274064, STIG ID AZLX-23-001315, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274065",
+   "title": "AZLX-23-002000 (V-274065): Amazon Linux 2023 must display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274065 (DISA rule V-274065, STIG ID AZLX-23-002000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274066",
+   "title": "AZLX-23-002005 (V-274066): Amazon Linux 2023 must display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via a SSH logon.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274066 (DISA rule V-274066, STIG ID AZLX-23-002005, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274067",
+   "title": "AZLX-23-002015 (V-274067): Amazon Linux 2023 must allocate audit record storage capacity to store at least one week's worth of audit records, when audit records are not immediately sent to a centra...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274067 (DISA rule V-274067, STIG ID AZLX-23-002015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274068",
+   "title": "AZLX-23-002020 (V-274068): Amazon Linux 2023 must use a separate file system for the system audit data path.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274068 (DISA rule V-274068, STIG ID AZLX-23-002020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.al2023.v-274069",
+   "title": "AZLX-23-002025 (V-274069): Amazon Linux 2023 must label all off-loaded audit logs before sending them to the central log server.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274069 (DISA rule V-274069, STIG ID AZLX-23-002025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274070",
+   "title": "AZLX-23-002030 (V-274070): Amazon Linux 2023 must take appropriate action when the internal event queue is full.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274070 (DISA rule V-274070, STIG ID AZLX-23-002030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274071",
+   "title": "AZLX-23-002035 (V-274071): Amazon Linux 2023 must take action when allocated audit record storage volume reaches 75 percent of the repository maximum audit record storage capacity.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274071 (DISA rule V-274071, STIG ID AZLX-23-002035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274072",
+   "title": "AZLX-23-002040 (V-274072): Amazon Linux 2023 must notify the system administrator (SA) and information system security officer (ISSO) (at a minimum) when allocated audit record storage volume 75 pe...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274072 (DISA rule V-274072, STIG ID AZLX-23-002040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274073",
+   "title": "AZLX-23-002045 (V-274073): Amazon Linux 2023 must take action when allocated audit record storage volume reaches 95 percent of the audit record storage capacity.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274073 (DISA rule V-274073, STIG ID AZLX-23-002045, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274074",
+   "title": "AZLX-23-002050 (V-274074): Amazon Linux 2023 must take action when allocated audit record storage volume reaches 95 percent of the repository maximum audit record storage capacity.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274074 (DISA rule V-274074, STIG ID AZLX-23-002050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274075",
+   "title": "AZLX-23-002055 (V-274075): Amazon Linux 2023 must immediately notify the system administrator (SA) and information system security officer (ISSO), at a minimum, of an audit processing failure event.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274075 (DISA rule V-274075, STIG ID AZLX-23-002055, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274076",
+   "title": "AZLX-23-002060 (V-274076): Amazon Linux 2023 must be configured to off-load audit records onto a different system from the system being audited via syslog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274076 (DISA rule V-274076, STIG ID AZLX-23-002060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274077",
+   "title": "AZLX-23-002065 (V-274077): Amazon Linux 2023 must authenticate the remote logging server for off-loading audit logs via rsyslog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274077 (DISA rule V-274077, STIG ID AZLX-23-002065, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274078",
+   "title": "AZLX-23-002070 (V-274078): Amazon Linux 2023 must encrypt the transfer of audit records off-loaded onto a different system or media from the system being audited via rsyslog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274078 (DISA rule V-274078, STIG ID AZLX-23-002070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274079",
+   "title": "AZLX-23-002075 (V-274079): Amazon Linux 2023 must encrypt via the gtls driver the transfer of audit records off-loaded onto a different system or media from the system being audited via rsyslog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274079 (DISA rule V-274079, STIG ID AZLX-23-002075, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274080",
+   "title": "AZLX-23-002080 (V-274080): Amazon Linux 2023 must be configured to off-load audit records onto a different system from the system being audited via syslog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274080 (DISA rule V-274080, STIG ID AZLX-23-002080, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.al2023.v-274081",
+   "title": "AZLX-23-002085 (V-274081): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/sudoers.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274081 (DISA rule V-274081, STIG ID AZLX-23-002085, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274082",
+   "title": "AZLX-23-002090 (V-274082): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/sudoers.d/ directory.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274082 (DISA rule V-274082, STIG ID AZLX-23-002090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274083",
+   "title": "AZLX-23-002095 (V-274083): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274083 (DISA rule V-274083, STIG ID AZLX-23-002095, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274084",
+   "title": "AZLX-23-002100 (V-274084): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274084 (DISA rule V-274084, STIG ID AZLX-23-002100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274085",
+   "title": "AZLX-23-002105 (V-274085): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/opasswd.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274085 (DISA rule V-274085, STIG ID AZLX-23-002105, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274086",
+   "title": "AZLX-23-002110 (V-274086): Amazon Linux 2023 must audit uses of the \"execve\" system call.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274086 (DISA rule V-274086, STIG ID AZLX-23-002110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274087",
+   "title": "AZLX-23-002115 (V-274087): Amazon Linux 2023 must audit all uses of the chmod, fchmod, and fchmodat system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274087 (DISA rule V-274087, STIG ID AZLX-23-002115, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274088",
+   "title": "AZLX-23-002120 (V-274088): Amazon Linux 2023 must audit all uses of the chown, fchown, fchownat, and lchown system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274088 (DISA rule V-274088, STIG ID AZLX-23-002120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274089",
+   "title": "AZLX-23-002125 (V-274089): Amazon Linux 2023 must audit all uses of the setxattr, fsetxattr, lsetxattr, removexattr, fremovexattr, and lremovexattr system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274089 (DISA rule V-274089, STIG ID AZLX-23-002125, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274090",
+   "title": "AZLX-23-002130 (V-274090): Amazon Linux 2023 must audit all uses of the truncate, ftruncate, creat, open, openat, and open_by_handle_at system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274090 (DISA rule V-274090, STIG ID AZLX-23-002130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274091",
+   "title": "AZLX-23-002135 (V-274091): Amazon Linux 2023 must audit all uses of the init_module and finit_module system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274091 (DISA rule V-274091, STIG ID AZLX-23-002135, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274092",
+   "title": "AZLX-23-002140 (V-274092): Amazon Linux 2023 must audit all uses of the create_module system call.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274092 (DISA rule V-274092, STIG ID AZLX-23-002140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274093",
+   "title": "AZLX-23-002145 (V-274093): Amazon Linux 2023 must audit all uses of the kmod command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274093 (DISA rule V-274093, STIG ID AZLX-23-002145, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274094",
+   "title": "AZLX-23-002150 (V-274094): Amazon Linux 2023 must audit all uses of the rename, unlink, rmdir, renameat, and unlinkat system calls.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274094 (DISA rule V-274094, STIG ID AZLX-23-002150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274095",
+   "title": "AZLX-23-002155 (V-274095): Amazon Linux 2023 must audit all uses of the chcon command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274095 (DISA rule V-274095, STIG ID AZLX-23-002155, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274096",
+   "title": "AZLX-23-002160 (V-274096): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /var/log/faillock.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274096 (DISA rule V-274096, STIG ID AZLX-23-002160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274097",
+   "title": "AZLX-23-002165 (V-274097): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /var/log/lastlog.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274097 (DISA rule V-274097, STIG ID AZLX-23-002165, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274098",
+   "title": "AZLX-23-002175 (V-274098): Amazon Linux 2023 must audit all uses of the init command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274098 (DISA rule V-274098, STIG ID AZLX-23-002175, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274099",
+   "title": "AZLX-23-002180 (V-274099): Amazon Linux 2023 must audit all uses of the reboot command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274099 (DISA rule V-274099, STIG ID AZLX-23-002180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274100",
+   "title": "AZLX-23-002185 (V-274100): Amazon Linux 2023 must audit all uses of the shutdown command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274100 (DISA rule V-274100, STIG ID AZLX-23-002185, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274101",
+   "title": "AZLX-23-002190 (V-274101): Amazon Linux 2023 audit tools must have a mode of \"0755\" or less permissive.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274101 (DISA rule V-274101, STIG ID AZLX-23-002190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274102",
+   "title": "AZLX-23-002195 (V-274102): Amazon Linux 2023 audit tools must be owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274102 (DISA rule V-274102, STIG ID AZLX-23-002195, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274103",
+   "title": "AZLX-23-002200 (V-274103): Amazon Linux 2023 audit tools must be group-owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274103 (DISA rule V-274103, STIG ID AZLX-23-002200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274104",
+   "title": "AZLX-23-002205 (V-274104): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274104 (DISA rule V-274104, STIG ID AZLX-23-002205, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274105",
+   "title": "AZLX-23-002210 (V-274105): Amazon Linux 2023 must audit all successful/unsuccessful uses of the chage command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274105 (DISA rule V-274105, STIG ID AZLX-23-002210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274107",
+   "title": "AZLX-23-002220 (V-274107): Amazon Linux 2023 must off-load audit records onto a different system in the event the audit storage volume is full.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274107 (DISA rule V-274107, STIG ID AZLX-23-002220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274108",
+   "title": "AZLX-23-002225 (V-274108): Amazon Linux 2023 audit logs must be group-owned by root or by a restricted logging group to prevent unauthorized read access.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274108 (DISA rule V-274108, STIG ID AZLX-23-002225, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274109",
+   "title": "AZLX-23-002230 (V-274109): Amazon Linux 2023 audit log directory must be owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274109 (DISA rule V-274109, STIG ID AZLX-23-002230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274110",
+   "title": "AZLX-23-002235 (V-274110): Amazon Linux 2023 audit logs file must have mode \"0600\" or less permissive to prevent unauthorized access to the audit log.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274110 (DISA rule V-274110, STIG ID AZLX-23-002235, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274111",
+   "title": "AZLX-23-002240 (V-274111): Amazon Linux 2023 must allow only the information system security manager (ISSM) (or individuals or roles appointed by the ISSM) to select which auditable events are to b...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274111 (DISA rule V-274111, STIG ID AZLX-23-002240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274112",
+   "title": "AZLX-23-002245 (V-274112): Amazon Linux 2023 must audit all uses of the sudo command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274112 (DISA rule V-274112, STIG ID AZLX-23-002245, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274113",
+   "title": "AZLX-23-002250 (V-274113): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274113 (DISA rule V-274113, STIG ID AZLX-23-002250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274114",
+   "title": "AZLX-23-002255 (V-274114): Amazon Linux 2023 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274114 (DISA rule V-274114, STIG ID AZLX-23-002255, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274115",
+   "title": "AZLX-23-002260 (V-274115): Amazon Linux 2023 must produce audit records containing information to establish the identity of any individual or process associated with the event.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274115 (DISA rule V-274115, STIG ID AZLX-23-002260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274116",
+   "title": "AZLX-23-002265 (V-274116): Amazon Linux 2023 audit logs must be group-owned by root or by a restricted logging group to prevent unauthorized read access.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274116 (DISA rule V-274116, STIG ID AZLX-23-002265, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274117",
+   "title": "AZLX-23-002270 (V-274117): Amazon Linux 2023 must ensure the audit log directory be owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274117 (DISA rule V-274117, STIG ID AZLX-23-002270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274125",
+   "title": "AZLX-23-002315 (V-274125): Amazon Linux 2023 must ensure the /var/log directory have mode \"0755\" or less permissive.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274125 (DISA rule V-274125, STIG ID AZLX-23-002315, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274126",
+   "title": "AZLX-23-002320 (V-274126): Amazon Linux 2023 must ensure the /var/log directory be owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274126 (DISA rule V-274126, STIG ID AZLX-23-002320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274127",
+   "title": "AZLX-23-002325 (V-274127): Amazon Linux 2023 must ensure the /var/log directory be group-owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274127 (DISA rule V-274127, STIG ID AZLX-23-002325, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274128",
+   "title": "AZLX-23-002330 (V-274128): Amazon Linux 2023 must ensure the /var/log/messages file have mode \"0640\" or less permissive.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274128 (DISA rule V-274128, STIG ID AZLX-23-002330, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274129",
+   "title": "AZLX-23-002335 (V-274129): Amazon Linux 2023 must ensure the /var/log/messages file be group-owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274129 (DISA rule V-274129, STIG ID AZLX-23-002335, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274130",
+   "title": "AZLX-23-002340 (V-274130): Amazon Linux 2023 must ensure the /var/log/messages file be owned by root.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274130 (DISA rule V-274130, STIG ID AZLX-23-002340, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274133",
+   "title": "AZLX-23-002355 (V-274133): Amazon Linux 2023 must enforce password complexity by requiring that at least one uppercase character be used.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274133 (DISA rule V-274133, STIG ID AZLX-23-002355, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274134",
+   "title": "AZLX-23-002360 (V-274134): Amazon Linux 2023 must enforce password complexity by requiring that at least one lowercase character be used.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274134 (DISA rule V-274134, STIG ID AZLX-23-002360, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274135",
+   "title": "AZLX-23-002365 (V-274135): Amazon Linux 2023 must enforce password complexity by requiring that at least one numeric character be used.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274135 (DISA rule V-274135, STIG ID AZLX-23-002365, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274136",
+   "title": "AZLX-23-002370 (V-274136): Amazon Linux 2023 must require the change of at least 50 percent of the total number of characters when passwords are changed.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274136 (DISA rule V-274136, STIG ID AZLX-23-002370, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274137",
+   "title": "AZLX-23-002375 (V-274137): Amazon Linux 2023 must enforce a minimum 15-character password length.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274137 (DISA rule V-274137, STIG ID AZLX-23-002375, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274138",
+   "title": "AZLX-23-002380 (V-274138): Amazon Linux 2023 must enforce password complexity by requiring that at least one special character be used.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274138 (DISA rule V-274138, STIG ID AZLX-23-002380, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274139",
+   "title": "AZLX-23-002385 (V-274139): Amazon Linux 2023 must enforce password complexity rules for the root account.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274139 (DISA rule V-274139, STIG ID AZLX-23-002385, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274140",
+   "title": "AZLX-23-002390 (V-274140): Amazon Linux 2023 must prevent the use of dictionary words for passwords.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274140 (DISA rule V-274140, STIG ID AZLX-23-002390, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274141",
+   "title": "AZLX-23-002395 (V-274141): Amazon Linux 2023 must limit the number of concurrent sessions to ten for all accounts and/or account types.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274141 (DISA rule V-274141, STIG ID AZLX-23-002395, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.al2023.v-274142",
+   "title": "AZLX-23-002396 (V-274142): Amazon Linux 2023 must automatically exit interactive command shell user sessions after 15 minutes of inactivity.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274142 (DISA rule V-274142, STIG ID AZLX-23-002396, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274143",
+   "title": "AZLX-23-002400 (V-274143): Amazon Linux 2023 must enforce 24 hours/1 day as the minimum password lifetime.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274143 (DISA rule V-274143, STIG ID AZLX-23-002400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274144",
+   "title": "AZLX-23-002405 (V-274144): Amazon Linux 2023 must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274144 (DISA rule V-274144, STIG ID AZLX-23-002405, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274145",
+   "title": "AZLX-23-002410 (V-274145): Amazon Linux 2023 must define default permissions for all authenticated users in such a way that the user can only read and modify their own files.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274145 (DISA rule V-274145, STIG ID AZLX-23-002410, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274146",
+   "title": "AZLX-23-002415 (V-274146): Amazon Linux 2023 must automatically remove or disable temporary user accounts after 72 hours.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274146 (DISA rule V-274146, STIG ID AZLX-23-002415, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274147",
+   "title": "AZLX-23-002420 (V-274147): Amazon Linux 2023 must automatically lock an account when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274147 (DISA rule V-274147, STIG ID AZLX-23-002420, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274148",
+   "title": "AZLX-23-002425 (V-274148): Amazon Linux 2023 must be able to enforce a 60-day maximum password lifetime restriction.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274148 (DISA rule V-274148, STIG ID AZLX-23-002425, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274149",
+   "title": "AZLX-23-002430 (V-274149): Amazon Linux 2023 must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274149 (DISA rule V-274149, STIG ID AZLX-23-002430, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274150",
+   "title": "AZLX-23-002435 (V-274150): Amazon Linux 2023 must automatically expire temporary accounts within 72 hours.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274150 (DISA rule V-274150, STIG ID AZLX-23-002435, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274151",
+   "title": "AZLX-23-002440 (V-274151): Amazon Linux 2023 must restrict the use of the \"su\" command.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274151 (DISA rule V-274151, STIG ID AZLX-23-002440, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274152",
+   "title": "AZLX-23-002445 (V-274152): Amazon Linux 2023 must enable the SELinux targeted policy.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274152 (DISA rule V-274152, STIG ID AZLX-23-002445, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274153",
+   "title": "AZLX-23-002450 (V-274153): Amazon Linux 2023 must use a Linux Security Module configured to enforce limits on system services.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274153 (DISA rule V-274153, STIG ID AZLX-23-002450, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-274154",
+   "title": "AZLX-23-002455 (V-274154): Amazon Linux 2023 must automatically lock an account when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274154 (DISA rule V-274154, STIG ID AZLX-23-002455, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274155",
+   "title": "AZLX-23-002460 (V-274155): Amazon Linux 2023 must automatically lock the root account until the root account is released by an administrator when three unsuccessful logon attempts occur during a 15...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274155 (DISA rule V-274155, STIG ID AZLX-23-002460, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274156",
+   "title": "AZLX-23-002465 (V-274156): Amazon Linux 2023 must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts in 15 minutes occur.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274156 (DISA rule V-274156, STIG ID AZLX-23-002465, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274157",
+   "title": "AZLX-23-002470 (V-274157): Amazon Linux 2023 must maintain an account lock until the locked account is released by an administrator.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274157 (DISA rule V-274157, STIG ID AZLX-23-002470, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274158",
+   "title": "AZLX-23-002475 (V-274158): Amazon Linux 2023 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Man...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274158 (DISA rule V-274158, STIG ID AZLX-23-002475, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274159",
+   "title": "AZLX-23-002480 (V-274159): Amazon Linux 2023 must insure all interactive users have a primary group that exists.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274159 (DISA rule V-274159, STIG ID AZLX-23-002480, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274160",
+   "title": "AZLX-23-002485 (V-274160): Amazon Linux 2023 must ensure all interactive users have unique User IDs (UIDs).",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274160 (DISA rule V-274160, STIG ID AZLX-23-002485, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274161",
+   "title": "AZLX-23-002489 (V-274161): Amazon Linux 2023 must ensure the password complexity module is enabled in the password-auth file.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274161 (DISA rule V-274161, STIG ID AZLX-23-002489, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274162",
+   "title": "AZLX-23-002490 (V-274162): Amazon Linux 2023 password-auth must be configured to use a sufficient number of hashing rounds.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274162 (DISA rule V-274162, STIG ID AZLX-23-002490, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274163",
+   "title": "AZLX-23-002495 (V-274163): Amazon Linux 2023 system-auth must be configured to use a sufficient number of hashing rounds.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274163 (DISA rule V-274163, STIG ID AZLX-23-002495, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274164",
+   "title": "AZLX-23-002500 (V-274164): Amazon Linux 2023 must ensure a sticky bit be set on all public directories.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274164 (DISA rule V-274164, STIG ID AZLX-23-002500, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274165",
+   "title": "AZLX-23-002505 (V-274165): Amazon Linux 2023 must ensure all world-writable directories be owned by root, sys, bin, or an application user.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274165 (DISA rule V-274165, STIG ID AZLX-23-002505, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274166",
+   "title": "AZLX-23-002510 (V-274166): Amazon Linux 2023 must terminate idle user sessions.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274166 (DISA rule V-274166, STIG ID AZLX-23-002510, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274167",
+   "title": "AZLX-23-002515 (V-274167): Amazon Linux 2023 must enable auditing of processes that start prior to the audit daemon.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274167 (DISA rule V-274167, STIG ID AZLX-23-002515, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274168",
+   "title": "AZLX-23-002520 (V-274168): Amazon Linux 2023 must allocate an audit_backlog_limit of sufficient size to capture processes that start prior to the audit daemon.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274168 (DISA rule V-274168, STIG ID AZLX-23-002520, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274169",
+   "title": "AZLX-23-002535 (V-274169): Amazon Linux 2023 must enable discretionary access control on hardlinks.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274169 (DISA rule V-274169, STIG ID AZLX-23-002535, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274170",
+   "title": "AZLX-23-002540 (V-274170): Amazon Linux 2023 must enable kernel parameters to enforce discretionary access control on symlinks.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274170 (DISA rule V-274170, STIG ID AZLX-23-002540, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274173",
+   "title": "AZLX-23-002555 (V-274173): Amazon Linux 2023 debug-shell systemd service must be disabled.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274173 (DISA rule V-274173, STIG ID AZLX-23-002555, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274175",
+   "title": "AZLX-23-002565 (V-274175): Amazon Linux 2023 must synchronize internal information system clocks to the authoritative time source at least every 24 hours.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274175 (DISA rule V-274175, STIG ID AZLX-23-002565, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274177",
+   "title": "AZLX-23-002575 (V-274177): Amazon Linux 2023 must prevent the loading of a new kernel for later execution.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274177 (DISA rule V-274177, STIG ID AZLX-23-002575, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274178",
+   "title": "AZLX-23-002580 (V-274178): Amazon Linux 2023 must prevent files with the setuid and setgid bit set from being executed on the /boot/efi directory.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274178 (DISA rule V-274178, STIG ID AZLX-23-002580, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274179",
+   "title": "AZLX-23-002585 (V-274179): Amazon Linux 2023 must mount /dev/shm with the nodev option.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274179 (DISA rule V-274179, STIG ID AZLX-23-002585, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274180",
+   "title": "AZLX-23-002590 (V-274180): Amazon Linux 2023 must mount /dev/shm with the nosuid option.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274180 (DISA rule V-274180, STIG ID AZLX-23-002590, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274181",
+   "title": "AZLX-23-002595 (V-274181): Amazon Linux 2023 must ensure the pcscd service is active.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274181 (DISA rule V-274181, STIG ID AZLX-23-002595, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274182",
+   "title": "AZLX-23-002600 (V-274182): Amazon Linux 2023 file system automount function must be disabled unless required.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274182 (DISA rule V-274182, STIG ID AZLX-23-002600, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274183",
+   "title": "AZLX-23-002605 (V-274183): Amazon Linux 2023 must protect against or limit the effects of denial-of-service (DoS) attacks by ensuring rate-limiting measures are configured on impacted network inter...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274183 (DISA rule V-274183, STIG ID AZLX-23-002605, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274184",
+   "title": "AZLX-23-002610 (V-274184): Amazon Linux 2023 must implement nonexecutable data to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274184 (DISA rule V-274184, STIG ID AZLX-23-002610, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274186",
+   "title": "AZLX-23-002620 (V-274186): Amazon Linux 2023 must configure the use of the pam_faillock.so module in the /etc/pam.d/system-auth file.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274186 (DISA rule V-274186, STIG ID AZLX-23-002620, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-274187",
+   "title": "AZLX-23-005000 (V-274187): Amazon Linux 2023 audit system must protect logon user identifiers (UIDs) from unauthorized change.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-274187 (DISA rule V-274187, STIG ID AZLX-23-005000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.al2023.v-283440",
+   "title": "AZLX-23-001286 (V-283440): Amazon Linux 2023 must implement DOD-approved encryption in the bind package.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-283440 (DISA rule V-283440, STIG ID AZLX-23-001286, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-283441",
+   "title": "AZLX-23-000050 (V-283441): Amazon Linux 2023 must enable FIPS mode.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-283441 (DISA rule V-283441, STIG ID AZLX-23-000050, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-283442",
+   "title": "AZLX-23-001206 (V-283442): The Amazon Linux 2023 SSH client must be configured to use only DOD-approved encryption ciphers employing FIPS 140-3-validated cryptographic hash algorithms to protect th...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-283442 (DISA rule V-283442, STIG ID AZLX-23-001206, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-283443",
+   "title": "AZLX-23-001211 (V-283443): The Amazon Linux 2023 SSH client must be configured to use only DOD-approved Message Authentication Codes (MACs) employing FIPS 140-3-validated cryptographic hash algorit...",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-283443 (DISA rule V-283443, STIG ID AZLX-23-001211, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.al2023.v-283452",
+   "title": "AZLX-23-001270 (V-283452): Amazon Linux 2023 must implement a FIPS 140-2/140-3 compliant systemwide cryptographic policy.",
+   "scope": "MITRE SAF Amazon Linux 2023 STIG profile 1.3.2, control SV-283452 (DISA rule V-283452, STIG ID AZLX-23-001270, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
+}

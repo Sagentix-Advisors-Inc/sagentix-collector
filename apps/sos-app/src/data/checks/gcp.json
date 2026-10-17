@@ -1,0 +1,71 @@
+{
+ "source": "gcp",
+ "title": "Google Cloud (service account with read-only roles, per project)",
+ "readScopes": [
+  "roles/viewer",
+  "roles/iam.securityReviewer",
+  "roles/cloudasset.viewer"
+ ],
+ "checks": [
+  {
+   "id": "gcp.data_access_audit_logs",
+   "title": "Data Access audit logs (DATA_READ and DATA_WRITE) are on for allServices",
+   "scope": "The project's IAM policy auditConfigs; a folder or organization audit config that adds log types is not read, and logs excluded by a log sink exclusion are not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.org_policy_enforced",
+   "title": "Each listed boolean organization policy constraint is enforced on the project",
+   "scope": "The effective policy for each constraint given with --gcp-org-constraints (default iam.disableServiceAccountKeyCreation, storage.publicAccessPrevention); other constraints are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.sa_keys_rotated",
+   "title": "No enabled user-managed service account key is older than the limit (default 90 days)",
+   "scope": "User-managed keys of the project's service accounts; Google-managed keys and keys held outside Google Cloud are not seen.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.bucket_not_public",
+   "title": "No Cloud Storage bucket grants a role to allUsers or allAuthenticatedUsers",
+   "scope": "Bucket IAM policies; object ACLs on buckets without uniform bucket-level access and signed URLs are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.cloudsql_no_public_ip",
+   "title": "Each Cloud SQL instance has no public IPv4 address",
+   "scope": "Cloud SQL instances of the project; private-IP reachability through peered networks is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.cloudsql_ssl_required",
+   "title": "Each Cloud SQL instance accepts only encrypted connections",
+   "scope": "The instance's sslMode (or requireSsl when sslMode is unset); the TLS version clients negotiate is not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.firewall_no_open_admin_ports",
+   "title": "No enabled ingress firewall rule allows TCP 22 or 3389 from 0.0.0.0/0 or ::/0",
+   "scope": "VPC firewall rules of the project; hierarchical firewall policies and network firewall policies are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.scc_api_enabled",
+   "title": "The Security Command Center API is enabled on the project",
+   "scope": "The service state of securitycenter.googleapis.com; it does not show which Security Command Center tier or detectors are active.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.kms_rotation",
+   "title": "Each symmetric Cloud KMS key rotates automatically every 365 days or less",
+   "scope": "ENCRYPT_DECRYPT keys of the project in every KMS location; asymmetric and MAC keys, which do not rotate automatically, are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.vpc_flow_logs",
+   "title": "Each private subnetwork has VPC flow logs on",
+   "scope": "Subnetworks with purpose PRIVATE (or unset); proxy-only and other special-purpose subnets are not judged.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

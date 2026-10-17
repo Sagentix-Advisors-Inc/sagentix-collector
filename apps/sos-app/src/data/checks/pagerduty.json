@@ -1,0 +1,33 @@
+{
+ "source": "pagerduty",
+ "title": "PagerDuty (REST API v2, read-only API key)",
+ "readScopes": [
+  "A read-only REST API key (Integrations > API Access Keys, \"Read-only API Key\"); a scoped OAuth app needs incidents.read, services.read, escalation_policies.read, schedules.read and incident_workflows.read."
+ ],
+ "checks": [
+  {
+   "id": "pagerduty.incident_reviews_linked",
+   "title": "Resolved incidents of the last 90 days each carry a postmortem or retrospective link",
+   "scope": "Resolved high-urgency incidents (by default) on the chosen services; reviews kept outside PagerDuty count only through a note or custom field.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "pagerduty.escalation_multi_level",
+   "title": "Each production service's escalation policy has two or more levels",
+   "scope": "Enabled services, or those given with --pagerduty-service.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "pagerduty.oncall_24x7",
+   "title": "Each production service's first escalation level is on call for all of the next 7 days",
+   "scope": "The first level of each service's escalation policy: a named user, or a schedule's final rendered coverage; v3 schedules are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "pagerduty.response_automation",
+   "title": "An enabled incident workflow or an automation action exists for incident response",
+   "scope": "The account's incident workflows and automation actions; whether they run on the right incidents is not judged.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

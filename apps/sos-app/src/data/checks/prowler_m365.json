@@ -1,0 +1,498 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: Microsoft 365 (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "Microsoft Graph application: AccessReview.Read.All",
+  "AuditLog.Read.All",
+  "Directory.Read.All",
+  "OnPremDirectorySynchronization.Read.All",
+  "Policy.Read.All",
+  "RoleManagementPolicy.Read.Directory",
+  "SecurityIdentitiesHealth.Read.All",
+  "SecurityIdentitiesSensors.Read.All",
+  "SharePointTenantSettings.Read.All",
+  "ThreatHunting.Read.All",
+  "DeviceManagementServiceConfig.Read.All",
+  "DeviceManagementConfiguration.Read.All",
+  "DeviceManagementManagedDevices.Read.All",
+  "Office 365 Exchange Online: Exchange.ManageAsApp with the Global Reader role"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "m365",
+ "checks": [
+  {
+   "id": "prowler.m365.admincenter_users_admins_reduced_license_footprint",
+   "title": "Administrative user has no license or an allowed license (AAD_PREMIUM or AAD_PREMIUM_P2)",
+   "scope": "Prowler 5.45.0 check admincenter_users_admins_reduced_license_footprint (Microsoft 365 admincenter, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.admincenter_users_between_two_and_four_global_admins",
+   "title": "Tenant has between two and four Global Administrators",
+   "scope": "Prowler 5.45.0 check admincenter_users_between_two_and_four_global_admins (Microsoft 365 admincenter, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.defender_domain_dkim_enabled",
+   "title": "Exchange Online domain has DKIM enabled",
+   "scope": "Prowler 5.45.0 check defender_domain_dkim_enabled (Microsoft 365 defender, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.defender_domain_dmarc_records_published",
+   "title": "Exchange Online domain has a DMARC record published with an enforcement policy",
+   "scope": "Prowler 5.45.0 check defender_domain_dmarc_records_published (Microsoft 365 defender, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.defender_strict_preset_security_policy_enabled",
+   "title": "Strict Preset Security Policy is enabled",
+   "scope": "Prowler 5.45.0 check defender_strict_preset_security_policy_enabled (Microsoft 365 defender, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_access_review_guest_users_configured",
+   "title": "Access review for guest users is configured",
+   "scope": "Prowler 5.45.0 check entra_access_review_guest_users_configured (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_access_review_privileged_roles_configured",
+   "title": "Access review for privileged roles is configured",
+   "scope": "Prowler 5.45.0 check entra_access_review_privileged_roles_configured (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_admin_portals_access_restriction",
+   "title": "Admin portals are accessible only to administrative roles",
+   "scope": "Prowler 5.45.0 check entra_admin_portals_access_restriction (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_admin_users_cloud_only",
+   "title": "All users with administrative roles are cloud-only accounts",
+   "scope": "Prowler 5.45.0 check entra_admin_users_cloud_only (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_admin_users_phishing_resistant_mfa_enabled",
+   "title": "At least one Conditional Access policy requires phishing-resistant MFA strength for administrator roles",
+   "scope": "Prowler 5.45.0 check entra_admin_users_phishing_resistant_mfa_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_admin_users_sign_in_frequency_enabled",
+   "title": "Admin users have sign-in frequency enforced by Conditional Access at or below the recommended interval",
+   "scope": "Prowler 5.45.0 check entra_admin_users_sign_in_frequency_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_all_apps_conditional_access_coverage",
+   "title": "Conditional Access policy ensures comprehensive coverage for all cloud apps",
+   "scope": "Prowler 5.45.0 check entra_all_apps_conditional_access_coverage (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_app_registration_client_secret_unused",
+   "title": "Application registrations should not use client secrets",
+   "scope": "Prowler 5.45.0 check entra_app_registration_client_secret_unused (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_break_glass_account_fido2_security_key_registered",
+   "title": "Break glass account has a FIDO2 security key registered for phishing-resistant authentication",
+   "scope": "Prowler 5.45.0 check entra_break_glass_account_fido2_security_key_registered (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_app_enforced_restrictions",
+   "title": "Conditional Access policy enforces application restrictions for unmanaged devices",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_app_enforced_restrictions (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_approved_client_app_required_for_mobile",
+   "title": "Conditional Access policy enforces approved client apps or app protection for mobile devices",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_approved_client_app_required_for_mobile (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_block_elevated_insider_risk",
+   "title": "Conditional Access Policy blocks access for users with elevated insider risk",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_block_elevated_insider_risk (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_block_high_medium_sign_in_risk",
+   "title": "Conditional Access policy blocks high and medium sign-in risk",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_block_high_medium_sign_in_risk (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_block_o365_elevated_insider_risk",
+   "title": "Conditional Access policy blocks Office 365 access for users with elevated insider risk",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_block_o365_elevated_insider_risk (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_device_code_flow_blocked",
+   "title": "Conditional Access policy blocks device code flow to prevent phishing attacks",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_device_code_flow_blocked (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_conditional_access_policy_groups_management_restricted",
+   "title": "Conditional Access policy groups are management-restricted or role-assignable",
+   "scope": "Prowler 5.45.0 check entra_conditional_access_policy_groups_management_restricted (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_default_app_management_policy_enabled",
+   "title": "Default app management policy enforces credential restrictions on applications and service principals",
+   "scope": "Prowler 5.45.0 check entra_default_app_management_policy_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_device_registration_global_admins_not_local_admins",
+   "title": "Global Administrators are not added as local administrators during Entra join",
+   "scope": "Prowler 5.45.0 check entra_device_registration_global_admins_not_local_admins (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_device_registration_laps_enabled",
+   "title": "Microsoft Entra Local Administrator Password Solution (LAPS) is enabled",
+   "scope": "Prowler 5.45.0 check entra_device_registration_laps_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_device_registration_registering_user_not_local_admin",
+   "title": "Registering user is not added as local administrator during Entra join",
+   "scope": "Prowler 5.45.0 check entra_device_registration_registering_user_not_local_admin (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_dynamic_group_for_guests_created",
+   "title": "A dynamic membership group for guest users exists",
+   "scope": "Prowler 5.45.0 check entra_dynamic_group_for_guests_created (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.m365.entra_identity_protection_sign_in_risk_enabled",
+   "title": "At least one Conditional Access Identity Protection sign-in risk policy protects against high and medium risk sign-ins",
+   "scope": "Prowler 5.45.0 check entra_identity_protection_sign_in_risk_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_identity_protection_user_risk_enabled",
+   "title": "At least one Conditional Access policy enforces Identity Protection user risk for high-risk users",
+   "scope": "Prowler 5.45.0 check entra_identity_protection_user_risk_enabled (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_intune_enrollment_sign_in_frequency_every_time",
+   "title": "Conditional Access requires strong authentication and Every Time sign-in frequency for Intune Enrollment",
+   "scope": "Prowler 5.45.0 check entra_intune_enrollment_sign_in_frequency_every_time (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_managed_device_required_for_authentication",
+   "title": "Conditional Access policies require authentication from a managed device for all users and applications",
+   "scope": "Prowler 5.45.0 check entra_managed_device_required_for_authentication (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_password_protection_custom_banned_list_enforced",
+   "title": "Entra custom banned password list is enforced",
+   "scope": "Prowler 5.45.0 check entra_password_protection_custom_banned_list_enforced (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_password_protection_lockout_duration_configured",
+   "title": "Smart lockout duration is set to 60 seconds or more",
+   "scope": "Prowler 5.45.0 check entra_password_protection_lockout_duration_configured (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.m365.entra_password_protection_lockout_threshold_limited",
+   "title": "Smart lockout threshold is set to 10 or less",
+   "scope": "Prowler 5.45.0 check entra_password_protection_lockout_threshold_limited (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_password_protection_on_premises_enforced",
+   "title": "Entra password protection is enforced on on-premises Active Directory",
+   "scope": "Prowler 5.45.0 check entra_password_protection_on_premises_enforced (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_pim_global_administrator_approval_required",
+   "title": "PIM requires approval to activate the Global Administrator role",
+   "scope": "Prowler 5.45.0 check entra_pim_global_administrator_approval_required (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_pim_privileged_role_administrator_approval_required",
+   "title": "PIM requires approval to activate the Privileged Role Administrator role",
+   "scope": "Prowler 5.45.0 check entra_pim_privileged_role_administrator_approval_required (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_policy_default_user_cannot_create_m365_groups",
+   "title": "Non-admin users cannot create Microsoft 365 groups",
+   "scope": "Prowler 5.45.0 check entra_policy_default_user_cannot_create_m365_groups (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_policy_default_user_cannot_create_security_groups",
+   "title": "Non-admin users cannot create security groups",
+   "scope": "Prowler 5.45.0 check entra_policy_default_user_cannot_create_security_groups (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_policy_default_user_cannot_read_bitlocker_keys",
+   "title": "Non-admin users cannot read BitLocker keys for their owned devices",
+   "scope": "Prowler 5.45.0 check entra_policy_default_user_cannot_read_bitlocker_keys (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_policy_guest_invite_only_for_admin_roles",
+   "title": "Tenant guest invitations are restricted to specific admin roles or disabled",
+   "scope": "Prowler 5.45.0 check entra_policy_guest_invite_only_for_admin_roles (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.entra_policy_guest_users_access_restrictions",
+   "title": "Authorization policy restricts guest user access to properties and memberships of their own directory objects",
+   "scope": "Prowler 5.45.0 check entra_policy_guest_users_access_restrictions (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.entra_service_principal_no_secrets_for_permanent_tier0_roles",
+   "title": "Secure credential management prevents client secret usage for service principals with permanent Tier 0 roles",
+   "scope": "Prowler 5.45.0 check entra_service_principal_no_secrets_for_permanent_tier0_roles (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.entra_service_principal_privileged_role_no_owners",
+   "title": "Service principals with privileged Entra directory roles must have no owners",
+   "scope": "Prowler 5.45.0 check entra_service_principal_privileged_role_no_owners (Microsoft 365 entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.exchange_mailbox_audit_bypass_disabled",
+   "title": "Mailbox has AuditBypassEnabled disabled",
+   "scope": "Prowler 5.45.0 check exchange_mailbox_audit_bypass_disabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.exchange_organization_mailbox_auditing_enabled",
+   "title": "Organization has mailbox auditing enabled",
+   "scope": "Prowler 5.45.0 check exchange_organization_mailbox_auditing_enabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.exchange_organization_modern_authentication_enabled",
+   "title": "Organization has Modern Authentication enabled",
+   "scope": "Prowler 5.45.0 check exchange_organization_modern_authentication_enabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.exchange_organization_reject_direct_send_enabled",
+   "title": "Direct Send is rejected for the Exchange Online organization",
+   "scope": "Prowler 5.45.0 check exchange_organization_reject_direct_send_enabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.exchange_roles_assignment_policy_addins_disabled",
+   "title": "Role assignment policy does not allow Outlook add-ins",
+   "scope": "Prowler 5.45.0 check exchange_roles_assignment_policy_addins_disabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.exchange_shared_mailbox_sign_in_disabled",
+   "title": "Shared mailbox has sign-in blocked",
+   "scope": "Prowler 5.45.0 check exchange_shared_mailbox_sign_in_disabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.exchange_transport_config_smtp_auth_disabled",
+   "title": "SMTP AUTH is disabled in the Exchange Online Transport Configuration",
+   "scope": "Prowler 5.45.0 check exchange_transport_config_smtp_auth_disabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.exchange_user_mailbox_auditing_enabled",
+   "title": "User mailbox auditing is enabled with required Admin, Delegate, and Owner actions and audit log age meets the minimum",
+   "scope": "Prowler 5.45.0 check exchange_user_mailbox_auditing_enabled (Microsoft 365 exchange, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.purview_audit_log_search_enabled",
+   "title": "Purview audit log search is enabled",
+   "scope": "Prowler 5.45.0 check purview_audit_log_search_enabled (Microsoft 365 purview, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.sharepoint_modern_authentication_required",
+   "title": "Requires modern authentication for applications",
+   "scope": "Prowler 5.45.0 check sharepoint_modern_authentication_required (Microsoft 365 sharepoint, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.sharepoint_onedrive_sync_restricted_unmanaged_devices",
+   "title": "OneDrive sync from unmanaged devices is blocked",
+   "scope": "Prowler 5.45.0 check sharepoint_onedrive_sync_restricted_unmanaged_devices (Microsoft 365 sharepoint, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_email_sending_to_channel_disabled",
+   "title": "Email to Teams channel addresses is disabled",
+   "scope": "Prowler 5.45.0 check teams_email_sending_to_channel_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_external_file_sharing_restricted",
+   "title": "External file sharing is restricted to only approved cloud storage services",
+   "scope": "Prowler 5.45.0 check teams_external_file_sharing_restricted (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_external_users_cannot_start_conversations",
+   "title": "Users cannot start conversations with unmanaged accounts",
+   "scope": "Prowler 5.45.0 check teams_external_users_cannot_start_conversations (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_anonymous_user_join_disabled",
+   "title": "Anonymous users cannot join Teams meetings",
+   "scope": "Prowler 5.45.0 check teams_meeting_anonymous_user_join_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_anonymous_user_start_disabled",
+   "title": "Anonymous users cannot start Teams meetings",
+   "scope": "Prowler 5.45.0 check teams_meeting_anonymous_user_start_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_chat_anonymous_users_disabled",
+   "title": "Meetings global policy does not allow anonymous users in meeting chat",
+   "scope": "Prowler 5.45.0 check teams_meeting_chat_anonymous_users_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_dial_in_lobby_bypass_disabled",
+   "title": "Meetings global policy does not allow dial-in users to bypass the lobby",
+   "scope": "Prowler 5.45.0 check teams_meeting_dial_in_lobby_bypass_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_external_chat_disabled",
+   "title": "Meeting chat for untrusted organizations is disabled",
+   "scope": "Prowler 5.45.0 check teams_meeting_external_chat_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_external_control_disabled",
+   "title": "Meetings global policy prevents external participants from giving or requesting control",
+   "scope": "Prowler 5.45.0 check teams_meeting_external_control_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_external_lobby_bypass_disabled",
+   "title": "Meetings global policy allows only people in the organization to bypass the lobby",
+   "scope": "Prowler 5.45.0 check teams_meeting_external_lobby_bypass_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_presenters_restricted",
+   "title": "Meetings org-wide default policy allows only organizers and co-organizers to present",
+   "scope": "Prowler 5.45.0 check teams_meeting_presenters_restricted (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.teams_meeting_recording_disabled",
+   "title": "Meetings global (Org-wide default) policy has meeting recording disabled by default",
+   "scope": "Prowler 5.45.0 check teams_meeting_recording_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.m365.teams_unmanaged_communication_disabled",
+   "title": "Users cannot communicate with unmanaged users",
+   "scope": "Prowler 5.45.0 check teams_unmanaged_communication_disabled (Microsoft 365 teams, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
+}

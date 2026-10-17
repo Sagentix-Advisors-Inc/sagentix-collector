@@ -1,0 +1,944 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: Azure (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "Reader (subscription)",
+  "ProwlerRole custom role (prowler-azure-custom-role.json)",
+  "Microsoft Graph application: AuditLog.Read.All",
+  "Microsoft Graph application: Directory.Read.All",
+  "Microsoft Graph application: Policy.Read.All"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "azure",
+ "checks": [
+  {
+   "id": "prowler.azure.aisearch_service_not_publicly_accessible",
+   "title": "AI Search service has public network access disabled",
+   "scope": "Prowler 5.45.0 check aisearch_service_not_publicly_accessible (Azure aisearch, resource type microsoft.search/searchservices): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.aks_cluster_azure_monitor_enabled",
+   "title": "AKS cluster has Azure Monitor metrics enabled",
+   "scope": "Prowler 5.45.0 check aks_cluster_azure_monitor_enabled (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.aks_cluster_local_accounts_disabled",
+   "title": "AKS cluster has local accounts disabled",
+   "scope": "Prowler 5.45.0 check aks_cluster_local_accounts_disabled (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.aks_cluster_rbac_enabled",
+   "title": "AKS cluster has RBAC enabled",
+   "scope": "Prowler 5.45.0 check aks_cluster_rbac_enabled (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.aks_clusters_created_with_private_nodes",
+   "title": "AKS cluster nodes do not have public IP addresses",
+   "scope": "Prowler 5.45.0 check aks_clusters_created_with_private_nodes (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.aks_clusters_public_access_disabled",
+   "title": "AKS cluster has a private endpoint and node public access is disabled",
+   "scope": "Prowler 5.45.0 check aks_clusters_public_access_disabled (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.aks_network_policy_enabled",
+   "title": "AKS cluster has network policy enabled",
+   "scope": "Prowler 5.45.0 check aks_network_policy_enabled (Azure aks, resource type microsoft.containerservice/managedclusters): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_client_certificates_on",
+   "title": "Web app requires incoming client certificates",
+   "scope": "Prowler 5.45.0 check app_client_certificates_on (Azure app, resource type microsoft.web/sites/config): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_ensure_auth_is_set_up",
+   "title": "App Service app has App Service Authentication enabled",
+   "scope": "Prowler 5.45.0 check app_ensure_auth_is_set_up (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_ensure_http_is_redirected_to_https",
+   "title": "App Service web app redirects HTTP to HTTPS",
+   "scope": "Prowler 5.45.0 check app_ensure_http_is_redirected_to_https (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.app_ensure_java_version_is_latest",
+   "title": "App Service web app uses the latest supported Java version or 17 by default",
+   "scope": "Prowler 5.45.0 check app_ensure_java_version_is_latest (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.app_ensure_php_version_is_latest",
+   "title": "App Service web app uses the latest supported PHP version or 8.2 by default",
+   "scope": "Prowler 5.45.0 check app_ensure_php_version_is_latest (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.app_ensure_python_version_is_latest",
+   "title": "App Service web app uses the latest supported Python version or 3.12 by default",
+   "scope": "Prowler 5.45.0 check app_ensure_python_version_is_latest (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.app_ftp_deployment_disabled",
+   "title": "App Service web app has FTP disabled or FTPS-only enforced",
+   "scope": "Prowler 5.45.0 check app_ftp_deployment_disabled (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.app_function_application_insights_enabled",
+   "title": "Function App has Application Insights configured",
+   "scope": "Prowler 5.45.0 check app_function_application_insights_enabled (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_function_ensure_http_is_redirected_to_https",
+   "title": "Function app redirects HTTP to HTTPS",
+   "scope": "Prowler 5.45.0 check app_function_ensure_http_is_redirected_to_https (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.app_function_ftps_deployment_disabled",
+   "title": "Function app has FTP and FTPS deployments disabled",
+   "scope": "Prowler 5.45.0 check app_function_ftps_deployment_disabled (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_function_identity_is_configured",
+   "title": "Function app has a system-assigned or user-assigned managed identity enabled",
+   "scope": "Prowler 5.45.0 check app_function_identity_is_configured (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_function_identity_without_admin_privileges",
+   "title": "Function app managed identity is not assigned Owner, Contributor, User Access Administrator, or Role Based Access Control Administrator roles",
+   "scope": "Prowler 5.45.0 check app_function_identity_without_admin_privileges (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.app_function_latest_runtime_version",
+   "title": "Function app uses the latest supported runtime version (~4)",
+   "scope": "Prowler 5.45.0 check app_function_latest_runtime_version (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_function_not_publicly_accessible",
+   "title": "Function app is not publicly accessible",
+   "scope": "Prowler 5.45.0 check app_function_not_publicly_accessible (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.app_http_logs_enabled",
+   "title": "App Service web app has HTTP logs enabled in diagnostic settings",
+   "scope": "Prowler 5.45.0 check app_http_logs_enabled (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.app_minimum_tls_version_12",
+   "title": "App Service web app has minimum TLS version set to 1.2 or 1.3",
+   "scope": "Prowler 5.45.0 check app_minimum_tls_version_12 (Azure app, resource type microsoft.web/sites/config): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.app_register_with_identity",
+   "title": "App Service web app has a managed identity configured",
+   "scope": "Prowler 5.45.0 check app_register_with_identity (Azure app, resource type microsoft.web/sites): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.appinsights_ensure_is_configured",
+   "title": "Subscription has at least one Application Insights resource configured",
+   "scope": "Prowler 5.45.0 check appinsights_ensure_is_configured (Azure appinsights, resource type microsoft.insights/components): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.containerregistry_not_publicly_accessible",
+   "title": "Container Registry public network access is disabled",
+   "scope": "Prowler 5.45.0 check containerregistry_not_publicly_accessible (Azure containerregistry, resource type microsoft.containerregistry/registries): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.cosmosdb_account_automatic_failover_enabled",
+   "title": "Cosmos DB account has automatic failover enabled",
+   "scope": "Prowler 5.45.0 check cosmosdb_account_automatic_failover_enabled (Azure cosmosdb, resource type microsoft.documentdb/databaseaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.cosmosdb_account_backup_policy_continuous",
+   "title": "Cosmos DB account uses continuous backup policy",
+   "scope": "Prowler 5.45.0 check cosmosdb_account_backup_policy_continuous (Azure cosmosdb, resource type microsoft.documentdb/databaseaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.cosmosdb_account_minimum_tls_version",
+   "title": "Cosmos DB account enforces TLS 1.2 or higher",
+   "scope": "Prowler 5.45.0 check cosmosdb_account_minimum_tls_version (Azure cosmosdb, resource type microsoft.documentdb/databaseaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.cosmosdb_account_public_network_access_disabled",
+   "title": "Cosmos DB account has public network access disabled",
+   "scope": "Prowler 5.45.0 check cosmosdb_account_public_network_access_disabled (Azure cosmosdb, resource type microsoft.documentdb/databaseaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.cosmosdb_account_use_aad_and_rbac",
+   "title": "Cosmos DB account has local authentication disabled and uses Azure AD authentication with Azure RBAC",
+   "scope": "Prowler 5.45.0 check cosmosdb_account_use_aad_and_rbac (Azure cosmosdb, resource type microsoft.documentdb/databaseaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.databricks_workspace_cmk_encryption_enabled",
+   "title": "Databricks workspace uses a customer-managed key (CMK) for encryption at rest",
+   "scope": "Prowler 5.45.0 check databricks_workspace_cmk_encryption_enabled (Azure databricks, resource type microsoft.databricks/workspaces): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.databricks_workspace_no_public_ip_enabled",
+   "title": "Databricks workspace has secure cluster connectivity (no public IP)",
+   "scope": "Prowler 5.45.0 check databricks_workspace_no_public_ip_enabled (Azure databricks, resource type microsoft.databricks/workspaces): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.databricks_workspace_public_network_access_disabled",
+   "title": "Databricks workspace has public network access disabled",
+   "scope": "Prowler 5.45.0 check databricks_workspace_public_network_access_disabled (Azure databricks, resource type microsoft.databricks/workspaces): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.defender_auto_provisioning_log_analytics_agent_vms_on",
+   "title": "Defender auto-provisioning of Log Analytics agent for Azure VMs is enabled",
+   "scope": "Prowler 5.45.0 check defender_auto_provisioning_log_analytics_agent_vms_on (Azure defender, resource type microsoft.resources/subscriptions): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.defender_container_images_resolved_vulnerabilities",
+   "title": "All Azure running container images in the subscription have no unresolved vulnerabilities",
+   "scope": "Prowler 5.45.0 check defender_container_images_resolved_vulnerabilities (Azure defender, resource type microsoft.security/assessmentssample): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.azure.defender_container_images_scan_enabled",
+   "title": "Subscription has container image vulnerability scanning enabled",
+   "scope": "Prowler 5.45.0 check defender_container_images_scan_enabled (Azure defender, resource type microsoft.security/pricings): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.defender_ensure_defender_cspm_is_on",
+   "title": "Microsoft Defender CSPM is set to On",
+   "scope": "Prowler 5.45.0 check defender_ensure_defender_cspm_is_on (Azure defender, resource type microsoft.security/pricings): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.defender_ensure_system_updates_are_applied",
+   "title": "All virtual machines in the subscription have system updates applied",
+   "scope": "Prowler 5.45.0 check defender_ensure_system_updates_are_applied (Azure defender, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_app_registration_credential_not_expired",
+   "title": "App registration credentials are not expired or expiring soon",
+   "scope": "Prowler 5.45.0 check entra_app_registration_credential_not_expired (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_global_admin_in_less_than_five_users",
+   "title": "Global Administrator role has fewer than 5 members",
+   "scope": "Prowler 5.45.0 check entra_global_admin_in_less_than_five_users (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_policy_default_users_cannot_create_security_groups",
+   "title": "Authorization policy disallows non-privileged users from creating security groups",
+   "scope": "Prowler 5.45.0 check entra_policy_default_users_cannot_create_security_groups (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.entra_policy_ensure_default_user_cannot_create_apps",
+   "title": "Tenant does not allow non-admin users to register applications",
+   "scope": "Prowler 5.45.0 check entra_policy_ensure_default_user_cannot_create_apps (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_policy_ensure_default_user_cannot_create_tenants",
+   "title": "Authorization policy restricts non-admin users from creating tenants",
+   "scope": "Prowler 5.45.0 check entra_policy_ensure_default_user_cannot_create_tenants (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.entra_policy_guest_invite_only_for_admin_roles",
+   "title": "Tenant authorization policy restricts guest invitations to users with specific admin roles or disables guest invitations",
+   "scope": "Prowler 5.45.0 check entra_policy_guest_invite_only_for_admin_roles (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_policy_guest_users_access_restrictions",
+   "title": "Authorization policy restricts guest user access to properties and memberships of their own directory objects",
+   "scope": "Prowler 5.45.0 check entra_policy_guest_users_access_restrictions (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.entra_policy_restricts_user_consent_for_apps",
+   "title": "Entra authorization policy disallows user consent for applications",
+   "scope": "Prowler 5.45.0 check entra_policy_restricts_user_consent_for_apps (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_policy_user_consent_for_verified_apps",
+   "title": "Entra tenant does not allow users to consent to non-verified applications",
+   "scope": "Prowler 5.45.0 check entra_policy_user_consent_for_verified_apps (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.entra_user_with_recent_sign_in",
+   "title": "Enabled user has signed in within the last 90 days",
+   "scope": "Prowler 5.45.0 check entra_user_with_recent_sign_in (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.entra_users_cannot_create_microsoft_365_groups",
+   "title": "Microsoft 365 group creation by users is disabled",
+   "scope": "Prowler 5.45.0 check entra_users_cannot_create_microsoft_365_groups (Azure entra, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.iam_custom_role_has_permissions_to_administer_resource_locks",
+   "title": "Custom role has permission to administer resource locks",
+   "scope": "Prowler 5.45.0 check iam_custom_role_has_permissions_to_administer_resource_locks (Azure iam, resource type microsoft.authorization/roledefinitions): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.iam_role_user_access_admin_restricted",
+   "title": "Role assignment does not grant the User Access Administrator role",
+   "scope": "Prowler 5.45.0 check iam_role_user_access_admin_restricted (Azure iam, resource type microsoft.authorization/roleassignments): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.iam_subscription_roles_owner_custom_not_created",
+   "title": "Custom role is not a subscription owner role",
+   "scope": "Prowler 5.45.0 check iam_subscription_roles_owner_custom_not_created (Azure iam, resource type microsoft.authorization/roledefinitions): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.keyvault_key_expiration_set_in_non_rbac",
+   "title": "Key in non-RBAC Key Vault has expiration date set",
+   "scope": "Prowler 5.45.0 check keyvault_key_expiration_set_in_non_rbac (Azure keyvault, resource type microsoft.keyvault/vaults/keys): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.keyvault_key_rotation_enabled",
+   "title": "Key Vault key has automatic rotation enabled",
+   "scope": "Prowler 5.45.0 check keyvault_key_rotation_enabled (Azure keyvault, resource type microsoft.keyvault/vaults/keys): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.keyvault_non_rbac_secret_expiration_set",
+   "title": "Secret in non-RBAC Key Vault has expiration date set",
+   "scope": "Prowler 5.45.0 check keyvault_non_rbac_secret_expiration_set (Azure keyvault, resource type microsoft.keyvault/vaults/secrets): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.keyvault_rbac_enabled",
+   "title": "Key Vault uses Azure RBAC for access control",
+   "scope": "Prowler 5.45.0 check keyvault_rbac_enabled (Azure keyvault, resource type microsoft.keyvault/vaults): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.keyvault_rbac_key_expiration_set",
+   "title": "Key in RBAC-enabled Key Vault has expiration date set",
+   "scope": "Prowler 5.45.0 check keyvault_rbac_key_expiration_set (Azure keyvault, resource type microsoft.keyvault/vaults/keys): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.keyvault_rbac_secret_expiration_set",
+   "title": "Secret in RBAC-enabled Key Vault has expiration date set",
+   "scope": "Prowler 5.45.0 check keyvault_rbac_secret_expiration_set (Azure keyvault, resource type microsoft.keyvault/vaults/secrets): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.keyvault_recoverable",
+   "title": "Key Vault has soft delete and purge protection enabled",
+   "scope": "Prowler 5.45.0 check keyvault_recoverable (Azure keyvault, resource type microsoft.keyvault/vaults): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_create_policy_assignment",
+   "title": "Subscription has an Azure Monitor activity log alert for policy assignment creation",
+   "scope": "Prowler 5.45.0 check monitor_alert_create_policy_assignment (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_create_update_nsg",
+   "title": "Subscription has an Activity Log alert for Network Security Group create or update operations",
+   "scope": "Prowler 5.45.0 check monitor_alert_create_update_nsg (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_create_update_public_ip_address_rule",
+   "title": "Subscription has an Activity Log Alert for Public IP address create or update operations",
+   "scope": "Prowler 5.45.0 check monitor_alert_create_update_public_ip_address_rule (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_create_update_security_solution",
+   "title": "Subscription has Activity Log alert for Security Solution create or update",
+   "scope": "Prowler 5.45.0 check monitor_alert_create_update_security_solution (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_create_update_sqlserver_fr",
+   "title": "Subscription has an Activity Log alert for SQL Server firewall rule create or update events",
+   "scope": "Prowler 5.45.0 check monitor_alert_create_update_sqlserver_fr (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_delete_nsg",
+   "title": "Subscription has an Activity Log alert for Network Security Group delete operations",
+   "scope": "Prowler 5.45.0 check monitor_alert_delete_nsg (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_delete_policy_assignment",
+   "title": "Subscription has an Activity Log alert for policy assignment deletion",
+   "scope": "Prowler 5.45.0 check monitor_alert_delete_policy_assignment (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_delete_public_ip_address_rule",
+   "title": "Azure subscription has an Activity Log alert for public IP address deletion",
+   "scope": "Prowler 5.45.0 check monitor_alert_delete_public_ip_address_rule (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_delete_security_solution",
+   "title": "Subscription has an Azure Monitor Activity Log alert for Microsoft.Security/securitySolutions delete operations",
+   "scope": "Prowler 5.45.0 check monitor_alert_delete_security_solution (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_alert_delete_sqlserver_fr",
+   "title": "Subscription has an Activity Log Alert for SQL Server firewall rule deletions",
+   "scope": "Prowler 5.45.0 check monitor_alert_delete_sqlserver_fr (Azure monitor, resource type microsoft.insights/activitylogalerts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_diagnostic_setting_with_appropriate_categories",
+   "title": "Subscription has a diagnostic setting capturing Administrative, Security, Alert, and Policy categories",
+   "scope": "Prowler 5.45.0 check monitor_diagnostic_setting_with_appropriate_categories (Azure monitor, resource type microsoft.resources/subscriptions): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_diagnostic_settings_exists",
+   "title": "Subscription has an Activity Log diagnostic setting",
+   "scope": "Prowler 5.45.0 check monitor_diagnostic_settings_exists (Azure monitor, resource type microsoft.resources/subscriptions): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.monitor_storage_account_with_activity_logs_cmk_encrypted",
+   "title": "Storage account storing Activity Log data is encrypted with a customer-managed key",
+   "scope": "Prowler 5.45.0 check monitor_storage_account_with_activity_logs_cmk_encrypted (Azure monitor, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.monitor_storage_account_with_activity_logs_is_private",
+   "title": "Storage account storing activity logs does not allow public blob access",
+   "scope": "Prowler 5.45.0 check monitor_storage_account_with_activity_logs_is_private (Azure monitor, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_audit_log_connection_activated",
+   "title": "MySQL flexible server has audit_log_events including CONNECTION",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_audit_log_connection_activated (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_audit_log_enabled",
+   "title": "MySQL flexible server has audit_log_enabled set to ON",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_audit_log_enabled (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_geo_redundant_backup_enabled",
+   "title": "MySQL flexible server has geo-redundant backup enabled",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_geo_redundant_backup_enabled (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_high_availability_enabled",
+   "title": "MySQL flexible server has high availability enabled",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_high_availability_enabled (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_minimum_tls_version_12",
+   "title": "MySQL flexible server enforces TLS 1.2 or higher",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_minimum_tls_version_12 (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.mysql_flexible_server_ssl_connection_enabled",
+   "title": "MySQL Flexible Server enforces SSL connections",
+   "scope": "Prowler 5.45.0 check mysql_flexible_server_ssl_connection_enabled (Azure mysql, resource type microsoft.dbformysql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_bastion_host_exists",
+   "title": "Azure subscription has at least one Bastion Host",
+   "scope": "Prowler 5.45.0 check network_bastion_host_exists (Azure network, resource type microsoft.network/bastionhosts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.network_flow_log_captured_sent",
+   "title": "Network Watcher has flow logs enabled and sent to a Log Analytics workspace",
+   "scope": "Prowler 5.45.0 check network_flow_log_captured_sent (Azure network, resource type microsoft.network/networkwatchers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_flow_log_more_than_90_days",
+   "title": "Network Watcher has all flow logs enabled with retention set to 0 or at least 90 days",
+   "scope": "Prowler 5.45.0 check network_flow_log_more_than_90_days (Azure network, resource type microsoft.network/networkwatchers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.network_http_internet_access_restricted",
+   "title": "Network security group restricts inbound HTTP (port 80) access from the Internet",
+   "scope": "Prowler 5.45.0 check network_http_internet_access_restricted (Azure network, resource type microsoft.network/networksecuritygroups): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_rdp_internet_access_restricted",
+   "title": "Network security group does not allow inbound RDP (TCP 3389) from the Internet",
+   "scope": "Prowler 5.45.0 check network_rdp_internet_access_restricted (Azure network, resource type microsoft.network/networksecuritygroups): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_ssh_internet_access_restricted",
+   "title": "Network security group does not allow inbound SSH (TCP port 22) from the Internet",
+   "scope": "Prowler 5.45.0 check network_ssh_internet_access_restricted (Azure network, resource type microsoft.network/networksecuritygroups): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_subnet_nsg_associated",
+   "title": "Subnet has a network security group associated",
+   "scope": "Prowler 5.45.0 check network_subnet_nsg_associated (Azure network, resource type microsoft.network/virtualnetworks/subnets): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_udp_internet_access_restricted",
+   "title": "Network security group does not allow inbound UDP from the Internet",
+   "scope": "Prowler 5.45.0 check network_udp_internet_access_restricted (Azure network, resource type microsoft.network/networksecuritygroups): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.network_vnet_ddos_protection_enabled",
+   "title": "Virtual network has Azure DDoS Network Protection enabled",
+   "scope": "Prowler 5.45.0 check network_vnet_ddos_protection_enabled (Azure network, resource type microsoft.network/virtualnetworks): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.network_watcher_enabled",
+   "title": "Network Watcher is enabled for all locations in the subscription",
+   "scope": "Prowler 5.45.0 check network_watcher_enabled (Azure network, resource type microsoft.network/networkwatchers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.policy_ensure_asc_enforcement_enabled",
+   "title": "Security Center built-in policy assignment has enforcement mode set to Default",
+   "scope": "Prowler 5.45.0 check policy_ensure_asc_enforcement_enabled (Azure policy, resource type microsoft.authorization/policyassignments): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_allow_access_services_disabled",
+   "title": "PostgreSQL flexible server has 'Allow public access from any Azure service' disabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_allow_access_services_disabled (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_connection_throttling_on",
+   "title": "Flexible PostgreSQL server has connection_throttling enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_connection_throttling_on (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_enforce_ssl_enabled",
+   "title": "PostgreSQL Flexible Server enforces SSL connections",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_enforce_ssl_enabled (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_geo_redundant_backup_enabled",
+   "title": "PostgreSQL flexible server has geo-redundant backup enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_geo_redundant_backup_enabled (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_high_availability_enabled",
+   "title": "PostgreSQL flexible server has high availability enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_high_availability_enabled (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_log_checkpoints_on",
+   "title": "PostgreSQL Flexible Server has checkpoint logging enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_log_checkpoints_on (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_log_connections_on",
+   "title": "PostgreSQL flexible server has log_connections enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_log_connections_on (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.postgresql_flexible_server_log_disconnections_on",
+   "title": "PostgreSQL Flexible Server has disconnection logging enabled",
+   "scope": "Prowler 5.45.0 check postgresql_flexible_server_log_disconnections_on (Azure postgresql, resource type microsoft.dbforpostgresql/flexibleservers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.recovery_vault_backup_policy_retention_adequate",
+   "title": "Recovery Services backup policy has at least 30 days retention",
+   "scope": "Prowler 5.45.0 check recovery_vault_backup_policy_retention_adequate (Azure recovery, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.recovery_vault_has_protected_items",
+   "title": "Recovery Services vault has backup protected items configured",
+   "scope": "Prowler 5.45.0 check recovery_vault_has_protected_items (Azure recovery, resource type microsoft.recoveryservices/vaults): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.sqlserver_auditing_enabled",
+   "title": "SQL Server has an auditing policy configured",
+   "scope": "Prowler 5.45.0 check sqlserver_auditing_enabled (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.sqlserver_auditing_retention_90_days",
+   "title": "SQL server has auditing enabled with retention greater than 90 days",
+   "scope": "Prowler 5.45.0 check sqlserver_auditing_retention_90_days (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.sqlserver_recommended_minimal_tls_version",
+   "title": "SQL server enforces minimal TLS version 1.2 or 1.3",
+   "scope": "Prowler 5.45.0 check sqlserver_recommended_minimal_tls_version (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.sqlserver_tde_encrypted_with_cmk",
+   "title": "SQL server uses a customer-managed key for the TDE protector and all databases have TDE enabled",
+   "scope": "Prowler 5.45.0 check sqlserver_tde_encrypted_with_cmk (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.azure.sqlserver_tde_encryption_enabled",
+   "title": "SQL database has Transparent Data Encryption (TDE) enabled",
+   "scope": "Prowler 5.45.0 check sqlserver_tde_encryption_enabled (Azure sqlserver, resource type microsoft.sql/servers/databases): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.sqlserver_unrestricted_inbound_access",
+   "title": "Azure SQL Server does not have firewall rules allowing 0.0.0.0-255.255.255.255",
+   "scope": "Prowler 5.45.0 check sqlserver_unrestricted_inbound_access (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.azure.sqlserver_va_periodic_recurring_scans_enabled",
+   "title": "SQL Server has Vulnerability Assessment periodic recurring scans enabled",
+   "scope": "Prowler 5.45.0 check sqlserver_va_periodic_recurring_scans_enabled (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.sqlserver_vulnerability_assessment_enabled",
+   "title": "SQL server has vulnerability assessment enabled with storage container configured",
+   "scope": "Prowler 5.45.0 check sqlserver_vulnerability_assessment_enabled (Azure sqlserver, resource type microsoft.sql/servers): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_account_key_access_disabled",
+   "title": "Storage account has shared key access disabled",
+   "scope": "Prowler 5.45.0 check storage_account_key_access_disabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_account_public_network_access_disabled",
+   "title": "Storage account has 'Public Network Access' disabled",
+   "scope": "Prowler 5.45.0 check storage_account_public_network_access_disabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_blob_public_access_level_is_disabled",
+   "title": "Storage account has 'Allow Blob Anonymous Access' disabled",
+   "scope": "Prowler 5.45.0 check storage_blob_public_access_level_is_disabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_blob_versioning_is_enabled",
+   "title": "Storage account has blob versioning enabled",
+   "scope": "Prowler 5.45.0 check storage_blob_versioning_is_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_default_network_access_rule_is_denied",
+   "title": "Storage account default network access rule is set to Deny",
+   "scope": "Prowler 5.45.0 check storage_default_network_access_rule_is_denied (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_default_to_entra_authorization_enabled",
+   "title": "Storage account uses Microsoft Entra authorization by default",
+   "scope": "Prowler 5.45.0 check storage_default_to_entra_authorization_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_ensure_encryption_with_customer_managed_keys",
+   "title": "Azure Storage account uses customer-managed keys (CMKs) for encryption",
+   "scope": "Prowler 5.45.0 check storage_ensure_encryption_with_customer_managed_keys (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_ensure_file_shares_soft_delete_is_enabled",
+   "title": "Storage account has soft delete enabled for file shares",
+   "scope": "Prowler 5.45.0 check storage_ensure_file_shares_soft_delete_is_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_ensure_minimum_tls_version_12",
+   "title": "Storage account minimum TLS version is 1.2",
+   "scope": "Prowler 5.45.0 check storage_ensure_minimum_tls_version_12 (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_ensure_soft_delete_is_enabled",
+   "title": "Storage account has soft delete for containers enabled",
+   "scope": "Prowler 5.45.0 check storage_ensure_soft_delete_is_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_geo_redundant_enabled",
+   "title": "Azure Storage account uses geo-redundant replication (GRS, GZRS, RA-GRS, or RA-GZRS)",
+   "scope": "Prowler 5.45.0 check storage_geo_redundant_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_infrastructure_encryption_is_enabled",
+   "title": "Storage account has infrastructure encryption enabled",
+   "scope": "Prowler 5.45.0 check storage_infrastructure_encryption_is_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.azure.storage_key_rotation_90_days",
+   "title": "Storage account has access key expiration period set to 90 days or less",
+   "scope": "Prowler 5.45.0 check storage_key_rotation_90_days (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.storage_secure_transfer_required_is_enabled",
+   "title": "Storage account has secure transfer required enabled",
+   "scope": "Prowler 5.45.0 check storage_secure_transfer_required_is_enabled (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.storage_smb_channel_encryption_with_secure_algorithm",
+   "title": "Storage account uses AES-256-GCM for SMB channel encryption on file shares",
+   "scope": "Prowler 5.45.0 check storage_smb_channel_encryption_with_secure_algorithm (Azure storage, resource type microsoft.storage/storageaccounts): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_backup_enabled",
+   "title": "Virtual Machine is protected by Azure Backup",
+   "scope": "Prowler 5.45.0 check vm_backup_enabled (Azure vm, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.vm_ensure_attached_disks_encrypted_with_cmk",
+   "title": "Virtual Machine OS or data disk is encrypted with a customer-managed key (CMK)",
+   "scope": "Prowler 5.45.0 check vm_ensure_attached_disks_encrypted_with_cmk (Azure vm, resource type microsoft.compute/disks): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_ensure_unattached_disks_encrypted_with_cmk",
+   "title": "Unattached disk is encrypted with a customer-managed key (CMK)",
+   "scope": "Prowler 5.45.0 check vm_ensure_unattached_disks_encrypted_with_cmk (Azure vm, resource type microsoft.compute/disks): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_jit_access_enabled",
+   "title": "Virtual Machine has Just-in-Time (JIT) access enabled",
+   "scope": "Prowler 5.45.0 check vm_jit_access_enabled (Azure vm, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_linux_enforce_ssh_authentication",
+   "title": "Linux Virtual Machine has password authentication disabled (SSH key authentication enforced)",
+   "scope": "Prowler 5.45.0 check vm_linux_enforce_ssh_authentication (Azure vm, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.azure.vm_scaleset_associated_with_load_balancer",
+   "title": "Virtual Machine Scale Set is associated with a load balancer backend pool",
+   "scope": "Prowler 5.45.0 check vm_scaleset_associated_with_load_balancer (Azure vm, resource type microsoft.compute/virtualmachinescalesets): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_sufficient_daily_backup_retention_period",
+   "title": "Virtual Machine has a backup policy with a daily retention period meeting the configured minimum",
+   "scope": "Prowler 5.45.0 check vm_sufficient_daily_backup_retention_period (Azure vm, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.azure.vm_trusted_launch_enabled",
+   "title": "Virtual Machine has Trusted Launch with Secure Boot and vTPM enabled",
+   "scope": "Prowler 5.45.0 check vm_trusted_launch_enabled (Azure vm, resource type microsoft.compute/virtualmachines): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  }
+ ]
+}

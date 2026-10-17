@@ -1,0 +1,15 @@
+{
+ "source": "grype",
+ "title": "Grype (Anchore, Apache-2.0): the JSON report the customer's pipeline writes",
+ "readScopes": [
+  "None for the collector: it reads the report file. Grype runs in the customer's pipeline (`grype <image|dir|sbom> -o json --file <file>`)."
+ ],
+ "checks": [
+  {
+   "id": "grype.no_aged_fixable_critical_high",
+   "title": "No critical or high vulnerability whose fix has been available longer than the allowed days",
+   "scope": "Packages in the scanned image, directory or SBOM; the fix date is the vulnerability feed's, not when the customer learned of it.",
+   "evidenceType": "Report"
+  }
+ ]
+}

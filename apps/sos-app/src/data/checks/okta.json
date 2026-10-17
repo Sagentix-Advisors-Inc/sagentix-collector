@@ -1,0 +1,67 @@
+{
+ "source": "okta",
+ "title": "Okta (management API, Read-Only Administrator token or OAuth service app with okta.*.read scopes)",
+ "readScopes": [
+  "okta.policies.read",
+  "okta.authenticators.read",
+  "okta.roles.read",
+  "okta.users.read",
+  "okta.logs.read"
+ ],
+ "checks": [
+  {
+   "id": "okta.mfa_enroll_required",
+   "title": "Each active authenticator enrollment policy requires an authenticator besides the password",
+   "scope": "Enrollment only; sign-in requirements are judged by okta.global_session_requires_mfa and okta.app_policies_require_2fa.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.phishing_resistant_authenticator",
+   "title": "A phishing-resistant authenticator is active (FIDO2 WebAuthn, smart card, or Okta Verify FastPass)",
+   "scope": "Availability only; whether policies require it is not judged. Identity Engine only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.global_session_requires_mfa",
+   "title": "Every active ALLOW rule of each active global session policy requires a factor",
+   "scope": "One result per global session policy.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.app_policies_require_2fa",
+   "title": "Every active ALLOW rule of each active app sign-in policy requires two factors",
+   "scope": "One result per app sign-in policy; rules using an authentication method chain are not judged. Identity Engine only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.password_policy",
+   "title": "Each active password policy sets a minimum length of --okta-min-password-length or more",
+   "scope": "Okta-mastered passwords only; history and maximum age are reported, not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.account_lockout",
+   "title": "Each active password policy locks the account after 1 to 10 failed attempts",
+   "scope": "Okta-mastered passwords only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.super_admins_limited",
+   "title": "At most --okta-max-super-admins users hold SUPER_ADMIN",
+   "scope": "Users only; API service clients holding admin roles are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "okta.inactive_users",
+   "title": "No ACTIVE user has gone --okta-stale-days days without signing in",
+   "scope": "Users never signed in are judged by their creation date.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "okta.system_log_available",
+   "title": "The System Log is readable and not empty",
+   "scope": "Readability only; Okta keeps System Log events for 90 days, and streaming to a SIEM is not visible.",
+   "evidenceType": "Audit Record"
+  }
+ ]
+}

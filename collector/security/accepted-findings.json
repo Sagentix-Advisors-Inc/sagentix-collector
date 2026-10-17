@@ -1,0 +1,11 @@
+{
+  "note": "CodeQL results reviewed and accepted, by rule and file (Sagentix, 2026-10-17). The collector-security gate fails on every other result. Add an entry only with a reason a reviewer can check against the code.",
+  "accepted": [
+    {
+      "rule": "js/file-access-to-http",
+      "file": "collector/src/sources/oauth.ts",
+      "reason": "tokenRequest posts a client secret or a signed assertion built from the customer's key file to the identity provider's token endpoint; that exchange is the OAuth grant itself. It refuses plain HTTP, and the Google source accepts a key file's token_uri only on googleapis.com (isGoogleTokenUri).",
+      "date": "2026-10-17"
+    }
+  ]
+}

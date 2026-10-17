@@ -1,0 +1,251 @@
+{
+ "source": "kubescape",
+ "title": "Kubescape (CNCF, Apache-2.0): NSA/CISA and MITRE framework controls, from the JSON report the customer's pipeline writes",
+ "readScopes": [
+  "None for the collector: it reads the report file. Kubescape runs in the customer's pipeline (`kubescape scan framework nsa,mitre --format json --output <file>`), against a cluster with a read-only kubeconfig (get, list, watch) or over manifests and Helm charts."
+ ],
+ "engine": {
+  "name": "Kubescape",
+  "version": "4.0.15",
+  "licence": "Apache-2.0",
+  "rules": {
+   "repo": "kubescape/regolibrary",
+   "tag": "v2.0.38",
+   "commit": "f01135a697e6f710c1797bd7cd0d2ea42ec98f9f",
+   "assets": {
+    "nsa": "80e23ca99be3e5bb0f80d968b32ae27b7dada39f9b12b9e3abffea8680ac7737",
+    "mitre": "66ede046cacd778b80b1afd6432288b7cb5ba44f10b6dd39f99c31f5093315f9"
+   }
+  }
+ },
+ "checks": [
+  {
+   "id": "kubescape.c-0002",
+   "title": "C-0002: Prevent containers from allowing command execution",
+   "scope": "Kubescape control C-0002 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; who may exec into containers is an RBAC grant.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0005",
+   "title": "C-0005: API server insecure port is enabled",
+   "scope": "Kubescape control C-0005 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; the API server's insecure port is unauthenticated plain HTTP.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0007",
+   "title": "C-0007: Roles with delete capabilities",
+   "scope": "Kubescape control C-0007 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; roles that may delete resources.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0012",
+   "title": "C-0012: Applications credentials in configuration files",
+   "scope": "Kubescape control C-0012 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; credentials stored in pod specs or ConfigMaps.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0013",
+   "title": "C-0013: Non-root containers",
+   "scope": "Kubescape control C-0013 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers that run as root.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0014",
+   "title": "C-0014: Access Kubernetes dashboard",
+   "scope": "Kubescape control C-0014 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; subjects bound to the Kubernetes dashboard's service account.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0015",
+   "title": "C-0015: List Kubernetes secrets",
+   "scope": "Kubescape control C-0015 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; subjects that may list or read Secrets.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0016",
+   "title": "C-0016: Allow privilege escalation",
+   "scope": "Kubescape control C-0016 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers allowed to gain privileges (setuid).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0017",
+   "title": "C-0017: Immutable container filesystem",
+   "scope": "Kubescape control C-0017 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; a read-only root filesystem forces a change through redeployment.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0020",
+   "title": "C-0020: Mount service principal",
+   "scope": "Kubescape control C-0020 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; pods that mount the node's cloud credentials.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0021",
+   "title": "C-0021: Exposed sensitive interfaces",
+   "scope": "Kubescape control C-0021 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; sensitive interfaces exposed outside the cluster.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0030",
+   "title": "C-0030: Ingress and Egress blocked",
+   "scope": "Kubescape control C-0030 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; pods without a network policy limiting ingress and egress.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0031",
+   "title": "C-0031: Delete Kubernetes events",
+   "scope": "Kubescape control C-0031 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; subjects that may delete Kubernetes events.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0034",
+   "title": "C-0034: Automatic mapping of service account",
+   "scope": "Kubescape control C-0034 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; service-account tokens mounted in pods that do not need them.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0035",
+   "title": "C-0035: Administrative Roles",
+   "scope": "Kubescape control C-0035 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; subjects bound to cluster-admin or equivalent.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0037",
+   "title": "C-0037: CoreDNS poisoning",
+   "scope": "Kubescape control C-0037 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; subjects that may change the CoreDNS ConfigMap.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0038",
+   "title": "C-0038: Host PID/IPC privileges",
+   "scope": "Kubescape control C-0038 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers sharing the host's PID or IPC namespace.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0041",
+   "title": "C-0041: HostNetwork access",
+   "scope": "Kubescape control C-0041 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers on the host's network namespace.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0042",
+   "title": "C-0042: SSH server running inside container",
+   "scope": "Kubescape control C-0042 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; an SSH server running inside a container.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0044",
+   "title": "C-0044: Container hostPort",
+   "scope": "Kubescape control C-0044 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers that bind a host port.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0045",
+   "title": "C-0045: Writable hostPath mount",
+   "scope": "Kubescape control C-0045 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; writable hostPath mounts.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0046",
+   "title": "C-0046: Insecure capabilities",
+   "scope": "Kubescape control C-0046 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers granted insecure Linux capabilities.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0048",
+   "title": "C-0048: HostPath mount",
+   "scope": "Kubescape control C-0048 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; hostPath mounts.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0052",
+   "title": "C-0052: Instance Metadata API",
+   "scope": "Kubescape control C-0052 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; pods that can reach the cloud instance metadata API.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0053",
+   "title": "C-0053: Access container service account",
+   "scope": "Kubescape control C-0053 (mitre framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; pods whose service-account token reaches the API server.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0054",
+   "title": "C-0054: Cluster internal networking",
+   "scope": "Kubescape control C-0054 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; namespaces without a network policy.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0055",
+   "title": "C-0055: Linux hardening",
+   "scope": "Kubescape control C-0055 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers without seccomp, AppArmor, SELinux or dropped capabilities.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0057",
+   "title": "C-0057: Privileged container",
+   "scope": "Kubescape control C-0057 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; privileged containers.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0058",
+   "title": "C-0058: CVE-2021-25741 - Using symlink for arbitrary host file system access.",
+   "scope": "Kubescape control C-0058 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; nodes on a Kubernetes version open to CVE-2021-25741.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0059",
+   "title": "C-0059: CVE-2021-25742-nginx-ingress-snippet-annotation-vulnerability",
+   "scope": "Kubescape control C-0059 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; ingress-nginx open to CVE-2021-25742.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0066",
+   "title": "C-0066: Secret/etcd encryption enabled",
+   "scope": "Kubescape control C-0066 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; Secrets in etcd are not encrypted at rest.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0067",
+   "title": "C-0067: Audit logs enabled",
+   "scope": "Kubescape control C-0067 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; API server audit logging.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0068",
+   "title": "C-0068: PSP enabled",
+   "scope": "Kubescape control C-0068 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; pod admission control (PodSecurityPolicy) is enabled.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0069",
+   "title": "C-0069: Disable anonymous access to Kubelet service",
+   "scope": "Kubescape control C-0069 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; anonymous requests to the kubelet.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0070",
+   "title": "C-0070: Enforce Kubelet client TLS authentication",
+   "scope": "Kubescape control C-0070 (mitre and nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; kubelet clients must authenticate with certificates.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0270",
+   "title": "C-0270: Ensure CPU limits are set",
+   "scope": "Kubescape control C-0270 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers without a CPU limit can starve their node.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0271",
+   "title": "C-0271: Ensure memory limits are set",
+   "scope": "Kubescape control C-0271 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; containers without a memory limit can starve their node.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kubescape.c-0292",
+   "title": "C-0292: Nginx Ingress Controller End of Life",
+   "scope": "Kubescape control C-0292 (nsa framework, regolibrary 2.0.38): one result per scanned cluster or manifest set, counting the resources it applies to; the ingress-nginx controller has reached end of life.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

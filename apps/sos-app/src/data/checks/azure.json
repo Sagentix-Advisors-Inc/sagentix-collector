@@ -1,0 +1,82 @@
+{
+ "source": "azure",
+ "title": "Azure (service principal with Reader and Security Reader, ARM REST API)",
+ "readScopes": [
+  "Reader",
+  "Security Reader"
+ ],
+ "checks": [
+  {
+   "id": "azure.defender_plans",
+   "title": "Each Microsoft Defender for Cloud plan is on (Standard tier)",
+   "scope": "One result per plan the subscription lists; deprecated plans are left out. Shows the plan is paid for and on, not that its alerts are triaged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.secure_score",
+   "title": "The Defender for Cloud secure score is readable and at or above the set threshold",
+   "scope": "The ascScore of the subscription, compared with --azure-min-secure-score (default 0, so any readable score passes).",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "azure.activity_log_export",
+   "title": "The subscription's activity log is exported, Administrative events included",
+   "scope": "Subscription diagnostic settings with a Log Analytics workspace, storage account, event hub or partner destination. Resource-level diagnostic logs are not checked.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.keyvault_recoverable",
+   "title": "Each key vault has soft delete and purge protection on",
+   "scope": "Key vaults in the subscription; keys, secrets and their rotation are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.storage_secure_transfer",
+   "title": "Each storage account accepts HTTPS only",
+   "scope": "Storage account endpoints; traffic through private endpoints or other services is not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.storage_no_public_blob",
+   "title": "Each storage account disallows anonymous blob access",
+   "scope": "The account-level allowBlobPublicAccess setting; SAS tokens and network rules are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.storage_min_tls",
+   "title": "Each storage account requires TLS 1.2 or higher",
+   "scope": "The account's minimumTlsVersion; unset means TLS 1.0 and fails.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.sql_tde",
+   "title": "Each Azure SQL database has transparent data encryption enabled",
+   "scope": "Azure SQL Database user databases (master excluded); SQL Managed Instance and SQL on VMs are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.nsg_no_open_admin_ports",
+   "title": "No network security group allows SSH (22) or RDP (3389) in from the Internet",
+   "scope": "Custom rules of each NSG (source *, Internet, Any, 0.0.0.0/0 or ::/0); Azure Firewall and NVA rules are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.policy_assignments",
+   "title": "At least one Azure Policy assignment applies to the subscription",
+   "scope": "Assignments at or above the subscription; their compliance state is not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.disk_encryption",
+   "title": "Each managed disk is encrypted at rest (platform key, customer key, both, or Azure Disk Encryption)",
+   "scope": "Managed disks; Azure encrypts them with a platform key by default, so a fail means the API reported no encryption at all.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.backup_protected_items",
+   "title": "Each Recovery Services vault protects at least one item, and the subscription has a vault",
+   "scope": "Azure Backup in Recovery Services vaults; Backup vaults (Microsoft.DataProtection), restore tests and retention are not read.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

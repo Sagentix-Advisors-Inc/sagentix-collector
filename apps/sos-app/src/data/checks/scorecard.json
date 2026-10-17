@@ -1,0 +1,81 @@
+{
+ "source": "scorecard",
+ "title": "OpenSSF Scorecard (Apache-2.0): the JSON result for each repository",
+ "readScopes": [
+  "None for the collector: it reads the result file. Scorecard runs in the customer's pipeline (`scorecard --repo=<repo> --format=json`, or ossf/scorecard-action with results_format json)."
+ ],
+ "checks": [
+  {
+   "id": "scorecard.branch_protection",
+   "title": "Scorecard Branch-Protection meets the threshold",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.code_review",
+   "title": "Scorecard Code-Review meets the threshold: changes are reviewed before merge",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.signed_releases",
+   "title": "Scorecard Signed-Releases meets the threshold: release artifacts are signed or carry provenance",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.pinned_dependencies",
+   "title": "Scorecard Pinned-Dependencies meets the threshold: build dependencies are pinned by hash",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.dangerous_workflow",
+   "title": "Scorecard Dangerous-Workflow meets the threshold: no untrusted code checkout or script injection in CI workflows",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.token_permissions",
+   "title": "Scorecard Token-Permissions meets the threshold: CI workflow tokens are read-only by default",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.sast",
+   "title": "Scorecard SAST meets the threshold: static analysis runs on changes",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.vulnerabilities",
+   "title": "Scorecard Vulnerabilities meets the threshold: few or no open OSV advisories in the dependencies",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.ci_tests",
+   "title": "Scorecard CI-Tests meets the threshold: tests run on pull requests before merge",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.dependency_update_tool",
+   "title": "Scorecard Dependency-Update-Tool meets the threshold: a tool such as Dependabot or Renovate proposes updates",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.security_policy",
+   "title": "Scorecard Security-Policy meets the threshold: the repository publishes how to report a vulnerability",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "scorecard.sbom",
+   "title": "Scorecard SBOM meets the threshold: the project publishes an SBOM with its releases",
+   "scope": "A repository on GitHub or GitLab that Scorecard scored; Scorecard reads the forge's settings and history as the token it was given allows.",
+   "evidenceType": "Report"
+  }
+ ]
+}

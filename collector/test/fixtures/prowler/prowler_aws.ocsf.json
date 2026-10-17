@@ -1,0 +1,977 @@
+[{
+    "message": "MFA is enabled for root account.",
+    "metadata": {
+        "event_code": "iam_root_mfa_enabled",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 5,
+    "severity": "Critical",
+    "status": "New",
+    "status_code": "PASS",
+    "status_detail": "MFA is enabled for root account.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "identity-access"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html#id_root-user_manage_mfa"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "iam",
+            "name": "Root account has MFA enabled",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "iam_root_mfa_enabled"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**AWS root user** with active credentials is assessed for **MFA activation**. The evaluation considers whether the root identity has a password or access keys and whether **MFA is enabled**.\n\n*If centralized root access is enabled in Organizations, the presence of individual root credentials is also noted.*",
+        "title": "Root account has MFA enabled",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
+        ],
+        "uid": "prowler-aws-iam_root_mfa_enabled-123456789012-us-east-1-<root_account>"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "iam"
+            },
+            "labels": [],
+            "name": "<root_account>",
+            "type": "AwsIamUser",
+            "uid": "arn:aws:iam::123456789012:root"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Enable **MFA** for the root user, preferably **hardware-based** or a dedicated, managed device. Remove root access keys and avoid using root for daily tasks. Apply **least privilege** with IAM Identity Center for admins, and use Organizations to **centralize root access** and eliminate long-lived root credentials.",
+        "references": [
+            "https://hub.prowler.com/check/iam_root_mfa_enabled"
+        ]
+    },
+    "risk_details": "Without **MFA**, compromise of the root password or access keys can lead to full **account takeover**. An attacker with root can disable protections, steal or delete data, change billing, and create persistent admins, undermining confidentiality, integrity, and availability.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "S3 Bucket logs-example does not have Server Side Encryption enabled.",
+    "metadata": {
+        "event_code": "s3_bucket_default_encryption",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 3,
+    "severity": "Medium",
+    "status": "New",
+    "status_code": "FAIL",
+    "status_detail": "S3 Bucket logs-example does not have Server Side Encryption enabled.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "encryption"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html"
+        ],
+        "notes": "This check is being deprecated since AWS automatically applies SSE-S3 to every S3 bucket (both new buckets and previously-unencrypted existing buckets) as of January 5, 2023, and encryption can no longer be disabled. For SSE-KMS validation, use `s3_bucket_kms_encryption` instead.",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "s3",
+            "name": "[DEPRECATED] S3 bucket has default server-side encryption (SSE) enabled",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "s3_bucket_default_encryption"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "[DEPRECATED] **Amazon S3 buckets** have a default **server-side encryption** setting that automatically encrypts new objects using `SSE-S3` or `SSE-KMS`. This evaluates whether a bucket has a default encryption configuration defined.",
+        "title": "[DEPRECATED] S3 bucket has default server-side encryption (SSE) enabled",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark",
+            "Effects/Data Exposure"
+        ],
+        "uid": "prowler-aws-s3_bucket_default_encryption-123456789012-us-east-1-logs-example"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "s3"
+            },
+            "labels": [],
+            "name": "logs-example",
+            "type": "AwsS3Bucket",
+            "uid": "arn:aws:s3:::logs-example"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Enable default encryption on all buckets, preferring `SSE-KMS` for sensitive data to retain key control and auditing. Enforce encryption with restrictive bucket policies, apply **least privilege** to KMS keys with rotation, and re-encrypt existing objects. Use **defense in depth** monitoring to detect drift and noncompliant uploads.",
+        "references": [
+            "https://hub.prowler.com/check/s3_bucket_default_encryption"
+        ]
+    },
+    "risk_details": "Without default encryption, older objects may remain unencrypted and new uploads won't be forced to use `SSE-KMS`. This reduces confidentiality and governance by limiting key audit logs, rotation, and cross-account controls, and increases exposure if data is copied, replicated, or accessed outside intended paths.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "S3 Bucket app-data is encrypted with aws:kms.",
+    "metadata": {
+        "event_code": "s3_bucket_default_encryption",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 3,
+    "severity": "Medium",
+    "status": "New",
+    "status_code": "PASS",
+    "status_detail": "S3 Bucket app-data is encrypted with aws:kms.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "encryption"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html"
+        ],
+        "notes": "This check is being deprecated since AWS automatically applies SSE-S3 to every S3 bucket (both new buckets and previously-unencrypted existing buckets) as of January 5, 2023, and encryption can no longer be disabled. For SSE-KMS validation, use `s3_bucket_kms_encryption` instead.",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "s3",
+            "name": "[DEPRECATED] S3 bucket has default server-side encryption (SSE) enabled",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "s3_bucket_default_encryption"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "[DEPRECATED] **Amazon S3 buckets** have a default **server-side encryption** setting that automatically encrypts new objects using `SSE-S3` or `SSE-KMS`. This evaluates whether a bucket has a default encryption configuration defined.",
+        "title": "[DEPRECATED] S3 bucket has default server-side encryption (SSE) enabled",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark",
+            "Effects/Data Exposure"
+        ],
+        "uid": "prowler-aws-s3_bucket_default_encryption-123456789012-ca-central-1-app-data"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "ca-central-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "s3"
+            },
+            "labels": [],
+            "name": "app-data",
+            "type": "AwsS3Bucket",
+            "uid": "arn:aws:s3:::app-data"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "ca-central-1"
+    },
+    "remediation": {
+        "desc": "Enable default encryption on all buckets, preferring `SSE-KMS` for sensitive data to retain key control and auditing. Enforce encryption with restrictive bucket policies, apply **least privilege** to KMS keys with rotation, and re-encrypt existing objects. Use **defense in depth** monitoring to detect drift and noncompliant uploads.",
+        "references": [
+            "https://hub.prowler.com/check/s3_bucket_default_encryption"
+        ]
+    },
+    "risk_details": "Without default encryption, older objects may remain unencrypted and new uploads won't be forced to use `SSE-KMS`. This reduces confidentiality and governance by limiting key audit logs, rotation, and cross-account controls, and increases exposure if data is copied, replicated, or accessed outside intended paths.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "Security group default (sg-0abc) has SSH port 22 open to the Internet.",
+    "metadata": {
+        "event_code": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 4,
+    "severity": "High",
+    "status": "New",
+    "status_code": "FAIL",
+    "status_detail": "Security group default (sg-0abc) has SSH port 22 open to the Internet.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "internet-exposed"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+            "https://www.trendmicro.com/trendaivisiononecloudriskmanagement/knowledge-base/aws/EC2/unrestricted-ssh-access.html"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "ec2",
+            "name": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to TCP port 22 (SSH)",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**EC2 security groups** are assessed for **inbound SSH exposure** by locating ingress rules that allow `TCP 22` from the Internet (`0.0.0.0/0` or `::/0`).\n\nOnly groups in use are considered; sets already flagged for all-port exposure are not repeated.",
+        "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to TCP port 22 (SSH)",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices/Network Reachability",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark",
+            "TTPs/Initial Access/Unauthorized Access"
+        ],
+        "uid": "prowler-aws-ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22-123456789012-us-east-1-default"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "ec2"
+            },
+            "labels": [],
+            "name": "default",
+            "type": "AwsEc2SecurityGroup",
+            "uid": "arn:aws:ec2:us-east-1:123456789012:security-group/sg-0abc"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Apply **least privilege** to SSH:\n- Disallow `0.0.0.0/0` and `::/0`; allow only trusted IPs or VPN ranges\n- Prefer **private access** via bastion hosts or AWS Systems Manager Session Manager\n- Enforce **key-based auth**, disable passwords, rotate keys\n- Add **network segmentation** and monitoring for **defense in depth**",
+        "references": [
+            "https://hub.prowler.com/check/ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22"
+        ]
+    },
+    "risk_details": "Exposed **SSH** invites Internet-scale **brute force** and **credential stuffing**. A successful login grants **remote shell**, enabling data theft (confidentiality), code or config tampering (integrity), and cryptomining or service disruption (availability), plus **lateral movement** within the environment.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "Security group web (sg-0def) does not have SSH port 22 open to the Internet.",
+    "metadata": {
+        "event_code": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 4,
+    "severity": "High",
+    "status": "Suppressed",
+    "status_code": "PASS",
+    "status_detail": "Security group web (sg-0def) does not have SSH port 22 open to the Internet.",
+    "status_id": 3,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "internet-exposed"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+            "https://www.trendmicro.com/trendaivisiononecloudriskmanagement/knowledge-base/aws/EC2/unrestricted-ssh-access.html"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "ec2",
+            "name": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to TCP port 22 (SSH)",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**EC2 security groups** are assessed for **inbound SSH exposure** by locating ingress rules that allow `TCP 22` from the Internet (`0.0.0.0/0` or `::/0`).\n\nOnly groups in use are considered; sets already flagged for all-port exposure are not repeated.",
+        "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to TCP port 22 (SSH)",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices/Network Reachability",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark",
+            "TTPs/Initial Access/Unauthorized Access"
+        ],
+        "uid": "prowler-aws-ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22-123456789012-us-east-1-web"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "ec2"
+            },
+            "labels": [],
+            "name": "web",
+            "type": "AwsEc2SecurityGroup",
+            "uid": "arn:aws:ec2:us-east-1:123456789012:security-group/sg-0def"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Apply **least privilege** to SSH:\n- Disallow `0.0.0.0/0` and `::/0`; allow only trusted IPs or VPN ranges\n- Prefer **private access** via bastion hosts or AWS Systems Manager Session Manager\n- Enforce **key-based auth**, disable passwords, rotate keys\n- Add **network segmentation** and monitoring for **defense in depth**",
+        "references": [
+            "https://hub.prowler.com/check/ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_22"
+        ]
+    },
+    "risk_details": "Exposed **SSH** invites Internet-scale **brute force** and **credential stuffing**. A successful login grants **remote shell**, enabling data theft (confidentiality), code or config tampering (integrity), and cryptomining or service disruption (availability), plus **lateral movement** within the environment.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "No CloudTrail trails enabled with logging were found.",
+    "metadata": {
+        "event_code": "cloudtrail_multi_region_enabled",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 4,
+    "severity": "High",
+    "status": "New",
+    "status_code": "FAIL",
+    "status_detail": "No CloudTrail trails enabled with logging were found.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "logging",
+            "forensics-ready"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrailconcepts.html#cloudtrail-concepts-management-events"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "cloudtrail",
+            "name": "Region has at least one CloudTrail trail logging",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "cloudtrail_multi_region_enabled"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**AWS CloudTrail** has at least one trail with `logging` enabled in every region. A **multi-region trail** or a regional trail counts for coverage in that region.",
+        "title": "Region has at least one CloudTrail trail logging",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
+        ],
+        "uid": "prowler-aws-cloudtrail_multi_region_enabled-123456789012-ca-central-1-123456789012"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "ca-central-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "cloudtrail"
+            },
+            "labels": [],
+            "name": "123456789012",
+            "type": "AwsCloudTrailTrail",
+            "uid": "arn:aws:cloudtrail:ca-central-1:123456789012:trail"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "ca-central-1"
+    },
+    "remediation": {
+        "desc": "Use a **multi-region CloudTrail trail** or per-region trails so `logging` is active in every region, including unused ones.\n\nCentralize logs, enforce **least privilege** to log stores, and add **defense-in-depth** with encryption, integrity validation, and retention. Continuously monitor trail health to catch gaps.",
+        "references": [
+            "https://hub.prowler.com/check/cloudtrail_multi_region_enabled"
+        ]
+    },
+    "risk_details": "Missing coverage in any region creates **visibility gaps**.\n\nAttackers can use lesser-monitored regions to run API actions, hide **unauthorized changes**, and exfiltrate data without audit trails, weakening **detective controls**, hindering **forensics**, and delaying response (confidentiality and integrity).",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "Trail main is multiregion and it is logging.",
+    "metadata": {
+        "event_code": "cloudtrail_multi_region_enabled",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 4,
+    "severity": "High",
+    "status": "New",
+    "status_code": "PASS",
+    "status_detail": "Trail main is multiregion and it is logging.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "logging",
+            "forensics-ready"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrailconcepts.html#cloudtrail-concepts-management-events"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "cloudtrail",
+            "name": "Region has at least one CloudTrail trail logging",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "cloudtrail_multi_region_enabled"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**AWS CloudTrail** has at least one trail with `logging` enabled in every region. A **multi-region trail** or a regional trail counts for coverage in that region.",
+        "title": "Region has at least one CloudTrail trail logging",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
+        ],
+        "uid": "prowler-aws-cloudtrail_multi_region_enabled-123456789012-us-east-1-main"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "cloudtrail"
+            },
+            "labels": [],
+            "name": "main",
+            "type": "AwsCloudTrailTrail",
+            "uid": "arn:aws:cloudtrail:us-east-1:123456789012:trail/main"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Use a **multi-region CloudTrail trail** or per-region trails so `logging` is active in every region, including unused ones.\n\nCentralize logs, enforce **least privilege** to log stores, and add **defense-in-depth** with encryption, integrity validation, and retention. Continuously monitor trail health to catch gaps.",
+        "references": [
+            "https://hub.prowler.com/check/cloudtrail_multi_region_enabled"
+        ]
+    },
+    "risk_details": "Missing coverage in any region creates **visibility gaps**.\n\nAttackers can use lesser-monitored regions to run API actions, hide **unauthorized changes**, and exfiltrate data without audit trails, weakening **detective controls**, hindering **forensics**, and delaying response (confidentiality and integrity).",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "Login to the AWS Console. Choose your account name on the top right of the window -> My Account -> Contact Information.",
+    "metadata": {
+        "event_code": "account_maintain_current_contact_details",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 3,
+    "severity": "Medium",
+    "status": "New",
+    "status_code": "MANUAL",
+    "status_detail": "Login to the AWS Console. Choose your account name on the top right of the window -> My Account -> Contact Information.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://repost.aws/knowledge-center/update-phone-number",
+            "https://support.stax.io/docs/accounts/update-aws-account-contact-details",
+            "https://maartenbruntink.nl/blog/2022/09/26/aws-account-hygiene-101-mass-updating-alternate-account-contacts/",
+            "https://docs.aws.amazon.com/security-ir/latest/userguide/update-account-contact-info.html",
+            "https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-update-contact-primary.html",
+            "https://repost.aws/knowledge-center/add-update-billing-contact",
+            "https://aws.amazon.com/blogs/security/update-the-alternate-security-contact-across-your-aws-accounts-for-timely-security-notifications/",
+            "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_update_contacts.html",
+            "https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-update-contact-alternate.html"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "account",
+            "name": "AWS account contact information is current",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "account_maintain_current_contact_details"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**AWS account contact information** is current for the **primary contact** and the **alternate contacts** for `security`, `billing`, and `operations`, with accurate email addresses and phone numbers.",
+        "title": "AWS account contact information is current",
+        "types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices"
+        ],
+        "uid": "prowler-aws-account_maintain_current_contact_details-123456789012-us-east-1-123456789012"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "account"
+            },
+            "labels": [],
+            "name": "123456789012",
+            "type": "Other",
+            "uid": "arn:aws:iam::123456789012:root"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Adopt:\n- **Primary** and **alternate contacts** for `security`, `billing`, `operations`\n- Shared, monitored aliases and SMS-capable phone numbers (non-personal)\n- Centralized management across accounts with periodic reviews\n- **Least privilege** for who can modify contact data\n- Regular reachability tests and documented ownership",
+        "references": [
+            "https://hub.prowler.com/check/account_maintain_current_contact_details"
+        ]
+    },
+    "risk_details": "Outdated or single-person contacts delay **security notifications**, slow **incident response**, and complicate **account recovery**.\n\nAWS may throttle services during abuse mitigation, reducing **availability**. Missed alerts enable ongoing misuse, risking **data exfiltration** and unauthorized changes (**integrity**).",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+},{
+    "message": "Root user in the account wasn't accessed in the last 1 days.",
+    "metadata": {
+        "event_code": "iam_avoid_root_usage",
+        "product": {
+            "name": "Prowler",
+            "uid": "prowler",
+            "vendor_name": "Prowler",
+            "version": "5.45.0"
+        },
+        "profiles": [
+            "cloud",
+            "datetime"
+        ],
+        "tenant_uid": "o-exampleorg1",
+        "version": "1.5.0"
+    },
+    "severity_id": 4,
+    "severity": "High",
+    "status": "New",
+    "status_code": "PASS",
+    "status_detail": "Root user in the account wasn't accessed in the last 1 days.",
+    "status_id": 1,
+    "unmapped": {
+        "related_url": "",
+        "categories": [
+            "identity-access"
+        ],
+        "depends_on": [],
+        "related_to": [],
+        "additional_urls": [
+            "https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html",
+            "https://www.trendmicro.com/trendaivisiononecloudriskmanagement/knowledge-base/aws/IAM/root-account-used-recently.html"
+        ],
+        "notes": "",
+        "compliance": {},
+        "scan_id": "01a13f38-0b80-7f57-955c-952042285f45",
+        "provider_uid": "123456789012",
+        "provider": "aws"
+    },
+    "activity_name": "Create",
+    "activity_id": 1,
+    "finding_info": {
+        "analytic": {
+            "category": "iam",
+            "name": "AWS account root user has not been used in the last day",
+            "type": "Rule",
+            "type_id": 1,
+            "uid": "iam_avoid_root_usage"
+        },
+        "created_time": 1792062000,
+        "created_time_dt": "2026-10-15T11:00:00Z",
+        "desc": "**AWS IAM root user** activity is assessed by inspecting `last-used` timestamps for the root password and access keys. The finding indicates when the root identity has been used recently for console or programmatic access.",
+        "title": "AWS account root user has not been used in the last day",
+        "types": [
+            "Software and Configuration Checks/AWS Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS Foundational Security Best Practices",
+            "Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"
+        ],
+        "uid": "prowler-aws-iam_avoid_root_usage-123456789012-us-east-1-<root_account>"
+    },
+    "resources": [
+        {
+            "cloud_partition": "aws",
+            "region": "us-east-1",
+            "data": {
+                "details": "",
+                "metadata": {}
+            },
+            "group": {
+                "name": "iam"
+            },
+            "labels": [],
+            "name": "<root_account>",
+            "type": "AwsIamUser",
+            "uid": "arn:aws:iam::123456789012:root"
+        }
+    ],
+    "category_name": "Findings",
+    "category_uid": 2,
+    "class_name": "Detection Finding",
+    "class_uid": 2004,
+    "cloud": {
+        "account": {
+            "name": "sandbox",
+            "type": "AWS Account",
+            "type_id": 10,
+            "uid": "123456789012",
+            "labels": []
+        },
+        "org": {
+            "name": "example-org",
+            "uid": "o-exampleorg1"
+        },
+        "provider": "aws",
+        "region": "us-east-1"
+    },
+    "remediation": {
+        "desc": "Minimize `root` usage by applying **least privilege** with admin roles or federated SSO and temporary credentials.\n- Enforce **MFA** on root\n- Avoid or remove root access keys\n- Require multi-person approval\n- **Monitor and alert** on any root sign-in\n- Use org guardrails for **defense in depth**",
+        "references": [
+            "https://hub.prowler.com/check/iam_avoid_root_usage"
+        ]
+    },
+    "risk_details": "Recent **root usage** expands blast radius:\n- Data exfiltration (**confidentiality**)\n- Policy/key tampering (**integrity**)\n- Resource deletion and billing changes (**availability**)\nRoutine use reduces anomaly visibility and eases **account takeover** impact.",
+    "time": 1792062000,
+    "time_dt": "2026-10-15T11:00:00Z",
+    "type_uid": 200401,
+    "type_name": "Detection Finding: Create"
+}]

@@ -1,0 +1,1287 @@
+{
+ "source": "stig",
+ "title": "DISA STIG for Canonical Ubuntu 24.04 LTS (MITRE SAF InSpec profile 1.4.2, run by Cinc Auditor)",
+ "readScopes": [
+  "SSH (ssh://) or WinRM (winrm://) login to the scanned host, or a JSON report the customer produced. The profile only reads: it runs commands such as stat, grep, rpm -q and sysctl. Many rules read root-only files, so give a non-root account sudo for those reads (--stig-sudo); without it they fail to read and report skipped or failed, never passed."
+ ],
+ "engine": {
+  "name": "Cinc Auditor + MITRE SAF STIG profile",
+  "profile": "canonical-ubuntu-24.04-lts-stig-baseline",
+  "version": "1.4.2",
+  "tag": "v1.4.2",
+  "commit": "097246965c75b2a52325c63af17cda810e8cb22a",
+  "tarballSha256": "3de5186a59b33b27d5e0422a9e5255cb6c88f86be3eb3d7497c20803bbdae873",
+  "licence": "Apache-2.0 (MITRE profile, with MITRE's NOTICE); STIG rule titles and ids are DISA's, a US Government work",
+  "url": "https://github.com/mitre/canonical-ubuntu-24.04-lts-stig-baseline"
+ },
+ "profile": "ubuntu2404",
+ "checks": [
+  {
+   "id": "stig.ubuntu2404.v-270645",
+   "title": "UBTU-24-100010 (V-270645): Ubuntu 24.04 LTS must not have the \"systemd-timesyncd\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270645 (DISA rule V-270645, STIG ID UBTU-24-100010, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270646",
+   "title": "UBTU-24-100020 (V-270646): Ubuntu 24.04 LTS must not have the \"ntp\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270646 (DISA rule V-270646, STIG ID UBTU-24-100020, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270647",
+   "title": "UBTU-24-100030 (V-270647): Ubuntu 24.04 LTS must not have the telnet package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270647 (DISA rule V-270647, STIG ID UBTU-24-100030, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270648",
+   "title": "UBTU-24-100040 (V-270648): Ubuntu 24.04 LTS must not have the rsh-server package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270648 (DISA rule V-270648, STIG ID UBTU-24-100040, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270649",
+   "title": "UBTU-24-100100 (V-270649): Ubuntu 24.04 LTS must use a file integrity tool to verify correct operation of all security functions.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270649 (DISA rule V-270649, STIG ID UBTU-24-100100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270650",
+   "title": "UBTU-24-100110 (V-270650): Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270650 (DISA rule V-270650, STIG ID UBTU-24-100110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270651",
+   "title": "UBTU-24-100120 (V-270651): Ubuntu 24.04 LTS must be configured so that the script which runs each 30 days or less to check file integrity is the default one.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270651 (DISA rule V-270651, STIG ID UBTU-24-100120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270652",
+   "title": "UBTU-24-100130 (V-270652): Ubuntu 24.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system adminis...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270652 (DISA rule V-270652, STIG ID UBTU-24-100130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270653",
+   "title": "UBTU-24-100200 (V-270653): Ubuntu 24.04 LTS must be configured to preserve log records from failure events.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270653 (DISA rule V-270653, STIG ID UBTU-24-100200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270654",
+   "title": "UBTU-24-100300 (V-270654): Ubuntu 24.04 LTS must have an application firewall installed in order to control remote access methods.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270654 (DISA rule V-270654, STIG ID UBTU-24-100300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270655",
+   "title": "UBTU-24-100310 (V-270655): Ubuntu 24.04 LTS must enable and run the Uncomplicated Firewall (ufw).",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270655 (DISA rule V-270655, STIG ID UBTU-24-100310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270656",
+   "title": "UBTU-24-100400 (V-270656): Ubuntu 24.04 LTS must have the \"auditd\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270656 (DISA rule V-270656, STIG ID UBTU-24-100400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270657",
+   "title": "UBTU-24-100410 (V-270657): Ubuntu 24.04 LTS must produce audit records and reports containing information to establish when, where, what type, the source, and the outcome for all DOD-defined audita...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270657 (DISA rule V-270657, STIG ID UBTU-24-100410, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270658",
+   "title": "UBTU-24-100450 (V-270658): Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270658 (DISA rule V-270658, STIG ID UBTU-24-100450, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270659",
+   "title": "UBTU-24-100500 (V-270659): Ubuntu 24.04 LTS must have AppArmor installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270659 (DISA rule V-270659, STIG ID UBTU-24-100500, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270660",
+   "title": "UBTU-24-100510 (V-270660): Ubuntu 24.04 LTS must be configured to use AppArmor.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270660 (DISA rule V-270660, STIG ID UBTU-24-100510, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270661",
+   "title": "UBTU-24-100600 (V-270661): Ubuntu 24.04 LTS must have the \"libpam-pwquality\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270661 (DISA rule V-270661, STIG ID UBTU-24-100600, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270662",
+   "title": "UBTU-24-100650 (V-270662): Ubuntu 24.04 LTS must have the \"SSSD\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270662 (DISA rule V-270662, STIG ID UBTU-24-100650, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270663",
+   "title": "UBTU-24-100660 (V-270663): Ubuntu 24.04 LTS must use the \"SSSD\" package for multifactor authentication services.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270663 (DISA rule V-270663, STIG ID UBTU-24-100660, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270664",
+   "title": "UBTU-24-100700 (V-270664): Ubuntu 24.04 LTS must have the \"chrony\" package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270664 (DISA rule V-270664, STIG ID UBTU-24-100700, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270665",
+   "title": "UBTU-24-100800 (V-270665): Ubuntu 24.04 LTS must have SSH installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270665 (DISA rule V-270665, STIG ID UBTU-24-100800, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270666",
+   "title": "UBTU-24-100810 (V-270666): Ubuntu 24.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270666 (DISA rule V-270666, STIG ID UBTU-24-100810, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270667",
+   "title": "UBTU-24-100820 (V-270667): Ubuntu 24.04 LTS must configure the SSH daemon to use FIPS 140-3 approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to informati...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270667 (DISA rule V-270667, STIG ID UBTU-24-100820, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270668",
+   "title": "UBTU-24-100830 (V-270668): Ubuntu 24.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3 approved cryptographic hashes to prevent the unauthorized d...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270668 (DISA rule V-270668, STIG ID UBTU-24-100830, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270669",
+   "title": "UBTU-24-100840 (V-270669): Ubuntu 24.04 LTS SSH server must be configured to use only FIPS 140-3 validated key exchange algorithms.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270669 (DISA rule V-270669, STIG ID UBTU-24-100840, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270670",
+   "title": "UBTU-24-100850 (V-270670): Ubuntu 24.04 LTS must configure the SSH client to use FIPS 140-3 approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to informati...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270670 (DISA rule V-270670, STIG ID UBTU-24-100850, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270671",
+   "title": "UBTU-24-100860 (V-270671): Ubuntu 24.04 LTS SSH client must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-3 validated cryptographic hash algorithms.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270671 (DISA rule V-270671, STIG ID UBTU-24-100860, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270674",
+   "title": "UBTU-24-101000 (V-270674): Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270674 (DISA rule V-270674, STIG ID UBTU-24-101000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270675",
+   "title": "UBTU-24-102000 (V-270675): Ubuntu 24.04 LTS when booted must require authentication upon booting into single-user and maintenance modes.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270675 (DISA rule V-270675, STIG ID UBTU-24-102000, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270676",
+   "title": "UBTU-24-102010 (V-270676): Ubuntu 24.04 LTS must initiate session audits at system startup.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270676 (DISA rule V-270676, STIG ID UBTU-24-102010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270677",
+   "title": "UBTU-24-200000 (V-270677): Ubuntu 24.04 LTS must limit the number of concurrent sessions to 10 for all accounts and/or account types.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270677 (DISA rule V-270677, STIG ID UBTU-24-200000, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270678",
+   "title": "UBTU-24-200020 (V-270678): Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270678 (DISA rule V-270678, STIG ID UBTU-24-200020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270679",
+   "title": "UBTU-24-200040 (V-270679): Ubuntu 24.04 LTS must prevent a user from overriding the disabling of the graphical user interface automount function.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270679 (DISA rule V-270679, STIG ID UBTU-24-200040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270680",
+   "title": "UBTU-24-200060 (V-270680): Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270680 (DISA rule V-270680, STIG ID UBTU-24-200060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270681",
+   "title": "UBTU-24-200090 (V-270681): Ubuntu 24.04 LTS must monitor remote access methods.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270681 (DISA rule V-270681, STIG ID UBTU-24-200090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270682",
+   "title": "UBTU-24-200250 (V-270682): Ubuntu 24.04 LTS must automatically remove or disable emergency accounts after 72 hours.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270682 (DISA rule V-270682, STIG ID UBTU-24-200250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270683",
+   "title": "UBTU-24-200260 (V-270683): Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270683 (DISA rule V-270683, STIG ID UBTU-24-200260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270684",
+   "title": "UBTU-24-200280 (V-270684): Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270684 (DISA rule V-270684, STIG ID UBTU-24-200280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270685",
+   "title": "UBTU-24-200290 (V-270685): Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270685 (DISA rule V-270685, STIG ID UBTU-24-200290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270686",
+   "title": "UBTU-24-200300 (V-270686): Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270686 (DISA rule V-270686, STIG ID UBTU-24-200300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270687",
+   "title": "UBTU-24-200310 (V-270687): Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270687 (DISA rule V-270687, STIG ID UBTU-24-200310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270688",
+   "title": "UBTU-24-200320 (V-270688): Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/opasswd.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270688 (DISA rule V-270688, STIG ID UBTU-24-200320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270689",
+   "title": "UBTU-24-200580 (V-270689): Ubuntu 24.04 LTS must prevent all software from executing at higher privilege levels than users executing the software and the audit system must be configured to audit th...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270689 (DISA rule V-270689, STIG ID UBTU-24-200580, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270690",
+   "title": "UBTU-24-200610 (V-270690): Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270690 (DISA rule V-270690, STIG ID UBTU-24-200610, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270691",
+   "title": "UBTU-24-200640 (V-270691): Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting access to via an SSH logon.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270691 (DISA rule V-270691, STIG ID UBTU-24-200640, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270692",
+   "title": "UBTU-24-200650 (V-270692): Ubuntu 24.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system vi...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270692 (DISA rule V-270692, STIG ID UBTU-24-200650, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270693",
+   "title": "UBTU-24-200660 (V-270693): Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270693 (DISA rule V-270693, STIG ID UBTU-24-200660, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270694",
+   "title": "UBTU-24-200680 (V-270694): Ubuntu 24.04 LTS must be configured to enforce the acknowledgement of the Standard Mandatory DOD Notice and Consent Banner for all SSH connections.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270694 (DISA rule V-270694, STIG ID UBTU-24-200680, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270695",
+   "title": "UBTU-24-300001 (V-270695): Ubuntu 24.04 LTS Advance Package Tool (APT) must be configured to prevent the installation of patches, service packs, device drivers, or Ubuntu 24.04 LTS components witho...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270695 (DISA rule V-270695, STIG ID UBTU-24-300001, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270704",
+   "title": "UBTU-24-300014 (V-270704): Ubuntu 24.04 LTS must prevent the use of dictionary words for passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270704 (DISA rule V-270704, STIG ID UBTU-24-300014, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270705",
+   "title": "UBTU-24-300016 (V-270705): Ubuntu 24.04 LTS must be configured so that when passwords are changed or new passwords are established, pwquality must be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270705 (DISA rule V-270705, STIG ID UBTU-24-300016, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270706",
+   "title": "UBTU-24-300017 (V-270706): Ubuntu 24.04 LTS must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270706 (DISA rule V-270706, STIG ID UBTU-24-300017, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270707",
+   "title": "UBTU-24-300021 (V-270707): Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270707 (DISA rule V-270707, STIG ID UBTU-24-300021, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270708",
+   "title": "UBTU-24-300022 (V-270708): Ubuntu 24.04 LTS must be configured so that remote X connections are disabled, unless to fulfill documented and validated mission requirements.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270708 (DISA rule V-270708, STIG ID UBTU-24-300022, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270709",
+   "title": "UBTU-24-300023 (V-270709): Ubuntu 24.04 LTS SSH daemon must prevent remote hosts from connecting to the proxy display.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270709 (DISA rule V-270709, STIG ID UBTU-24-300023, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270711",
+   "title": "UBTU-24-300025 (V-270711): Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270711 (DISA rule V-270711, STIG ID UBTU-24-300025, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270712",
+   "title": "UBTU-24-300026 (V-270712): Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270712 (DISA rule V-270712, STIG ID UBTU-24-300026, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270713",
+   "title": "UBTU-24-300027 (V-270713): Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270713 (DISA rule V-270713, STIG ID UBTU-24-300027, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270714",
+   "title": "UBTU-24-300028 (V-270714): Ubuntu 24.04 LTS must not allow accounts configured in Pluggable Authentication Modules (PAM) with blank or null passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270714 (DISA rule V-270714, STIG ID UBTU-24-300028, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270715",
+   "title": "UBTU-24-300029 (V-270715): Ubuntu 24.04 LTS must generate audit records for all events that affect the systemd journal files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270715 (DISA rule V-270715, STIG ID UBTU-24-300029, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270716",
+   "title": "UBTU-24-300030 (V-270716): Ubuntu 24.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270716 (DISA rule V-270716, STIG ID UBTU-24-300030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270717",
+   "title": "UBTU-24-300031 (V-270717): Ubuntu 24.04 LTS must not allow unattended or automatic login via SSH.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270717 (DISA rule V-270717, STIG ID UBTU-24-300031, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270718",
+   "title": "UBTU-24-300039 (V-270718): Ubuntu 24.04 LTS must disable automatic mounting of Universal Serial Bus (USB) mass storage driver.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270718 (DISA rule V-270718, STIG ID UBTU-24-300039, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270719",
+   "title": "UBTU-24-300041 (V-270719): Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Mana...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270719 (DISA rule V-270719, STIG ID UBTU-24-300041, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270720",
+   "title": "UBTU-24-400000 (V-270720): Ubuntu 24.04 LTS must uniquely identify interactive users.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270720 (DISA rule V-270720, STIG ID UBTU-24-400000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270721",
+   "title": "UBTU-24-400020 (V-270721): Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270721 (DISA rule V-270721, STIG ID UBTU-24-400020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270722",
+   "title": "UBTU-24-400030 (V-270722): Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts over SSH.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270722 (DISA rule V-270722, STIG ID UBTU-24-400030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270724",
+   "title": "UBTU-24-400110 (V-270724): Ubuntu 24.04 LTS must prevent direct login to the root account.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270724 (DISA rule V-270724, STIG ID UBTU-24-400110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270725",
+   "title": "UBTU-24-400220 (V-270725): Ubuntu 24.04 LTS must store only encrypted representations of passwords.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270725 (DISA rule V-270725, STIG ID UBTU-24-400220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270726",
+   "title": "UBTU-24-400260 (V-270726): Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one uppercase character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270726 (DISA rule V-270726, STIG ID UBTU-24-400260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270727",
+   "title": "UBTU-24-400270 (V-270727): Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one lowercase character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270727 (DISA rule V-270727, STIG ID UBTU-24-400270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270728",
+   "title": "UBTU-24-400280 (V-270728): Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one numeric character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270728 (DISA rule V-270728, STIG ID UBTU-24-400280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270729",
+   "title": "UBTU-24-400290 (V-270729): Ubuntu 24.04 LTS must require the change of at least eight characters when passwords are changed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270729 (DISA rule V-270729, STIG ID UBTU-24-400290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270730",
+   "title": "UBTU-24-400300 (V-270730): Ubuntu 24.04 LTS must enforce 24 hours/1 day as the minimum password lifetime. Passwords for new users must have a 24 hours/1 day minimum password lifetime restriction.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270730 (DISA rule V-270730, STIG ID UBTU-24-400300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270731",
+   "title": "UBTU-24-400310 (V-270731): Ubuntu 24.04 LTS must enforce a 60-day maximum password lifetime restriction. Passwords for new users must have a 60-day maximum password lifetime restriction.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270731 (DISA rule V-270731, STIG ID UBTU-24-400310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270732",
+   "title": "UBTU-24-400320 (V-270732): Ubuntu 24.04 LTS must enforce a minimum 15-character password length.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270732 (DISA rule V-270732, STIG ID UBTU-24-400320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270733",
+   "title": "UBTU-24-400330 (V-270733): Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one special character be used.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270733 (DISA rule V-270733, STIG ID UBTU-24-400330, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270734",
+   "title": "UBTU-24-400340 (V-270734): Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270734 (DISA rule V-270734, STIG ID UBTU-24-400340, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270735",
+   "title": "UBTU-24-400360 (V-270735): Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted tr...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270735 (DISA rule V-270735, STIG ID UBTU-24-400360, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270736",
+   "title": "UBTU-24-400370 (V-270736): Ubuntu 24.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270736 (DISA rule V-270736, STIG ID UBTU-24-400370, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270737",
+   "title": "UBTU-24-400375 (V-270737): Ubuntu 24.04 LTS, for PKI-based authentication, Privileged Access Management (PAM) must validate certificates by constructing a certification path (which includes status...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270737 (DISA rule V-270737, STIG ID UBTU-24-400375, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270738",
+   "title": "UBTU-24-400380 (V-270738): Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270738 (DISA rule V-270738, STIG ID UBTU-24-400380, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270739",
+   "title": "UBTU-24-400400 (V-270739): Ubuntu 24.04 LTS must encrypt all stored passwords with a FIPS 140-3 approved cryptographic hashing algorithm.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270739 (DISA rule V-270739, STIG ID UBTU-24-400400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270740",
+   "title": "UBTU-24-500010 (V-270740): Ubuntu 24.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions, and other system-level access.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270740 (DISA rule V-270740, STIG ID UBTU-24-500010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270741",
+   "title": "UBTU-24-500050 (V-270741): Ubuntu 24.04 LTS must use strong authenticators in establishing nonlocal maintenance and diagnostic sessions.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270741 (DISA rule V-270741, STIG ID UBTU-24-500050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270742",
+   "title": "UBTU-24-600000 (V-270742): Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic after a period of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270742 (DISA rule V-270742, STIG ID UBTU-24-600000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270743",
+   "title": "UBTU-24-600010 (V-270743): Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic at the end of the session or after 10 minutes of inactivity.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270743 (DISA rule V-270743, STIG ID UBTU-24-600010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270744",
+   "title": "UBTU-24-600030 (V-270744): Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cry...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270744 (DISA rule V-270744, STIG ID UBTU-24-600030, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270746",
+   "title": "UBTU-24-600070 (V-270746): Ubuntu 24.04 LTS must disable kernel core dumps.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270746 (DISA rule V-270746, STIG ID UBTU-24-600070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270747",
+   "title": "UBTU-24-600090 (V-270747): Ubuntu 24.04 LTS handling data requiring \"data at rest\" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the inform...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270747 (DISA rule V-270747, STIG ID UBTU-24-600090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270748",
+   "title": "UBTU-24-600130 (V-270748): Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270748 (DISA rule V-270748, STIG ID UBTU-24-600130, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270749",
+   "title": "UBTU-24-600140 (V-270749): Ubuntu 24.04 LTS must restrict access to the kernel message buffer.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270749 (DISA rule V-270749, STIG ID UBTU-24-600140, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270750",
+   "title": "UBTU-24-600150 (V-270750): Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270750 (DISA rule V-270750, STIG ID UBTU-24-600150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270751",
+   "title": "UBTU-24-600160 (V-270751): Ubuntu 24.04 LTS must compare internal information system clocks at least every 24 hours with an authoritative time server.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270751 (DISA rule V-270751, STIG ID UBTU-24-600160, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270752",
+   "title": "UBTU-24-600180 (V-270752): Ubuntu 24.04 LTS must synchronize internal information system clocks to the authoritative time source when the time difference is greater than one second.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270752 (DISA rule V-270752, STIG ID UBTU-24-600180, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270753",
+   "title": "UBTU-24-600190 (V-270753): Ubuntu 24.04 LTS must be configured to use TCP syncookies.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270753 (DISA rule V-270753, STIG ID UBTU-24-600190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270754",
+   "title": "UBTU-24-600200 (V-270754): Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270754 (DISA rule V-270754, STIG ID UBTU-24-600200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270755",
+   "title": "UBTU-24-600230 (V-270755): Ubuntu 24.04 LTS must disable all wireless network adapters.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270755 (DISA rule V-270755, STIG ID UBTU-24-600230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270756",
+   "title": "UBTU-24-700010 (V-270756): Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270756 (DISA rule V-270756, STIG ID UBTU-24-700010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270757",
+   "title": "UBTU-24-700020 (V-270757): Ubuntu 24.04 LTS must generate system journal entries without revealing information that could be exploited by adversaries.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270757 (DISA rule V-270757, STIG ID UBTU-24-700020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270758",
+   "title": "UBTU-24-700030 (V-270758): Ubuntu 24.04 LTS must be configured so that the \"journalctl\" command is not accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270758 (DISA rule V-270758, STIG ID UBTU-24-700030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270759",
+   "title": "UBTU-24-700040 (V-270759): Ubuntu 24.04 LTS must be configured so that the \"journalctl\" command is owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270759 (DISA rule V-270759, STIG ID UBTU-24-700040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270760",
+   "title": "UBTU-24-700050 (V-270760): Ubuntu 24.04 LTS must be configured so that the \"journalctl\" command is group-owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270760 (DISA rule V-270760, STIG ID UBTU-24-700050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270761",
+   "title": "UBTU-24-700060 (V-270761): Ubuntu 24.04 LTS must configure the directories used by the system journal to be group-owned by \"systemd-journal\".",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270761 (DISA rule V-270761, STIG ID UBTU-24-700060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270762",
+   "title": "UBTU-24-700070 (V-270762): Ubuntu 24.04 LTS must configure the files used by the system journal to be group-owned by \"systemd-journal\".",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270762 (DISA rule V-270762, STIG ID UBTU-24-700070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270763",
+   "title": "UBTU-24-700080 (V-270763): Ubuntu 24.04 LTS must configure the directories used by the system journal to be owned by \"root\".",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270763 (DISA rule V-270763, STIG ID UBTU-24-700080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270764",
+   "title": "UBTU-24-700090 (V-270764): Ubuntu 24.04 LTS must configure the files used by the system journal to be owned by \"root\"",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270764 (DISA rule V-270764, STIG ID UBTU-24-700090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270765",
+   "title": "UBTU-24-700100 (V-270765): Ubuntu 24.04 LTS must configure the /var/log directory to be group-owned by syslog.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270765 (DISA rule V-270765, STIG ID UBTU-24-700100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270766",
+   "title": "UBTU-24-700110 (V-270766): Ubuntu 24.04 LTS must configure the /var/log directory to be owned by root.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270766 (DISA rule V-270766, STIG ID UBTU-24-700110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270767",
+   "title": "UBTU-24-700120 (V-270767): Ubuntu 24.04 LTS must configure the /var/log directory to have mode \"0755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270767 (DISA rule V-270767, STIG ID UBTU-24-700120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270768",
+   "title": "UBTU-24-700130 (V-270768): Ubuntu 24.04 LTS must configure the /var/log/syslog file to be group-owned by adm.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270768 (DISA rule V-270768, STIG ID UBTU-24-700130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270769",
+   "title": "UBTU-24-700140 (V-270769): Ubuntu 24.04 LTS must configure /var/log/syslog file to be owned by syslog.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270769 (DISA rule V-270769, STIG ID UBTU-24-700140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270770",
+   "title": "UBTU-24-700150 (V-270770): Ubuntu 24.04 LTS must configure /var/log/syslog file with mode \"0640\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270770 (DISA rule V-270770, STIG ID UBTU-24-700150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270771",
+   "title": "UBTU-24-700300 (V-270771): Ubuntu 24.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270771 (DISA rule V-270771, STIG ID UBTU-24-700300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270772",
+   "title": "UBTU-24-700310 (V-270772): Ubuntu 24.04 LTS must implement address space layout randomization to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270772 (DISA rule V-270772, STIG ID UBTU-24-700310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270775",
+   "title": "UBTU-24-900040 (V-270775): Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270775 (DISA rule V-270775, STIG ID UBTU-24-900040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270776",
+   "title": "UBTU-24-900050 (V-270776): Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270776 (DISA rule V-270776, STIG ID UBTU-24-900050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270777",
+   "title": "UBTU-24-900060 (V-270777): Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270777 (DISA rule V-270777, STIG ID UBTU-24-900060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270778",
+   "title": "UBTU-24-900070 (V-270778): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the su command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270778 (DISA rule V-270778, STIG ID UBTU-24-900070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270779",
+   "title": "UBTU-24-900080 (V-270779): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chfn command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270779 (DISA rule V-270779, STIG ID UBTU-24-900080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270780",
+   "title": "UBTU-24-900090 (V-270780): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the mount command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270780 (DISA rule V-270780, STIG ID UBTU-24-900090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270781",
+   "title": "UBTU-24-900100 (V-270781): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the umount command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270781 (DISA rule V-270781, STIG ID UBTU-24-900100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270782",
+   "title": "UBTU-24-900110 (V-270782): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-agent command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270782 (DISA rule V-270782, STIG ID UBTU-24-900110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270783",
+   "title": "UBTU-24-900120 (V-270783): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-keysign command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270783 (DISA rule V-270783, STIG ID UBTU-24-900120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270784",
+   "title": "UBTU-24-900130 (V-270784): Ubuntu 24.04 LTS must generate audit records for any use of the setxattr, fsetxattr, lsetxattr, removexattr, fremovexattr, and lremovexattr system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270784 (DISA rule V-270784, STIG ID UBTU-24-900130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270785",
+   "title": "UBTU-24-900140 (V-270785): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chown, fchown, fchownat, and lchown system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270785 (DISA rule V-270785, STIG ID UBTU-24-900140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270786",
+   "title": "UBTU-24-900150 (V-270786): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chmod, fchmod, and fchmodat system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270786 (DISA rule V-270786, STIG ID UBTU-24-900150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270787",
+   "title": "UBTU-24-900160 (V-270787): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the creat, open, openat, open_by_handle_at, truncate, and ftruncate system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270787 (DISA rule V-270787, STIG ID UBTU-24-900160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270788",
+   "title": "UBTU-24-900170 (V-270788): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the sudo command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270788 (DISA rule V-270788, STIG ID UBTU-24-900170, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270789",
+   "title": "UBTU-24-900180 (V-270789): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the sudoedit command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270789 (DISA rule V-270789, STIG ID UBTU-24-900180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270790",
+   "title": "UBTU-24-900190 (V-270790): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chsh command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270790 (DISA rule V-270790, STIG ID UBTU-24-900190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270791",
+   "title": "UBTU-24-900200 (V-270791): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the newgrp command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270791 (DISA rule V-270791, STIG ID UBTU-24-900200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270792",
+   "title": "UBTU-24-900210 (V-270792): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chcon command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270792 (DISA rule V-270792, STIG ID UBTU-24-900210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270793",
+   "title": "UBTU-24-900220 (V-270793): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the apparmor_parser command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270793 (DISA rule V-270793, STIG ID UBTU-24-900220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270794",
+   "title": "UBTU-24-900230 (V-270794): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the setfacl command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270794 (DISA rule V-270794, STIG ID UBTU-24-900230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270795",
+   "title": "UBTU-24-900240 (V-270795): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chacl command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270795 (DISA rule V-270795, STIG ID UBTU-24-900240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270796",
+   "title": "UBTU-24-900250 (V-270796): Ubuntu 24.04 LTS must generate audit records for the use and modification of faillog file.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270796 (DISA rule V-270796, STIG ID UBTU-24-900250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270797",
+   "title": "UBTU-24-900260 (V-270797): Ubuntu 24.04 LTS must generate audit records for the use and modification of the lastlog file.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270797 (DISA rule V-270797, STIG ID UBTU-24-900260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270798",
+   "title": "UBTU-24-900270 (V-270798): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the passwd command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270798 (DISA rule V-270798, STIG ID UBTU-24-900270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270799",
+   "title": "UBTU-24-900280 (V-270799): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the unix_update command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270799 (DISA rule V-270799, STIG ID UBTU-24-900280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270800",
+   "title": "UBTU-24-900290 (V-270800): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the gpasswd command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270800 (DISA rule V-270800, STIG ID UBTU-24-900290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270801",
+   "title": "UBTU-24-900300 (V-270801): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chage command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270801 (DISA rule V-270801, STIG ID UBTU-24-900300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270802",
+   "title": "UBTU-24-900310 (V-270802): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the usermod command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270802 (DISA rule V-270802, STIG ID UBTU-24-900310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270803",
+   "title": "UBTU-24-900320 (V-270803): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the crontab command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270803 (DISA rule V-270803, STIG ID UBTU-24-900320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270804",
+   "title": "UBTU-24-900330 (V-270804): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the pam_timestamp_check command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270804 (DISA rule V-270804, STIG ID UBTU-24-900330, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270805",
+   "title": "UBTU-24-900340 (V-270805): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the init_module and finit_module syscalls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270805 (DISA rule V-270805, STIG ID UBTU-24-900340, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270806",
+   "title": "UBTU-24-900350 (V-270806): Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the delete_module syscall.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270806 (DISA rule V-270806, STIG ID UBTU-24-900350, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270807",
+   "title": "UBTU-24-900510 (V-270807): Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers file occur.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270807 (DISA rule V-270807, STIG ID UBTU-24-900510, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270808",
+   "title": "UBTU-24-900520 (V-270808): Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers.d directory occur.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270808 (DISA rule V-270808, STIG ID UBTU-24-900520, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270809",
+   "title": "UBTU-24-900540 (V-270809): Ubuntu 24.04 LTS must generate audit records for any successful/unsuccessful use of unlink, unlinkat, rename, renameat, and rmdir system calls.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270809 (DISA rule V-270809, STIG ID UBTU-24-900540, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270810",
+   "title": "UBTU-24-900590 (V-270810): Ubuntu 24.04 LTS must generate audit records for the /var/log/wtmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270810 (DISA rule V-270810, STIG ID UBTU-24-900590, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270811",
+   "title": "UBTU-24-900600 (V-270811): Ubuntu 24.04 LTS must generate audit records for the /var/run/utmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270811 (DISA rule V-270811, STIG ID UBTU-24-900600, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270812",
+   "title": "UBTU-24-900610 (V-270812): Ubuntu 24.04 LTS must generate audit records for the /var/log/btmp file.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270812 (DISA rule V-270812, STIG ID UBTU-24-900610, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270813",
+   "title": "UBTU-24-900730 (V-270813): Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use modprobe command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270813 (DISA rule V-270813, STIG ID UBTU-24-900730, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270814",
+   "title": "UBTU-24-900740 (V-270814): Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use the kmod command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270814 (DISA rule V-270814, STIG ID UBTU-24-900740, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270815",
+   "title": "UBTU-24-900750 (V-270815): Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use the fdisk command.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270815 (DISA rule V-270815, STIG ID UBTU-24-900750, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270816",
+   "title": "UBTU-24-900920 (V-270816): Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one week's worth of audit records, when audit records are not immediately sent to a central...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270816 (DISA rule V-270816, STIG ID UBTU-24-900920, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270817",
+   "title": "UBTU-24-900950 (V-270817): Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270817 (DISA rule V-270817, STIG ID UBTU-24-900950, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270818",
+   "title": "UBTU-24-900960 (V-270818): Ubuntu 24.04 LTS must immediately notify the system administrator (SA) and information system security officer (ISSO) (at a minimum) when allocated audit record storage v...",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270818 (DISA rule V-270818, STIG ID UBTU-24-900960, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270819",
+   "title": "UBTU-24-900980 (V-270819): Ubuntu 24.04 LTS must alert the system administrator (SA) and information system security officer (ISSO) (at a minimum) in the event of an audit processing failure.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270819 (DISA rule V-270819, STIG ID UBTU-24-900980, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270820",
+   "title": "UBTU-24-901220 (V-270820): Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT).",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270820 (DISA rule V-270820, STIG ID UBTU-24-901220, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270821",
+   "title": "UBTU-24-901230 (V-270821): Ubuntu 24.04 LTS must configure audit tools with a mode of \"0755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270821 (DISA rule V-270821, STIG ID UBTU-24-901230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270822",
+   "title": "UBTU-24-901240 (V-270822): Ubuntu 24.04 LTS must configure audit tools to be owned by root.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270822 (DISA rule V-270822, STIG ID UBTU-24-901240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270823",
+   "title": "UBTU-24-901250 (V-270823): Ubuntu 24.04 LTS must configure the audit tools to be group owned by root.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270823 (DISA rule V-270823, STIG ID UBTU-24-901250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270824",
+   "title": "UBTU-24-901260 (V-270824): Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of \"0755\" or less permissive.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270824 (DISA rule V-270824, STIG ID UBTU-24-901260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270825",
+   "title": "UBTU-24-901270 (V-270825): Ubuntu 24.04 LTS must have directories that contain system commands owned by root.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270825 (DISA rule V-270825, STIG ID UBTU-24-901270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270826",
+   "title": "UBTU-24-901280 (V-270826): Ubuntu 24.04 LTS must have directories that contain system commands group-owned by root.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270826 (DISA rule V-270826, STIG ID UBTU-24-901280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270827",
+   "title": "UBTU-24-901300 (V-270827): Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270827 (DISA rule V-270827, STIG ID UBTU-24-901300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270828",
+   "title": "UBTU-24-901310 (V-270828): Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270828 (DISA rule V-270828, STIG ID UBTU-24-901310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270829",
+   "title": "UBTU-24-901350 (V-270829): Ubuntu 24.04 LTS must permit only authorized groups ownership of the audit log files.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270829 (DISA rule V-270829, STIG ID UBTU-24-901350, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270830",
+   "title": "UBTU-24-901380 (V-270830): Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270830 (DISA rule V-270830, STIG ID UBTU-24-901380, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270831",
+   "title": "UBTU-24-909890 (V-270831): Ubuntu 24.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270831 (DISA rule V-270831, STIG ID UBTU-24-909890, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-270832",
+   "title": "UBTU-24-909000 (V-270832): Ubuntu 24.04 LTS audit system must protect auditing rules from unauthorized change.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-270832 (DISA rule V-270832, STIG ID UBTU-24-909000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274868",
+   "title": "UBTU-24-300020 (V-274868): Ubuntu 24.04 LTS must require users to provide a password for privilege escalation.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274868 (DISA rule V-274868, STIG ID UBTU-24-300020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274869",
+   "title": "UBTU-24-300019 (V-274869): Ubuntu 24.04 LTS must restrict privilege elevation to authorized personnel.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274869 (DISA rule V-274869, STIG ID UBTU-24-300019, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274870",
+   "title": "UBTU-24-200270 (V-274870): Ubuntu 24.04 LTS must audit any script or executable called by cron as root or by any privileged user.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274870 (DISA rule V-274870, STIG ID UBTU-24-200270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274871",
+   "title": "UBTU-24-200043 (V-274871): Ubuntu 24.04 LTS must conceal, via the session lock, information previously visible on the display with a publicly viewable image.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274871 (DISA rule V-274871, STIG ID UBTU-24-200043, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274872",
+   "title": "UBTU-24-200041 (V-274872): Ubuntu 24.04 LTS must prevent a user from overriding the disabling of the graphical user interface autorun function.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274872 (DISA rule V-274872, STIG ID UBTU-24-200041, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-274873",
+   "title": "UBTU-24-200042 (V-274873): Ubuntu 24.04 LTS must prevent a user from overriding the disabling of the graphical user smart card removal action.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-274873 (DISA rule V-274873, STIG ID UBTU-24-200042, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.ubuntu2404.v-278917",
+   "title": "UBTU-24-700400 (V-278917): Ubuntu 24.04 LTS must be a vendor-supported release.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-278917 (DISA rule V-278917, STIG ID UBTU-24-700400, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.ubuntu2404.v-279938",
+   "title": "UBTU-24-100050 (V-279938): Ubuntu 24.04 LTS must not have the nfs-kernel-server package installed.",
+   "scope": "MITRE SAF Canonical Ubuntu 24.04 LTS STIG profile 1.4.2, control SV-279938 (DISA rule V-279938, STIG ID UBTU-24-100050, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
+}

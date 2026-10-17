@@ -1,0 +1,27 @@
+{
+ "source": "lms",
+ "title": "Training records (CSV export from the LMS and a roster)",
+ "readScopes": [
+  "CSV export from the LMS (no API access)"
+ ],
+ "checks": [
+  {
+   "id": "lms.security_awareness_current",
+   "title": "Everyone on the roster completed security awareness training within 12 months",
+   "scope": "People on the roster the customer supplies; completeness of the roster is the customer's.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "lms.role_based_training_current",
+   "title": "People in privileged roles completed role-based training within 12 months",
+   "scope": "Roster people whose role is in the privileged list; which roles count is the customer's choice.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "lms.training_records_complete",
+   "title": "Every person on the roster has a training record",
+   "scope": "Training rows matched to the roster by person_id; rows for people not on the roster are counted only.",
+   "evidenceType": "Report"
+  }
+ ]
+}

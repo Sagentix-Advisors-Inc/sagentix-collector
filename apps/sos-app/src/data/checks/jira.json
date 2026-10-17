@@ -1,0 +1,81 @@
+{
+ "source": "jira",
+ "title": "Jira Cloud (REST v3 enhanced search, API token of a read-only account)",
+ "readScopes": [
+  "Browse projects (project permission) on the projects the change, incident, security, review and deletion-request queries name"
+ ],
+ "checks": [
+  {
+   "id": "jira.change_approval",
+   "title": "Change records from the last 90 days carry an approval or reviewer",
+   "scope": "Issues the change JQL selects, created in the lookback window; changes made outside Jira are not visible.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.incident_sla",
+   "title": "Incidents from the last 90 days were resolved within the SLA",
+   "scope": "Issues the incident JQL selects, created in the lookback window; time to resolve is resolutiondate minus created.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.security_issue_age",
+   "title": "No security issue stays open longer than the allowed age",
+   "scope": "Issues the security JQL selects whose status category is not Done; findings tracked outside Jira are not visible.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.post_incident_reviews",
+   "title": "Resolved incidents of the last 90 days each link a post-incident review issue",
+   "scope": "Resolved issues the incident JQL selects, created in the lookback window; a review counts when a linked issue has the configured type (--jira-review-issue-type).",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.dr_test_recent",
+   "title": "A disaster recovery test was resolved within the last 12 months",
+   "scope": "Issues the DR-test JQL selects; the test's scope and result are in the issue, not read.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.log_review_cadence",
+   "title": "Log review tasks were resolved at the expected cadence over the last 90 days",
+   "scope": "Issues the log-review JQL selects; no gap longer than 1.5 times --jira-log-review-every-days (default 7).",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.access_review_recent",
+   "title": "An access review was resolved within the last 90 days",
+   "scope": "Issues the access-review JQL selects; which accounts were reviewed is in the issue, not read.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.security_roadmap_reviewed",
+   "title": "A security roadmap or investment review was resolved within the last 12 months",
+   "scope": "Issues the roadmap-review JQL selects; who took part, and what was decided, is in the issue, not read.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.recovery_objectives_reviewed",
+   "title": "Recovery time and recovery point objectives were reviewed within the last 12 months",
+   "scope": "Issues the recovery-objectives JQL selects.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.data_deletion_requests",
+   "title": "Customer data deletion requests of the last 90 days were closed within the SLA",
+   "scope": "Issues the deletion JQL selects, created in the lookback window; time to close is resolutiondate minus created, against --jira-deletion-sla-days (default 30).",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.log_access_review_recent",
+   "title": "A review of who can read log data was resolved within the last 90 days",
+   "scope": "Issues the log-access-review JQL selects; the access itself is not read.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "jira.availability_review_recent",
+   "title": "A review of the system's availability and recovery design was resolved within the last 12 months",
+   "scope": "Issues the availability-review JQL selects; the design itself is not read.",
+   "evidenceType": "Audit Record"
+  }
+ ]
+}

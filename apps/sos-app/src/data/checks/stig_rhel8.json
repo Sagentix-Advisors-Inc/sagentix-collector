@@ -1,0 +1,2575 @@
+{
+ "source": "stig",
+ "title": "DISA STIG for Red Hat Enterprise Linux 8 (MITRE SAF InSpec profile 2.7.1, run by Cinc Auditor)",
+ "readScopes": [
+  "SSH (ssh://) or WinRM (winrm://) login to the scanned host, or a JSON report the customer produced. The profile only reads: it runs commands such as stat, grep, rpm -q and sysctl. Many rules read root-only files, so give a non-root account sudo for those reads (--stig-sudo); without it they fail to read and report skipped or failed, never passed."
+ ],
+ "engine": {
+  "name": "Cinc Auditor + MITRE SAF STIG profile",
+  "profile": "redhat-enterprise-linux-8-stig-baseline",
+  "version": "2.7.1",
+  "tag": "v2.7.1",
+  "commit": "1389331c436768956cc79d6e36b1a98431c53254",
+  "tarballSha256": "e4c63c518087e2241fbdc26b3af69340f4376eb50879ef02a65afe0633924032",
+  "licence": "Apache-2.0 (MITRE profile, with MITRE's NOTICE); STIG rule titles and ids are DISA's, a US Government work",
+  "url": "https://github.com/mitre/redhat-enterprise-linux-8-stig-baseline"
+ },
+ "profile": "rhel8",
+ "checks": [
+  {
+   "id": "stig.rhel8.v-230221",
+   "title": "RHEL-08-010000 (V-230221): RHEL 8 must be a vendor-supported release.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230221 (DISA rule V-230221, STIG ID RHEL-08-010000, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230222",
+   "title": "RHEL-08-010010 (V-230222): RHEL 8 vendor packaged system security patches and updates must be installed and up to date.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230222 (DISA rule V-230222, STIG ID RHEL-08-010010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230223",
+   "title": "RHEL-08-010020 (V-230223): RHEL 8 must implement a FIPS 140-3-compliant systemwide cryptographic policy.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230223 (DISA rule V-230223, STIG ID RHEL-08-010020, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230224",
+   "title": "RHEL-08-010030 (V-230224): All RHEL 8 local disk partitions must implement cryptographic mechanisms to prevent unauthorized disclosure or modification of all information that requires at rest prote...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230224 (DISA rule V-230224, STIG ID RHEL-08-010030, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230225",
+   "title": "RHEL-08-010040 (V-230225): RHEL 8 must display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via a ssh logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230225 (DISA rule V-230225, STIG ID RHEL-08-010040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230226",
+   "title": "RHEL-08-010050 (V-230226): RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a graphical user logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230226 (DISA rule V-230226, STIG ID RHEL-08-010050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230227",
+   "title": "RHEL-08-010060 (V-230227): RHEL 8 must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a command line user logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230227 (DISA rule V-230227, STIG ID RHEL-08-010060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230228",
+   "title": "RHEL-08-010070 (V-230228): All RHEL 8 remote access methods must be monitored.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230228 (DISA rule V-230228, STIG ID RHEL-08-010070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230229",
+   "title": "RHEL-08-010090 (V-230229): RHEL 8, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230229 (DISA rule V-230229, STIG ID RHEL-08-010090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230230",
+   "title": "RHEL-08-010100 (V-230230): RHEL 8, for certificate-based authentication, must enforce authorized access to the corresponding private key.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230230 (DISA rule V-230230, STIG ID RHEL-08-010100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230231",
+   "title": "RHEL-08-010110 (V-230231): RHEL 8 must encrypt all stored passwords with a FIPS 140-2 approved cryptographic hashing algorithm.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230231 (DISA rule V-230231, STIG ID RHEL-08-010110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230232",
+   "title": "RHEL-08-010120 (V-230232): RHEL 8 must employ FIPS 140-2 approved cryptographic hashing algorithms for all stored passwords.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230232 (DISA rule V-230232, STIG ID RHEL-08-010120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230233",
+   "title": "RHEL-08-010130 (V-230233): The RHEL 8 shadow password suite must be configured to use a sufficient number of hashing rounds.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230233 (DISA rule V-230233, STIG ID RHEL-08-010130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230234",
+   "title": "RHEL-08-010140 (V-230234): RHEL 8 operating systems booted with United Extensible Firmware Interface (UEFI) must require authentication upon booting into single-user mode and maintenance.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230234 (DISA rule V-230234, STIG ID RHEL-08-010140, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230235",
+   "title": "RHEL-08-010150 (V-230235): RHEL 8 operating systems booted with a BIOS must require authentication upon booting into single-user and maintenance modes.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230235 (DISA rule V-230235, STIG ID RHEL-08-010150, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230236",
+   "title": "RHEL-08-010151 (V-230236): RHEL 8 operating systems must require authentication upon booting into rescue mode.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230236 (DISA rule V-230236, STIG ID RHEL-08-010151, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230237",
+   "title": "RHEL-08-010160 (V-230237): The RHEL 8 pam_unix.so module must be configured in the password-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230237 (DISA rule V-230237, STIG ID RHEL-08-010160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230238",
+   "title": "RHEL-08-010161 (V-230238): RHEL 8 must prevent system daemons from using Kerberos for authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230238 (DISA rule V-230238, STIG ID RHEL-08-010161, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230239",
+   "title": "RHEL-08-010162 (V-230239): The krb5-workstation package must not be installed on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230239 (DISA rule V-230239, STIG ID RHEL-08-010162, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230240",
+   "title": "RHEL-08-010170 (V-230240): RHEL 8 must use a Linux Security Module configured to enforce limits on system services.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230240 (DISA rule V-230240, STIG ID RHEL-08-010170, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230241",
+   "title": "RHEL-08-010171 (V-230241): RHEL 8 must have policycoreutils package installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230241 (DISA rule V-230241, STIG ID RHEL-08-010171, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230243",
+   "title": "RHEL-08-010190 (V-230243): A sticky bit must be set on all RHEL 8 public directories to prevent unauthorized and unintended information transferred via shared system resources.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230243 (DISA rule V-230243, STIG ID RHEL-08-010190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230244",
+   "title": "RHEL-08-010200 (V-230244): RHEL 8 must be configured so that all network connections associated with SSH traffic terminate after becoming unresponsive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230244 (DISA rule V-230244, STIG ID RHEL-08-010200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230245",
+   "title": "RHEL-08-010210 (V-230245): The RHEL 8 /var/log/messages file must have mode 0640 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230245 (DISA rule V-230245, STIG ID RHEL-08-010210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230246",
+   "title": "RHEL-08-010220 (V-230246): The RHEL 8 /var/log/messages file must be owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230246 (DISA rule V-230246, STIG ID RHEL-08-010220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230247",
+   "title": "RHEL-08-010230 (V-230247): The RHEL 8 /var/log/messages file must be group-owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230247 (DISA rule V-230247, STIG ID RHEL-08-010230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230248",
+   "title": "RHEL-08-010240 (V-230248): The RHEL 8 /var/log directory must have mode 0755 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230248 (DISA rule V-230248, STIG ID RHEL-08-010240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230249",
+   "title": "RHEL-08-010250 (V-230249): The RHEL 8 /var/log directory must be owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230249 (DISA rule V-230249, STIG ID RHEL-08-010250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230250",
+   "title": "RHEL-08-010260 (V-230250): The RHEL 8 /var/log directory must be group-owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230250 (DISA rule V-230250, STIG ID RHEL-08-010260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230251",
+   "title": "RHEL-08-010290 (V-230251): The RHEL 8 SSH server must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-3-validated cryptographic hash algorithms to protect the confi...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230251 (DISA rule V-230251, STIG ID RHEL-08-010290, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230252",
+   "title": "RHEL-08-010291 (V-230252): The RHEL 8 SSH server must be configured to use only DOD-approved encryption ciphers employing FIPS 140-3-validated cryptographic hash algorithms to protect the confident...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230252 (DISA rule V-230252, STIG ID RHEL-08-010291, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230253",
+   "title": "RHEL-08-010292 (V-230253): RHEL 8 must ensure the SSH server uses strong entropy.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230253 (DISA rule V-230253, STIG ID RHEL-08-010292, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230254",
+   "title": "RHEL-08-010293 (V-230254): The RHEL 8 operating system must implement DoD-approved encryption in the OpenSSL package.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230254 (DISA rule V-230254, STIG ID RHEL-08-010293, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230255",
+   "title": "RHEL-08-010294 (V-230255): The RHEL 8 operating system must implement DoD-approved TLS encryption in the OpenSSL package.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230255 (DISA rule V-230255, STIG ID RHEL-08-010294, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230256",
+   "title": "RHEL-08-010295 (V-230256): The RHEL 8 operating system must implement DoD-approved TLS encryption in the GnuTLS package.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230256 (DISA rule V-230256, STIG ID RHEL-08-010295, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230263",
+   "title": "RHEL-08-010360 (V-230263): The RHEL 8 file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230263 (DISA rule V-230263, STIG ID RHEL-08-010360, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230264",
+   "title": "RHEL-08-010370 (V-230264): RHEL 8 must prevent the installation of software, patches, service packs, device drivers, or operating system components from a repository without verification they have...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230264 (DISA rule V-230264, STIG ID RHEL-08-010370, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230265",
+   "title": "RHEL-08-010371 (V-230265): RHEL 8 must prevent the installation of software, patches, service packs, device drivers, or operating system components of local packages without verification they have...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230265 (DISA rule V-230265, STIG ID RHEL-08-010371, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230266",
+   "title": "RHEL-08-010372 (V-230266): RHEL 8 must prevent the loading of a new kernel for later execution.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230266 (DISA rule V-230266, STIG ID RHEL-08-010372, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230267",
+   "title": "RHEL-08-010373 (V-230267): RHEL 8 must enable kernel parameters to enforce discretionary access control on symlinks.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230267 (DISA rule V-230267, STIG ID RHEL-08-010373, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230268",
+   "title": "RHEL-08-010374 (V-230268): RHEL 8 must enable kernel parameters to enforce discretionary access control on hardlinks.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230268 (DISA rule V-230268, STIG ID RHEL-08-010374, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230269",
+   "title": "RHEL-08-010375 (V-230269): RHEL 8 must restrict access to the kernel message buffer.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230269 (DISA rule V-230269, STIG ID RHEL-08-010375, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230270",
+   "title": "RHEL-08-010376 (V-230270): RHEL 8 must prevent kernel profiling by unprivileged users.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230270 (DISA rule V-230270, STIG ID RHEL-08-010376, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230271",
+   "title": "RHEL-08-010380 (V-230271): RHEL 8 must require users to provide a password for privilege escalation.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230271 (DISA rule V-230271, STIG ID RHEL-08-010380, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230272",
+   "title": "RHEL-08-010381 (V-230272): RHEL 8 must require users to reauthenticate for privilege escalation.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230272 (DISA rule V-230272, STIG ID RHEL-08-010381, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230273",
+   "title": "RHEL-08-010390 (V-230273): RHEL 8 must have the packages required for multifactor authentication installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230273 (DISA rule V-230273, STIG ID RHEL-08-010390, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230274",
+   "title": "RHEL-08-010400 (V-230274): RHEL 8 must implement certificate status checking for multifactor authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230274 (DISA rule V-230274, STIG ID RHEL-08-010400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230276",
+   "title": "RHEL-08-010420 (V-230276): RHEL 8 must implement non-executable data to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230276 (DISA rule V-230276, STIG ID RHEL-08-010420, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230277",
+   "title": "RHEL-08-010421 (V-230277): RHEL 8 must clear the page allocator to prevent use-after-free attacks.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230277 (DISA rule V-230277, STIG ID RHEL-08-010421, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230278",
+   "title": "RHEL-08-010422 (V-230278): RHEL 8 must disable virtual syscalls.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230278 (DISA rule V-230278, STIG ID RHEL-08-010422, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230279",
+   "title": "RHEL-08-010423 (V-230279): RHEL 8 must clear memory when it is freed to prevent use-after-free attacks.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230279 (DISA rule V-230279, STIG ID RHEL-08-010423, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230280",
+   "title": "RHEL-08-010430 (V-230280): RHEL 8 must implement address space layout randomization (ASLR) to protect its memory from unauthorized code execution.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230280 (DISA rule V-230280, STIG ID RHEL-08-010430, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230282",
+   "title": "RHEL-08-010450 (V-230282): RHEL 8 must enable the SELinux targeted policy.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230282 (DISA rule V-230282, STIG ID RHEL-08-010450, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230283",
+   "title": "RHEL-08-010460 (V-230283): There must be no shosts.equiv files on the RHEL 8 operating system.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230283 (DISA rule V-230283, STIG ID RHEL-08-010460, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230284",
+   "title": "RHEL-08-010470 (V-230284): There must be no .shosts files on the RHEL 8 operating system.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230284 (DISA rule V-230284, STIG ID RHEL-08-010470, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230285",
+   "title": "RHEL-08-010471 (V-230285): RHEL 8 must enable the hardware random number generator entropy gatherer service.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230285 (DISA rule V-230285, STIG ID RHEL-08-010471, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230286",
+   "title": "RHEL-08-010480 (V-230286): The RHEL 8 SSH public host key files must have mode 0644 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230286 (DISA rule V-230286, STIG ID RHEL-08-010480, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230287",
+   "title": "RHEL-08-010490 (V-230287): The RHEL 8 SSH private host key files must have mode 0640 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230287 (DISA rule V-230287, STIG ID RHEL-08-010490, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230288",
+   "title": "RHEL-08-010500 (V-230288): The RHEL 8 SSH daemon must perform strict mode checking of home directory configuration files.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230288 (DISA rule V-230288, STIG ID RHEL-08-010500, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230290",
+   "title": "RHEL-08-010520 (V-230290): The RHEL 8 SSH daemon must not allow authentication using known host’s authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230290 (DISA rule V-230290, STIG ID RHEL-08-010520, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230291",
+   "title": "RHEL-08-010521 (V-230291): The RHEL 8 SSH daemon must not allow Kerberos authentication, except to fulfill documented and validated mission requirements.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230291 (DISA rule V-230291, STIG ID RHEL-08-010521, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230292",
+   "title": "RHEL-08-010540 (V-230292): RHEL 8 must use a separate file system for /var.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230292 (DISA rule V-230292, STIG ID RHEL-08-010540, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230293",
+   "title": "RHEL-08-010541 (V-230293): RHEL 8 must use a separate file system for /var/log.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230293 (DISA rule V-230293, STIG ID RHEL-08-010541, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230294",
+   "title": "RHEL-08-010542 (V-230294): RHEL 8 must use a separate file system for the system audit data path.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230294 (DISA rule V-230294, STIG ID RHEL-08-010542, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230295",
+   "title": "RHEL-08-010543 (V-230295): A separate RHEL 8 filesystem must be used for the /tmp directory.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230295 (DISA rule V-230295, STIG ID RHEL-08-010543, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230296",
+   "title": "RHEL-08-010550 (V-230296): RHEL 8 must not permit direct logons to the root account using remote access via SSH.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230296 (DISA rule V-230296, STIG ID RHEL-08-010550, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230298",
+   "title": "RHEL-08-010561 (V-230298): The rsyslog service must be running in RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230298 (DISA rule V-230298, STIG ID RHEL-08-010561, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230299",
+   "title": "RHEL-08-010570 (V-230299): RHEL 8 must prevent files with the setuid and setgid bit set from being executed on file systems that contain user home directories.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230299 (DISA rule V-230299, STIG ID RHEL-08-010570, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230300",
+   "title": "RHEL-08-010571 (V-230300): RHEL 8 must prevent files with the setuid and setgid bit set from being executed on the /boot directory.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230300 (DISA rule V-230300, STIG ID RHEL-08-010571, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230301",
+   "title": "RHEL-08-010580 (V-230301): RHEL 8 must prevent special devices on non-root local partitions.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230301 (DISA rule V-230301, STIG ID RHEL-08-010580, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230302",
+   "title": "RHEL-08-010590 (V-230302): RHEL 8 must prevent code from being executed on file systems that contain user home directories.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230302 (DISA rule V-230302, STIG ID RHEL-08-010590, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230303",
+   "title": "RHEL-08-010600 (V-230303): RHEL 8 must prevent special devices on file systems that are used with removable media.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230303 (DISA rule V-230303, STIG ID RHEL-08-010600, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230304",
+   "title": "RHEL-08-010610 (V-230304): RHEL 8 must prevent code from being executed on file systems that are used with removable media.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230304 (DISA rule V-230304, STIG ID RHEL-08-010610, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230305",
+   "title": "RHEL-08-010620 (V-230305): RHEL 8 must prevent files with the setuid and setgid bit set from being executed on file systems that are used with removable media.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230305 (DISA rule V-230305, STIG ID RHEL-08-010620, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230306",
+   "title": "RHEL-08-010630 (V-230306): RHEL 8 must prevent code from being executed on file systems that are imported via Network File System (NFS).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230306 (DISA rule V-230306, STIG ID RHEL-08-010630, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230307",
+   "title": "RHEL-08-010640 (V-230307): RHEL 8 must prevent special devices on file systems that are imported via Network File System (NFS).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230307 (DISA rule V-230307, STIG ID RHEL-08-010640, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230308",
+   "title": "RHEL-08-010650 (V-230308): RHEL 8 must prevent files with the setuid and setgid bit set from being executed on file systems that are imported via Network File System (NFS).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230308 (DISA rule V-230308, STIG ID RHEL-08-010650, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230309",
+   "title": "RHEL-08-010660 (V-230309): Local RHEL 8 initialization files must not execute world-writable programs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230309 (DISA rule V-230309, STIG ID RHEL-08-010660, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230310",
+   "title": "RHEL-08-010670 (V-230310): RHEL 8 must disable kernel dumps unless needed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230310 (DISA rule V-230310, STIG ID RHEL-08-010670, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230311",
+   "title": "RHEL-08-010671 (V-230311): RHEL 8 must disable the kernel.core_pattern.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230311 (DISA rule V-230311, STIG ID RHEL-08-010671, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230312",
+   "title": "RHEL-08-010672 (V-230312): RHEL 8 must disable acquiring, saving, and processing core dumps.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230312 (DISA rule V-230312, STIG ID RHEL-08-010672, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230313",
+   "title": "RHEL-08-010673 (V-230313): RHEL 8 must disable core dumps for all users.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230313 (DISA rule V-230313, STIG ID RHEL-08-010673, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230314",
+   "title": "RHEL-08-010674 (V-230314): RHEL 8 must disable storing core dumps.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230314 (DISA rule V-230314, STIG ID RHEL-08-010674, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230315",
+   "title": "RHEL-08-010675 (V-230315): RHEL 8 must disable core dump backtraces.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230315 (DISA rule V-230315, STIG ID RHEL-08-010675, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230316",
+   "title": "RHEL-08-010680 (V-230316): For RHEL 8 systems using Domain Name Servers (DNS) resolution, at least two name servers must be configured.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230316 (DISA rule V-230316, STIG ID RHEL-08-010680, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230317",
+   "title": "RHEL-08-010690 (V-230317): Executable search paths within the initialization files of all local interactive RHEL 8 users must only contain paths that resolve to the system default or the users home...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230317 (DISA rule V-230317, STIG ID RHEL-08-010690, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230318",
+   "title": "RHEL-08-010700 (V-230318): All RHEL 8 world-writable directories must be owned by root, sys, bin, or an application user.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230318 (DISA rule V-230318, STIG ID RHEL-08-010700, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230319",
+   "title": "RHEL-08-010710 (V-230319): All RHEL 8 world-writable directories must be group-owned by root, sys, bin, or an application group.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230319 (DISA rule V-230319, STIG ID RHEL-08-010710, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230320",
+   "title": "RHEL-08-010720 (V-230320): All RHEL 8 local interactive users must have a home directory assigned in the /etc/passwd file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230320 (DISA rule V-230320, STIG ID RHEL-08-010720, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230321",
+   "title": "RHEL-08-010730 (V-230321): All RHEL 8 local interactive user home directories must have mode 0750 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230321 (DISA rule V-230321, STIG ID RHEL-08-010730, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230322",
+   "title": "RHEL-08-010740 (V-230322): All RHEL 8 local interactive user home directories must be group-owned by the home directory owner’s primary group.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230322 (DISA rule V-230322, STIG ID RHEL-08-010740, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230323",
+   "title": "RHEL-08-010750 (V-230323): All RHEL 8 local interactive user home directories defined in the /etc/passwd file must exist.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230323 (DISA rule V-230323, STIG ID RHEL-08-010750, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230324",
+   "title": "RHEL-08-010760 (V-230324): All RHEL 8 local interactive user accounts must be assigned a home directory upon creation.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230324 (DISA rule V-230324, STIG ID RHEL-08-010760, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230325",
+   "title": "RHEL-08-010770 (V-230325): All RHEL 8 local initialization files must have mode 0740 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230325 (DISA rule V-230325, STIG ID RHEL-08-010770, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230326",
+   "title": "RHEL-08-010780 (V-230326): All RHEL 8 local files and directories must have a valid owner.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230326 (DISA rule V-230326, STIG ID RHEL-08-010780, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230327",
+   "title": "RHEL-08-010790 (V-230327): All RHEL 8 local files and directories must have a valid group owner.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230327 (DISA rule V-230327, STIG ID RHEL-08-010790, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230328",
+   "title": "RHEL-08-010800 (V-230328): A separate RHEL 8 filesystem must be used for user home directories (such as /home or an equivalent).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230328 (DISA rule V-230328, STIG ID RHEL-08-010800, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230329",
+   "title": "RHEL-08-010820 (V-230329): Unattended or automatic logon via the RHEL 8 graphical user interface must not be allowed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230329 (DISA rule V-230329, STIG ID RHEL-08-010820, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230330",
+   "title": "RHEL-08-010830 (V-230330): RHEL 8 must not allow users to override SSH environment variables.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230330 (DISA rule V-230330, STIG ID RHEL-08-010830, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230331",
+   "title": "RHEL-08-020000 (V-230331): RHEL 8 temporary user accounts must be provisioned with an expiration time of 72 hours or less.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230331 (DISA rule V-230331, STIG ID RHEL-08-020000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230332",
+   "title": "RHEL-08-020010 (V-230332): RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230332 (DISA rule V-230332, STIG ID RHEL-08-020010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230333",
+   "title": "RHEL-08-020011 (V-230333): RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230333 (DISA rule V-230333, STIG ID RHEL-08-020011, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230334",
+   "title": "RHEL-08-020012 (V-230334): RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur during a 15-minute time period.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230334 (DISA rule V-230334, STIG ID RHEL-08-020012, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230335",
+   "title": "RHEL-08-020013 (V-230335): RHEL 8 must automatically lock an account when three unsuccessful logon attempts occur during a 15-minute time period.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230335 (DISA rule V-230335, STIG ID RHEL-08-020013, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230336",
+   "title": "RHEL-08-020014 (V-230336): RHEL 8 must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts occur during a 15-minute time pe...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230336 (DISA rule V-230336, STIG ID RHEL-08-020014, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230337",
+   "title": "RHEL-08-020015 (V-230337): RHEL 8 must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts occur during a 15-minute time pe...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230337 (DISA rule V-230337, STIG ID RHEL-08-020015, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230338",
+   "title": "RHEL-08-020016 (V-230338): RHEL 8 must ensure account lockouts persist.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230338 (DISA rule V-230338, STIG ID RHEL-08-020016, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230339",
+   "title": "RHEL-08-020017 (V-230339): RHEL 8 must ensure account lockouts persist.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230339 (DISA rule V-230339, STIG ID RHEL-08-020017, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230340",
+   "title": "RHEL-08-020018 (V-230340): RHEL 8 must prevent system messages from being presented when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230340 (DISA rule V-230340, STIG ID RHEL-08-020018, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230341",
+   "title": "RHEL-08-020019 (V-230341): RHEL 8 must prevent system messages from being presented when three unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230341 (DISA rule V-230341, STIG ID RHEL-08-020019, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230342",
+   "title": "RHEL-08-020020 (V-230342): RHEL 8 must log user name information when unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230342 (DISA rule V-230342, STIG ID RHEL-08-020020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230343",
+   "title": "RHEL-08-020021 (V-230343): RHEL 8 must log user name information when unsuccessful logon attempts occur.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230343 (DISA rule V-230343, STIG ID RHEL-08-020021, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230344",
+   "title": "RHEL-08-020022 (V-230344): RHEL 8 must include root when automatically locking an account until the locked account is released by an administrator when three unsuccessful logon attempts occur durin...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230344 (DISA rule V-230344, STIG ID RHEL-08-020022, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230345",
+   "title": "RHEL-08-020023 (V-230345): RHEL 8 must include root when automatically locking an account until the locked account is released by an administrator when three unsuccessful logon attempts occur durin...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230345 (DISA rule V-230345, STIG ID RHEL-08-020023, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230346",
+   "title": "RHEL-08-020024 (V-230346): RHEL 8 must limit the number of concurrent sessions to ten for all accounts and/or account types.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230346 (DISA rule V-230346, STIG ID RHEL-08-020024, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230347",
+   "title": "RHEL-08-020030 (V-230347): RHEL 8 must enable a user session lock until that user re-establishes access using established identification and authentication procedures for graphical user sessions.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230347 (DISA rule V-230347, STIG ID RHEL-08-020030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230351",
+   "title": "RHEL-08-020050 (V-230351): RHEL 8 must be able to initiate directly a session lock for all connection types using smartcard when the smartcard is removed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230351 (DISA rule V-230351, STIG ID RHEL-08-020050, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230352",
+   "title": "RHEL-08-020060 (V-230352): RHEL 8 must automatically lock graphical user sessions after 15 minutes of inactivity.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230352 (DISA rule V-230352, STIG ID RHEL-08-020060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230354",
+   "title": "RHEL-08-020080 (V-230354): RHEL 8 must prevent a user from overriding the session lock-delay setting for the graphical user interface.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230354 (DISA rule V-230354, STIG ID RHEL-08-020080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230355",
+   "title": "RHEL-08-020090 (V-230355): RHEL 8 must map the authenticated identity to the user or group account for PKI-based authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230355 (DISA rule V-230355, STIG ID RHEL-08-020090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230356",
+   "title": "RHEL-08-020100 (V-230356): RHEL 8 must ensure the password complexity module is enabled in the password-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230356 (DISA rule V-230356, STIG ID RHEL-08-020100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230357",
+   "title": "RHEL-08-020110 (V-230357): RHEL 8 must enforce password complexity by requiring that at least one uppercase character be used.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230357 (DISA rule V-230357, STIG ID RHEL-08-020110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230358",
+   "title": "RHEL-08-020120 (V-230358): RHEL 8 must enforce password complexity by requiring that at least one lower-case character be used.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230358 (DISA rule V-230358, STIG ID RHEL-08-020120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230359",
+   "title": "RHEL-08-020130 (V-230359): RHEL 8 must enforce password complexity by requiring that at least one numeric character be used.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230359 (DISA rule V-230359, STIG ID RHEL-08-020130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230360",
+   "title": "RHEL-08-020140 (V-230360): RHEL 8 must require the maximum number of repeating characters of the same character class be limited to four when passwords are changed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230360 (DISA rule V-230360, STIG ID RHEL-08-020140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230361",
+   "title": "RHEL-08-020150 (V-230361): RHEL 8 must require the maximum number of repeating characters be limited to three when passwords are changed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230361 (DISA rule V-230361, STIG ID RHEL-08-020150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230362",
+   "title": "RHEL-08-020160 (V-230362): RHEL 8 must require the change of at least four character classes when passwords are changed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230362 (DISA rule V-230362, STIG ID RHEL-08-020160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230363",
+   "title": "RHEL-08-020170 (V-230363): RHEL 8 must require the change of at least 8 characters when passwords are changed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230363 (DISA rule V-230363, STIG ID RHEL-08-020170, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230364",
+   "title": "RHEL-08-020180 (V-230364): RHEL 8 passwords must have a 24 hours/1 day minimum password lifetime restriction in /etc/shadow.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230364 (DISA rule V-230364, STIG ID RHEL-08-020180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230365",
+   "title": "RHEL-08-020190 (V-230365): RHEL 8 passwords for new users or password changes must have a 24 hours/1 day minimum password lifetime restriction in /etc/login.defs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230365 (DISA rule V-230365, STIG ID RHEL-08-020190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230366",
+   "title": "RHEL-08-020200 (V-230366): RHEL 8 user account passwords must have a 60-day maximum password lifetime restriction.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230366 (DISA rule V-230366, STIG ID RHEL-08-020200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230367",
+   "title": "RHEL-08-020210 (V-230367): RHEL 8 user account passwords must be configured so that existing passwords are restricted to a 60-day maximum lifetime.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230367 (DISA rule V-230367, STIG ID RHEL-08-020210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230369",
+   "title": "RHEL-08-020230 (V-230369): RHEL 8 passwords must have a minimum of 15 characters.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230369 (DISA rule V-230369, STIG ID RHEL-08-020230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230370",
+   "title": "RHEL-08-020231 (V-230370): RHEL 8 passwords for new users must have a minimum of 15 characters.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230370 (DISA rule V-230370, STIG ID RHEL-08-020231, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230371",
+   "title": "RHEL-08-020240 (V-230371): RHEL 8 duplicate User IDs (UIDs) must not exist for interactive users.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230371 (DISA rule V-230371, STIG ID RHEL-08-020240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230372",
+   "title": "RHEL-08-020250 (V-230372): RHEL 8 must implement smart card logon for multifactor authentication for access to interactive accounts.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230372 (DISA rule V-230372, STIG ID RHEL-08-020250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230373",
+   "title": "RHEL-08-020260 (V-230373): RHEL 8 account identifiers (individuals, groups, roles, and devices) must be disabled after 35 days of inactivity.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230373 (DISA rule V-230373, STIG ID RHEL-08-020260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230374",
+   "title": "RHEL-08-020270 (V-230374): RHEL 8 must automatically expire temporary accounts within 72 hours.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230374 (DISA rule V-230374, STIG ID RHEL-08-020270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230375",
+   "title": "RHEL-08-020280 (V-230375): All RHEL 8 passwords must contain at least one special character.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230375 (DISA rule V-230375, STIG ID RHEL-08-020280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230376",
+   "title": "RHEL-08-020290 (V-230376): RHEL 8 must prohibit the use of cached authentications after one day.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230376 (DISA rule V-230376, STIG ID RHEL-08-020290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230377",
+   "title": "RHEL-08-020300 (V-230377): RHEL 8 must prevent the use of dictionary words for passwords.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230377 (DISA rule V-230377, STIG ID RHEL-08-020300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230378",
+   "title": "RHEL-08-020310 (V-230378): RHEL 8 must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230378 (DISA rule V-230378, STIG ID RHEL-08-020310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230379",
+   "title": "RHEL-08-020320 (V-230379): RHEL 8 must not have unnecessary accounts.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230379 (DISA rule V-230379, STIG ID RHEL-08-020320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230380",
+   "title": "RHEL-08-020330 (V-230380): RHEL 8 must not allow accounts configured with blank or null passwords.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230380 (DISA rule V-230380, STIG ID RHEL-08-020330, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230381",
+   "title": "RHEL-08-020340 (V-230381): RHEL 8 must display the date and time of the last successful account logon upon logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230381 (DISA rule V-230381, STIG ID RHEL-08-020340, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230382",
+   "title": "RHEL-08-020350 (V-230382): RHEL 8 must display the date and time of the last successful account logon upon an SSH logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230382 (DISA rule V-230382, STIG ID RHEL-08-020350, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230383",
+   "title": "RHEL-08-020351 (V-230383): RHEL 8 must define default permissions for all authenticated users in such a way that the user can only read and modify their own files.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230383 (DISA rule V-230383, STIG ID RHEL-08-020351, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230384",
+   "title": "RHEL-08-020352 (V-230384): RHEL 8 must set the umask value to 077 for all local interactive user accounts.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230384 (DISA rule V-230384, STIG ID RHEL-08-020352, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230385",
+   "title": "RHEL-08-020353 (V-230385): RHEL 8 must define default permissions for logon and non-logon shells.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230385 (DISA rule V-230385, STIG ID RHEL-08-020353, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230386",
+   "title": "RHEL-08-030000 (V-230386): The RHEL 8 audit system must be configured to audit the execution of privileged functions and prevent all software from executing at higher privilege levels than users ex...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230386 (DISA rule V-230386, STIG ID RHEL-08-030000, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230387",
+   "title": "RHEL-08-030010 (V-230387): Cron logging must be implemented in RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230387 (DISA rule V-230387, STIG ID RHEL-08-030010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230388",
+   "title": "RHEL-08-030020 (V-230388): The RHEL 8 System Administrator (SA) and Information System Security Officer (ISSO) (at a minimum) must be alerted of an audit processing failure event.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230388 (DISA rule V-230388, STIG ID RHEL-08-030020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230389",
+   "title": "RHEL-08-030030 (V-230389): The RHEL 8 Information System Security Officer (ISSO) and System Administrator (SA) (at a minimum) must have mail aliases to be notified of an audit processing failure.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230389 (DISA rule V-230389, STIG ID RHEL-08-030030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230390",
+   "title": "RHEL-08-030040 (V-230390): The RHEL 8 System must take appropriate action when an audit processing failure occurs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230390 (DISA rule V-230390, STIG ID RHEL-08-030040, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230392",
+   "title": "RHEL-08-030060 (V-230392): The RHEL 8 audit system must take appropriate action when the audit storage volume is full.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230392 (DISA rule V-230392, STIG ID RHEL-08-030060, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230393",
+   "title": "RHEL-08-030061 (V-230393): The RHEL 8 audit system must audit local events.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230393 (DISA rule V-230393, STIG ID RHEL-08-030061, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230394",
+   "title": "RHEL-08-030062 (V-230394): RHEL 8 must label all off-loaded audit logs before sending them to the central log server.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230394 (DISA rule V-230394, STIG ID RHEL-08-030062, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230395",
+   "title": "RHEL-08-030063 (V-230395): RHEL 8 must resolve audit information before writing to disk.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230395 (DISA rule V-230395, STIG ID RHEL-08-030063, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230396",
+   "title": "RHEL-08-030070 (V-230396): RHEL 8 audit logs must have a mode of 0600 or less permissive to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230396 (DISA rule V-230396, STIG ID RHEL-08-030070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230397",
+   "title": "RHEL-08-030080 (V-230397): RHEL 8 audit logs must be owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230397 (DISA rule V-230397, STIG ID RHEL-08-030080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230398",
+   "title": "RHEL-08-030090 (V-230398): RHEL 8 audit logs must be group-owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230398 (DISA rule V-230398, STIG ID RHEL-08-030090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230399",
+   "title": "RHEL-08-030100 (V-230399): RHEL 8 audit log directory must be owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230399 (DISA rule V-230399, STIG ID RHEL-08-030100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230400",
+   "title": "RHEL-08-030110 (V-230400): RHEL 8 audit log directory must be group-owned by root to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230400 (DISA rule V-230400, STIG ID RHEL-08-030110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230401",
+   "title": "RHEL-08-030120 (V-230401): RHEL 8 audit log directory must have a mode of 0700 or less permissive to prevent unauthorized read access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230401 (DISA rule V-230401, STIG ID RHEL-08-030120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230402",
+   "title": "RHEL-08-030121 (V-230402): RHEL 8 audit system must protect auditing rules from unauthorized change.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230402 (DISA rule V-230402, STIG ID RHEL-08-030121, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230403",
+   "title": "RHEL-08-030122 (V-230403): RHEL 8 audit system must protect logon UIDs from unauthorized change.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230403 (DISA rule V-230403, STIG ID RHEL-08-030122, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230404",
+   "title": "RHEL-08-030130 (V-230404): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230404 (DISA rule V-230404, STIG ID RHEL-08-030130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230405",
+   "title": "RHEL-08-030140 (V-230405): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/security/opasswd.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230405 (DISA rule V-230405, STIG ID RHEL-08-030140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230406",
+   "title": "RHEL-08-030150 (V-230406): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230406 (DISA rule V-230406, STIG ID RHEL-08-030150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230407",
+   "title": "RHEL-08-030160 (V-230407): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230407 (DISA rule V-230407, STIG ID RHEL-08-030160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230408",
+   "title": "RHEL-08-030170 (V-230408): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230408 (DISA rule V-230408, STIG ID RHEL-08-030170, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230409",
+   "title": "RHEL-08-030171 (V-230409): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/sudoers.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230409 (DISA rule V-230409, STIG ID RHEL-08-030171, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230410",
+   "title": "RHEL-08-030172 (V-230410): RHEL 8 must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/sudoers.d/.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230410 (DISA rule V-230410, STIG ID RHEL-08-030172, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230411",
+   "title": "RHEL-08-030180 (V-230411): The RHEL 8 audit package must be installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230411 (DISA rule V-230411, STIG ID RHEL-08-030180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230412",
+   "title": "RHEL-08-030190 (V-230412): Successful/unsuccessful uses of the su command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230412 (DISA rule V-230412, STIG ID RHEL-08-030190, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230413",
+   "title": "RHEL-08-030200 (V-230413): The RHEL 8 audit system must be configured to audit any usage of the setxattr, fsetxattr, lsetxattr, removexattr, fremovexattr, and lremovexattr system calls.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230413 (DISA rule V-230413, STIG ID RHEL-08-030200, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230418",
+   "title": "RHEL-08-030250 (V-230418): Successful/unsuccessful uses of the chage command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230418 (DISA rule V-230418, STIG ID RHEL-08-030250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230419",
+   "title": "RHEL-08-030260 (V-230419): Successful/unsuccessful uses of the chcon command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230419 (DISA rule V-230419, STIG ID RHEL-08-030260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230421",
+   "title": "RHEL-08-030280 (V-230421): Successful/unsuccessful uses of the ssh-agent in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230421 (DISA rule V-230421, STIG ID RHEL-08-030280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230422",
+   "title": "RHEL-08-030290 (V-230422): Successful/unsuccessful uses of the passwd command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230422 (DISA rule V-230422, STIG ID RHEL-08-030290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230423",
+   "title": "RHEL-08-030300 (V-230423): Successful/unsuccessful uses of the mount command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230423 (DISA rule V-230423, STIG ID RHEL-08-030300, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230424",
+   "title": "RHEL-08-030301 (V-230424): Successful/unsuccessful uses of the umount command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230424 (DISA rule V-230424, STIG ID RHEL-08-030301, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230425",
+   "title": "RHEL-08-030302 (V-230425): Successful/unsuccessful uses of the mount syscall in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230425 (DISA rule V-230425, STIG ID RHEL-08-030302, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230426",
+   "title": "RHEL-08-030310 (V-230426): Successful/unsuccessful uses of the unix_update in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230426 (DISA rule V-230426, STIG ID RHEL-08-030310, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230427",
+   "title": "RHEL-08-030311 (V-230427): Successful/unsuccessful uses of postdrop in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230427 (DISA rule V-230427, STIG ID RHEL-08-030311, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230428",
+   "title": "RHEL-08-030312 (V-230428): Successful/unsuccessful uses of postqueue in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230428 (DISA rule V-230428, STIG ID RHEL-08-030312, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230429",
+   "title": "RHEL-08-030313 (V-230429): Successful/unsuccessful uses of semanage in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230429 (DISA rule V-230429, STIG ID RHEL-08-030313, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230430",
+   "title": "RHEL-08-030314 (V-230430): Successful/unsuccessful uses of setfiles in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230430 (DISA rule V-230430, STIG ID RHEL-08-030314, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230431",
+   "title": "RHEL-08-030315 (V-230431): Successful/unsuccessful uses of userhelper in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230431 (DISA rule V-230431, STIG ID RHEL-08-030315, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230432",
+   "title": "RHEL-08-030316 (V-230432): Successful/unsuccessful uses of setsebool in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230432 (DISA rule V-230432, STIG ID RHEL-08-030316, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230433",
+   "title": "RHEL-08-030317 (V-230433): Successful/unsuccessful uses of unix_chkpwd in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230433 (DISA rule V-230433, STIG ID RHEL-08-030317, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230434",
+   "title": "RHEL-08-030320 (V-230434): Successful/unsuccessful uses of the ssh-keysign in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230434 (DISA rule V-230434, STIG ID RHEL-08-030320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230435",
+   "title": "RHEL-08-030330 (V-230435): Successful/unsuccessful uses of the setfacl command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230435 (DISA rule V-230435, STIG ID RHEL-08-030330, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230436",
+   "title": "RHEL-08-030340 (V-230436): Successful/unsuccessful uses of the pam_timestamp_check command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230436 (DISA rule V-230436, STIG ID RHEL-08-030340, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230437",
+   "title": "RHEL-08-030350 (V-230437): Successful/unsuccessful uses of the newgrp command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230437 (DISA rule V-230437, STIG ID RHEL-08-030350, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230438",
+   "title": "RHEL-08-030360 (V-230438): Successful/unsuccessful uses of the init_module and finit_module system calls in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230438 (DISA rule V-230438, STIG ID RHEL-08-030360, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230439",
+   "title": "RHEL-08-030361 (V-230439): Successful/unsuccessful uses of the rename, unlink, rmdir, renameat, and unlinkat system calls in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230439 (DISA rule V-230439, STIG ID RHEL-08-030361, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230444",
+   "title": "RHEL-08-030370 (V-230444): Successful/unsuccessful uses of the gpasswd command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230444 (DISA rule V-230444, STIG ID RHEL-08-030370, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230446",
+   "title": "RHEL-08-030390 (V-230446): Successful/unsuccessful uses of the delete_module command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230446 (DISA rule V-230446, STIG ID RHEL-08-030390, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230447",
+   "title": "RHEL-08-030400 (V-230447): Successful/unsuccessful uses of the crontab command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230447 (DISA rule V-230447, STIG ID RHEL-08-030400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230448",
+   "title": "RHEL-08-030410 (V-230448): Successful/unsuccessful uses of the chsh command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230448 (DISA rule V-230448, STIG ID RHEL-08-030410, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230449",
+   "title": "RHEL-08-030420 (V-230449): Successful/unsuccessful uses of the truncate, ftruncate, creat, open, openat, and open_by_handle_at system calls in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230449 (DISA rule V-230449, STIG ID RHEL-08-030420, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230455",
+   "title": "RHEL-08-030480 (V-230455): Successful/unsuccessful uses of the chown, fchown, fchownat, and lchown system calls in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230455 (DISA rule V-230455, STIG ID RHEL-08-030480, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230456",
+   "title": "RHEL-08-030490 (V-230456): Successful/unsuccessful uses of the chmod, fchmod, and fchmodat system calls in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230456 (DISA rule V-230456, STIG ID RHEL-08-030490, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230462",
+   "title": "RHEL-08-030550 (V-230462): Successful/unsuccessful uses of the sudo command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230462 (DISA rule V-230462, STIG ID RHEL-08-030550, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230463",
+   "title": "RHEL-08-030560 (V-230463): Successful/unsuccessful uses of the usermod command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230463 (DISA rule V-230463, STIG ID RHEL-08-030560, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230464",
+   "title": "RHEL-08-030570 (V-230464): Successful/unsuccessful uses of the chacl command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230464 (DISA rule V-230464, STIG ID RHEL-08-030570, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230465",
+   "title": "RHEL-08-030580 (V-230465): Successful/unsuccessful uses of the kmod command in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230465 (DISA rule V-230465, STIG ID RHEL-08-030580, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230466",
+   "title": "RHEL-08-030590 (V-230466): Successful/unsuccessful modifications to the faillock log file in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230466 (DISA rule V-230466, STIG ID RHEL-08-030590, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230467",
+   "title": "RHEL-08-030600 (V-230467): Successful/unsuccessful modifications to the lastlog file in RHEL 8 must generate an audit record.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230467 (DISA rule V-230467, STIG ID RHEL-08-030600, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230468",
+   "title": "RHEL-08-030601 (V-230468): RHEL 8 must enable auditing of processes that start prior to the audit daemon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230468 (DISA rule V-230468, STIG ID RHEL-08-030601, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230469",
+   "title": "RHEL-08-030602 (V-230469): RHEL 8 must allocate an audit_backlog_limit of sufficient size to capture processes that start prior to the audit daemon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230469 (DISA rule V-230469, STIG ID RHEL-08-030602, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230470",
+   "title": "RHEL-08-030603 (V-230470): RHEL 8 must enable Linux audit logging for the USBGuard daemon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230470 (DISA rule V-230470, STIG ID RHEL-08-030603, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230471",
+   "title": "RHEL-08-030610 (V-230471): RHEL 8 must allow only the Information System Security Manager (ISSM) (or individuals or roles appointed by the ISSM) to select which auditable events are to be audited.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230471 (DISA rule V-230471, STIG ID RHEL-08-030610, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230472",
+   "title": "RHEL-08-030620 (V-230472): RHEL 8 audit tools must have a mode of 0755 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230472 (DISA rule V-230472, STIG ID RHEL-08-030620, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230473",
+   "title": "RHEL-08-030630 (V-230473): RHEL 8 audit tools must be owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230473 (DISA rule V-230473, STIG ID RHEL-08-030630, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230474",
+   "title": "RHEL-08-030640 (V-230474): RHEL 8 audit tools must be group-owned by root.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230474 (DISA rule V-230474, STIG ID RHEL-08-030640, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230475",
+   "title": "RHEL-08-030650 (V-230475): RHEL 8 must use cryptographic mechanisms to protect the integrity of audit tools.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230475 (DISA rule V-230475, STIG ID RHEL-08-030650, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230476",
+   "title": "RHEL-08-030660 (V-230476): RHEL 8 must allocate audit record storage capacity to store at least one week of audit records, when audit records are not immediately sent to a central audit record stor...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230476 (DISA rule V-230476, STIG ID RHEL-08-030660, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230477",
+   "title": "RHEL-08-030670 (V-230477): RHEL 8 must have the packages required for offloading audit logs installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230477 (DISA rule V-230477, STIG ID RHEL-08-030670, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230478",
+   "title": "RHEL-08-030680 (V-230478): RHEL 8 must have the packages required for encrypting offloaded audit logs installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230478 (DISA rule V-230478, STIG ID RHEL-08-030680, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230479",
+   "title": "RHEL-08-030690 (V-230479): The RHEL 8 audit records must be off-loaded onto a different system or storage media from the system being audited.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230479 (DISA rule V-230479, STIG ID RHEL-08-030690, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230480",
+   "title": "RHEL-08-030700 (V-230480): RHEL 8 must take appropriate action when the internal event queue is full.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230480 (DISA rule V-230480, STIG ID RHEL-08-030700, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230481",
+   "title": "RHEL-08-030710 (V-230481): RHEL 8 must encrypt the transfer of audit records off-loaded onto a different system or media from the system being audited.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230481 (DISA rule V-230481, STIG ID RHEL-08-030710, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230482",
+   "title": "RHEL-08-030720 (V-230482): RHEL 8 must authenticate the remote logging server for off-loading audit logs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230482 (DISA rule V-230482, STIG ID RHEL-08-030720, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230483",
+   "title": "RHEL-08-030730 (V-230483): RHEL 8 must take action when allocated audit record storage volume reaches 75 percent of the repository maximum audit record storage capacity.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230483 (DISA rule V-230483, STIG ID RHEL-08-030730, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230484",
+   "title": "RHEL-08-030740 (V-230484): RHEL 8 must securely compare internal information system clocks at least every 24 hours with a server synchronized to an authoritative time source, such as the United Sta...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230484 (DISA rule V-230484, STIG ID RHEL-08-030740, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230485",
+   "title": "RHEL-08-030741 (V-230485): RHEL 8 must disable the chrony daemon from acting as a server.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230485 (DISA rule V-230485, STIG ID RHEL-08-030741, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230486",
+   "title": "RHEL-08-030742 (V-230486): RHEL 8 must disable network management of the chrony daemon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230486 (DISA rule V-230486, STIG ID RHEL-08-030742, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230487",
+   "title": "RHEL-08-040000 (V-230487): RHEL 8 must not have the telnet-server package installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230487 (DISA rule V-230487, STIG ID RHEL-08-040000, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230488",
+   "title": "RHEL-08-040001 (V-230488): RHEL 8 must not have any automated bug reporting tools installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230488 (DISA rule V-230488, STIG ID RHEL-08-040001, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230489",
+   "title": "RHEL-08-040002 (V-230489): RHEL 8 must not have the sendmail package installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230489 (DISA rule V-230489, STIG ID RHEL-08-040002, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230491",
+   "title": "RHEL-08-040004 (V-230491): RHEL 8 must enable mitigations against processor-based vulnerabilities.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230491 (DISA rule V-230491, STIG ID RHEL-08-040004, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230492",
+   "title": "RHEL-08-040010 (V-230492): RHEL 8 must not install packages from the Extra Packages for Enterprise Linux (EPEL) repository.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230492 (DISA rule V-230492, STIG ID RHEL-08-040010, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230493",
+   "title": "RHEL-08-040020 (V-230493): RHEL 8 must cover or disable the built-in or attached camera when not in use.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230493 (DISA rule V-230493, STIG ID RHEL-08-040020, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230494",
+   "title": "RHEL-08-040021 (V-230494): RHEL 8 must disable the asynchronous transfer mode (ATM) protocol.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230494 (DISA rule V-230494, STIG ID RHEL-08-040021, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230495",
+   "title": "RHEL-08-040022 (V-230495): RHEL 8 must disable the controller area network (CAN) protocol.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230495 (DISA rule V-230495, STIG ID RHEL-08-040022, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230496",
+   "title": "RHEL-08-040023 (V-230496): RHEL 8 must disable the stream control transmission protocol (SCTP).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230496 (DISA rule V-230496, STIG ID RHEL-08-040023, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230497",
+   "title": "RHEL-08-040024 (V-230497): RHEL 8 must disable the transparent inter-process communication (TIPC) protocol.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230497 (DISA rule V-230497, STIG ID RHEL-08-040024, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230498",
+   "title": "RHEL-08-040025 (V-230498): RHEL 8 must disable mounting of cramfs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230498 (DISA rule V-230498, STIG ID RHEL-08-040025, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230499",
+   "title": "RHEL-08-040026 (V-230499): RHEL 8 must disable IEEE 1394 (FireWire) Support.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230499 (DISA rule V-230499, STIG ID RHEL-08-040026, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230500",
+   "title": "RHEL-08-040030 (V-230500): RHEL 8 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management (PP...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230500 (DISA rule V-230500, STIG ID RHEL-08-040030, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230502",
+   "title": "RHEL-08-040070 (V-230502): The RHEL 8 file system automounter must be disabled.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230502 (DISA rule V-230502, STIG ID RHEL-08-040070, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230503",
+   "title": "RHEL-08-040080 (V-230503): RHEL 8 must be configured to disable USB mass storage.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230503 (DISA rule V-230503, STIG ID RHEL-08-040080, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230504",
+   "title": "RHEL-08-040090 (V-230504): A RHEL 8 firewall must employ a deny-all, allow-by-exception policy for allowing connections to other systems.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230504 (DISA rule V-230504, STIG ID RHEL-08-040090, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230505",
+   "title": "RHEL-08-040100 (V-230505): A firewall must be installed on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230505 (DISA rule V-230505, STIG ID RHEL-08-040100, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230506",
+   "title": "RHEL-08-040110 (V-230506): RHEL 8 wireless network adapters must be disabled.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230506 (DISA rule V-230506, STIG ID RHEL-08-040110, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230507",
+   "title": "RHEL-08-040111 (V-230507): RHEL 8 Bluetooth must be disabled.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230507 (DISA rule V-230507, STIG ID RHEL-08-040111, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230508",
+   "title": "RHEL-08-040120 (V-230508): RHEL 8 must mount /dev/shm with the nodev option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230508 (DISA rule V-230508, STIG ID RHEL-08-040120, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230509",
+   "title": "RHEL-08-040121 (V-230509): RHEL 8 must mount /dev/shm with the nosuid option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230509 (DISA rule V-230509, STIG ID RHEL-08-040121, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230510",
+   "title": "RHEL-08-040122 (V-230510): RHEL 8 must mount /dev/shm with the noexec option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230510 (DISA rule V-230510, STIG ID RHEL-08-040122, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230511",
+   "title": "RHEL-08-040123 (V-230511): RHEL 8 must mount /tmp with the nodev option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230511 (DISA rule V-230511, STIG ID RHEL-08-040123, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230512",
+   "title": "RHEL-08-040124 (V-230512): RHEL 8 must mount /tmp with the nosuid option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230512 (DISA rule V-230512, STIG ID RHEL-08-040124, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230513",
+   "title": "RHEL-08-040125 (V-230513): RHEL 8 must mount /tmp with the noexec option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230513 (DISA rule V-230513, STIG ID RHEL-08-040125, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230514",
+   "title": "RHEL-08-040126 (V-230514): RHEL 8 must mount /var/log with the nodev option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230514 (DISA rule V-230514, STIG ID RHEL-08-040126, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230515",
+   "title": "RHEL-08-040127 (V-230515): RHEL 8 must mount /var/log with the nosuid option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230515 (DISA rule V-230515, STIG ID RHEL-08-040127, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230516",
+   "title": "RHEL-08-040128 (V-230516): RHEL 8 must mount /var/log with the noexec option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230516 (DISA rule V-230516, STIG ID RHEL-08-040128, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230517",
+   "title": "RHEL-08-040129 (V-230517): RHEL 8 must mount /var/log/audit with the nodev option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230517 (DISA rule V-230517, STIG ID RHEL-08-040129, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230518",
+   "title": "RHEL-08-040130 (V-230518): RHEL 8 must mount /var/log/audit with the nosuid option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230518 (DISA rule V-230518, STIG ID RHEL-08-040130, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230519",
+   "title": "RHEL-08-040131 (V-230519): RHEL 8 must mount /var/log/audit with the noexec option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230519 (DISA rule V-230519, STIG ID RHEL-08-040131, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230520",
+   "title": "RHEL-08-040132 (V-230520): RHEL 8 must mount /var/tmp with the nodev option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230520 (DISA rule V-230520, STIG ID RHEL-08-040132, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230521",
+   "title": "RHEL-08-040133 (V-230521): RHEL 8 must mount /var/tmp with the nosuid option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230521 (DISA rule V-230521, STIG ID RHEL-08-040133, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230522",
+   "title": "RHEL-08-040134 (V-230522): RHEL 8 must mount /var/tmp with the noexec option.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230522 (DISA rule V-230522, STIG ID RHEL-08-040134, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230523",
+   "title": "RHEL-08-040135 (V-230523): The RHEL 8 fapolicy module must be installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230523 (DISA rule V-230523, STIG ID RHEL-08-040135, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230524",
+   "title": "RHEL-08-040140 (V-230524): RHEL 8 must block unauthorized peripherals before establishing a connection.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230524 (DISA rule V-230524, STIG ID RHEL-08-040140, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230525",
+   "title": "RHEL-08-040150 (V-230525): A firewall must be able to protect against or limit the effects of Denial of Service (DoS) attacks by ensuring RHEL 8 can implement rate-limiting measures on impacted net...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230525 (DISA rule V-230525, STIG ID RHEL-08-040150, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230526",
+   "title": "RHEL-08-040160 (V-230526): All RHEL 8 networked systems must have and implement SSH to protect the confidentiality and integrity of transmitted and received information, as well as information duri...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230526 (DISA rule V-230526, STIG ID RHEL-08-040160, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230527",
+   "title": "RHEL-08-040161 (V-230527): RHEL 8 must force a frequent session key renegotiation for SSH connections to the server.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230527 (DISA rule V-230527, STIG ID RHEL-08-040161, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230529",
+   "title": "RHEL-08-040170 (V-230529): The x86 Ctrl-Alt-Delete key sequence must be disabled on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230529 (DISA rule V-230529, STIG ID RHEL-08-040170, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230530",
+   "title": "RHEL-08-040171 (V-230530): The x86 Ctrl-Alt-Delete key sequence in RHEL 8 must be disabled if a graphical user interface is installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230530 (DISA rule V-230530, STIG ID RHEL-08-040171, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230531",
+   "title": "RHEL-08-040172 (V-230531): The systemd Ctrl-Alt-Delete burst key sequence in RHEL 8 must be disabled.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230531 (DISA rule V-230531, STIG ID RHEL-08-040172, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230532",
+   "title": "RHEL-08-040180 (V-230532): The debug-shell systemd service must be disabled on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230532 (DISA rule V-230532, STIG ID RHEL-08-040180, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230533",
+   "title": "RHEL-08-040190 (V-230533): The Trivial File Transfer Protocol (TFTP) server package must not be installed if not required for RHEL 8 operational support.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230533 (DISA rule V-230533, STIG ID RHEL-08-040190, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230534",
+   "title": "RHEL-08-040200 (V-230534): The root account must be the only account having unrestricted access to the RHEL 8 system.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230534 (DISA rule V-230534, STIG ID RHEL-08-040200, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230535",
+   "title": "RHEL-08-040210 (V-230535): RHEL 8 must prevent IPv6 Internet Control Message Protocol (ICMP) redirect messages from being accepted.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230535 (DISA rule V-230535, STIG ID RHEL-08-040210, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230536",
+   "title": "RHEL-08-040220 (V-230536): RHEL 8 must not send Internet Control Message Protocol (ICMP) redirects.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230536 (DISA rule V-230536, STIG ID RHEL-08-040220, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230537",
+   "title": "RHEL-08-040230 (V-230537): RHEL 8 must not respond to Internet Control Message Protocol (ICMP) echoes sent to a broadcast address.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230537 (DISA rule V-230537, STIG ID RHEL-08-040230, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230538",
+   "title": "RHEL-08-040240 (V-230538): RHEL 8 must not forward IPv6 source-routed packets.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230538 (DISA rule V-230538, STIG ID RHEL-08-040240, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230539",
+   "title": "RHEL-08-040250 (V-230539): RHEL 8 must not forward IPv6 source-routed packets by default.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230539 (DISA rule V-230539, STIG ID RHEL-08-040250, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230540",
+   "title": "RHEL-08-040260 (V-230540): RHEL 8 must not enable IPv6 packet forwarding unless the system is a router.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230540 (DISA rule V-230540, STIG ID RHEL-08-040260, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230541",
+   "title": "RHEL-08-040261 (V-230541): RHEL 8 must not accept router advertisements on all IPv6 interfaces.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230541 (DISA rule V-230541, STIG ID RHEL-08-040261, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230542",
+   "title": "RHEL-08-040262 (V-230542): RHEL 8 must not accept router advertisements on all IPv6 interfaces by default.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230542 (DISA rule V-230542, STIG ID RHEL-08-040262, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230543",
+   "title": "RHEL-08-040270 (V-230543): RHEL 8 must not allow interfaces to perform Internet Control Message Protocol (ICMP) redirects by default.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230543 (DISA rule V-230543, STIG ID RHEL-08-040270, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230544",
+   "title": "RHEL-08-040280 (V-230544): RHEL 8 must ignore IPv6 Internet Control Message Protocol (ICMP) redirect messages.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230544 (DISA rule V-230544, STIG ID RHEL-08-040280, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230545",
+   "title": "RHEL-08-040281 (V-230545): RHEL 8 must disable access to network bpf syscall from unprivileged processes.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230545 (DISA rule V-230545, STIG ID RHEL-08-040281, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230546",
+   "title": "RHEL-08-040282 (V-230546): RHEL 8 must restrict usage of ptrace to descendant processes.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230546 (DISA rule V-230546, STIG ID RHEL-08-040282, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230547",
+   "title": "RHEL-08-040283 (V-230547): RHEL 8 must restrict exposed kernel pointer addresses access.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230547 (DISA rule V-230547, STIG ID RHEL-08-040283, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230548",
+   "title": "RHEL-08-040284 (V-230548): RHEL 8 must disable the use of user namespaces.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230548 (DISA rule V-230548, STIG ID RHEL-08-040284, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230549",
+   "title": "RHEL-08-040285 (V-230549): RHEL 8 must use reverse path filtering on all IPv4 interfaces.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230549 (DISA rule V-230549, STIG ID RHEL-08-040285, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230550",
+   "title": "RHEL-08-040290 (V-230550): RHEL 8 must be configured to prevent unrestricted mail relaying.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230550 (DISA rule V-230550, STIG ID RHEL-08-040290, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230551",
+   "title": "RHEL-08-040300 (V-230551): The RHEL 8 file integrity tool must be configured to verify extended attributes.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230551 (DISA rule V-230551, STIG ID RHEL-08-040300, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230552",
+   "title": "RHEL-08-040310 (V-230552): The RHEL 8 file integrity tool must be configured to verify Access Control Lists (ACLs).",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230552 (DISA rule V-230552, STIG ID RHEL-08-040310, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-230553",
+   "title": "RHEL-08-040320 (V-230553): The graphical display manager must not be installed on RHEL 8 unless approved.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230553 (DISA rule V-230553, STIG ID RHEL-08-040320, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230554",
+   "title": "RHEL-08-040330 (V-230554): RHEL 8 network interfaces must not be in promiscuous mode.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230554 (DISA rule V-230554, STIG ID RHEL-08-040330, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230555",
+   "title": "RHEL-08-040340 (V-230555): RHEL 8 remote X connections for interactive users must be disabled unless to fulfill documented and validated mission requirements.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230555 (DISA rule V-230555, STIG ID RHEL-08-040340, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230556",
+   "title": "RHEL-08-040341 (V-230556): The RHEL 8 SSH daemon must prevent remote hosts from connecting to the proxy display.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230556 (DISA rule V-230556, STIG ID RHEL-08-040341, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230557",
+   "title": "RHEL-08-040350 (V-230557): If the Trivial File Transfer Protocol (TFTP) server is required, the RHEL 8 TFTP daemon must be configured to operate in secure mode.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230557 (DISA rule V-230557, STIG ID RHEL-08-040350, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230558",
+   "title": "RHEL-08-040360 (V-230558): A File Transfer Protocol (FTP) server package must not be installed unless mission essential on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230558 (DISA rule V-230558, STIG ID RHEL-08-040360, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-230559",
+   "title": "RHEL-08-040370 (V-230559): The gssproxy package must not be installed unless mission essential on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230559 (DISA rule V-230559, STIG ID RHEL-08-040370, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230560",
+   "title": "RHEL-08-040380 (V-230560): The iprutils package must not be installed unless mission essential on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230560 (DISA rule V-230560, STIG ID RHEL-08-040380, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-230561",
+   "title": "RHEL-08-040390 (V-230561): The tuned package must not be installed unless mission essential on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-230561 (DISA rule V-230561, STIG ID RHEL-08-040390, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-237640",
+   "title": "RHEL-08-010163 (V-237640): The krb5-server package must not be installed on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-237640 (DISA rule V-237640, STIG ID RHEL-08-010163, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-237641",
+   "title": "RHEL-08-010382 (V-237641): RHEL 8 must restrict privilege elevation to authorized personnel.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-237641 (DISA rule V-237641, STIG ID RHEL-08-010382, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-237642",
+   "title": "RHEL-08-010383 (V-237642): RHEL 8 must use the invoking user's password for privilege escalation when using \"sudo\".",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-237642 (DISA rule V-237642, STIG ID RHEL-08-010383, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-237643",
+   "title": "RHEL-08-010384 (V-237643): RHEL 8 must require re-authentication when using the \"sudo\" command.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-237643 (DISA rule V-237643, STIG ID RHEL-08-010384, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244519",
+   "title": "RHEL-08-010049 (V-244519): RHEL 8 must display a banner before granting local or remote access to the system via a graphical user logon.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244519 (DISA rule V-244519, STIG ID RHEL-08-010049, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244521",
+   "title": "RHEL-08-010141 (V-244521): RHEL 8 operating systems booted with United Extensible Firmware Interface (UEFI) must require a unique superusers name upon booting into single-user mode and maintenance.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244521 (DISA rule V-244521, STIG ID RHEL-08-010141, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244522",
+   "title": "RHEL-08-010149 (V-244522): RHEL 8 operating systems booted with a BIOS must require a unique superusers name upon booting into single-user and maintenance modes.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244522 (DISA rule V-244522, STIG ID RHEL-08-010149, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244523",
+   "title": "RHEL-08-010152 (V-244523): RHEL 8 operating systems must require authentication upon booting into emergency mode.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244523 (DISA rule V-244523, STIG ID RHEL-08-010152, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244524",
+   "title": "RHEL-08-010159 (V-244524): The RHEL 8 pam_unix.so module must be configured in the system-auth file to use a FIPS 140-2 approved cryptographic hashing algorithm for system authentication.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244524 (DISA rule V-244524, STIG ID RHEL-08-010159, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244525",
+   "title": "RHEL-08-010201 (V-244525): RHEL 8 must be configured so that all network connections associated with SSH traffic are terminated after 10 minutes of becoming unresponsive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244525 (DISA rule V-244525, STIG ID RHEL-08-010201, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244526",
+   "title": "RHEL-08-010287 (V-244526): The RHEL 8 SSH daemon must be configured to use system-wide crypto policies.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244526 (DISA rule V-244526, STIG ID RHEL-08-010287, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244527",
+   "title": "RHEL-08-010472 (V-244527): RHEL 8 must have the packages required to use the hardware random number generator entropy gatherer service.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244527 (DISA rule V-244527, STIG ID RHEL-08-010472, severity low): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "stig.rhel8.v-244528",
+   "title": "RHEL-08-010522 (V-244528): The RHEL 8 SSH daemon must not allow GSSAPI authentication, except to fulfill documented and validated mission requirements.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244528 (DISA rule V-244528, STIG ID RHEL-08-010522, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244529",
+   "title": "RHEL-08-010544 (V-244529): RHEL 8 must use a separate file system for /var/tmp.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244529 (DISA rule V-244529, STIG ID RHEL-08-010544, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244530",
+   "title": "RHEL-08-010572 (V-244530): RHEL 8 must prevent files with the setuid and setgid bit set from being executed on the /boot/efi directory.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244530 (DISA rule V-244530, STIG ID RHEL-08-010572, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244531",
+   "title": "RHEL-08-010731 (V-244531): All RHEL 8 local interactive user home directory files must have mode 0750 or less permissive.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244531 (DISA rule V-244531, STIG ID RHEL-08-010731, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244532",
+   "title": "RHEL-08-010741 (V-244532): RHEL 8 must be configured so that all files and directories contained in local interactive user home directories are group-owned by a group of which the home directory ow...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244532 (DISA rule V-244532, STIG ID RHEL-08-010741, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244533",
+   "title": "RHEL-08-020025 (V-244533): RHEL 8 must configure the use of the pam_faillock.so module in the /etc/pam.d/system-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244533 (DISA rule V-244533, STIG ID RHEL-08-020025, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244534",
+   "title": "RHEL-08-020026 (V-244534): RHEL 8 must configure the use of the pam_faillock.so module in the /etc/pam.d/password-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244534 (DISA rule V-244534, STIG ID RHEL-08-020026, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244535",
+   "title": "RHEL-08-020031 (V-244535): RHEL 8 must initiate a session lock for graphical user interfaces when the screensaver is activated.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244535 (DISA rule V-244535, STIG ID RHEL-08-020031, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244536",
+   "title": "RHEL-08-020032 (V-244536): RHEL 8 must disable the user list at logon for graphical user interfaces.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244536 (DISA rule V-244536, STIG ID RHEL-08-020032, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244538",
+   "title": "RHEL-08-020081 (V-244538): RHEL 8 must prevent a user from overriding the session idle-delay setting for the graphical user interface.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244538 (DISA rule V-244538, STIG ID RHEL-08-020081, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244539",
+   "title": "RHEL-08-020082 (V-244539): RHEL 8 must prevent a user from overriding the screensaver lock-enabled setting for the graphical user interface.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244539 (DISA rule V-244539, STIG ID RHEL-08-020082, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244541",
+   "title": "RHEL-08-020332 (V-244541): RHEL 8 must not allow blank or null passwords in the password-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244541 (DISA rule V-244541, STIG ID RHEL-08-020332, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-244542",
+   "title": "RHEL-08-030181 (V-244542): RHEL 8 audit records must contain information to establish what type of events occurred, the source of events, where events occurred, and the outcome of events.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244542 (DISA rule V-244542, STIG ID RHEL-08-030181, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244543",
+   "title": "RHEL-08-030731 (V-244543): RHEL 8 must notify the System Administrator (SA) and Information System Security Officer (ISSO) (at a minimum) when allocated audit record storage volume 75 percent utili...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244543 (DISA rule V-244543, STIG ID RHEL-08-030731, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244544",
+   "title": "RHEL-08-040101 (V-244544): A firewall must be active on RHEL 8.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244544 (DISA rule V-244544, STIG ID RHEL-08-040101, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244545",
+   "title": "RHEL-08-040136 (V-244545): The RHEL 8 fapolicy module must be enabled.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244545 (DISA rule V-244545, STIG ID RHEL-08-040136, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244546",
+   "title": "RHEL-08-040137 (V-244546): The RHEL 8 fapolicy module must be configured to employ a deny-all, permit-by-exception policy to allow the execution of authorized software programs.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244546 (DISA rule V-244546, STIG ID RHEL-08-040137, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244547",
+   "title": "RHEL-08-040139 (V-244547): RHEL 8 must have the USBGuard installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244547 (DISA rule V-244547, STIG ID RHEL-08-040139, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244548",
+   "title": "RHEL-08-040141 (V-244548): RHEL 8 must enable the USBGuard.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244548 (DISA rule V-244548, STIG ID RHEL-08-040141, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244549",
+   "title": "RHEL-08-040159 (V-244549): All RHEL 8 networked systems must have SSH installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244549 (DISA rule V-244549, STIG ID RHEL-08-040159, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244550",
+   "title": "RHEL-08-040209 (V-244550): RHEL 8 must prevent IPv4 Internet Control Message Protocol (ICMP) redirect messages from being accepted.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244550 (DISA rule V-244550, STIG ID RHEL-08-040209, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244551",
+   "title": "RHEL-08-040239 (V-244551): RHEL 8 must not forward IPv4 source-routed packets.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244551 (DISA rule V-244551, STIG ID RHEL-08-040239, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244552",
+   "title": "RHEL-08-040249 (V-244552): RHEL 8 must not forward IPv4 source-routed packets by default.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244552 (DISA rule V-244552, STIG ID RHEL-08-040249, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244553",
+   "title": "RHEL-08-040279 (V-244553): RHEL 8 must ignore IPv4 Internet Control Message Protocol (ICMP) redirect messages.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244553 (DISA rule V-244553, STIG ID RHEL-08-040279, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-244554",
+   "title": "RHEL-08-040286 (V-244554): RHEL 8 must enable hardening for the Berkeley Packet Filter Just-in-time compiler.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-244554 (DISA rule V-244554, STIG ID RHEL-08-040286, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-250315",
+   "title": "RHEL-08-020027 (V-250315): RHEL 8 systems, versions 8.2 and above, must configure SELinux context type to allow the use of a non-default faillock tally directory.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-250315 (DISA rule V-250315, STIG ID RHEL-08-020027, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-250316",
+   "title": "RHEL-08-020028 (V-250316): RHEL 8 systems below version 8.2 must configure SELinux context type to allow the use of a non-default faillock tally directory.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-250316 (DISA rule V-250316, STIG ID RHEL-08-020028, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-250317",
+   "title": "RHEL-08-040259 (V-250317): RHEL 8 must not enable IPv4 packet forwarding unless the system is a router.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-250317 (DISA rule V-250317, STIG ID RHEL-08-040259, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251706",
+   "title": "RHEL-08-010121 (V-251706): The RHEL 8 operating system must not have accounts configured with blank or null passwords.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251706 (DISA rule V-251706, STIG ID RHEL-08-010121, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-251710",
+   "title": "RHEL-08-010359 (V-251710): The RHEL 8 operating system must use a file integrity tool to verify correct operation of all security functions.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251710 (DISA rule V-251710, STIG ID RHEL-08-010359, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251711",
+   "title": "RHEL-08-010379 (V-251711): RHEL 8 must specify the default \"include\" directory for the /etc/sudoers file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251711 (DISA rule V-251711, STIG ID RHEL-08-010379, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251712",
+   "title": "RHEL-08-010385 (V-251712): The RHEL 8 operating system must not be configured to bypass password requirements for privilege escalation.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251712 (DISA rule V-251712, STIG ID RHEL-08-010385, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251713",
+   "title": "RHEL-08-020101 (V-251713): RHEL 8 must ensure the password complexity module is enabled in the system-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251713 (DISA rule V-251713, STIG ID RHEL-08-020101, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251714",
+   "title": "RHEL-08-020102 (V-251714): RHEL 8 systems below version 8.4 must ensure the password complexity module in the system-auth file is configured for three retries or less.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251714 (DISA rule V-251714, STIG ID RHEL-08-020102, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251715",
+   "title": "RHEL-08-020103 (V-251715): RHEL 8 systems below version 8.4 must ensure the password complexity module in the password-auth file is configured for three retries or less.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251715 (DISA rule V-251715, STIG ID RHEL-08-020103, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251716",
+   "title": "RHEL-08-020104 (V-251716): RHEL 8 systems, version 8.4 and above, must ensure the password complexity module is configured for three retries or less.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251716 (DISA rule V-251716, STIG ID RHEL-08-020104, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-251718",
+   "title": "RHEL-08-040321 (V-251718): The graphical display manager must not be the default target on RHEL 8 unless approved.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-251718 (DISA rule V-251718, STIG ID RHEL-08-040321, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-254520",
+   "title": "RHEL-08-040400 (V-254520): RHEL 8 must prevent nonprivileged users from executing privileged functions, including disabling, circumventing, or altering implemented security safeguards/countermeasures.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-254520 (DISA rule V-254520, STIG ID RHEL-08-040400, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-255924",
+   "title": "RHEL-08-040342 (V-255924): RHEL 8 SSH server must be configured to use only FIPS-validated key exchange algorithms.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-255924 (DISA rule V-255924, STIG ID RHEL-08-040342, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-256973",
+   "title": "RHEL-08-010019 (V-256973): RHEL 8 must ensure cryptographic verification of vendor software packages.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-256973 (DISA rule V-256973, STIG ID RHEL-08-010019, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-256974",
+   "title": "RHEL-08-010358 (V-256974): RHEL 8 must be configured to allow sending email notifications of unauthorized configuration changes to designated personnel.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-256974 (DISA rule V-256974, STIG ID RHEL-08-010358, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-257258",
+   "title": "RHEL-08-020035 (V-257258): RHEL 8.7 and higher must terminate idle user sessions.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-257258 (DISA rule V-257258, STIG ID RHEL-08-020035, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-268322",
+   "title": "RHEL-08-020331 (V-268322): RHEL 8 must not allow blank or null passwords in the system-auth file.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-268322 (DISA rule V-268322, STIG ID RHEL-08-020331, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-272482",
+   "title": "RHEL-08-010296 (V-272482): The RHEL 8 SSH client must be configured to use only DOD-approved Message Authentication Codes (MACs) employing FIPS 140-3-validated cryptographic hash algorithms to prot...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-272482 (DISA rule V-272482, STIG ID RHEL-08-010296, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-272483",
+   "title": "RHEL-08-010297 (V-272483): The RHEL 8 SSH client must be configured to use only DOD-approved encryption ciphers employing FIPS 140-3-validated cryptographic hash algorithms to protect the confident...",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-272483 (DISA rule V-272483, STIG ID RHEL-08-010297, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-272484",
+   "title": "RHEL-08-010455 (V-272484): RHEL 8 must elevate the SELinux context when an administrator calls the sudo command.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-272484 (DISA rule V-272484, STIG ID RHEL-08-010455, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-274877",
+   "title": "RHEL-08-030655 (V-274877): RHEL 8 must audit any script or executable called by cron as root or by any privileged user.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-274877 (DISA rule V-274877, STIG ID RHEL-08-030655, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-279929",
+   "title": "RHEL-08-020360 (V-279929): RHEL 8 must automatically exit interactive command shell user sessions after 10 minutes of inactivity.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-279929 (DISA rule V-279929, STIG ID RHEL-08-020360, severity medium): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "stig.rhel8.v-279930",
+   "title": "RHEL-08-010280 (V-279930): RHEL 8 IP tunnels must use FIPS 140-3-approved cryptographic algorithms.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-279930 (DISA rule V-279930, STIG ID RHEL-08-010280, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-279931",
+   "title": "RHEL-08-010275 (V-279931): RHEL 8 must implement DOD-approved encryption in the bind package.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-279931 (DISA rule V-279931, STIG ID RHEL-08-010275, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-279932",
+   "title": "RHEL-08-010270 (V-279932): RHEL 8 cryptographic policy must not be overridden.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-279932 (DISA rule V-279932, STIG ID RHEL-08-010270, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "stig.rhel8.v-279933",
+   "title": "RHEL-08-010015 (V-279933): RHEL 8 must have the crypto-policies package installed.",
+   "scope": "MITRE SAF Red Hat Enterprise Linux 8 STIG profile 2.7.1, control SV-279933 (DISA rule V-279933, STIG ID RHEL-08-010015, severity high): one result per host Cinc Auditor scanned; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
+}

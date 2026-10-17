@@ -1,0 +1,46 @@
+{
+ "source": "google_workspace",
+ "title": "Google Workspace (Admin SDK, service account with domain-wide delegation and read-only scopes)",
+ "readScopes": [
+  "https://www.googleapis.com/auth/admin.directory.user.readonly",
+  "https://www.googleapis.com/auth/admin.reports.audit.readonly"
+ ],
+ "checks": [
+  {
+   "id": "google_workspace.two_step_enrolled",
+   "title": "Every active user is enrolled in 2-Step Verification",
+   "scope": "Enrollment only; the second factor's kind (security key or not) is not visible.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "google_workspace.two_step_enforced",
+   "title": "2-Step Verification is enforced for every active user",
+   "scope": "Enforcement per user as the Directory API reports it (isEnforcedIn2Sv).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_workspace.admins_two_step",
+   "title": "Every super or delegated admin is enrolled in 2-Step Verification",
+   "scope": "Admins in the Directory API sense (isAdmin, isDelegatedAdmin).",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "google_workspace.super_admins_limited",
+   "title": "At most --google-max-super-admins active users are super admins",
+   "scope": "Super admins only; delegated admin roles are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_workspace.inactive_users",
+   "title": "No active user has gone --google-stale-days days without signing in",
+   "scope": "Suspended and archived users are reported, not judged; users never signed in are judged by their creation date.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "google_workspace.audit_reports_available",
+   "title": "The Admin console audit (Reports API) is readable and not empty",
+   "scope": "Admin activity only; retention and export to a SIEM are not visible.",
+   "evidenceType": "Audit Record"
+  }
+ ]
+}

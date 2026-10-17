@@ -1,0 +1,200 @@
+{
+ "source": "cloudflare",
+ "title": "Cloudflare (API token with read scopes; OPA over tofu state)",
+ "readScopes": [
+  "Zone Read",
+  "Zone Settings Read",
+  "DNS Read",
+  "Zone WAF Read",
+  "Bot Management Read",
+  "SSL and Certificates Read",
+  "Account Settings Read",
+  "Account API Tokens Read",
+  "Notifications Read",
+  "Access: Apps and Policies Read",
+  "Zero Trust Read",
+  "Workers R2 Storage Read"
+ ],
+ "checks": [
+  {
+   "id": "cloudflare.min_tls_version",
+   "title": "Zone minimum TLS version is 1.2 or higher",
+   "scope": "Traffic through the Cloudflare proxy; encryption inside the vendor's network is not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.tls_1_3",
+   "title": "TLS 1.3 is enabled at the edge",
+   "scope": "Edge only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.always_use_https",
+   "title": "HTTP requests are redirected to HTTPS",
+   "scope": "Edge only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.automatic_https_rewrites",
+   "title": "Automatic HTTPS rewrites are on",
+   "scope": "Edge only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.ssl_mode",
+   "title": "Origin connections use Full (strict) TLS",
+   "scope": "Edge to origin only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.hsts",
+   "title": "HSTS of at least one year, including subdomains",
+   "scope": "Browsers reaching the zone through Cloudflare.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.dnssec",
+   "title": "DNSSEC is active on the zone",
+   "scope": "The zone's authoritative DNS, when Cloudflare is the zone's DNS provider.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.waf_managed_ruleset",
+   "title": "A managed WAF ruleset runs on every inbound request",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; outbound and non-HTTP traffic are not covered.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.account_enforces_2fa",
+   "title": "The account enforces two-factor authentication",
+   "scope": "Access to the Cloudflare dashboard only; the API does not say whether factors resist phishing.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.members_have_2fa",
+   "title": "Every accepted member has two-factor authentication on",
+   "scope": "Cloudflare dashboard members only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.audit_log_available",
+   "title": "The account audit log records configuration changes",
+   "scope": "Cloudflare configuration changes; whether someone reviews them is attested in sos-app.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "cloudflare.security_level",
+   "title": "The zone's security level challenges visitors with a poor IP reputation",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; passes at any level above essentially_off.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.browser_integrity_check",
+   "title": "Browser Integrity Check is on",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; a header heuristic, not a full bot defence.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.waf_custom_rules",
+   "title": "Custom WAF rules block or challenge traffic on the zone",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; shows enabled block or challenge rules exist, not that they are the right ones.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.rate_limiting_rules",
+   "title": "Rate limiting rules are enabled on the zone",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; Cloudflare's network-layer DDoS protection is always on and not judged here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.bot_protection",
+   "title": "Bot Fight Mode, or Super Bot Fight Mode acting on definitely automated traffic, is on",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; Enterprise Bot Management (rules on the bot score) is reported as skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.leaked_credential_checks",
+   "title": "Leaked credential detection is on for logins through the zone",
+   "scope": "Logins to the customer's application that pass through Cloudflare; detection only, the customer's rules decide what happens.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.edge_certificates_valid",
+   "title": "Every edge certificate pack is active and not near expiry",
+   "scope": "Certificates Cloudflare serves at the edge; more than 30 days left for uploaded certificates, more than 14 for Cloudflare-managed ones. Origin certificates are not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.custom_hostname_min_tls",
+   "title": "Every custom hostname (Cloudflare for SaaS) requires TLS 1.2 or higher",
+   "scope": "Custom hostnames on the zone; a hostname without its own setting is judged on the zone's minimum TLS.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.page_shield",
+   "title": "Client-side security (Page Shield) monitors the scripts pages load",
+   "scope": "Scripts and connections seen in visitors' browsers on the zone; Pro plan or higher.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.security_txt",
+   "title": "Cloudflare serves a security.txt with a contact",
+   "scope": "A security.txt served by Cloudflare's Security Center; one served by the origin is not visible and gives a fail.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.super_admins_limited",
+   "title": "Few members hold Super Administrator",
+   "scope": "Cloudflare account members; the threshold (default 3) is the collector's --max-super-admins.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.account_tokens_expire",
+   "title": "Every active account-owned API token has an expiry",
+   "scope": "Account-owned tokens only; tokens owned by individual users are not readable with an account token.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.security_notifications",
+   "title": "A notification policy alerts on attacks or security findings",
+   "scope": "Cloudflare notification policies for DDoS, WAF anomaly, bot, BGP hijack, security insight and client-side security alert types; who reads the alerts is attested in sos-app.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.access_apps_have_policies",
+   "title": "Every Access application has an allow policy that names who may enter, and no bypass for everyone",
+   "scope": "Applications behind Cloudflare Access; applications not behind Access are not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.access_mfa_required",
+   "title": "Every allow policy of an Access application requires MFA",
+   "scope": "Applications behind Cloudflare Access; MFA enforced only at the identity provider is not visible and gives a fail, and the factor's phishing resistance is not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.access_session_duration",
+   "title": "Access application sessions last 24 hours or less",
+   "scope": "Applications behind Cloudflare Access; an unset duration is Access's default of 24 hours.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.gateway_dns_filtering",
+   "title": "Gateway has an enabled DNS block rule",
+   "scope": "Outbound DNS from devices and networks that resolve through Cloudflare Gateway; other resolvers are not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.device_posture_rules",
+   "title": "Device posture rules are defined",
+   "scope": "Devices enrolled in Cloudflare One; shows rules exist, not that every Access policy requires them.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.r2_public_access_off",
+   "title": "No R2 bucket is public through its r2.dev domain",
+   "scope": "R2 buckets in the default jurisdiction; public access through a custom domain is a deliberate choice and not judged.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

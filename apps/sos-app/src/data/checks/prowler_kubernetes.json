@@ -1,0 +1,527 @@
+{
+ "source": "prowler",
+ "title": "Prowler 5.45.0: Kubernetes (runs in the customer's CI with read-only credentials)",
+ "readScopes": [
+  "ClusterRole prowler-read-cluster: get, list, watch on pods, configmaps, nodes, namespaces, clusterrolebindings, rolebindings, clusterroles, roles (kubernetes/prowler-role.yaml)"
+ ],
+ "engine": {
+  "name": "Prowler",
+  "version": "5.45.0",
+  "licence": "Apache-2.0",
+  "url": "https://github.com/prowler-cloud/prowler"
+ },
+ "provider": "kubernetes",
+ "checks": [
+  {
+   "id": "prowler.kubernetes.apiserver_always_pull_images_plugin",
+   "title": "API server pod has AlwaysPullImages admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_always_pull_images_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_anonymous_requests",
+   "title": "API server pod has anonymous-auth disabled",
+   "scope": "Prowler 5.45.0 check apiserver_anonymous_requests (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_audit_log_maxage_set",
+   "title": "API server pod has --audit-log-maxage set to 30 (or the cluster-configured value)",
+   "scope": "Prowler 5.45.0 check apiserver_audit_log_maxage_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_audit_log_maxbackup_set",
+   "title": "API server pod has --audit-log-maxbackup set to 10 or the configured value",
+   "scope": "Prowler 5.45.0 check apiserver_audit_log_maxbackup_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_audit_log_maxsize_set",
+   "title": "API server pod has --audit-log-maxsize set to 100 MB or the configured value",
+   "scope": "Prowler 5.45.0 check apiserver_audit_log_maxsize_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_audit_log_path_set",
+   "title": "API server pod has --audit-log-path set",
+   "scope": "Prowler 5.45.0 check apiserver_audit_log_path_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_auth_mode_include_node",
+   "title": "API server pod has Node in --authorization-mode",
+   "scope": "Prowler 5.45.0 check apiserver_auth_mode_include_node (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_auth_mode_include_rbac",
+   "title": "API server pod authorization mode includes RBAC",
+   "scope": "Prowler 5.45.0 check apiserver_auth_mode_include_rbac (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_auth_mode_not_always_allow",
+   "title": "API server pod does not use the AlwaysAllow authorization mode",
+   "scope": "Prowler 5.45.0 check apiserver_auth_mode_not_always_allow (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_client_ca_file_set",
+   "title": "API server pod has the --client-ca-file argument set",
+   "scope": "Prowler 5.45.0 check apiserver_client_ca_file_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_deny_service_external_ips",
+   "title": "API server pod has DenyServiceExternalIPs admission controller enabled",
+   "scope": "Prowler 5.45.0 check apiserver_deny_service_external_ips (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_disable_profiling",
+   "title": "API server pod has profiling disabled (--profiling=false)",
+   "scope": "Prowler 5.45.0 check apiserver_disable_profiling (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_encryption_provider_config_set",
+   "title": "API server pod has the --encryption-provider-config argument set",
+   "scope": "Prowler 5.45.0 check apiserver_encryption_provider_config_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_etcd_cafile_set",
+   "title": "API server pod has the --etcd-cafile argument set",
+   "scope": "Prowler 5.45.0 check apiserver_etcd_cafile_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_etcd_tls_config",
+   "title": "API server pod has --etcd-certfile and --etcd-keyfile configured for etcd TLS",
+   "scope": "Prowler 5.45.0 check apiserver_etcd_tls_config (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_event_rate_limit",
+   "title": "API server pod has the EventRateLimit admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_event_rate_limit (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_kubelet_cert_auth",
+   "title": "API server pod has --kubelet-certificate-authority configured",
+   "scope": "Prowler 5.45.0 check apiserver_kubelet_cert_auth (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_kubelet_tls_auth",
+   "title": "API server pod has --kubelet-client-certificate and --kubelet-client-key arguments configured",
+   "scope": "Prowler 5.45.0 check apiserver_kubelet_tls_auth (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_namespace_lifecycle_plugin",
+   "title": "API server pod has NamespaceLifecycle admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_namespace_lifecycle_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_no_always_admit_plugin",
+   "title": "API server pod does not have the AlwaysAdmit admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_no_always_admit_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_no_token_auth_file",
+   "title": "API server pod does not have --token-auth-file enabled",
+   "scope": "Prowler 5.45.0 check apiserver_no_token_auth_file (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_node_restriction_plugin",
+   "title": "API server pod has NodeRestriction admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_node_restriction_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_request_timeout_set",
+   "title": "API server pod has --request-timeout configured",
+   "scope": "Prowler 5.45.0 check apiserver_request_timeout_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_security_context_deny_plugin",
+   "title": "API server pod uses PodSecurityPolicy or has the SecurityContextDeny admission plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_security_context_deny_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_service_account_key_file_set",
+   "title": "API server pod has --service-account-key-file configured",
+   "scope": "Prowler 5.45.0 check apiserver_service_account_key_file_set (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_service_account_lookup_true",
+   "title": "API server pod has --service-account-lookup set to true",
+   "scope": "Prowler 5.45.0 check apiserver_service_account_lookup_true (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_service_account_plugin",
+   "title": "API server pod has ServiceAccount admission control plugin enabled",
+   "scope": "Prowler 5.45.0 check apiserver_service_account_plugin (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.apiserver_tls_config",
+   "title": "API server pod has --tls-cert-file and --tls-private-key-file configured",
+   "scope": "Prowler 5.45.0 check apiserver_tls_config (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_bind_address",
+   "title": "Controller Manager pod is bound to the loopback address 127.0.0.1",
+   "scope": "Prowler 5.45.0 check controllermanager_bind_address (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_disable_profiling",
+   "title": "Controller Manager pod has --profiling=false configured",
+   "scope": "Prowler 5.45.0 check controllermanager_disable_profiling (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_root_ca_file_set",
+   "title": "Controller Manager pod has --root-ca-file argument set",
+   "scope": "Prowler 5.45.0 check controllermanager_root_ca_file_set (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_rotate_kubelet_server_cert",
+   "title": "Controller Manager pod has RotateKubeletServerCertificate set to true",
+   "scope": "Prowler 5.45.0 check controllermanager_rotate_kubelet_server_cert (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_service_account_credentials",
+   "title": "Controller Manager pod has --use-service-account-credentials=true",
+   "scope": "Prowler 5.45.0 check controllermanager_service_account_credentials (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_service_account_private_key_file",
+   "title": "Controller Manager pod has the --service-account-private-key-file argument set",
+   "scope": "Prowler 5.45.0 check controllermanager_service_account_private_key_file (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_cpu_limits_set",
+   "title": "Pod containers have CPU limits set",
+   "scope": "Prowler 5.45.0 check core_cpu_limits_set (Kubernetes core, resource type KubernetesPod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_image_tag_fixed",
+   "title": "Container images use fixed tags",
+   "scope": "Prowler 5.45.0 check core_image_tag_fixed (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_liveness_probe_configured",
+   "title": "Pod containers have liveness probes configured",
+   "scope": "Prowler 5.45.0 check core_liveness_probe_configured (Kubernetes core, resource type KubernetesPod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_memory_limits_set",
+   "title": "Container memory limits are configured",
+   "scope": "Prowler 5.45.0 check core_memory_limits_set (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_admission_hostport_containers",
+   "title": "Pod does not use HostPorts",
+   "scope": "Prowler 5.45.0 check core_minimize_admission_hostport_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_admission_windows_hostprocess_containers",
+   "title": "Pod does not allow Windows HostProcess containers",
+   "scope": "Prowler 5.45.0 check core_minimize_admission_windows_hostprocess_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_allowPrivilegeEscalation_containers",
+   "title": "Pod does not allow privilege escalation in any container",
+   "scope": "Prowler 5.45.0 check core_minimize_allowPrivilegeEscalation_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_containers_added_capabilities",
+   "title": "Pod has no containers with added capabilities",
+   "scope": "Prowler 5.45.0 check core_minimize_containers_added_capabilities (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_containers_capabilities_assigned",
+   "title": "Pod containers have no added Linux capabilities and include capability drops when capabilities are defined",
+   "scope": "Prowler 5.45.0 check core_minimize_containers_capabilities_assigned (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_hostNetwork_containers",
+   "title": "Pod does not use hostNetwork",
+   "scope": "Prowler 5.45.0 check core_minimize_hostNetwork_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_hostpath_volume_mounts",
+   "title": "Pod does not use hostPath volumes",
+   "scope": "Prowler 5.45.0 check core_minimize_hostpath_volume_mounts (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_net_raw_capability_admission",
+   "title": "Pod containers do not have the NET_RAW capability",
+   "scope": "Prowler 5.45.0 check core_minimize_net_raw_capability_admission (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_privileged_containers",
+   "title": "Pod does not contain a privileged container",
+   "scope": "Prowler 5.45.0 check core_minimize_privileged_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_root_containers_admission",
+   "title": "Pod does not run any container as the root user",
+   "scope": "Prowler 5.45.0 check core_minimize_root_containers_admission (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_readiness_probe_configured",
+   "title": "Regular pod containers have readiness probes configured",
+   "scope": "Prowler 5.45.0 check core_readiness_probe_configured (Kubernetes core, resource type KubernetesPod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_readonly_root_filesystem_enabled",
+   "title": "Containers should run with a read-only root filesystem",
+   "scope": "Prowler 5.45.0 check core_readonly_root_filesystem_enabled (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_client_cert_auth",
+   "title": "Etcd pod has client certificate authentication enabled (--client-cert-auth=true)",
+   "scope": "Prowler 5.45.0 check etcd_client_cert_auth (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_no_auto_tls",
+   "title": "Etcd pod has --auto-tls disabled",
+   "scope": "Prowler 5.45.0 check etcd_no_auto_tls (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_no_peer_auto_tls",
+   "title": "Etcd pod does not use automatically generated self-signed certificates for peer TLS connections",
+   "scope": "Prowler 5.45.0 check etcd_no_peer_auto_tls (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_peer_client_cert_auth",
+   "title": "Etcd pod has peer client certificate authentication enabled",
+   "scope": "Prowler 5.45.0 check etcd_peer_client_cert_auth (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_peer_tls_config",
+   "title": "Etcd pod uses TLS for peer connections",
+   "scope": "Prowler 5.45.0 check etcd_peer_tls_config (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.etcd_tls_encryption",
+   "title": "Etcd pod has TLS encryption configured",
+   "scope": "Prowler 5.45.0 check etcd_tls_encryption (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_authorization_mode",
+   "title": "Kubelet --authorization-mode is not set to AlwaysAllow",
+   "scope": "Prowler 5.45.0 check kubelet_authorization_mode (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_client_ca_file_set",
+   "title": "Kubelet has a client CA file configured for authentication",
+   "scope": "Prowler 5.45.0 check kubelet_client_ca_file_set (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_disable_read_only_port",
+   "title": "Kubelet read-only port is disabled (set to 0)",
+   "scope": "Prowler 5.45.0 check kubelet_disable_read_only_port (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_rotate_certificates",
+   "title": "Kubelet client certificate rotation is enabled",
+   "scope": "Prowler 5.45.0 check kubelet_rotate_certificates (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_streaming_connection_timeout",
+   "title": "Kubelet streaming connection idle timeout is not set to 0",
+   "scope": "Prowler 5.45.0 check kubelet_streaming_connection_timeout (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_tls_cert_and_key",
+   "title": "Kubelet has TLS certificate and private key files configured",
+   "scope": "Prowler 5.45.0 check kubelet_tls_cert_and_key (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_cluster_admin_usage",
+   "title": "Cluster role binding does not grant the cluster-admin role",
+   "scope": "Prowler 5.45.0 check rbac_cluster_admin_usage (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_csr_approval_access",
+   "title": "User or group lacks update and patch access to the certificatesigningrequests/approval sub-resource",
+   "scope": "Prowler 5.45.0 check rbac_minimize_csr_approval_access (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_node_proxy_subresource_access",
+   "title": "User or group has no get, list, or watch permissions on the nodes/proxy sub-resource",
+   "scope": "Prowler 5.45.0 check rbac_minimize_node_proxy_subresource_access (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_pod_creation_access",
+   "title": "Role or ClusterRole does not grant create permission on pods",
+   "scope": "Prowler 5.45.0 check rbac_minimize_pod_creation_access (Kubernetes rbac, resource type ClusterRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_pv_creation_access",
+   "title": "User or group does not have permission to create PersistentVolumes",
+   "scope": "Prowler 5.45.0 check rbac_minimize_pv_creation_access (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_secret_access",
+   "title": "Role or ClusterRole does not grant get, list, or watch access to Kubernetes Secrets",
+   "scope": "Prowler 5.45.0 check rbac_minimize_secret_access (Kubernetes rbac, resource type ClusterRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_service_account_token_creation",
+   "title": "User or group does not have permission to create service account tokens",
+   "scope": "Prowler 5.45.0 check rbac_minimize_service_account_token_creation (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_webhook_config_access",
+   "title": "User or group does not have create, update, or delete permissions on webhook configurations",
+   "scope": "Prowler 5.45.0 check rbac_minimize_webhook_config_access (Kubernetes rbac, resource type ClusterRoleBinding): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.rbac_minimize_wildcard_use_roles",
+   "title": "Role or ClusterRole does not use wildcard resources or verbs",
+   "scope": "Prowler 5.45.0 check rbac_minimize_wildcard_use_roles (Kubernetes rbac, resource type ClusterRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.scheduler_bind_address",
+   "title": "Scheduler pod has --bind-address set to 127.0.0.1",
+   "scope": "Prowler 5.45.0 check scheduler_bind_address (Kubernetes scheduler, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.scheduler_profiling",
+   "title": "Scheduler pod has profiling disabled",
+   "scope": "Prowler 5.45.0 check scheduler_profiling (Kubernetes scheduler, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  }
+ ]
+}

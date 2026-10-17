@@ -1,0 +1,79 @@
+{
+ "source": "entra",
+ "title": "Microsoft Entra ID (Microsoft Graph, app registration with read-only application permissions)",
+ "readScopes": [
+  "AuditLog.Read.All",
+  "Policy.Read.All",
+  "RoleManagement.Read.Directory",
+  "User.Read.All",
+  "LicenseAssignment.Read.All"
+ ],
+ "checks": [
+  {
+   "id": "entra.mfa_registered",
+   "title": "Every enabled user has registered an MFA method",
+   "scope": "Registration only; whether MFA is required at sign-in is shown by entra.ca_mfa_all_users or entra.security_defaults.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "entra.admins_phishing_resistant",
+   "title": "Every admin has a phishing-resistant method registered (FIDO2 or passkey, Windows Hello for Business, certificate)",
+   "scope": "Registered, not enforced: an authentication strength in Conditional Access is what makes admins use it.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "entra.ca_mfa_all_users",
+   "title": "An enabled Conditional Access policy requires MFA or an authentication strength for all users and all apps",
+   "scope": "Excluded users, groups and roles are counted in the detail, not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.ca_blocks_legacy_auth",
+   "title": "An enabled Conditional Access policy blocks legacy authentication (Exchange ActiveSync and other clients) for all users",
+   "scope": "Entra ID sign-ins only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.security_defaults",
+   "title": "Security defaults are on, or off because Conditional Access requires MFA for everyone",
+   "scope": "Tenant-wide baseline; per-application exceptions are not visible here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.global_admins_limited",
+   "title": "At most --entra-max-global-admins principals hold Global Administrator",
+   "scope": "Active assignments of the Global Administrator role only; other privileged roles are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.pim_no_permanent_admins",
+   "title": "Global Administrator is held through PIM eligibility, with at most --entra-max-permanent-admins permanent (break-glass) assignments",
+   "scope": "Needs Entra ID P2; Global Administrator only.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.guest_invites_restricted",
+   "title": "Only admins and the Guest Inviter role may invite guests",
+   "scope": "The invitation setting; the guest count is reported in the detail, not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.stale_accounts",
+   "title": "No enabled account has gone --entra-stale-days days without signing in",
+   "scope": "Interactive and non-interactive sign-ins; needs Entra ID P1. Service principals are not users and are not counted.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "entra.audit_log_available",
+   "title": "The directory audit log is readable and not empty",
+   "scope": "Readability only; retention and forwarding to a SIEM are not visible.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "entra.risk_policies",
+   "title": "An enabled Conditional Access policy acts on sign-in or user risk",
+   "scope": "Needs Entra ID P2; skipped when the tenant has none.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

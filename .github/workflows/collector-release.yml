@@ -1,0 +1,195 @@
+# Collector release, BY HAND ONLY (Sagentix, 2026-10-15). Two jobs, each switched on separately:
+#
+#   npm      tests, builds the package (collector/scripts/stage-package.mjs), writes a CycloneDX SBOM, then
+#            `npm publish --provenance` through npm trusted publishing (OIDC; no npm token is stored).
+#   runner   builds collector/runner/Dockerfile for linux/amd64 and pushes it to GHCR with
+#            BuildKit's SLSA provenance (mode=max) and SBOM attached, plus a GitHub build attestation.
+#
+# Nothing here deploys sos-app, and no step reads CLOUDFLARE_API_TOKEN or CLOUDFLARE_API_TOKEN_SOS_APP.
+#
+# It does nothing real until a Sagentix maintainer sets it up (collector/RELEASING.md has the steps):
+#   - npm: the repository variable NPM_TRUSTED_PUBLISHER must be "configured" and the input publish=true;
+#     otherwise the job stops after `npm publish --dry-run`.
+#   - GitHub attestations and npm provenance both refuse a PRIVATE repository on this plan; the job checks
+#     the repository's visibility and says so rather than failing half-way.
+#   - runner: the input push_image=true; otherwise the image is built and checked, not pushed.
+name: collector-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to npm (needs NPM_TRUSTED_PUBLISHER = configured)"
+        type: boolean
+        default: false
+      push_image:
+        description: "Push the runner image to GHCR"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collector-release
+  cancel-in-progress: false
+
+jobs:
+  # The security gate (collector-security.yml) runs first, on this exact commit; nothing below starts unless it passes.
+  security:
+    uses: ./.github/workflows/collector-security.yml
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+  npm:
+    needs: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: npm   # a maintainer may add a required reviewer to this environment (Settings -> Environments)
+    permissions:
+      contents: read
+      id-token: write   # npm trusted publishing and provenance: GitHub's OIDC token, no stored npm token
+    defaults:
+      run:
+        working-directory: collector
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+          cache-dependency-path: collector/package-lock.json
+      # Trusted publishing needs npm CLI 11.5.1 or later [npm docs, "Trusted publishing for npm packages"].
+      - run: npm install -g npm@11.20.0
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build the package
+        env:
+          PACKAGE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: node scripts/stage-package.mjs
+      - name: Smoke test the packed tarball
+        run: |
+          cd build && npm pack --pack-destination "$RUNNER_TEMP"
+          mkdir "$RUNNER_TEMP/try" && cd "$RUNNER_TEMP/try" && npm init -y >/dev/null
+          npm install --no-audit --no-fund "$RUNNER_TEMP"/*.tgz
+          npx collector --help | grep -q "collector run --endpoint"
+      - name: CycloneDX SBOM of the published dependencies
+        run: |
+          cd build && npm install --omit=dev --ignore-scripts --no-audit --no-fund
+          npx --yes @cyclonedx/cyclonedx-npm@6.0.1 --omit dev --output-format JSON --spec-version 1.6 \
+            --output-reproducible --validate --output-file "$RUNNER_TEMP/collector-npm.cdx.json"
+          rm -rf node_modules package-lock.json
+          sha256sum "$RUNNER_TEMP/collector-npm.cdx.json" "$RUNNER_TEMP"/*.tgz | tee "$RUNNER_TEMP/SHA256SUMS"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: collector-npm-release
+          path: |
+            ${{ runner.temp }}/*.tgz
+            ${{ runner.temp }}/collector-npm.cdx.json
+            ${{ runner.temp }}/SHA256SUMS
+          retention-days: 400
+      - name: Publish (or dry run)
+        working-directory: collector/build
+        env:
+          WANT: ${{ inputs.publish }}
+          CONFIGURED: ${{ vars.NPM_TRUSTED_PUBLISHER }}
+          PRIVATE_REPO: ${{ github.event.repository.private }}
+        run: |
+          if [ "$WANT" != "true" ] || [ "$CONFIGURED" != "configured" ]; then
+            echo "::notice::Dry run (publish=$WANT, NPM_TRUSTED_PUBLISHER=${CONFIGURED:-unset}). See collector/RELEASING.md."
+            npm publish --dry-run --provenance=false
+            exit 0
+          fi
+          if [ "$PRIVATE_REPO" = "true" ]; then
+            echo "::error::npm provenance is refused for a private source repository. Publish from the public release repository (collector/RELEASING.md, step 1)."
+            exit 1
+          fi
+          npm publish --provenance --access public
+
+  runner:
+    needs: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write        # push to ghcr.io/<owner>/sagentix-collector-runner (only with push_image)
+      id-token: write        # GitHub build attestation (Sigstore)
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Image name and tags
+        id: meta
+        run: |
+          owner="$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          version="$(node -p "require('./collector/package.json').version")"
+          echo "image=ghcr.io/$owner/sagentix-collector-runner" >> "$GITHUB_OUTPUT"
+          echo "tags=ghcr.io/$owner/sagentix-collector-runner:$version,ghcr.io/$owner/sagentix-collector-runner:sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+      - if: inputs.push_image
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # The image is scanned before it can be pushed: build it locally, let Trivy fail the job on a
+      # MEDIUM-or-worse vulnerability or a secret, then the push step reuses the cached layers.
+      - name: Build for the scan
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: collector/runner/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: sagentix-collector-runner:scan
+      - name: Scan the image
+        env:
+          TRIVY_VERSION: "0.74.0"
+          TRIVY_SHA256: "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a"
+        run: |
+          f="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl -fsSL -o "$RUNNER_TEMP/$f" "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/$f"
+          echo "${TRIVY_SHA256}  $RUNNER_TEMP/$f" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$f" -C "$RUNNER_TEMP" trivy
+          "$RUNNER_TEMP/trivy" image --scanners vuln,secret --severity MEDIUM,HIGH,CRITICAL --ignore-unfixed \
+            --exit-code 1 --format table sagentix-collector-runner:scan
+      - id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: collector/runner/Dockerfile
+          # amd64 only: on arm64, pip must compile Prowler 5.45.0's zstd dependency (no aarch64 wheel for
+          # Python 3.13) and the slim base has no compiler (collector/runner/README.md, Build).
+          platforms: linux/amd64
+          push: ${{ inputs.push_image }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: mode=max
+          sbom: true
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=sagentix-collector-runner
+      - name: GitHub build attestation
+        if: inputs.push_image && github.event.repository.private == false
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ steps.meta.outputs.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+      - name: Summary
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          PUSHED: ${{ inputs.push_image }}
+          PRIVATE_REPO: ${{ github.event.repository.private }}
+        run: |
+          {
+            echo "### Runner image"
+            echo "tags: ${{ steps.meta.outputs.tags }}"
+            echo "digest: ${DIGEST:-not pushed}; pushed: $PUSHED"
+            echo "BuildKit SLSA provenance (mode=max) and SBOM attached to the image index."
+            [ "$PRIVATE_REPO" = "true" ] && echo "GitHub attestation skipped: private repository (needs a public repo or GitHub Enterprise Cloud)."
+            true
+          } >> "$GITHUB_STEP_SUMMARY"

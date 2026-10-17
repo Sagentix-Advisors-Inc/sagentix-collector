@@ -1,0 +1,21 @@
+{
+ "source": "syft",
+ "title": "SBOMs (Syft or any CycloneDX/SPDX generator): one file per current release",
+ "readScopes": [
+  "None for the collector: it reads the SBOM files. The pipeline writes them, e.g. `syft <image> -o cyclonedx-json=<file>` (Syft is Anchore's, Apache-2.0)."
+ ],
+ "checks": [
+  {
+   "id": "syft.sbom_present",
+   "title": "Each release named has a parseable SBOM that lists its components",
+   "scope": "The SBOM files given; whether they match what is deployed is not checked.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "syft.sbom_components_identified",
+   "title": "SBOM components carry a package URL, so vulnerability feeds can match them",
+   "scope": "Components listed in each SBOM; the default bar is 90% with a package URL (--sbom-min-purl-percent).",
+   "evidenceType": "Report"
+  }
+ ]
+}
