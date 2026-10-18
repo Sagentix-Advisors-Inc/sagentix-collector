@@ -11,6 +11,7 @@ import { grype } from "../src/sources/grype.ts";
 import { syft } from "../src/sources/syft.ts";
 import { gitleaks } from "../src/sources/gitleaks.ts";
 import { scorecard, SCORECARD_MAP } from "../src/sources/scorecard.ts";
+import { localTarget } from "../src/sources/report_files.ts";
 import type { OptionValue, Result, Source } from "../src/types.ts";
 
 const NOW = new Date("2026-10-15T12:00:00Z");
@@ -184,4 +185,16 @@ test("scorecard: a stale or foreign file gives skipped for every check", async (
     const rs = await run(scorecard, { "scorecard-result": f });
     assert.ok(rs.length === Object.keys(SCORECARD_MAP).length && rs.every((r) => r.result === "skipped"));
   }
+});
+
+test("an absolute local path in a report never reaches a result: the home folder may be a person's name", async () => {
+  assert.equal(localTarget("/Users/jdoe/work/apps/sos-app"), ".../apps/sos-app");
+  assert.equal(localTarget("C:\\Users\\jdoe\\repo"), ".../~/repo");
+  assert.equal(localTarget("/home/jdoe"), ".../home/~");
+  assert.equal(localTarget("registry.example/app:1.4.2"), "registry.example/app:1.4.2");
+  assert.equal(localTarget("."), ".");
+  const p = file({ SchemaVersion: 2, CreatedAt: daysAgo(1), ArtifactName: "/home/jdoe/src/app", ArtifactType: "filesystem", Results: [{ Target: "package-lock.json", Class: "lang-pkgs", Vulnerabilities: [] }] });
+  const rs = await trivy.run({ opts: { "trivy-report": [p] }, env: {}, clients: {}, now: NOW, warn: () => undefined });
+  assert.ok(rs.length > 0);
+  for (const r of rs) assert.ok(!r.resource.includes("jdoe"), r.resource);
 });

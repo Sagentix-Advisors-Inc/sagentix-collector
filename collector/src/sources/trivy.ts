@@ -15,7 +15,7 @@
 import { basename } from "node:path";
 import type { Result, Source, SourceContext } from "../types.ts";
 import { arr, isObj, str, Results, type Obj } from "./shared-cloud.ts";
-import { bySeverity, idList, paths, posNum, readJsonFile, staleness } from "./report_files.ts";
+import { bySeverity, idList, localTarget, paths, posNum, readJsonFile, staleness } from "./report_files.ts";
 
 export const TRIVY_CHECKS = ["iac_no_high_misconfig", "image_no_critical_vulns", "dependencies_no_critical_vulns"] as const;
 type C = (typeof TRIVY_CHECKS)[number];
@@ -71,7 +71,7 @@ export const trivy: Source = {
       const d = r.data;
       if (!isObj(d) || !("SchemaVersion" in d) || !("ArtifactName" in d || "Results" in d)) { out.skipAll(TRIVY_CHECKS, `trivy ${basename(f)}`, `${basename(f)} is not a Trivy JSON report (no SchemaVersion/ArtifactName)`); continue; }
       const type = str(d.ArtifactType) ?? "unknown";
-      const resource = `trivy ${type} ${str(d.ArtifactName) ?? basename(f)}`;
+      const resource = `trivy ${type} ${localTarget(str(d.ArtifactName) ?? basename(f))}`;
       if (d.SchemaVersion !== 2) { out.skipAll(TRIVY_CHECKS, resource, `report SchemaVersion ${String(d.SchemaVersion)}; this reader knows version 2`); continue; }
       const created = str(d.CreatedAt);
       const stale = staleness(created ?? r.mtime.toISOString(), ctx.now, maxAge, created ? "report" : "report file (no CreatedAt; file time used)");

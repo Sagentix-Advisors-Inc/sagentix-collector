@@ -90,3 +90,15 @@ export const idList = (xs: string[], label = "", max = MAX_IDS): string =>
 /** "CRITICAL 2, HIGH 5" from a count map, in the order given. */
 export const bySeverity = (counts: Map<string, number>, order: readonly string[]): string =>
   order.filter((s) => (counts.get(s) ?? 0) > 0).map((s) => `${s} ${counts.get(s)}`).join(", ") || "none";
+
+/**
+ * A scanned target's name without the local path above it: "/Users/<person>/work/app" becomes ".../work/app". An
+ * absolute path carries the account's home folder, often a person's name (found in the 2026-10-18 practice run).
+ * Image references and relative paths pass unchanged.
+ */
+export function localTarget(name: string): string {
+  if (!/^(\/|~|[A-Za-z]:[\\/]|\\\\)/.test(name)) return name;
+  // The folder right under Users or home is the account name: it becomes "~" even when it is among the last two.
+  const parts = name.split(/[\\/]+/).filter(Boolean).map((p, i, a) => (i > 0 && /^(Users|home)$/i.test(a[i - 1]) ? "~" : p));
+  return `.../${parts.slice(-2).join("/")}`;
+}

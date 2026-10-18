@@ -55,5 +55,7 @@ export interface Source {
   emits: readonly string[];
   /** The `scope` string sent with the push, e.g. "account 0123 / zones a,b". */
   describe(opts: Record<string, OptionValue>): string;
+  /** Optional: why these options cannot run (the CLI exits 2 with this message), or undefined. */
+  validate?(opts: Record<string, OptionValue>): string | undefined;
   run(ctx: SourceContext): Promise<Result[]>;
 }

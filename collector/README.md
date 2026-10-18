@@ -2,7 +2,7 @@
 
 The collector runs in the customer's own CI. It reads the customer's systems with read-only credentials, runs checks, signs what it saw with an Ed25519 key and pushes the result to sos-app at `POST /api/collect`. sos-app maps each check to NIST SP 800-53 Rev. 5 controls and FedRAMP 20x KSIs itself. The collector reads the check list in `apps/sos-app/src/data/checks/<source>.json`, so it sends only check ids sos-app knows.
 
-Version 0.2.0 has ten sources and 122 read-only checks: Cloudflare (30), AWS (21), GitHub (17), Azure (12), Entra ID (11), GCP (10), Okta (9), Google Workspace (6), Jira (3) and training records from an LMS export (3). Together they give evidence for 62 of the 585 SP 800-53 Rev. 5 controls sos-app tracks; policies cover 20 more, and the rest are procedures a person describes.
+Version 0.2.0 has 27 sources and 2,728 checks in its catalogue (counted from `src/sources/index.ts` on 2026-10-18). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 122 checks alone give evidence for 62 of the 585 SP 800-53 Rev. 5 controls sos-app tracks; policies cover 20 more, and the rest are procedures a person describes.
 
 ## Data flow
 
@@ -17,6 +17,10 @@ HTTPS POST /api/collect  ──►  sos-app (stores the body in R2, results in D
 ```
 
 Every connection starts in the customer's CI and goes out. The collector opens no port and sos-app never calls back. sos-app holds the public key and nothing else: no Cloudflare token, no state file, no private key. With `--out`, the customer keeps the exact bytes sent and the signature, so either side can prove later what was pushed.
+
+## The short way: sos-app's "Connect your environment" screen
+
+A customer does not need to read the rest of this file to start. sos-app's **Connect your environment** screen (the command centre's "Set up the collector" button; `apps/sos-app/docs/CONNECT.md`) asks what to look at, shows which requirements each asset helps prove, and writes the two files a runner needs: `sagentix-collector.config.json` (see [Config file](#config-file)) and either `.github/workflows/sagentix-collector.yml` or a `sagentix-collector.sh` for a server, Docker or a Mac. It lists the least-privilege access per source with the provider's pages, registers the public key and waits for the first signed push. The sections below are what those files do, source by source.
 
 ## Install
 
@@ -86,6 +90,33 @@ node src/cli.ts run --source cloudflare \
 - `--catalog <dir>`: the check catalogue (default `../apps/sos-app/src/data/checks`). A check id not in it is dropped with a warning, because sos-app would refuse the whole push.
 
 Exit codes: 0 sent (or dry run); 1 error (unreadable key, network failure, a failed engine run); 2 usage; 3 nothing to send, because every check was skipped; 4 sos-app refused the push, with its message printed (401 bad signature or revoked key, 409 replay, 400 unknown check or stale `issuedAt`).
+
+### Config file
+
+Instead of a long command line, put the sources and their options in `collector.config.json` and run one command:
+
+```sh
+node src/cli.ts run --config collector.config.json
+```
+
+```json
+{
+  "$schema": "https://github.com/Sagentix-Advisors-Inc/sagentix-collector/collector.config.schema.json",
+  "endpoint": "https://<sos-app host>",
+  "keyId": "<key id>",
+  "keyFile": "sagentix-collector.pem",
+  "out": "sagentix-push.json",
+  "sources": {
+    "web": { "web-url": ["https://www.example.ca/"], "web-proof": ["www.example.ca=<token from sos-app>"] },
+    "macos": {},
+    "trivy": { "trivy-report": "trivy.json" }
+  }
+}
+```
+
+Top-level keys are `endpoint` (required), `keyId`, `keyFile`, `out`, `dryRun` and `catalog`, the same as `--endpoint`, `--key-id`, `--key`, `--out`, `--dry-run` and `--catalog`. Under `sources`, each key is a source name and each option is that source's command-line option without the leading `--`: a string, `true`/`false` for a flag, or a list for a repeatable option. The file is checked against `collector.config.schema.json` (JSON Schema 2020-12, printed by `node src/cli.ts config-schema`), then every source name and option is checked against the sources themselves; a problem exits 2 with the path of the bad key.
+
+The file holds no secret. The private key comes from the `keyFile` path or from `SAGENTIX_COLLECTOR_KEY`, and each source reads its credentials from the environment as before; a value that looks like a PEM block or a well-known token prefix (`ghp_`, `github_pat_`, `AKIA`, `xoxb-` …) is refused. Paths are relative to the directory the command runs in. Options given on the command line override the file's, and `--source` on the command line adds to the file's sources.
 
 ### The older v1 push
 
@@ -509,9 +540,54 @@ node src/cli.ts run --source fleet --fleet-min-os darwin=15.0 \
   --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
 ```
 
+## Websites and APIs by URL (`web`)
+
+The `web` source looks at a site the way a browser does, for URLs the organization declared and proved it controls. It reads only the exact URLs it is given: no crawling, no link or redirect followed, no form, no POST, no vulnerability probe. Each URL gets two TLS handshakes to port 443, one GET of the URL and one GET of its `http://` form; each mail domain gets DNS lookups and one DNS-over-HTTPS query. Requests to one host are at least a second apart by default, each times out after 15 s, and each carries the User-Agent `sagentix-evidence-collector/<version> (+https://github.com/Sagentix-Advisors-Inc/sagentix-collector)`.
+
+**Prove control first.** sos-app issues a token per host when the URL is declared. Publish it one of two ways:
+
+```
+_sagentix-collector.www.example.ca.  TXT  "sagentix-collector-verification=<token>"
+```
+
+or serve `https://www.example.ca/.well-known/sagentix-collector.txt` with the line `sagentix-collector-verification=<token>`. Then pass `--web-proof www.example.ca=<token>`. The collector checks the proof itself before anything else goes to the host. A host with no `--web-proof` gets no request at all, and all nine URL checks come back `skipped` with the record to publish; a wrong token costs one TXT lookup and one GET of the well-known file (redirect not followed, first 4 KB read). `--web-skip-proof` runs the checks without proof, every detail then starts "control not proven (dry run only)", and the CLI accepts it only with `--dry-run`, which sends nothing.
+
+**Accepted URLs:** https only, the default port, no user name or password, a host name rather than an IP address (an IP cannot be proven by DNS).
+
+**Options:** `--web-url <https URL>` (repeatable), `--web-proof <host>=<token>` (repeatable), `--web-mail-domain <domain>` (repeatable; default the last two labels of each host, which is wrong under a two-label public suffix such as `gc.ca`, so give it there), `--web-delay-ms` (default 1000, at least 200), `--web-cert-min-days` (default 14), `--web-skip-proof` (dry run only).
+
+The mail domain's checks run only beside a proven host: the same domain, a parent, or a sibling under the same two labels.
+
+```sh
+node src/cli.ts run --source web --web-url https://www.example.ca/ --web-proof www.example.ca=<token> \
+  --web-mail-domain example.ca --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
+```
+
+Each check was written against a page read on 2026-10-18: CCCS ITSP.40.062 v3 (January 2025), section 3, for TLS versions; the Government of Canada's "Web Sites and Services Management Configuration Requirements" (canada.ca, page details 2024-10-25) for HTTPS only, the HTTP redirect, HSTS and TLS 1.2 or later; RFC 6797 (HSTS), RFC 7208 (SPF), RFC 7489 (DMARC) and RFC 8659 (CAA); the OWASP HTTP Headers Cheat Sheet for the response headers; Cloudflare's DNS-over-HTTPS JSON API for the DS lookup. The citations sit in `src/sources/web.ts`.
+
+| Check (`web.`…) | What passes |
+| --- | --- |
+| `tls_min_version` | A handshake offering only TLS 1.0 and 1.1 fails, and a default one lands on TLS 1.2 or 1.3 |
+| `certificate_valid` | The chain verifies for the host name, with more than `--web-cert-min-days` days left |
+| `https_redirect` | `http://` answers 301, 302, 307 or 308 to `https://` on the same host, or port 80 refuses connections |
+| `hsts` | Strict-Transport-Security on the HTTPS answer with max-age ≥ 31536000 |
+| `csp` | An enforced Content-Security-Policy with script-src or default-src that allows neither `*` nor `'unsafe-inline'` without a nonce or hash; Report-Only alone fails |
+| `content_type_options` | `X-Content-Type-Options: nosniff` |
+| `frame_protection` | CSP `frame-ancestors`, or X-Frame-Options DENY or SAMEORIGIN |
+| `referrer_policy` | A Referrer-Policy whose effective value is not `unsafe-url` or `no-referrer-when-downgrade` |
+| `no_version_banner` | No digit in Server; no X-Powered-By, X-AspNet-Version or X-AspNetMvc-Version |
+| `spf` | Exactly one `v=spf1` record, ending in `-all` or `~all` |
+| `dmarc` | `_dmarc` of the domain, or else of its parents down to two labels, has `p=quarantine` or `p=reject` and pct 100 |
+| `dnssec` | A DS record exists for the domain (recommended) |
+| `caa` | A CAA record set at the domain or its nearest parent (recommended) |
+
+A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, gives `skipped`, never a pass. The certificate handshake reads the certificate without trusting it (`rejectUnauthorized: false`) and judges the verification result itself; nothing is sent on that connection. The DMARC walk approximates RFC 7489's Organizational Domain without the Public Suffix List. A result names the URL or the domain, header values, protocol versions and dates; never page content, a cookie or a person.
+
 ## Layout
 
-- `src/cli.ts`: `keygen` and `run`; exit codes.
+- `src/cli.ts`: `keygen`, `run` and `config-schema`; exit codes.
+- `src/config.ts` and `collector.config.schema.json`: the config file and its schema (a test holds the two equal).
+- `src/sources/web.ts`: websites by URL, with proof of control; tests in `test/web.test.ts` over a fake network.
 - `src/payload.ts`: the v2 body, catalogue vetting, the 5,000-result limit.
 - `src/catalog.ts`: reads `apps/sos-app/src/data/checks/*.json`.
 - `src/sources/index.ts`: the list of sources. A new source is a file in `src/sources/` that exports `{ name, options, emits, describe, run }`, plus one line in this list, plus its catalogue JSON in sos-app.

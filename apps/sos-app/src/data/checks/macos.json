@@ -1,0 +1,73 @@
+{
+ "source": "macos",
+ "title": "This Mac (macOS command-line tools, run as the signed-in user, no sudo)",
+ "readScopes": [],
+ "checks": [
+  {
+   "id": "macos.disk_encryption",
+   "title": "FileVault is on",
+   "scope": "fdesetup status on this Mac; the encryption module's FIPS validation is not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.os_updates_installed",
+   "title": "No macOS, Safari or security update is waiting to install",
+   "scope": "softwareupdate --list at run time; a newer macOS major version is reported, not judged.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "macos.automatic_updates",
+   "title": "Automatic checking, download and install of macOS, security and system data updates are on",
+   "scope": "/Library/Preferences/com.apple.SoftwareUpdate; an absent key is Apple's default (on).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.malware_protection",
+   "title": "Gatekeeper is on, and XProtect scans at launch and in the background",
+   "scope": "spctl --status and xprotect status; alerting on detection is not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.malware_definitions_current",
+   "title": "XProtect's definitions were updated within --macos-xprotect-days days",
+   "scope": "xprotect version's install date.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "macos.system_integrity",
+   "title": "System Integrity Protection is enabled",
+   "scope": "csrutil status.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.firewall",
+   "title": "The macOS application firewall is on",
+   "scope": "socketfilterfw --getglobalstate; its rules are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.screen_lock",
+   "title": "The Mac asks for a password within --macos-max-lock-seconds seconds of inactivity",
+   "scope": "Display sleep or screen saver onset (pmset, com.apple.screensaver idleTime) plus sysadminctl's screen-lock delay.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.auto_login_off",
+   "title": "Automatic login is off",
+   "scope": "Whether com.apple.loginwindow holds autoLoginUser.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.backup_recent",
+   "title": "Each backup tool on this Mac completed a backup within the last 7 days",
+   "scope": "Time Machine (SnapshotDates in its preferences), Carbon Copy Cloner (ccc -h task history) and Backblaze (last completed backup); a tool that is not installed is left out. Restores are not tested.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "macos.backup_encrypted",
+   "title": "Every backup drive this Mac writes to is encrypted",
+   "scope": "Time Machine destinations' encryption state and FileVault on each connected Carbon Copy Cloner destination (a drive that is away is not judged). Whether Backblaze uses a private encryption key cannot be read on the Mac and is left to a person. Where the drives are stored is not shown.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

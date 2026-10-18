@@ -16,7 +16,7 @@
 import { basename } from "node:path";
 import type { Result, Source, SourceContext } from "../types.ts";
 import { arr, isObj, str, Results, type Obj } from "./shared-cloud.ts";
-import { bySeverity, idList, paths, posNum, readJsonFile, staleness } from "./report_files.ts";
+import { bySeverity, idList, localTarget, paths, posNum, readJsonFile, staleness } from "./report_files.ts";
 
 export const GRYPE_CHECKS = ["no_aged_fixable_critical_high"] as const;
 type C = (typeof GRYPE_CHECKS)[number];
@@ -59,7 +59,7 @@ export const grype: Source = {
         continue;
       }
       const src = isObj(d.source) ? d.source : {};
-      const resource = `grype ${str(src.type) ?? "source"} ${targetName(src)}`;
+      const resource = `grype ${str(src.type) ?? "source"} ${localTarget(targetName(src))}`;
       const ts = str(d.descriptor.timestamp);
       const stale = staleness(ts || r.mtime.toISOString(), ctx.now, maxAge, ts ? "report" : "report file (no descriptor.timestamp; file time used)");
       if (stale) { out.skipAll(GRYPE_CHECKS, resource, stale); continue; }

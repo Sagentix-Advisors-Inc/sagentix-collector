@@ -15,11 +15,18 @@ if [ -n "$(git -C "$src" status --porcelain -- "${shipped[@]}")" ]; then
   echo "refusing: uncommitted changes in the collector; commit and push them so the security gate can scan them" >&2; exit 1
 fi
 last="$(git -C "$src" log -1 --format=%H -- "${shipped[@]}")"
-passed="$(cd "$src" && gh run list --workflow collector-security.yml --commit "$last" --status success --limit 1 --json databaseId --jq 'length')"
-if [ "$passed" != "1" ]; then
+# A push of several commits is scanned once, at its head; a pass there counts when that head descends from $last
+# and nothing shipped changed between them, because the scan read the same files.
+passed=""
+for sha in $(cd "$src" && gh run list --workflow collector-security.yml --status success --limit 30 --json headSha --jq '.[].headSha'); do
+  if git -C "$src" merge-base --is-ancestor "$last" "$sha" 2>/dev/null && git -C "$src" diff --quiet "$last" "$sha" -- "${shipped[@]}"; then
+    passed="$sha"; break
+  fi
+done
+if [ -z "$passed" ]; then
   echo "refusing: collector-security has not passed on ${last:0:8}, the last commit that changed the collector (push it, wait for the run)" >&2; exit 1
 fi
-echo "security gate passed on ${last:0:8}"
+echo "security gate passed on ${passed:0:8}, which ships the collector as of ${last:0:8}"
 
 sync() { mkdir -p "$dst/$(dirname "$1")"; rsync -a --delete --exclude node_modules --exclude __pycache__ --exclude build --exclude public-repo "$src/$1" "$dst/$(dirname "$1")/"; }
 sync collector

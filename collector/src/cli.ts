@@ -4,6 +4,8 @@
 // holds the customer's credentials.
 //
 //   collector keygen [--out <path>]
+//   collector run --config collector.config.json [any option below, which overrides the file]
+//   collector config-schema                  prints the JSON schema of the config file
 //   collector run --endpoint <url> --key-id <id> [--key <pem> | env SAGENTIX_COLLECTOR_KEY]
 //                 --source cloudflare[,...] [source options] [--catalog <dir>] [--dry-run] [--out <file>]
 //                 [--fedramp-target <id> [--class A|B|C|D]]
@@ -19,6 +21,7 @@ import { DEFAULT_CATALOG_DIR, loadCatalog } from "./catalog.ts";
 import { publicKeyFromPrivate, signBody, writeNewKey } from "./keys.ts";
 import { MAX_RESULTS, buildPayload, splitResults, vet } from "./payload.ts";
 import { SOURCES } from "./sources/index.ts";
+import { CONFIG_SCHEMA, loadConfig } from "./config.ts";
 import type { Clients, OptionValue, Result, Source } from "./types.ts";
 import { V1_COLLECT_PATH, v1Payload } from "./v1/index.ts";
 import { CLASSES, type FedClass } from "./v1/rules.ts";
@@ -62,6 +65,7 @@ const COMMON_OPTIONS = {
   "fedramp-target": { type: "string" },
   class: { type: "string" },
   "cpo-uri": { type: "string" },
+  config: { type: "string" },
 } as const;
 
 function usage(sources: readonly Source[]): string {
@@ -69,6 +73,8 @@ function usage(sources: readonly Source[]): string {
     `    --${n}${o.type === "string" ? " <value>" : ""}${o.multiple ? " (repeatable)" : ""}  [${s.name}] ${o.help}`));
   return `usage:
   collector keygen [--out sagentix-collector.pem]
+  collector run --config collector.config.json [options that override the file]
+  collector config-schema
   collector run --endpoint <url> --key-id <id> [--key <pem file>] --source ${sources.map((s) => s.name).join("|")}[,...]
                 [source options] [--catalog <checks dir>] [--dry-run] [--out <file>]
                 [--fedramp-target <id> [--class A|B|C|D] [--cpo-uri <url>]]
@@ -93,7 +99,7 @@ function keygen(argv: string[], deps: Deps): number {
   try {
     const { publicKey } = writeNewKey(path);
     deps.err(`Private key written to ${path} (mode 0600). Keep it in your CI secret store; never send it to anyone.`);
-    deps.err("Register this public key in sos-app (Evidence > Collector keys):");
+    deps.err("Register this public key in sos-app (Connect your environment, step 4; or Evidence > Collector keys):");
     deps.out(publicKey);
     return EXIT.ok;
   } catch (e) {
@@ -127,6 +133,14 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     deps.err(`${(e as Error).message}\n${usage(deps.sources)}`);
     return EXIT.usage;
   }
+  if (typeof values.config === "string") {
+    const c = loadConfig(values.config, deps.sources);
+    if ("problems" in c) { deps.err(`${values.config} is not a valid collector config:\n  ${c.problems.join("\n  ")}`); return EXIT.usage; }
+    const given = Object.fromEntries(Object.entries(values).filter(([k, v]) => v !== undefined && k !== "config"));
+    // --source on the command line adds to the file's sources.
+    const src = [...((c.values.source as string[] | undefined) ?? []), ...((given.source as string[] | undefined) ?? [])];
+    values = { ...c.values, ...given, source: src };
+  }
   const dry = values["dry-run"] === true;
   const v1Target = typeof values["fedramp-target"] === "string" ? values["fedramp-target"] : undefined;
 
@@ -137,6 +151,10 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     const s = deps.sources.find((x) => x.name === n);
     if (!s) { deps.err(`unknown source ${n}; known: ${deps.sources.map((x) => x.name).join(", ")}.`); return EXIT.usage; }
     chosen.push(s);
+  }
+  for (const s of chosen) {
+    const why = s.validate?.(values);
+    if (why) { deps.err(`${s.name}: ${why}`); return EXIT.usage; }
   }
   const cls = String(values.class ?? "B").toUpperCase() as FedClass;
   if (v1Target && !(CLASSES as readonly string[]).includes(cls)) { deps.err("--class must be A, B, C or D."); return EXIT.usage; }
@@ -242,6 +260,7 @@ export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<
   try {
     if (cmd === "keygen") return keygen(rest, deps);
     if (cmd === "run") return await run(rest, deps);
+    if (cmd === "config-schema") { deps.out(JSON.stringify(CONFIG_SCHEMA, null, 2)); return EXIT.ok; }
   } catch (e) {
     deps.err(String((e as Error).message ?? e));
     return EXIT.error;

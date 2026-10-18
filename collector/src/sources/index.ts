@@ -13,6 +13,7 @@ import { lms } from "./lms.ts";
 import { prowler } from "./prowler.ts";
 import { ENGINE_SOURCES } from "./engines.ts";
 import { DEVICE_SOURCES } from "./device_sources.ts";
+import { web } from "./web.ts";
 
 export const SOURCES: readonly Source[] = [
   cloudflare,
@@ -21,4 +22,5 @@ export const SOURCES: readonly Source[] = [
   prowler,
   ...ENGINE_SOURCES,
   ...DEVICE_SOURCES,
+  web,
 ];

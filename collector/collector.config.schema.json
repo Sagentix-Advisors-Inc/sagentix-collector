@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sagentix-Advisors-Inc/sagentix-collector/collector.config.schema.json",
+  "title": "Sagentix evidence collector configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "endpoint",
+    "sources"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "endpoint": {
+      "type": "string",
+      "pattern": "^https?://",
+      "description": "The sos-app origin; https (http only for localhost)."
+    },
+    "keyId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "The key id sos-app gave when the public key was registered."
+    },
+    "keyFile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path to the Ed25519 private key (PEM). Omit to read SAGENTIX_COLLECTOR_KEY."
+    },
+    "out": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Also write the signed payload to this file."
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Print the payload and send nothing."
+    },
+    "catalog": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The check catalogue directory."
+    },
+    "sources": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Source name to its options (command-line option names without --).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

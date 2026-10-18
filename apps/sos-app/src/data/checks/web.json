@@ -1,0 +1,87 @@
+{
+ "source": "web",
+ "title": "Websites and APIs by URL (passive GET, TLS handshake and DNS, for hosts the organization proved it controls)",
+ "readScopes": [
+  "None: the collector reads what any browser sees. Each host must first be proven: a TXT record at _sagentix-collector.<host> holding sagentix-collector-verification=<token>, or https://<host>/.well-known/sagentix-collector.txt holding that line, with the token sos-app issued."
+ ],
+ "checks": [
+  {
+   "id": "web.tls_min_version",
+   "title": "The site refuses TLS 1.0 and 1.1 and negotiates TLS 1.2 or 1.3",
+   "scope": "Port 443 of each declared host: one handshake offering only TLS 1.0 and 1.1, one default handshake. Cipher suites are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.certificate_valid",
+   "title": "The certificate verifies for the host name and has more than 14 days left",
+   "scope": "The certificate the host presents on port 443, verified against Node's trust store; the days left are configurable.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.https_redirect",
+   "title": "Plain HTTP redirects to HTTPS on the same host",
+   "scope": "One GET of the http:// form of each declared URL, redirect not followed; port 80 refusing connections also passes.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.hsts",
+   "title": "HSTS is sent with max-age of at least one year",
+   "scope": "The Strict-Transport-Security header of the HTTPS answer for the declared URL only; other paths may differ.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.csp",
+   "title": "An enforced Content-Security-Policy restricts scripts, without 'unsafe-inline' unless a nonce or hash is given",
+   "scope": "The headers of the declared URL; a policy set in a <meta> tag is not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.content_type_options",
+   "title": "X-Content-Type-Options is nosniff",
+   "scope": "The headers of the declared URL.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.frame_protection",
+   "title": "Framing is restricted by CSP frame-ancestors or X-Frame-Options DENY or SAMEORIGIN",
+   "scope": "The headers of the declared URL.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.referrer_policy",
+   "title": "A Referrer-Policy is set that does not send full URLs to other sites",
+   "scope": "The headers of the declared URL; the last policy browsers know is the one judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.no_version_banner",
+   "title": "No software version is shown in Server, X-Powered-By or X-AspNet-Version",
+   "scope": "The headers of the declared URL; error pages and other paths are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.spf",
+   "title": "The mail domain publishes one SPF record ending in -all or ~all",
+   "scope": "The TXT records of the mail domain; include and redirect targets are not followed.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.dmarc",
+   "title": "The mail domain publishes DMARC with p=quarantine or p=reject for all mail",
+   "scope": "_dmarc of the mail domain, then of its parents down to two labels (an approximation of RFC 7489's Organizational Domain without the Public Suffix List).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.dnssec",
+   "title": "The domain is signed with DNSSEC (a DS record exists at the parent); recommended",
+   "scope": "A DS lookup by DNS over HTTPS (cloudflare-dns.com); whether resolvers validate the chain is not tested.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.caa",
+   "title": "The domain limits which certificate authorities may issue for it (CAA); recommended",
+   "scope": "The CAA record set at the domain or its nearest parent that has one (RFC 8659 section 3).",
+   "evidenceType": "Configuration"
+  }
+ ]
+}
