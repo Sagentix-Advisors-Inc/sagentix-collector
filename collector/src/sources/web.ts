@@ -339,6 +339,15 @@ async function urlChecks(c: Ctx, out: Emitter<C>, u: URL, prefix: string, certMi
     for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner"] as const) add(k, "skipped", `${u.href} could not be read (${r.error})`);
     return;
   }
+  // A bot challenge answered instead of the site: its headers are Cloudflare's, not the site's, so none is judged.
+  // Cloudflare (Detect a Challenge Page response, updated 2026-05-05): "The header is set for all Challenge Page types."
+  // and "For the cf-mitigated header, challenge is the only valid value."
+  // developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/
+  if (headerValue(r.headers, "cf-mitigated")?.trim().toLowerCase() === "challenge") {
+    for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner"] as const)
+      add(k, "skipped", `${u.href} answered a Cloudflare challenge page (HTTP ${r.status}, cf-mitigated: challenge), not the site; let the collector's address skip bot checks for this host to judge its headers`);
+    return;
+  }
   const h = r.headers, note = r.status >= 300 && r.status < 400 ? ` (headers of the ${r.status} answer; the redirect was not followed)` : "";
   const hs = judgeHsts(headerValue(h, "strict-transport-security"));
   add("hsts", hs.pass, hs.detail + note);

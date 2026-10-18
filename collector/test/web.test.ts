@@ -155,6 +155,17 @@ test("each URL check fails on the setting it reads", async () => {
   assert.match(b.no_version_banner.detail, /Apache\/2\.4\.58.*x-powered-by: PHP\/8\.3/);
 });
 
+test("a Cloudflare challenge page is not the site: its six header checks are skipped, never passed", async () => {
+  const f = fake({ http: { [URL_]: { status: 403, headers: { ...GOOD_HEADERS, "cf-mitigated": "challenge" }, body: "Just a moment..." } } });
+  const b = by(await runWeb(opts(), f, NOW));
+  for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner"]) {
+    assert.equal(b[k].result, "skipped", `${k}: ${b[k].detail}`);
+    assert.match(b[k].detail, /cf-mitigated: challenge/);
+  }
+  assert.equal(b.tls_min_version.result, "pass");
+  assert.equal(b.https_redirect.result, "pass");
+});
+
 test("a certificate close to expiry fails; a redirect to another host fails; port 80 refusing passes", async () => {
   const soon = fake({ tls: { modern: { ok: true, protocol: "TLSv1.3", authorized: true, validTo: "Oct 25 00:00:00 2026 GMT" } }, http: { [`http://${HOST}/`]: { status: 301, headers: { location: "https://other.example.ca/" } } } });
   const b = by(await runWeb(opts(), soon, NOW));
