@@ -1,0 +1,53 @@
+{
+ "source": "defender_endpoint",
+ "title": "Microsoft Defender for Endpoint (Defender for Endpoint API, read-only application permissions)",
+ "readScopes": [
+  "WindowsDefenderATP application permission Machine.Read.All (GET /api/machines and GET /api/deviceavinfo), with admin consent.",
+  "WindowsDefenderATP application permission Vulnerability.Read.All (GET /api/vulnerabilities/machinesVulnerabilities), with admin consent.",
+  "WindowsDefenderATP application permission SecurityRecommendation.Read.All (GET /api/recommendations and /api/recommendations/{id}/machineReferences), with admin consent."
+ ],
+ "checks": [
+  {
+   "id": "defender_endpoint.device_onboarded",
+   "title": "Each device Defender for Endpoint sees is onboarded",
+   "scope": "Every machine GET /api/machines lists (up to --defender-max-devices), one result per machine, from onboardingStatus: onboarded passes, CanBeOnboarded (discovered, not onboarded) fails, Unsupported and InsufficientInfo are skipped. Devices Defender has never seen are not listed.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.sensor_healthy",
+   "title": "Each onboarded device's sensor is active and reported within the last 14 days",
+   "scope": "Every onboarded machine: healthStatus Active and lastSeen (the last full device report) within --defender-seen-days. Inactive, ImpairedCommunication, NoSensorData and NoSensorDataImpairedCommunication fail; Unknown is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.av_active_mode",
+   "title": "Microsoft Defender Antivirus runs in active mode on each device",
+   "scope": "Every device in the antivirus health export (GET /api/deviceavinfo), from avMode: 0 Active passes; 2 Disabled fails; 1 Passive, 4 EDRBlocked and 5 PassiveAudit fail unless --defender-allow-passive says another antivirus is primary; Other is skipped. The real-time protection setting is not reported by this API and is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.av_signatures_current",
+   "title": "Each device's Microsoft Defender Antivirus security intelligence and engine are up to date",
+   "scope": "Every device in the antivirus health export: avIsSignatureUpToDate and avIsEngineUpToDate both True pass, either False fails, Unknown is skipped. Microsoft's own up-to-date judgment is used; no version is compared here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.high_exposure_devices",
+   "title": "No more onboarded devices than allowed are at a High exposure level",
+   "scope": "One tenant result: the count of onboarded machines whose exposureLevel is High, against --defender-max-exposure (default 0). Skipped when no machine reports a level or the machine list was capped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.critical_vulnerability_devices",
+   "title": "No more devices than allowed have a critical vulnerability",
+   "scope": "One tenant result: the count of distinct machines with at least one vulnerability of severity Critical (GET /api/vulnerabilities/machinesVulnerabilities), against --defender-max-exposure; the detail says how many are fixed by a Microsoft update not yet installed (fixingKbId). Vulnerability age is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "defender_endpoint.tamper_protection",
+   "title": "No device is listed under the 'Turn on Tamper Protection' security recommendation",
+   "scope": "One tenant result from the security-control recommendations (GET /api/recommendations): exposedMachinesCount 0 passes, more fails with the first device ids. Skipped when the recommendation is not listed, since its absence does not show tamper protection is on.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

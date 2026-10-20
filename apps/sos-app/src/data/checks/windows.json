@@ -1,0 +1,73 @@
+{
+ "source": "windows",
+ "title": "This Windows PC (Windows PowerShell and built-in tools, run as the signed-in user, no administrator)",
+ "readScopes": [],
+ "checks": [
+  {
+   "id": "windows.disk_encryption",
+   "title": "BitLocker protects the system drive",
+   "scope": "Get-BitLockerVolume on the system drive: VolumeStatus FullyEncrypted and ProtectionStatus On. Needs an administrator (Win32_EncryptableVolume); a standard user's run is skipped. Other drives and the module's FIPS validation are not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.os_updates_installed",
+   "title": "Windows installed updates within --windows-update-days days",
+   "scope": "Windows Update Agent's LastInstallationSuccessDate and the newest Get-HotFix InstalledOn must both be recent. The first counts any update, Defender definitions included; the second lists only Component Based Servicing packages, by Microsoft's own description. Updates offered but not yet installed are not listed.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "windows.automatic_updates",
+   "title": "No policy or service setting turns automatic Windows updates off",
+   "scope": "Policy NoAutoUpdate is not 1 and AUOptions is not 1 or 2 (HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU), the wuauserv service is not Disabled, and Automatic Updates reports ServiceEnabled. A pause chosen in Settings is not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.os_supported",
+   "title": "The Windows build is at least --windows-min-build (a version Microsoft still updates)",
+   "scope": "Win32_OperatingSystem BuildNumber against the option (default 26200, Windows 11 25H2, the oldest version still updated for Home and Pro on 2026-10-20). Windows 10 Extended Security Updates enrolment is not readable.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.malware_protection",
+   "title": "Microsoft Defender Antivirus is active with real-time protection on",
+   "scope": "Get-MpComputerStatus: AMRunningMode Normal, AMServiceEnabled, AntivirusEnabled and RealTimeProtectionEnabled. A third-party antivirus registered in Windows Security Center is named and skipped, for a person to confirm. Alerting on detection is not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.malware_definitions_current",
+   "title": "Defender's antivirus definitions were updated within --windows-signature-days days",
+   "scope": "Get-MpComputerStatus AntivirusSignatureLastUpdated (or AntivirusSignatureAge); skipped when another antivirus is the active one.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "windows.firewall",
+   "title": "Windows Firewall is on for the Domain, Private and Public profiles",
+   "scope": "Get-NetFirewallProfile -PolicyStore ActiveStore (local settings and Group Policy combined); its rules are not judged. A network firewall in front of the PC is not shown.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.screen_lock",
+   "title": "Windows locks within --windows-max-lock-seconds seconds of inactivity",
+   "scope": "The machine inactivity limit (InactivityTimeoutSecs), or a password-protected screen saver (ScreenSaveActive, ScreenSaverIsSecure, ScreenSaveTimeOut; policy values first, then the user's). Sign-in on wake after the display turns off or the PC sleeps, and Dynamic Lock, are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.auto_login_off",
+   "title": "Automatic sign-in is off",
+   "scope": "Winlogon AutoAdminLogon is not 1. The user name and password values beside it are never read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.user_not_admin",
+   "title": "The signed-in account is not a local administrator",
+   "scope": "whoami /groups: the token of the account running the collector holds no S-1-5-32-544 (Administrators), elevated or not; the group's member count is reported. Other accounts on the PC are not judged, and no name is read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "windows.secure_boot",
+   "title": "Secure Boot is on",
+   "scope": "Confirm-SecureBootUEFI. Needs an administrator; a standard user's run is skipped. A BIOS (legacy) PC fails.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

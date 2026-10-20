@@ -43,20 +43,24 @@ const nextLink = (r: HttpResponse) => (isObj(r.body) ? str(r.body["@odata.nextLi
 const values = (b: unknown) => (isObj(b) && Array.isArray(b.value) ? b.value : undefined);
 const list = (api: RestApi, path: string) => getAll(api, path, values, nextLink, 200);
 
-/** Builds a Graph client from ENTRA_* variables, or explains what is missing. */
-export function entraFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fetch): RestApi | string {
+/**
+ * Builds a Graph client from ENTRA_* variables, or explains what is missing. `target` names another resource API
+ * reached with the same client-credentials grant (the Defender for Endpoint API: defender_endpoint.ts).
+ */
+export function entraFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fetch,
+  target: { base: string; scope: string } = { base: GRAPH_BASE, scope: "https://graph.microsoft.com/.default" }): RestApi | string {
   const tenant = env[ENTRA_ENV.tenant], client = env[ENTRA_ENV.client], secret = env[ENTRA_ENV.secret], certFile = env[ENTRA_ENV.cert];
   if (!tenant || !client || (!secret && !certFile)) return `${ENTRA_ENV.tenant}, ${ENTRA_ENV.client} and ${ENTRA_ENV.secret} or ${ENTRA_ENV.cert} are not all set`;
   const url = `https://login.microsoftonline.com/${enc(tenant)}/oauth2/v2.0/token`;
   const token = cachedToken(() => {
-    const form: Record<string, string> = { grant_type: "client_credentials", client_id: client, scope: "https://graph.microsoft.com/.default" };
+    const form: Record<string, string> = { grant_type: "client_credentials", client_id: client, scope: target.scope };
     if (certFile) {
       form.client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
       form.client_assertion = entraClientAssertion(readFileSync(certFile, "utf8"), tenant, client, Math.floor(Date.now() / 1000));
     } else form.client_secret = secret!;
     return tokenRequest(url, form, fetchFn);
   });
-  return fetchRest({ base: GRAPH_BASE, fetchFn, headers: async () => ({ authorization: `Bearer ${await token()}` }) });
+  return fetchRest({ base: target.base, fetchFn, headers: async () => ({ authorization: `Bearer ${await token()}` }) });
 }
 
 export interface EntraOptions { maxGlobalAdmins: number; maxPermanentAdmins: number; staleDays: number }

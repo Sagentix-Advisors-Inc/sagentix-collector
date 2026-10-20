@@ -341,9 +341,9 @@ node src/cli.ts run --source lms --training-csv lms-export.csv --roster-csv rost
 
 ## Identity and code sources
 
-Four sources read who can sign in and how code changes: `entra`, `okta`, `google_workspace` and `github`. They share `src/sources/readonly_http.ts`, a client with a GET method and nothing else. It refuses a next-page link that points at another origin, so a token never leaves the API it was made for. A 429 is retried up to four times, and so are GitHub's 403 with `x-ratelimit-remaining: 0` and Google's 403 `rateLimitExceeded`; the wait comes from `Retry-After`, Okta's `X-Rate-Limit-Reset` or GitHub's `x-ratelimit-reset` (capped at 60 s). Should an API ever echo the credential, the client cuts it out of the response before parsing, and every source scrubs its secret variables from results as well. The only POSTs are the OAuth token requests for Entra ID and Google, in `src/sources/oauth.ts`; neither adds an npm dependency. `collector google-login` adds the one listener the collector ever opens: on 127.0.0.1, for a single sign-in redirect, never during `run`.
+Five sources read who can sign in and how code changes: `entra`, `okta`, `jumpcloud`, `google_workspace` and `github`. They share `src/sources/readonly_http.ts`, a client with a GET method and nothing else. It refuses a next-page link that points at another origin, so a token never leaves the API it was made for. A 429 is retried up to four times, and so are GitHub's 403 with `x-ratelimit-remaining: 0` and Google's 403 `rateLimitExceeded`; the wait comes from `Retry-After`, Okta's `X-Rate-Limit-Reset` or GitHub's `x-ratelimit-reset` (capped at 60 s). Should an API ever echo the credential, the client cuts it out of the response before parsing, and every source scrubs its secret variables from results as well. The only POSTs are the OAuth token requests for Entra ID and Google, in `src/sources/oauth.ts`; neither adds an npm dependency. `collector google-login` adds the one listener the collector ever opens: on 127.0.0.1, for a single sign-in redirect, never during `run`.
 
-Personal data stays out. A result carries counts and the vendor's opaque ids (Entra object id, Okta user id, Google user id, GitHub numeric user id), at most ten per failing detail. No result holds a user principal name, email address, login or display name, even in a failing detail. An assessor who needs the person looks the id up in the tenant.
+Personal data stays out. A result carries counts and the vendor's opaque ids (Entra object id, Okta user id, JumpCloud user id, Google user id, GitHub numeric user id), at most ten per failing detail. No result holds a user principal name, email address, login or display name, even in a failing detail. An assessor who needs the person looks the id up in the tenant.
 
 An identity tenant or a GitHub organization is one part of a system's boundary, so none of these checks shows a whole control alone.
 
@@ -406,6 +406,36 @@ node src/cli.ts run --source okta --okta-max-super-admins 2 \
 | `system_log_available` | The System Log is readable and not empty |
 
 A global session policy that leaves MFA to the app sign-in policies fails `global_session_requires_mfa` while passing `app_policies_require_2fa`; the assessor reads the two together.
+
+### JumpCloud
+
+**Create:** an administrator who holds only the **Read Only** role. JumpCloud turns API access off for every new administrator, and only an **Administrator with Billing** can turn it on (Settings > Administrators > the admin > **Enable API access**). That administrator then opens **My API Key** and generates a key (prefix `jca_`). The key carries its administrator's role, and Read Only can view users, devices, organization settings, authentication policies, administrators and System Insights (JumpCloud's Admin Portal Roles table). Set an expiry on the key; JumpCloud defaults new keys to 90 days.
+
+**Env:** `JUMPCLOUD_API_KEY`, sent as `x-api-key`. `JUMPCLOUD_ORG_ID` (or `--jumpcloud-org-id`) is sent as `x-org-id`; without it the collector uses the only organization the key can see, and a multi-tenant key that sees several gets its organization checks skipped.
+
+**Options:** `--jumpcloud-org-id`, `--jumpcloud-region` (`us`, `eu` or `in`; default `us`, which picks `console.jumpcloud.com`, `console.eu.jumpcloud.com` or `console.in.jumpcloud.com`), `--jumpcloud-min-password-length` (default 12), `--jumpcloud-max-admins` (default 5), `--jumpcloud-min-os` (e.g. `macos=15.0`, `windows=10.0.22631`; repeatable; without it `device_os_minimum` is skipped), `--jumpcloud-contact-days` (default 14), `--jumpcloud-max-devices` (default 5000).
+
+Every call is a GET: `/api/organizations` and `/api/organizations/{id}`, `/api/v2/organizations/{id}/administratorlinks`, `/api/systemusers`, `/api/v2/authn/policies` and `/api/systems`. Lists page with `limit=100` and `skip`, sorted by `_id` as JumpCloud's API best-practices article asks. The user and device lists name the fields they need (`fields=`), so usernames, email addresses and hostnames never leave JumpCloud. Endpoints and fields come from the JumpCloud API 1.0 and 2.0 references (OpenAPI files last modified 2026-10-19), read on 2026-10-20.
+
+```sh
+node src/cli.ts run --source jumpcloud --jumpcloud-min-os macos=15.0 --jumpcloud-min-os windows=10.0.22631 \
+  --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
+```
+
+| Check (`jumpcloud.`…) | What passes |
+| --- | --- |
+| `users_mfa_enrolled` | Every ACTIVATED, unsuspended user has `mfaEnrollment` ENROLLED (overall, TOTP, Push or WebAuthn), or `totp_enabled` |
+| `users_mfa_required` | Every active user has `enable_user_portal_multifactor`; a gap is skipped when an enabled User Portal policy requires MFA |
+| `policies_require_mfa` | Every enabled, enforced `allow` authentication policy sets `obligations.mfa.required` |
+| `admin_mfa_required` | The organization setting `requireAdminMFA` is true |
+| `admins_limited` | At most `--jumpcloud-max-admins` administrators are linked to the organization, every role counted |
+| `password_policy` | The default password policy sets `minLength` ≥ `--jumpcloud-min-password-length` |
+| `account_lockout` | The default password policy locks after 1 to 10 failed attempts (`maxLoginAttempts`) |
+| `device_encrypted` | Each device reports `fde.active` true (FileVault or BitLocker) |
+| `device_os_minimum` | Each device's OS version is at or above its platform's `--jumpcloud-min-os` |
+| `device_last_contact` | Each device's `lastContact` is within `--jumpcloud-contact-days` |
+
+Left out, because no documented GET shows them: inactive users (a system user has no last sign-in field, and sign-in events come from the Directory Insights API, which takes POST), each administrator's role and MFA (no `GET /administrators` outside the MSP routes), and a screen-lock policy (policy template names and their settings are not in the reference). Staged and suspended users are counted in the user checks' details, not judged. Two readings rest on a field's name, since the reference does not describe them: `requireAdminMFA` as the Global MFA Requirement for admins, and the Windows build numbers in `osVersionDetail`.
 
 ### Google Workspace
 
@@ -494,9 +524,9 @@ The eight organization checks report once per organization (resource `github org
 
 ## Device sources
 
-Three sources read what laptops look like: `fleet` (the open-source Fleet server in front of fleetd and osquery), `intune` and `jamf`. Sagentix approved this on 2026-10-15, with Fleet as the device agent and Intune and Jamf Pro as the second path for customers who already run one of them. They use the same GET-only client as the identity sources (`src/sources/readonly_http.ts`), and their shared helpers live in `src/sources/device_common.ts`.
+Four sources read what laptops look like: `fleet` (the open-source Fleet server in front of fleetd and osquery), `intune`, `jamf` and `kandji` (Iru Endpoint Management, formerly Kandji). Sagentix approved this on 2026-10-15, with Fleet as the device agent and Intune and Jamf Pro as the second path for customers who already run one of them; `kandji` joined on 2026-10-20 for small Mac-based firms. They use the same GET-only client as the identity sources (`src/sources/readonly_http.ts`), and their shared helpers live in `src/sources/device_common.ts`. A fifth, `defender_endpoint` (2026-10-20), reads the EDR and antivirus side of the same laptops from Microsoft Defender for Endpoint.
 
-Each device check reports once per device. A device is named by the vendor's id and its hardware serial (`fleet host 12 serial C02…`, `intune device <id> serial …`, `jamf computer 7 serial …`). Hostnames, computer names, display names, user principal names, email addresses and usernames are never put in a result; the Intune device list asks Graph for seven fields with `$select`, and the Jamf call never requests the `USER_AND_LOCATION` section. When a device has not reported a value, the result is `skipped`. A 401 or 403 also gives `skipped` with the HTTP status in the detail, so an expired token shows as a collector error rather than a fleet of failing laptops.
+Each device check reports once per device. A device is named by the vendor's id and its hardware serial (`fleet host 12 serial C02…`, `intune device <id> serial …`, `jamf computer 7 serial …`); Defender's machine entity has no serial, so its devices are `defender device <machine id>`. Hostnames, computer names, display names, user principal names, email addresses and usernames are never put in a result; the Intune device list asks Graph for seven fields with `$select`, and the Jamf call never requests the `USER_AND_LOCATION` section. When a device has not reported a value, the result is `skipped`. A 401 or 403 also gives `skipped` with the HTTP status in the detail, so an expired token shows as a collector error rather than a fleet of failing laptops.
 
 ### Fleet
 
@@ -559,10 +589,90 @@ Policy results report once per platform (`intune tenant <id> Windows`). Settings
 | `last_inventory` | `general.reportDate` within `--jamf-inventory-days` |
 | `managed` | `general.remoteManagement.managed` is true |
 
+### Iru Endpoint Management (formerly Kandji)
+
+Kandji renamed itself Iru; the API reference is now titled "Iru Endpoint Management API" (https://api-docs.kandji.io/ redirects to https://api-docs.iru.com/), while tenant API hosts stay on kandji.io. Endpoints and fields below were read in that reference on 2026-10-20, Prism category meanings in https://support.kandji.io/kb/prism and token creation in https://support.kandji.io/kb/kandji-api, same date.
+
+**Create:** under Settings → Access, an API token (Add API Token) whose permissions are these five GET endpoints and nothing else: `GET /api/v1/devices` (List Devices), `GET /api/v1/devices/{device_id}/status` (Get Device Status), and the Prism categories `GET /api/v1/prism/application_firewall`, `/gatekeeper_and_xprotect` and `/startup_settings`. Token permissions are granted per endpoint and method. A permission left off skips only the checks that read it: without `startup_settings`, `sip` reports one `skipped` result naming HTTP 403. The token belongs to the admin who made it and is removed with that admin.
+
+**Env:** `KANDJI_API_URL`, the tenant's API URL from the same page (https only: `https://<subdomain>.api.kandji.io` in the US, `https://<subdomain>.api.eu.kandji.io` in the EU), and `KANDJI_API_TOKEN`.
+
+**Options:** `--kandji-min-os` (e.g. `15.0`; without it `os_minimum` is skipped), `--kandji-checkin-days` (default 14), `--kandji-max-devices` (default 1000).
+
+Only Macs are read (`platform=Mac`, Prism `device_families=Mac`). List Devices pages by `limit=300` and `offset`, ordered by `device_id`; Prism pages by its opaque `cursor`, starting from an empty one and stopping when the answer's cursor is null. The tenant may make 10,000 requests an hour, and each Mac costs one Get Device Status call, so 1,000 Macs take about 1,010 requests. The screen saver and lock settings are left out: Prism's Desktop and Screensaver category documents no idle-time or password field. Device names, assigned users, Prism's `device__user_*` fields and library item logs are never read into a result.
+
+| Check (`kandji.`…) | What passes |
+| --- | --- |
+| `filevault` | The Mac is listed under `filevault_enabled=true`; under `false` it fails, in neither it is skipped |
+| `os_minimum` | `os_version` at or above `--kandji-min-os` |
+| `last_checkin` | `last_check_in` (the agent check-in) within `--kandji-checkin-days` |
+| `managed` | `mdm_enabled` is true |
+| `library_items` | No library item is `ERROR` or `failed`, and at least one is `PASS` or `success` |
+| `parameters` | No parameter is `ERROR` or `WARNING` (a muted alert), and at least one is `PASS` or `REMEDIATED` |
+| `firewall` | Prism Application firewall `status` is true |
+| `gatekeeper` | Prism Gatekeeper and XProtect `gatekeeper_status` is true |
+| `sip` | Prism Startup settings `sip` is true |
+
 ```sh
 node src/cli.ts run --source fleet --fleet-min-os darwin=15.0 \
   --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
 ```
+
+### Microsoft Defender for Endpoint
+
+The collector reads Defender's own API at `https://api.security.microsoft.com/api` (version V1.0), not Microsoft Graph. Graph took over advanced hunting (the old `/api/advancedhunting/run` stops returning data on 2027-02-01) and alerts, but its security API overview (graph-rest-1.0, ms.date 2026-01-21) has no device or antivirus health resource. Every endpoint, permission, limit and field below was read on learn.microsoft.com/defender-endpoint/api on 2026-10-20; the page dates are in the header of `src/sources/defender_endpoint.ts`.
+
+**Create:** an Entra app registration with these **WindowsDefenderATP** *application* permissions (API permissions → APIs my organization uses → WindowsDefenderATP), admin consent granted: `Machine.Read.All` (`GET /api/machines`, `GET /api/deviceavinfo`), `Vulnerability.Read.All` (`GET /api/vulnerabilities/machinesVulnerabilities`) and `SecurityRecommendation.Read.All` (`GET /api/recommendations`, `GET /api/recommendations/{id}/machineReferences`). The token is requested for `https://api.securitycenter.microsoft.com/.default`: Microsoft's app-context page (ms.date 2026-07-28) warns that some of these APIs answer 403 to any other audience. The tenant needs Defender for Endpoint Plan 1 or 2, or Defender for Business; exposure levels, vulnerabilities and recommendations come from Defender Vulnerability Management, and without it those three checks report `skipped`. The same app registration as `entra` can carry the permissions. US Government clouds use other hosts and are not supported.
+
+**Env:** `DEFENDER_TENANT_ID`, `DEFENDER_CLIENT_ID`, and `DEFENDER_CLIENT_SECRET` or `DEFENDER_CLIENT_CERT_FILE`. Each falls back to its `ENTRA_*` twin.
+
+**Options:** `--defender-seen-days` (default 14), `--defender-max-exposure` (default 0), `--defender-max-devices` (default 10000), `--defender-allow-passive`.
+
+Lists are read 10,000 rows at a time (the documented `$top` ceiling), following `@odata.nextLink` when the API gives one and `$skip` otherwise. At that size a 10,000-device tenant takes about five calls, far inside the documented limits (machines 100 a minute, antivirus health 30 a minute); a 429 is retried after its `Retry-After`. The machine and antivirus APIs take no `$select`, so computer names and IP addresses reach the collector, and no result carries them.
+
+| Check (`defender_endpoint.`…) | What passes |
+| --- | --- |
+| `device_onboarded` | `onboardingStatus` is `onboarded`; `CanBeOnboarded` (discovered, never onboarded) fails; `Unsupported` and `InsufficientInfo` are skipped |
+| `sensor_healthy` | `healthStatus` is `Active` and `lastSeen` (the last full device report) within `--defender-seen-days` |
+| `av_active_mode` | `avMode` is `0` (Active); `2` (Disabled) fails; `1`, `4` and `5` (Passive, EDRBlocked, PassiveAudit) fail unless `--defender-allow-passive` |
+| `av_signatures_current` | `avIsSignatureUpToDate` and `avIsEngineUpToDate` are both `True` |
+| `high_exposure_devices` | At most `--defender-max-exposure` onboarded machines at `exposureLevel` High (one tenant result) |
+| `critical_vulnerability_devices` | At most `--defender-max-exposure` machines with a `Critical` vulnerability; the detail counts those a missing Microsoft update fixes (`fixingKbId`) |
+| `tamper_protection` | The "Turn on Tamper Protection" security recommendation lists 0 exposed machines; skipped when the recommendation is not listed |
+
+Real-time protection has no check. No documented field of these APIs reports it (`avMode` is the antivirus mode, not the real-time setting), and the collector does not guess from undocumented columns. The antivirus checks report once per machine in the health export, which covers Windows, macOS and Linux (`osKind`).
+
+### This Windows PC (`windows`)
+
+For a firm with no device management, which for a small Canadian defence supplier usually means Windows laptops without Intune. The source reads the Windows 10 or 11 PC the collector runs on, through Windows PowerShell 5.1 (`powershell.exe -NoProfile -NonInteractive -EncodedCommand`) and `whoami.exe`. It is the Windows counterpart of `macos`: no credential, no network call, nothing written to the PC, and it runs as the signed-in user. Off Windows, every check is skipped.
+
+Every command, field and value was written on 2026-10-20 from Microsoft Learn, each page cited with its last-updated date in the header of `src/sources/windows.ts` and in the catalogue's `notes`. Sagentix ran it on 2026-10-20 on a Windows 11 Pro 25H2 PC (build 26200, a Parallels VM), as a standard user and elevated, and checked each result against the same cmdlets run by hand; `test/windows.test.ts` uses outputs shaped from those pages' examples.
+
+Two checks need an administrator, and Microsoft says so: `Get-BitLockerVolume` reads `Win32_EncryptableVolume` ("You must have administrator privileges"), and `Confirm-SecureBootUEFI` "requires that Windows PowerShell be run in administrator mode". No documented read works without elevation. On a standard user's run both are `skipped` with that reason; running the collector once from PowerShell opened as administrator fills them. The daily scheduled run stays unelevated.
+
+**Options:** `--windows-max-lock-seconds` (default 900), `--windows-signature-days` (default 7), `--windows-update-days` (default 35), `--windows-min-build` (default 26200: Windows 11 25H2, the oldest version Microsoft still updated for Home and Pro on 2026-10-20; an Enterprise or Education firm on 24H2 sets 26100).
+
+| Check (`windows.`…) | What passes |
+| --- | --- |
+| `disk_encryption` | `Get-BitLockerVolume` on the system drive: `FullyEncrypted`, protection `On` (administrator only) |
+| `os_updates_installed` | The Windows Update Agent's `LastInstallationSuccessDate` and the newest `Get-HotFix` `InstalledOn` both within `--windows-update-days` |
+| `automatic_updates` | Policy `NoAutoUpdate` is not 1, `AUOptions` is not 1 or 2, `wuauserv` is not Disabled, Automatic Updates' `ServiceEnabled` is true |
+| `os_supported` | `Win32_OperatingSystem.BuildNumber` at or above `--windows-min-build` |
+| `malware_protection` | `Get-MpComputerStatus`: `AMRunningMode` Normal, antimalware service, antivirus and real-time protection on |
+| `malware_definitions_current` | Defender's `AntivirusSignatureLastUpdated` within `--windows-signature-days` |
+| `firewall` | `Get-NetFirewallProfile -PolicyStore ActiveStore`: Domain, Private and Public all enabled |
+| `screen_lock` | The machine inactivity limit, or a password-protected screen saver, locks within `--windows-max-lock-seconds` |
+| `auto_login_off` | Winlogon `AutoAdminLogon` is not 1 |
+| `user_not_admin` | The signed-in account's token holds no S-1-5-32-544 (`whoami /groups`) |
+| `secure_boot` | `Confirm-SecureBootUEFI` answers True (administrator only) |
+
+The PC is named by its BIOS serial (`pc serial <serial> Windows 10.0.26200`), never by its computer name or a user name. `AutoAdminLogon` is read alone, never the `DefaultUserName` or `DefaultPassword` values beside it; the Administrators group is counted, never listed. Error messages are cut to 160 characters, with any `C:\Users\<name>` path and email address removed.
+
+```powershell
+node src/cli.ts run --source windows --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
+```
+
+sos-app's "Connect your environment" screen generates `sagentix-collector.ps1` and a scheduled task for the signed-in user (`Register-ScheduledTask`, daily at 06:17 with `-StartWhenAvailable`), run with `-ExecutionPolicy Bypass` for that one process, since Restricted is the Windows client default. The application scanners are not offered on Windows: their steps are bash.
 
 ## Websites and APIs by URL (`web`)
 
@@ -616,8 +726,9 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 - `src/catalog.ts`: reads `apps/sos-app/src/data/checks/*.json`.
 - `src/sources/index.ts`: the list of sources. A new source is a file in `src/sources/` that exports `{ name, options, emits, describe, run }`, plus one line in this list, plus its catalogue JSON in sos-app.
 - `src/sources/cloudflare.ts` and `src/sources/cloudflare/`: the API client (GET only), zone and account checks, and the OPA sub-source.
-- `src/sources/entra.ts`, `okta.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources; `readonly_http.ts` (GET-only client, retry, pagination, redaction) and `oauth.ts` (token requests) serve all four; `google_oauth.ts` and `src/google_login.ts` are Google's browser sign-in and its token file (`test/google_oauth.test.ts`). Their tests are `test/{entra,okta,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
-- `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf}.test.ts`.
+- `src/sources/entra.ts`, `okta.ts`, `jumpcloud.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources (JumpCloud also reads devices, with `device_common.ts`); `readonly_http.ts` (GET-only client, retry, pagination, redaction) serves all five and `oauth.ts` (token requests) serves Entra ID and Google; `google_oauth.ts` and `src/google_login.ts` are Google's browser sign-in and its token file (`test/google_oauth.test.ts`). Their tests are `test/{entra,okta,jumpcloud,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
+- `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`, `kandji.ts`, `defender_endpoint.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf,kandji,defender_endpoint}.test.ts`.
+- `src/sources/macos.ts` and `windows.ts`: the Mac or Windows PC the collector runs on, read with the operating system's own tools through an injectable command runner; also listed through `device_sources.ts`, tested in `test/{macos,windows}.test.ts` with fake runners.
 - `src/v1/`: the v1 FedRAMP push behind `--fedramp-target`.
 - `src/sources/prowler.ts` and `runner/`: Prowler as an engine (`--source prowler`) and the container that runs it; see `runner/README.md`. More than 5,000 results (or 4 MB) go out as several signed pushes, each with its own nonce.
 - `src/sources/stig.ts`, `kubescape.ts`, `checkov.ts`: Cinc Auditor with MITRE's DISA STIG profiles (`--source stig`, which runs `cinc-auditor` over SSH or WinRM, or reads an InSpec report), and the Kubescape and Checkov report readers; listed through `engines.ts`, documented in `runner/README.md`, tested in `test/host_iac_engines.test.ts` with hand-built reports. Their catalogues (`stig_<profile>.json`, `kubescape.json`, `checkov.json`) come from `apps/sos-app/scripts/build_{stig,kubescape,checkov}_catalog.py`.

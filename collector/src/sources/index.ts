@@ -3,6 +3,7 @@ import type { Source } from "../types.ts";
 import { cloudflare } from "./cloudflare.ts";
 import { entra } from "./entra.ts";
 import { okta } from "./okta.ts";
+import { jumpcloud } from "./jumpcloud.ts";
 import { googleWorkspace } from "./google_workspace.ts";
 import { github } from "./github.ts";
 import { aws } from "./aws.ts";
@@ -17,7 +18,7 @@ import { web } from "./web.ts";
 
 export const SOURCES: readonly Source[] = [
   cloudflare,
-  entra, okta, googleWorkspace, github,
+  entra, okta, jumpcloud, googleWorkspace, github,
   aws, azure, gcp, jira, lms,
   prowler,
   ...ENGINE_SOURCES,

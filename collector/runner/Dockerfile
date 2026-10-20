@@ -263,5 +263,6 @@ RUN trivy --version && syft version && grype version && gitleaks version && scor
     && for a in /opt/sagentix/stig/*.tar.gz; do tar -tzf "$a" inspec.lock >/dev/null; done \
     && /opt/scubagoggles/bin/python -c "from scubagoggles.config import UserConfig; from scubagoggles.run_rego import find_opa; print('scubagoggles uses', find_opa(UserConfig().opa_dir))"
 WORKDIR /opt/sagentix/collector
-ENTRYPOINT ["node", "src/cli.ts"]
+# An absolute path: `docker run -w /work` (the Docker google-login line sos-app generates) moves the working directory.
+ENTRYPOINT ["node", "/opt/sagentix/collector/src/cli.ts"]
 CMD ["--help"]

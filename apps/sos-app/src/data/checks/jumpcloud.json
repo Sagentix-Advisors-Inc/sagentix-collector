@@ -1,0 +1,70 @@
+{
+ "source": "jumpcloud",
+ "title": "JumpCloud (API v1 and v2, API key of a Read Only administrator)",
+ "readScopes": [
+  "The API key of a JumpCloud administrator who holds only the Read Only role (JUMPCLOUD_API_KEY, sent as x-api-key). API access is off for every new administrator; an Administrator with Billing turns it on (Settings > Administrators > Enable API access). The key carries its administrator's role.",
+  "Endpoints, GET only: /api/organizations and /api/organizations/{id} (organizations.readonly), /api/v2/organizations/{id}/administratorlinks (organizations.readonly), /api/systemusers (users.readonly), /api/v2/authn/policies (authn.readonly), /api/systems (systems.readonly)."
+ ],
+ "checks": [
+  {
+   "id": "jumpcloud.users_mfa_enrolled",
+   "title": "Every active user is enrolled in MFA (TOTP, Push or WebAuthn)",
+   "scope": "Users in state ACTIVATED and not suspended, from mfaEnrollment (overallStatus, totpStatus, pushStatus, webAuthnStatus) or else totp_enabled; staged and suspended users are counted in the detail, not judged.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "jumpcloud.users_mfa_required",
+   "title": "Every active user must use MFA on the User Portal",
+   "scope": "From each user's enable_user_portal_multifactor. Users without it are skipped, not failed, when an enabled User Portal authentication policy requires MFA, because the check does not resolve which user groups a policy covers.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.policies_require_mfa",
+   "title": "Every enabled allow authentication (conditional access) policy requires MFA",
+   "scope": "Policies not disabled and not monitor-only, with effect.action allow, of every type (User Portal, SSO applications, LDAP, Admin Portal); a policy that lets a trusted network sign in with a password alone fails. Skipped when no such policy exists.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.admin_mfa_required",
+   "title": "MFA is required for every Admin Portal login",
+   "scope": "The organization setting requireAdminMFA. Admins who sign in with Google use the Google account's MFA instead, which is not visible here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.admins_limited",
+   "title": "Administrators are limited to --jumpcloud-max-admins accounts, every role counted",
+   "scope": "Every administrator linked to the organization, whatever the role, the collector's own Read Only account included; roles are not readable through the API.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.password_policy",
+   "title": "The organization's password policy sets a minimum length of --jumpcloud-min-password-length or more",
+   "scope": "The default policy in organization settings (passwordPolicy.enableMinLength and minLength); custom password policies for user groups are not listed by the API and are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.account_lockout",
+   "title": "The organization's password policy locks an account after 1 to 10 failed attempts",
+   "scope": "The default policy (passwordPolicy.enableMaxLoginAttempts and maxLoginAttempts); lockoutTimeInSeconds is reported, not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.device_encrypted",
+   "title": "Each device reports full disk encryption as active (FileVault or BitLocker)",
+   "scope": "Every device with the JumpCloud agent, one result per device, from fde.active; a device that does not report it is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.device_os_minimum",
+   "title": "Each device runs an OS at or above the given minimum version",
+   "scope": "Every device, against --jumpcloud-min-os per platform (macos, windows, linux) from osVersionDetail or version; without that option the check is skipped. How Windows builds appear in osVersionDetail is not stated in the reference [Unverified].",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "jumpcloud.device_last_contact",
+   "title": "Each device has contacted JumpCloud within the last 14 days",
+   "scope": "Every device, from lastContact; the window is --jumpcloud-contact-days.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

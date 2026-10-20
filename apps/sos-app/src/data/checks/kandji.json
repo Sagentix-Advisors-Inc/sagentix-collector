@@ -1,0 +1,63 @@
+{
+ "source": "kandji",
+ "title": "Iru Endpoint Management, formerly Kandji (Enterprise API, API token with GET permissions only)",
+ "readScopes": [
+  "An Iru Endpoint Management API token (Settings > Access > Add API Token) whose permissions are these five GET endpoints only: GET /api/v1/devices (List Devices), GET /api/v1/devices/{device_id}/status (Get Device Status), GET /api/v1/prism/application_firewall, GET /api/v1/prism/gatekeeper_and_xprotect and GET /api/v1/prism/startup_settings. The token is KANDJI_API_TOKEN; the tenant API URL (https://<subdomain>.api.kandji.io, or .api.eu.kandji.io in the EU) is KANDJI_API_URL."
+ ],
+ "checks": [
+  {
+   "id": "kandji.filevault",
+   "title": "Each Mac has FileVault on",
+   "scope": "Every Mac in the tenant, one result per Mac, from List Devices filtered by filevault_enabled=true and =false; a Mac in neither list is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.os_minimum",
+   "title": "Each Mac runs macOS at or above the given minimum version",
+   "scope": "Every Mac, from os_version against --kandji-min-os; without that option the check is skipped. Apple's support dates are not looked up.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.last_checkin",
+   "title": "Each Mac's agent has checked in within the last 14 days",
+   "scope": "Every Mac, from last_check_in (the agent check-in); the window is --kandji-checkin-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.managed",
+   "title": "Each Mac is enrolled in MDM",
+   "scope": "Every Mac, from mdm_enabled in List Devices.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.library_items",
+   "title": "No Blueprint library item on the Mac is in error or failed to install",
+   "scope": "Every Mac, from Get Device Status library_items: ERROR or failed fails, PASS or success passes; pending, excluded, available and incompatible items are not judged, and a Mac with none judged is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.parameters",
+   "title": "No Blueprint parameter on the Mac fails its audit",
+   "scope": "Every Mac, from Get Device Status parameters: ERROR (audit failure) or WARNING (a muted alert) fails, PASS or REMEDIATED passes; pending and incompatible parameters are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.firewall",
+   "title": "The macOS application firewall is on",
+   "scope": "Every Mac with a row in Prism's Application firewall category, from its status field; a Mac with no row is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.gatekeeper",
+   "title": "Gatekeeper is on",
+   "scope": "Every Mac with a row in Prism's Gatekeeper and XProtect category, from gatekeeper_status. XProtect's version is not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.sip",
+   "title": "System Integrity Protection is enabled",
+   "scope": "Every Mac with a row in Prism's Startup settings category, from sip.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}
