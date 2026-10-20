@@ -1,0 +1,3 @@
+# Every path in the public mirror is owned by Sagentix's organization owner (Sagentix, 2026-10-19). A fix lands in
+# the private tree first and reaches this mirror with collector/scripts/sync-public-repo.sh (RELEASING.md).
+*  @stephaneraby1
