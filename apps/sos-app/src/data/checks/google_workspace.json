@@ -3,7 +3,8 @@
  "title": "Google Workspace (Admin SDK, service account with domain-wide delegation and read-only scopes)",
  "readScopes": [
   "https://www.googleapis.com/auth/admin.directory.user.readonly",
-  "https://www.googleapis.com/auth/admin.reports.audit.readonly"
+  "https://www.googleapis.com/auth/admin.reports.audit.readonly",
+  "https://www.googleapis.com/auth/cloud-identity.policies.readonly"
  ],
  "checks": [
   {
@@ -41,6 +42,12 @@
    "title": "The Admin console audit (Reports API) is readable and not empty",
    "scope": "Admin activity only; retention and export to a SIEM are not visible.",
    "evidenceType": "Audit Record"
+  },
+  {
+   "id": "google_workspace.drive_external_sharing_restricted",
+   "title": "No Drive sharing policy lets users make files visible to anyone with the link",
+   "scope": "Every drive_and_docs.external_sharing policy the Cloud Identity Policy API lists, org unit or group: external_sharing_mode DISALLOWED or ALLOWLISTED_DOMAINS, or allow_publishing_files false; an absent field counts as Google's default (ALLOWED, true). Sharing with named outside Google accounts is reported, not judged, and files already shared are not reviewed.",
+   "evidenceType": "Configuration"
   }
  ]
 }

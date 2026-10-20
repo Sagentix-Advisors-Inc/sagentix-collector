@@ -12,6 +12,12 @@
       "file": "collector/src/sources/web.ts",
       "reason": "realWebClient().tls opens a handshake with rejectUnauthorized: false only to read the certificate and judge it: certificate_valid reads socket.authorized and authorizationError (chain and host name) and fails when either is wrong. Nothing is sent on that socket; it is closed right after secureConnect. Every HTTP request of the source goes through fetch with normal verification.",
       "date": "2026-10-18"
+    },
+    {
+      "rule": "js/http-to-file-access",
+      "file": "collector/src/sources/google_oauth.ts",
+      "reason": "writeTokenFile stores the refresh token that Google's token endpoint returned to `collector google-login`; keeping it is the point of that one-time sign-in. The file is created with mode 0600 (flag wx, then one rename) and holds only type, client_id, refresh_token, scopes and a date; readTokenFile refuses it when group or other can read it. The access token is never written.",
+      "date": "2026-10-20"
     }
   ]
 }

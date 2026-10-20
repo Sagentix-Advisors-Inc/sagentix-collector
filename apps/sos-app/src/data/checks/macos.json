@@ -42,7 +42,7 @@
   {
    "id": "macos.firewall",
    "title": "The macOS application firewall is on",
-   "scope": "socketfilterfw --getglobalstate; its rules are not judged.",
+   "scope": "socketfilterfw --getglobalstate; its rules are not judged. A network firewall in front of the Mac is not shown.",
    "evidenceType": "Configuration"
   },
   {

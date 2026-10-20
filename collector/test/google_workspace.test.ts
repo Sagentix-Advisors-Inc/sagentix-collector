@@ -5,13 +5,16 @@ import { generateKeyPairSync, verify } from "node:crypto";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ADMIN_BASE, GOOGLE_SCOPES, googleFromEnv, googleWorkspace, isGoogleTokenUri } from "../src/sources/google_workspace.ts";
+import { ADMIN_BASE, GOOGLE_SCOPES, POLICY_BASE, POLICY_SCOPE, driveSharingCheck, googleFromEnv, googlePolicyFromEnv, googleWorkspace, isGoogleTokenUri } from "../src/sources/google_workspace.ts";
 import { googleAssertion } from "../src/sources/oauth.ts";
 import { contractSuite, daysAgo, fakeRest, of, res, runWith, type Contract, type Routes } from "./rest_fakes.ts";
 
 const USERS = "/admin/directory/v1/users?customer=my_customer&maxResults=500&projection=basic";
 const REPORT = "/admin/reports/v1/activity/users/all/applications/admin";
 const ok = (b: unknown) => res(200, b);
+const POLICIES = `${POLICY_BASE}/v1/policies?pageSize=100&filter=${encodeURIComponent("setting.type.matches('drive_and_docs.external_sharing$')")}`;
+const sharing = (orgUnit: string, value: Record<string, unknown>, type = "ADMIN") =>
+  ({ name: `policies/${orgUnit}`, customer: "customers/C0123", type, policyQuery: { orgUnit: `orgUnits/${orgUnit}`, sortOrder: 1 }, setting: { type: "settings/drive_and_docs.external_sharing", value } });
 const user = (id: string, o: Record<string, unknown> = {}) => ({ id, primaryEmail: `${id}@example.com`, isEnrolledIn2Sv: true, isEnforcedIn2Sv: true, isAdmin: false, suspended: false, archived: false, creationTime: daysAgo(400), lastLoginTime: daysAgo(3), ...o });
 
 function users(page1: unknown[], page2: unknown[]): Routes {
@@ -25,6 +28,7 @@ function strong(): Routes {
   return {
     ...users([user("1", { isAdmin: true }), user("2")], [user("3", { isDelegatedAdmin: true }), user("4", { suspended: true, isEnrolledIn2Sv: false, lastLoginTime: "1970-01-01T00:00:00.000Z" })]),
     [REPORT]: ok({ kind: "admin#reports#activities", items: [{ id: { time: daysAgo(0), applicationName: "admin" } }] }),
+    [POLICIES]: ok({ policies: [sharing("root", { externalSharingMode: "ALLOWLISTED_DOMAINS" }), sharing("sales", { externalSharingMode: "ALLOWED", allowPublishingFiles: false })] }),
   };
 }
 
@@ -38,6 +42,7 @@ const C: Contract = {
     super_admins_limited: users(["1", "2", "3", "4", "5"].map((i) => user(i, { isAdmin: true })), []),
     inactive_users: users([user("1", { isAdmin: true }), user("2", { lastLoginTime: daysAgo(200) })], [user("3", { lastLoginTime: "1970-01-01T00:00:00.000Z", creationTime: daysAgo(300) })]),
     audit_reports_available: { [REPORT]: ok({ kind: "admin#reports#activities" }) },
+    drive_external_sharing_restricted: { [POLICIES]: ok({ policies: [sharing("root", { externalSharingMode: "DISALLOWED" }), sharing("eng", { externalSharingMode: "ALLOWED" })] }) },
   },
 };
 
@@ -116,4 +121,56 @@ test("google_workspace: the fetch client exchanges the assertion once, then only
 test("a key file whose token_uri leaves googleapis.com over HTTPS is refused before any request", () => {
   for (const bad of ["https://evil.example/token", "http://oauth2.googleapis.com/token", "https://oauth2.googleapis.com.evil.example/token"]) assert.equal(isGoogleTokenUri(bad), false, bad);
   assert.equal(isGoogleTokenUri("https://oauth2.googleapis.com/token"), true);
+});
+
+test("google_workspace: Drive sharing reads every policy page; Google's defaults (ALLOWED, publishing on) count when a field or every policy is absent", async () => {
+  const calls: string[] = [];
+  const api = fakeRest(ADMIN_BASE, {
+    [POLICIES]: ok({ policies: [sharing("root", { external_sharing_mode: "DISALLOWED" }, "SYSTEM")], nextPageToken: "p2" }),
+    [`${POLICIES}&pageToken=p2`]: ok({ policies: [sharing("eng", { external_sharing_mode: "ALLOWED", allow_publishing_files: true, allow_non_google_invites: true })] }),
+  }, calls);
+  const [r] = await driveSharingCheck(api, "my_customer");
+  assert.ok(calls.includes(`${POLICIES}&pageToken=p2`));
+  assert.equal(r.result, "fail");
+  assert.match(r.detail, /2 drive_and_docs\.external_sharing policies \(1 set by an admin\); external_sharing_mode DISALLOWED 1, ALLOWED 1; 1 let users .* \(orgUnits\/eng\); 1 allow sharing with people who have no Google account/);
+  const [none] = await driveSharingCheck(fakeRest(ADMIN_BASE, { [POLICIES]: ok({}) }), "my_customer");
+  assert.equal(none.result, "fail");
+  assert.match(none.detail, /Google's defaults apply/);
+  const other: string[] = [];
+  await driveSharingCheck(fakeRest(ADMIN_BASE, {}, other), "C0123");
+  assert.ok(decodeURIComponent(other[0]).endsWith(`&& customer == "customers/C0123"`), other[0]);
+});
+
+test("google_workspace: a policy read refused (scope not delegated, or not a super administrator) skips Drive sharing alone", async () => {
+  const rs = await runWith(C, fakeRest(ADMIN_BASE, { ...strong(), [POLICIES]: res(403, { error: { code: 403, message: "The caller does not have permission" } }) }));
+  const d = of(rs, "google_workspace.drive_external_sharing_restricted")[0];
+  assert.equal(d.result, "skipped");
+  assert.match(d.detail, /HTTP 403.*cloud-identity\.policies\.readonly in domain-wide delegation and a super administrator/);
+  for (const r of rs.filter((x) => x.check !== d.check)) assert.equal(r.result, "pass", r.check);
+  // A client that cannot be built (no key file) skips Drive sharing with the reason.
+  const s =await googleWorkspace.run({ opts: {}, env: {}, clients: { google: fakeRest(ADMIN_BASE, strong()), googlePolicy: "GOOGLE_SA_KEY_FILE and GOOGLE_ADMIN_EMAIL are not both set" }, now: new Date(), warn: () => {} });
+  assert.equal(of(s, "google_workspace.drive_external_sharing_restricted")[0].result, "skipped");
+});
+
+test("google_workspace: the policy token asks for the one read-only Cloud Identity scope, as GOOGLE_POLICY_ADMIN_EMAIL when set, and only GETs", async () => {
+  const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const dir = mkdtempSync(join(tmpdir(), "collector-gws-policy-"));
+  const keyFile = join(dir, "sa.json");
+  writeFileSync(keyFile, JSON.stringify({ type: "service_account", client_email: "c@p.iam.gserviceaccount.com", private_key: privateKey.export({ type: "pkcs8", format: "pem" }).toString() }));
+  const seen: { url: string; method: string; body?: string }[] = [];
+  const fetchFn = (async (url: string, init: RequestInit) => {
+    seen.push({ url, method: String(init.method), body: init.body as string | undefined });
+    if (url.endsWith("/token")) return new Response(JSON.stringify({ access_token: "ya29.policy-token-0042", expires_in: 3599 }), { status: 200 });
+    return new Response(JSON.stringify({ policies: [] }), { status: 200 });
+  }) as unknown as typeof fetch;
+  const api = googlePolicyFromEnv({ GOOGLE_SA_KEY_FILE: keyFile, GOOGLE_ADMIN_EMAIL: "reader@example.com", GOOGLE_POLICY_ADMIN_EMAIL: "super@example.com" }, fetchFn);
+  assert.ok(typeof api !== "string", String(api));
+  await driveSharingCheck(api, "my_customer");
+  const claims = JSON.parse(Buffer.from(new URLSearchParams(seen[0].body!).get("assertion")!.split(".")[1], "base64url").toString());
+  assert.equal(claims.scope, POLICY_SCOPE);
+  assert.equal(claims.sub, "super@example.com");
+  assert.equal(seen[1].method, "GET");
+  assert.ok(seen[1].url.startsWith(`${POLICY_BASE}/v1/policies?`), seen[1].url);
+  // A next-page link to another origin is refused before the token is sent.
+  assert.equal((await api.get("https://evil.example/v1/policies")).status, 0);
 });

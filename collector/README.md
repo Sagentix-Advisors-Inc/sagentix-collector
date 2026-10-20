@@ -2,7 +2,7 @@
 
 The collector runs in the customer's own CI. It reads the customer's systems with read-only credentials, runs checks, signs what it saw with an Ed25519 key and pushes the result to sos-app at `POST /api/collect`. sos-app maps each check to NIST SP 800-53 Rev. 5 controls and FedRAMP 20x KSIs itself. The collector reads the check list in `apps/sos-app/src/data/checks/<source>.json`, so it sends only check ids sos-app knows.
 
-Version 0.2.0 has 27 sources and 2,728 checks in its catalogue (counted from `src/sources/index.ts` on 2026-10-18). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 122 checks alone give evidence for 62 of the 585 SP 800-53 Rev. 5 controls sos-app tracks; policies cover 20 more, and the rest are procedures a person describes.
+Version 0.2.0 has 27 sources and 2,731 checks in its catalogue (counted from `src/sources/index.ts` on 2026-10-20). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 134 checks alone name 80 of the 610 SP 800-53 Rev. 5 controls and enhancements sos-app tracks (58 distinct base controls, counted 2026-10-20); policies cover 20 more, and the rest are procedures a person describes.
 
 ## Data flow
 
@@ -341,7 +341,7 @@ node src/cli.ts run --source lms --training-csv lms-export.csv --roster-csv rost
 
 ## Identity and code sources
 
-Four sources read who can sign in and how code changes: `entra`, `okta`, `google_workspace` and `github`. They share `src/sources/readonly_http.ts`, a client with a GET method and nothing else. It refuses a next-page link that points at another origin, so a token never leaves the API it was made for. A 429 is retried up to four times, and so are GitHub's 403 with `x-ratelimit-remaining: 0` and Google's 403 `rateLimitExceeded`; the wait comes from `Retry-After`, Okta's `X-Rate-Limit-Reset` or GitHub's `x-ratelimit-reset` (capped at 60 s). Should an API ever echo the credential, the client cuts it out of the response before parsing, and every source scrubs its secret variables from results as well. The only POSTs are the OAuth token requests for Entra ID and Google, in `src/sources/oauth.ts`; neither adds an npm dependency.
+Four sources read who can sign in and how code changes: `entra`, `okta`, `google_workspace` and `github`. They share `src/sources/readonly_http.ts`, a client with a GET method and nothing else. It refuses a next-page link that points at another origin, so a token never leaves the API it was made for. A 429 is retried up to four times, and so are GitHub's 403 with `x-ratelimit-remaining: 0` and Google's 403 `rateLimitExceeded`; the wait comes from `Retry-After`, Okta's `X-Rate-Limit-Reset` or GitHub's `x-ratelimit-reset` (capped at 60 s). Should an API ever echo the credential, the client cuts it out of the response before parsing, and every source scrubs its secret variables from results as well. The only POSTs are the OAuth token requests for Entra ID and Google, in `src/sources/oauth.ts`; neither adds an npm dependency. `collector google-login` adds the one listener the collector ever opens: on 127.0.0.1, for a single sign-in redirect, never during `run`.
 
 Personal data stays out. A result carries counts and the vendor's opaque ids (Entra object id, Okta user id, Google user id, GitHub numeric user id), at most ten per failing detail. No result holds a user principal name, email address, login or display name, even in a failing detail. An assessor who needs the person looks the id up in the tenant.
 
@@ -409,9 +409,30 @@ A global session policy that leaves MFA to the app sign-in policies fails `globa
 
 ### Google Workspace
 
-**Create:** a Google Cloud service account with a JSON key, enable the Admin SDK API in its project, then in the Admin console (Security → API controls → Domain-wide delegation) authorize its client id for exactly `https://www.googleapis.com/auth/admin.directory.user.readonly` and `https://www.googleapis.com/auth/admin.reports.audit.readonly`. The account acts as `GOOGLE_ADMIN_EMAIL`; give that user a custom admin role with read-only Users and Reports privileges, not super admin.
+Two ways in, both with the same two read-only scopes, `https://www.googleapis.com/auth/admin.directory.user.readonly` and `https://www.googleapis.com/auth/admin.reports.audit.readonly`. On a server, in Docker or on a Mac, use the browser sign-in: it needs no service-account key. Google Cloud organizations created since 2024 refuse key creation by default (`constraints/iam.disableServiceAccountKeyCreation`), so the key path there needs an org-policy exception first. GitHub Actions cannot open a browser and stays on the key.
 
-**Env:** `GOOGLE_SA_KEY_FILE` (the JSON key), `GOOGLE_ADMIN_EMAIL`, `GOOGLE_CUSTOMER_ID` (default `my_customer`).
+**Browser sign-in (no key).** A Workspace admin signs in once; the collector keeps the refresh token in a file of mode 0600 and gets each access token from it in memory. The OAuth client is yours, in your own Google Cloud project, so no Sagentix app ever holds access to your tenant. The console pages below were checked on 2026-10-20 against the Google guides that link them (each asks you to sign in first).
+
+1. Create a project in your organization, or pick one: <https://console.cloud.google.com/projectcreate>. Its location must be your organization, because only a project inside a Google Cloud organization can have an Internal consent screen.
+2. Enable the Admin SDK API in it: <https://console.cloud.google.com/apis/enableflow;apiid=admin.googleapis.com>.
+3. Set up the consent screen: <https://console.cloud.google.com/auth/branding>, then **Get started**. Give an app name and a support email, choose **Internal** under Audience, give a contact email, accept the user data policy, then **Create**. No test users and no scopes to add here.
+4. Create the client: <https://console.cloud.google.com/auth/clients>, **Create client**, application type **Desktop app**, any name, **Create**, then download the JSON. Save it as `google-oauth-client.json` beside the collector's config and run `chmod 600` on it. Google calls a desktop client's secret non-confidential; the file still stays off shared drives.
+5. Choose who signs in: a super admin, or better a user holding a custom admin role with read-only Users and Reports privileges (<https://admin.google.com/ac/roles>).
+6. If your Admin console restricts which apps reach Google data (Security → Access and data control → API controls, <https://admin.google.com/ac/owl>), mark this client **Trusted**, or tick **Trust internal apps** under Settings.
+7. Sign in once, from the collector's folder: `node src/cli.ts google-login --client google-oauth-client.json --token sagentix-google-token.json`. The browser opens Google's consent page; sign in as the admin from step 5 and allow both scopes. The command prints where it wrote the token, never the token. If a box was left unticked it writes nothing and says which scope is missing.
+8. Run as usual, with `GOOGLE_OAUTH_CLIENT_FILE=google-oauth-client.json` and, if you moved it, `GOOGLE_OAUTH_TOKEN_FILE` (default `sagentix-google-token.json` in the folder the collector runs from). Leave `GOOGLE_SA_KEY_FILE` unset; when it is set, the service account wins.
+
+A server with no browser: from your computer, `ssh -L 8765:127.0.0.1:8765 <server>`, then on the server `google-login … --port 8765 --no-browser`, and open the address it prints in your computer's browser. The listener answers only on 127.0.0.1, only the one redirect whose `state` matches, and stops after it (or after five minutes).
+
+How long the sign-in lasts. Google states the 7-day refresh-token expiry for a consent screen of user type External in Testing status ("Refresh token expiration", <https://developers.google.com/identity/protocols/oauth2>, updated 2026-10-16); Google's consent-screen guide asks for test users only when the user type is External (<https://developers.google.com/workspace/guides/configure-oauth-consent>), and an Internal app needs no verification and sees no 100-user cap ("Internal Use apps", <https://support.google.com/cloud/answer/13464323>). No Google page read on 2026-10-20 states a fixed lifetime for an Internal app's token, so this is read from what the 7-day rule names, not from a promise. A token still stops when the admin revokes it (<https://myaccount.google.com/connections>), after six months unused (a daily run keeps it alive), when the account passes 100 refresh tokens for the client (each `google-login` makes one), or when an admin restricts the service. Each case then answers `invalid_grant`, every Google check reports `skipped` with "run `collector google-login` again", and running it again mends it. The token file is refused if group or other can read it, if it was made with another client, or if it lacks a scope the collector now asks for.
+
+The flow is OAuth 2.0 for installed apps (<https://developers.google.com/identity/protocols/oauth2/native-app>, updated 2026-10-16): loopback redirect `http://127.0.0.1:<port>`, PKCE with S256, `prompt=consent` so each sign-in returns a new refresh token. The endpoints are fixed in `src/sources/google_oauth.ts`; the client file's own `auth_uri` and `token_uri` are not read.
+
+**Service account (GitHub Actions, or a key you already have).** Create a Google Cloud service account with a JSON key, enable the Admin SDK API in its project, then in the Admin console (Security → API controls → Domain-wide delegation) authorize its client id for exactly the two scopes above. The account acts as `GOOGLE_ADMIN_EMAIL`; give that user a custom admin role with read-only Users and Reports privileges, not super admin.
+
+**Optional, Drive sharing:** `drive_external_sharing_restricted` reads the Cloud Identity Policy API, the only read-only API that shows Drive's sharing settings. Google states that "only a super administrator can use the Cloud Identity Policy API" (docs.cloud.google.com/identity/docs/concepts/overview-policies, read 2026-10-20). To run it with the service account, enable the Cloud Identity API in its project, add `https://www.googleapis.com/auth/cloud-identity.policies.readonly` to the same domain-wide delegation entry, and set `GOOGLE_POLICY_ADMIN_EMAIL` to a super administrator (default: `GOOGLE_ADMIN_EMAIL`). The collector asks for that scope in a token of its own, which holds no other scope, so an install without it keeps the six checks above and gets this one `skipped`, with the reason. The browser sign-in does not ask for that scope (2026-10-20), so with it this check reports `skipped`.
+
+**Env:** browser sign-in: `GOOGLE_OAUTH_CLIENT_FILE`, `GOOGLE_OAUTH_TOKEN_FILE` (optional). Service account: `GOOGLE_SA_KEY_FILE` (the JSON key), `GOOGLE_ADMIN_EMAIL`. Both: `GOOGLE_CUSTOMER_ID` (default `my_customer`), `GOOGLE_POLICY_ADMIN_EMAIL` (optional, service account only).
 
 **Options:** `--google-max-super-admins` (default 4), `--google-stale-days` (default 90).
 
@@ -428,12 +449,13 @@ node src/cli.ts run --source google_workspace \
 | `super_admins_limited` | At most `--google-max-super-admins` active super admins |
 | `inactive_users` | No active user without a sign-in for `--google-stale-days` days; suspended and archived users are counted, not judged |
 | `audit_reports_available` | The Admin console audit (Reports API, `admin` application) is readable and not empty |
+| `drive_external_sharing_restricted` | Every `drive_and_docs.external_sharing` policy sets `external_sharing_mode` to `DISALLOWED` or `ALLOWLISTED_DOMAINS`, or `allow_publishing_files` to false; an absent field is Google's default (`ALLOWED`, true), and no policy at all fails |
 
 Left out: enforcement of security keys as the only second factor. The Directory and Reports APIs do not expose it.
 
 ### GitHub
 
-**Create:** a fine-grained personal access token owned by an organization owner, scoped to the organization and all its repositories, with *read* on Organization **Administration** and **Members**, and Repository **Metadata**, **Administration**, **Contents**, **Dependabot alerts** and **Code scanning alerts**. A GitHub App installation token with the same read permissions works too. Two fields show only to privileged callers: `two_factor_requirement_enabled` to organization owners, `security_and_analysis` to repository admins. A token whose owner lacks the role gets `skipped` for those checks.
+**Create:** a fine-grained personal access token owned by an organization owner, scoped to the organization and all its repositories, with *read* on Organization **Administration** and **Members**, and Repository **Metadata**, **Administration**, **Contents**, **Dependabot alerts** and **Code scanning alerts**. A GitHub App installation token with the same read permissions works too. Some fields show only to privileged callers: `two_factor_requirement_enabled`, `default_repository_permission`, `members_can_create_public_repositories` and `members_can_change_repo_visibility` to organization owners ("To see the full details about an organization, the authenticated user must be an organization owner", docs.github.com/rest/orgs/orgs#get-an-organization, read 2026-10-20), `security_and_analysis` to repository admins. A token whose owner lacks the role gets `skipped` for those checks.
 
 **Env:** `GITHUB_TOKEN`.
 
@@ -454,6 +476,8 @@ node src/cli.ts run --source github --github-org acme \
 | `org_owners_limited` | At most `--github-max-owners` organization owners |
 | `outside_collaborators` | At most `--github-max-outside-collaborators` outside collaborators |
 | `audit_log_available` | The organization audit log is readable and not empty (Enterprise Cloud) |
+| `org_base_permission_read` | `default_repository_permission` is `read` or `none` |
+| `org_public_repos_restricted` | Members can neither create a public repository nor change a repository's visibility (`members_can_create_public_repositories` false, or creation off; `members_can_change_repo_visibility` false) |
 | `default_branch_reviews` | A pull request with ≥ 1 approving review is required |
 | `default_branch_dismiss_stale` | Stale approvals are dismissed on push |
 | `default_branch_status_checks` | At least one required status check |
@@ -466,7 +490,7 @@ node src/cli.ts run --source github --github-org acme \
 | `dependabot_aged_critical_high` | No open critical or high alert older than `--github-alert-days` days |
 | `code_scanning_enabled` | Code scanning has at least one analysis; skipped when Advanced Security is not licensed |
 
-The six organization checks report once per organization (resource `github org <org>`); the others once per repository (`repo <owner>/<name>`, or `… branch <name>` for the branch rules). With 200 repositories that is about 2,200 results and 2,000 API calls, well under the 5,000-result push limit and GitHub's 5,000 requests an hour. Left out: SAML SSO enforcement and audit log streaming, which no REST field shows for an organization.
+The eight organization checks report once per organization (resource `github org <org>`); the others once per repository (`repo <owner>/<name>`, or `… branch <name>` for the branch rules). With 200 repositories that is about 2,200 results and 2,000 API calls, well under the 5,000-result push limit and GitHub's 5,000 requests an hour. Left out: SAML SSO enforcement and audit log streaming, which no REST field shows for an organization.
 
 ## Device sources
 
@@ -592,7 +616,7 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 - `src/catalog.ts`: reads `apps/sos-app/src/data/checks/*.json`.
 - `src/sources/index.ts`: the list of sources. A new source is a file in `src/sources/` that exports `{ name, options, emits, describe, run }`, plus one line in this list, plus its catalogue JSON in sos-app.
 - `src/sources/cloudflare.ts` and `src/sources/cloudflare/`: the API client (GET only), zone and account checks, and the OPA sub-source.
-- `src/sources/entra.ts`, `okta.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources; `readonly_http.ts` (GET-only client, retry, pagination, redaction) and `oauth.ts` (token requests) serve all four. Their tests are `test/{entra,okta,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
+- `src/sources/entra.ts`, `okta.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources; `readonly_http.ts` (GET-only client, retry, pagination, redaction) and `oauth.ts` (token requests) serve all four; `google_oauth.ts` and `src/google_login.ts` are Google's browser sign-in and its token file (`test/google_oauth.test.ts`). Their tests are `test/{entra,okta,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
 - `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf}.test.ts`.
 - `src/v1/`: the v1 FedRAMP push behind `--fedramp-target`.
 - `src/sources/prowler.ts` and `runner/`: Prowler as an engine (`--source prowler`) and the container that runs it; see `runner/README.md`. More than 5,000 results (or 4 MB) go out as several signed pushes, each with its own nonce.

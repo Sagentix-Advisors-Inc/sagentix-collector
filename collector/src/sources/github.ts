@@ -3,6 +3,13 @@
 //
 // Endpoint → fine-grained permission, read (docs.github.com/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens):
 //   GET /orgs/{org}                                         none (two_factor_requirement_enabled shows to owners only)
+//     default_repository_permission ("read", "write", "admin" or "none"), members_can_create_repositories,
+//     members_can_create_public_repositories and members_can_change_repo_visibility, from "Get an organization"
+//     (docs.github.com/rest/orgs/orgs#get-an-organization, read 2026-10-20: "To see the full details about an
+//     organization, the authenticated user must be an organization owner"). The settings behind them: base
+//     permissions (docs.github.com/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization),
+//     repository creation and visibility changes (docs.github.com/organizations/managing-organization-settings/
+//     restricting-repository-creation-in-your-organization and …/restricting-repository-visibility-changes-in-your-organization), all read 2026-10-20.
 //   GET /orgs/{org}/members?role=admin|filter=2fa_disabled  Organization: Members
 //   GET /orgs/{org}/outside_collaborators                   Organization: Members
 //   GET /orgs/{org}/actions/permissions[/workflow]          Organization: Administration
@@ -32,6 +39,7 @@ export const CODEOWNERS_PATHS = [".github/CODEOWNERS", "CODEOWNERS", "docs/CODEO
 
 export const ORG_CHECKS = [
   "org_requires_2fa", "actions_token_read_only", "actions_allowed_restricted", "org_owners_limited", "outside_collaborators", "audit_log_available",
+  "org_base_permission_read", "org_public_repos_restricted",
 ] as const;
 export const REPO_CHECKS = [
   "default_branch_reviews", "default_branch_dismiss_stale", "default_branch_status_checks", "default_branch_no_force_push",
@@ -63,6 +71,7 @@ async function orgChecks(api: RestApi, o: GithubOptions, out: Emitter<C>): Promi
     const n = off && !("error" in off) ? `; ${off.items.length} member(s) without 2FA` : "";
     out.add("org_requires_2fa", tfa ? "pass" : "fail", `two_factor_requirement_enabled is ${tfa}; true required${n}`);
   }
+  orgAccessChecks(g, out);
 
   const wf = await api.get(`/orgs/${org}/actions/permissions/workflow`);
   if (!ok(wf) || !isObj(wf.body) || typeof wf.body.default_workflow_permissions !== "string") out.skip("actions_token_read_only", wf, "Actions default workflow permissions");
@@ -105,6 +114,25 @@ async function orgChecks(api: RestApi, o: GithubOptions, out: Emitter<C>): Promi
     const e = al.body[0];
     out.add("audit_log_available", e ? "pass" : "fail",
       e ? `organization audit log readable; latest event at ${eventTime(e)}` : "organization audit log readable but empty");
+  }
+}
+
+/** Base repository permission and who may make a repository public, from the same GET /orgs/{org}. */
+function orgAccessChecks(g: HttpResponse, out: Emitter<C>): void {
+  const b = ok(g) && isObj(g.body) ? g.body : undefined;
+  const hidden = (field: string) => (b ? `${field} is not shown; GitHub shows the full organization to its owners only` : `organization not readable: ${why(g)}`);
+
+  const base = b ? str(b.default_repository_permission) : undefined;
+  if (!base || !["read", "write", "admin", "none"].includes(base)) out.add("org_base_permission_read", "skipped", hidden("default_repository_permission"));
+  else out.add("org_base_permission_read", base === "read" || base === "none" ? "pass" : "fail",
+    `default_repository_permission is ${JSON.stringify(base)}; "read" or "none" required, so a member gets more only by a grant on the repository`);
+
+  const create = b?.members_can_create_repositories, pub = b?.members_can_create_public_repositories, vis = b?.members_can_change_repo_visibility;
+  if (typeof vis !== "boolean" || (typeof pub !== "boolean" && create !== false)) out.add("org_public_repos_restricted", "skipped", hidden("members_can_create_public_repositories or members_can_change_repo_visibility"));
+  else {
+    const canCreate = create !== false && pub === true;
+    out.add("org_public_repos_restricted", !canCreate && !vis ? "pass" : "fail",
+      `members_can_create_repositories ${JSON.stringify(create ?? null)}, members_can_create_public_repositories ${JSON.stringify(pub ?? null)}, members_can_change_repo_visibility ${vis}; members may neither create a public repository nor change a repository's visibility (owners always can)`);
   }
 }
 

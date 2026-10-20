@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Sagentix evidence collector. Reads the customer's systems read-only, runs checks, signs the result
-// with an Ed25519 key and pushes it OUT to sos-app. It never listens for connections, and sos-app never
-// holds the customer's credentials.
+// with an Ed25519 key and pushes it OUT to sos-app. `run` never listens for connections (only the one-time
+// `google-login` takes one redirect on 127.0.0.1), and sos-app never holds the customer's credentials.
 //
 //   collector keygen [--out <path>]
 //   collector run --config collector.config.json [any option below, which overrides the file]
 //   collector config-schema                  prints the JSON schema of the config file
+//   collector google-login --client <client JSON> [--token <file>]   one-time Google Workspace sign-in
 //   collector run --endpoint <url> --key-id <id> [--key <pem> | env SAGENTIX_COLLECTOR_KEY]
 //                 --source cloudflare[,...] [source options] [--catalog <dir>] [--dry-run] [--out <file>]
 //                 [--fedramp-target <id> [--class A|B|C|D]]
@@ -22,6 +23,7 @@ import { publicKeyFromPrivate, signBody, writeNewKey } from "./keys.ts";
 import { MAX_RESULTS, buildPayload, splitResults, vet } from "./payload.ts";
 import { SOURCES } from "./sources/index.ts";
 import { CONFIG_SCHEMA, loadConfig } from "./config.ts";
+import { googleLogin } from "./google_login.ts";
 import type { Clients, OptionValue, Result, Source } from "./types.ts";
 import { V1_COLLECT_PATH, v1Payload } from "./v1/index.ts";
 import { CLASSES, type FedClass } from "./v1/rules.ts";
@@ -75,6 +77,7 @@ function usage(sources: readonly Source[]): string {
   collector keygen [--out sagentix-collector.pem]
   collector run --config collector.config.json [options that override the file]
   collector config-schema
+  collector google-login --client <Desktop app client JSON> [--token sagentix-google-token.json] [--port <n>] [--login-hint <email>] [--no-browser]
   collector run --endpoint <url> --key-id <id> [--key <pem file>] --source ${sources.map((s) => s.name).join("|")}[,...]
                 [source options] [--catalog <checks dir>] [--dry-run] [--out <file>]
                 [--fedramp-target <id> [--class A|B|C|D] [--cpo-uri <url>]]
@@ -261,6 +264,7 @@ export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<
     if (cmd === "keygen") return keygen(rest, deps);
     if (cmd === "run") return await run(rest, deps);
     if (cmd === "config-schema") { deps.out(JSON.stringify(CONFIG_SCHEMA, null, 2)); return EXIT.ok; }
+    if (cmd === "google-login") return await googleLogin(rest, deps);
   } catch (e) {
     deps.err(String((e as Error).message ?? e));
     return EXIT.error;

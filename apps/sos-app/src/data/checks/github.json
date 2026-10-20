@@ -48,6 +48,18 @@
    "evidenceType": "Audit Record"
   },
   {
+   "id": "github.org_base_permission_read",
+   "title": "Members' base repository permission is read or none",
+   "scope": "Organization default_repository_permission (GET /orgs/{org}, shown to organization owners only; docs.github.com/rest/orgs/orgs#get-an-organization, read 2026-10-20); grants on single repositories and team permissions are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "github.org_public_repos_restricted",
+   "title": "Members cannot create public repositories or change a repository's visibility",
+   "scope": "Organization members_can_create_public_repositories and members_can_change_repo_visibility (GET /orgs/{org}, shown to organization owners only; read 2026-10-20); organization owners can always make a repository public, and what is already public is not reviewed.",
+   "evidenceType": "Configuration"
+  },
+  {
    "id": "github.default_branch_reviews",
    "title": "The default branch requires a pull request with at least one approving review",
    "scope": "Classic branch protection or an active ruleset; admins who may bypass are not judged.",

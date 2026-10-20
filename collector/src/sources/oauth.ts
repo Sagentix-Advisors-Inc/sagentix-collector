@@ -4,7 +4,8 @@
 //   Entra ID: client-credentials grant, with a client secret or a certificate-signed client assertion
 //     (PS256, x5t#S256; learn.microsoft.com/entra/identity-platform/certificate-credentials).
 //   Google:   service-account JWT bearer grant with domain-wide delegation (RS256, `sub` = the admin
-//     the account acts as; developers.google.com/identity/protocols/oauth2/service-account).
+//     the account acts as; developers.google.com/identity/protocols/oauth2/service-account), or a
+//     Workspace admin's refresh token from a one-time desktop sign-in (google_oauth.ts).
 //
 // A failed token request throws an Error whose message names the HTTP status and the provider's
 // error code, never the secret.
@@ -43,8 +44,8 @@ export function googleAssertion(key: { client_email: string; private_key: string
   );
 }
 
-/** Posts a form to a token endpoint and returns the access token. */
-export async function tokenRequest(url: string, form: Record<string, string>, fetchFn: typeof fetch = fetch): Promise<{ token: string; expiresAt: number }> {
+/** Posts a form to a token endpoint and returns the whole answer, which holds an access_token. */
+export async function tokenGrant(url: string, form: Record<string, string>, fetchFn: typeof fetch = fetch): Promise<Record<string, unknown> & { access_token: string }> {
   // A secret or a signed assertion goes in the body, so never over plain HTTP.
   if (new URL(url).protocol !== "https:") throw new Error(`token request to ${new URL(url).host} refused: not HTTPS`);
   const res = await fetchFn(url, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" }, body: new URLSearchParams(form).toString() });
@@ -54,6 +55,12 @@ export async function tokenRequest(url: string, form: Record<string, string>, fe
     const code = typeof body.error === "string" ? body.error : "no access_token";
     throw new Error(`token request to ${new URL(url).host} failed: HTTP ${res.status} ${code}`);
   }
+  return body as Record<string, unknown> & { access_token: string };
+}
+
+/** Posts a form to a token endpoint and returns the access token. */
+export async function tokenRequest(url: string, form: Record<string, string>, fetchFn: typeof fetch = fetch): Promise<{ token: string; expiresAt: number }> {
+  const body = await tokenGrant(url, form, fetchFn);
   const ttl = Number(body.expires_in);
   return { token: body.access_token, expiresAt: Date.now() + (Number.isFinite(ttl) ? ttl : 3000) * 1000 };
 }

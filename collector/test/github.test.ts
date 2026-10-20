@@ -27,9 +27,12 @@ function repoRoutes(full: string, branch: string): Routes {
   };
 }
 
+const ORG = { login: "acme", two_factor_requirement_enabled: true, default_repository_permission: "read",
+  members_can_create_repositories: true, members_can_create_public_repositories: false, members_can_create_private_repositories: true, members_can_change_repo_visibility: false };
+
 function strong(): Routes {
   return {
-    "/orgs/acme": ok({ login: "acme", two_factor_requirement_enabled: true }),
+    "/orgs/acme": ok(ORG),
     "/orgs/acme/actions/permissions/workflow": ok({ default_workflow_permissions: "read", can_approve_pull_request_reviews: false }),
     "/orgs/acme/actions/permissions": ok({ enabled_repositories: "all", allowed_actions: "selected", sha_pinning_required: true }),
     "/orgs/acme/members?role=admin&per_page=100": ok([{ id: 1, login: "owner-one" }, { id: 2, login: "owner-two" }]),
@@ -48,12 +51,14 @@ const C: Contract = {
   opts: { "github-org": "acme" }, env: { GITHUB_TOKEN: "x" },
   rateLimited: { path: "/orgs/acme/actions/permissions/workflow", check: "actions_token_read_only" },
   fails: {
-    org_requires_2fa: { "/orgs/acme": ok({ login: "acme", two_factor_requirement_enabled: false }), "/orgs/acme/members?filter=2fa_disabled&per_page=100": ok([{ id: 9 }]) },
+    org_requires_2fa: { "/orgs/acme": ok({ ...ORG, two_factor_requirement_enabled: false }), "/orgs/acme/members?filter=2fa_disabled&per_page=100": ok([{ id: 9 }]) },
     actions_token_read_only: { "/orgs/acme/actions/permissions/workflow": ok({ default_workflow_permissions: "write", can_approve_pull_request_reviews: false }) },
     actions_allowed_restricted: { "/orgs/acme/actions/permissions": ok({ enabled_repositories: "all", allowed_actions: "all" }) },
     org_owners_limited: { "/orgs/acme/members?role=admin&per_page=100": ok([1, 2, 3, 4].map((id) => ({ id }))) },
     outside_collaborators: { "/orgs/acme/outside_collaborators": ok([{ id: 77, login: "contractor" }]) },
     audit_log_available: { "/orgs/acme/audit-log": ok([]) },
+    org_base_permission_read: { "/orgs/acme": ok({ ...ORG, default_repository_permission: "write" }) },
+    org_public_repos_restricted: { "/orgs/acme": ok({ ...ORG, members_can_change_repo_visibility: true }) },
     default_branch_reviews: { [`${A}/branches/main/protection`]: ok({ ...classic, required_pull_request_reviews: { required_approving_review_count: 0 } }) },
     default_branch_dismiss_stale: { [`${A}/branches/main/protection`]: ok({ ...classic, required_pull_request_reviews: { required_approving_review_count: 1, dismiss_stale_reviews: false } }) },
     default_branch_status_checks: { [`${A}/branches/main/protection`]: ok({ ...classic, required_status_checks: null }) },
@@ -146,4 +151,20 @@ test("github: the fetch client sends GET with the bearer token and API version; 
   }
   assert.ok(!JSON.stringify(rs).includes("github_pat_11AAAAAAA0123456789"));
   for (const r of rs) assert.equal(r.result, "skipped");
+});
+
+test("github: base permission and public repositories are judged from GET /orgs/{org}, and skipped when GitHub hides them", async () => {
+  const run = (org: Record<string, unknown>) => runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme": ok(org) }));
+  const none = await run({ ...ORG, default_repository_permission: "none", members_can_create_repositories: false, members_can_create_public_repositories: undefined });
+  assert.equal(of(none, "github.org_base_permission_read")[0].result, "pass");
+  assert.equal(of(none, "github.org_public_repos_restricted")[0].result, "pass", of(none, "github.org_public_repos_restricted")[0].detail);
+  const admin = await run({ ...ORG, default_repository_permission: "admin", members_can_create_public_repositories: true });
+  assert.match(of(admin, "github.org_base_permission_read")[0].detail, /"admin"; "read" or "none" required/);
+  assert.equal(of(admin, "github.org_public_repos_restricted")[0].result, "fail");
+  // A token whose owner is not an organization owner sees the public profile only.
+  const member = await run({ login: "acme", name: "Acme" });
+  for (const id of ["github.org_base_permission_read", "github.org_public_repos_restricted"]) {
+    assert.equal(of(member, id)[0].result, "skipped");
+    assert.match(of(member, id)[0].detail, /shows the full organization to its owners only/);
+  }
 });
