@@ -2,7 +2,7 @@
 // application permissions and the client-credentials grant (the same token path as entra.ts).
 //
 // Endpoint → least-privileged application permission (each API page's Permissions table on
-// learn.microsoft.com/graph/api, read 2026-10-15):
+// learn.microsoft.com/graph/api/overview, read 2026-10-15):
 //   GET /deviceManagement/managedDevices                                   DeviceManagementManagedDevices.Read.All
 //   GET /deviceManagement/deviceCompliancePolicies                         DeviceManagementConfiguration.Read.All
 //   GET /deviceManagement/deviceCompliancePolicies/{id}/assignments        DeviceManagementConfiguration.Read.All

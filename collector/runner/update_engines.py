@@ -220,7 +220,9 @@ def edit_stig_pin(text: str, key: str, subs: list[tuple[str, str]]) -> str:
     m = re.search(rf'^    "{re.escape(key)}": \{{.*?^\s+"tarSha256": "[0-9a-f]{{64}}"\}},\n', text, re.M | re.S)
     if not m:
         raise ValueError(f"no PINS block for {key}")
-    return text[:m.start()] + substitute(m.group(0), subs) + text[m.end():]
+    # The pin moves to a tag read today, so its "read" date (cited in the catalogue's notes) moves too.
+    block = re.sub(r'"read": "\d{4}-\d{2}-\d{2}"', f'"read": "{dt.date.today().isoformat()}"', substitute(m.group(0), subs))
+    return text[:m.start()] + block + text[m.end():]
 
 
 def edit_lines(text: str, marker: str, subs: list[tuple[str, str]]) -> str:

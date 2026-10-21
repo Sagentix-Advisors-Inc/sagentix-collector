@@ -3,7 +3,8 @@
 // admin creates it under Integrations > API Access Keys with "Read-only API Key" ticked).
 //
 // Every endpoint, parameter and field below was checked in PagerDuty's published OpenAPI document
-// (github.com/PagerDuty/api-schema, reference/REST/openapiv3.json, info.version 2.0.0):
+// (github.com/PagerDuty/api-schema/blob/main/reference/REST/openapiv3.json, info.version 2.0.0; checked at
+// commit 6ab7c72, re-read 2026-10-20 at commit a684146 with the same parameters, responses and schemas):
 //   GET /incidents?since&until&statuses[]=resolved&urgencies[]&service_ids[]&limit&offset   incidents.read
 //       -> { incidents: [ { id, incident_number, created_at, resolved_at, urgency, service } ], more, offset, limit }
 //   GET /incidents/{id}/notes                       -> { notes: [ { content, created_at } ] }   incidents.read

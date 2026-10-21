@@ -2,7 +2,7 @@
 
 The collector runs in the customer's own CI. It reads the customer's systems with read-only credentials, runs checks, signs what it saw with an Ed25519 key and pushes the result to sos-app at `POST /api/collect`. sos-app maps each check to NIST SP 800-53 Rev. 5 controls and FedRAMP 20x KSIs itself. The collector reads the check list in `apps/sos-app/src/data/checks/<source>.json`, so it sends only check ids sos-app knows.
 
-Version 0.2.0 has 27 sources and 2,731 checks in its catalogue (counted from `src/sources/index.ts` on 2026-10-20). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 134 checks alone name 80 of the 610 SP 800-53 Rev. 5 controls and enhancements sos-app tracks (58 distinct base controls, counted 2026-10-20); policies cover 20 more, and the rest are procedures a person describes.
+Version 0.2.0 has 31 sources and 2,768 checks in its catalogue (counted from `src/sources/index.ts` and the catalogues on 2026-10-20, after the Windows, JumpCloud, Iru and Defender for Endpoint sources). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 134 checks alone name 80 of the 610 SP 800-53 Rev. 5 controls and enhancements sos-app tracks (58 distinct base controls, counted 2026-10-20); policies cover 20 more, and the rest are procedures a person describes.
 
 ## Data flow
 
@@ -176,7 +176,6 @@ Each check reports one result per resource: a zone, an account, a certificate pa
 | `account_enforces_2fa` | The account enforces 2FA |
 | `members_have_2fa` | Every accepted member has 2FA on |
 | `audit_log_available` | The account audit log is readable and not empty |
-| `security_level` | Security level above `essentially_off` |
 | `browser_integrity_check` | Browser Integrity Check is on |
 | `waf_custom_rules` | An enabled custom rule that blocks or challenges |
 | `rate_limiting_rules` | An enabled rule in `http_ratelimit` |
@@ -231,7 +230,7 @@ node src/cli.ts run --source aws --aws-regions us-east-1,ca-central-1 \
 | `cloudtrail_multi_region` | A multi-region CloudTrail trail is logging, with log file validation |
 | `cloudtrail_kms_encrypted` | Each CloudTrail trail encrypts its log files with a KMS key |
 | `guardduty_enabled` | GuardDuty has an enabled detector in the region |
-| `securityhub_enabled` | Security Hub is enabled in the region |
+| `securityhub_enabled` | Security Hub CSPM is enabled in the region (detail also reports AWS Security Hub) |
 | `config_recorder_on` | An AWS Config recorder is recording in the region |
 | `s3_account_public_access_block` | S3 Block Public Access is on at the account level (all four settings) |
 | `s3_bucket_encryption` | Each S3 bucket has default encryption |
@@ -349,13 +348,13 @@ An identity tenant or a GitHub organization is one part of a system's boundary, 
 
 ### Microsoft Entra ID
 
-**Create:** an app registration in the tenant with a client secret or, better, a certificate. Under **API permissions**, add these Microsoft Graph *application* permissions and grant admin consent: `AuditLog.Read.All`, `Policy.Read.All`, `RoleManagement.Read.Directory`, `User.Read.All`, `LicenseAssignment.Read.All`. Each is the least-privileged one named on its endpoint's reference page.
+**Create:** an app registration in the tenant with a client secret or, better, a certificate. Under **API permissions**, add these Microsoft Graph *application* permissions and grant admin consent: `AuditLog.Read.All`, `Policy.Read.All`, `RoleManagement.Read.Directory`, `User.Read.All`, `GroupMember.Read.All`, `LicenseAssignment.Read.All`. Each is the least-privileged one named on its endpoint's reference page, with two exceptions. The two PIM schedule pages now name `RoleAssignmentSchedule.Read.Directory` and `RoleEligibilitySchedule.Read.Directory`, but `RoleManagement.Read.Directory` (needed for role assignments, and accepted by both) covers all three. The transitive group members page (updated 2025-07-23) names `GroupMember.ReadBasic.All`, which the permissions reference (updated 2026-09-15) does not list, so the collector asks for the page's next choice, `GroupMember.Read.All` [Unverified]. Pages read 2026-10-20.
 
 **Env:** `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, and either `ENTRA_CLIENT_SECRET` or `ENTRA_CLIENT_CERT_FILE` (a PEM holding the certificate and its private key; the collector signs a PS256 client assertion with `x5t#S256`).
 
-**Options:** `--entra-max-global-admins` (default 4), `--entra-max-permanent-admins` (default 2, for break-glass accounts), `--entra-stale-days` (default 90).
+**Options:** `--entra-max-global-admins` (default 4), `--entra-max-permanent-admins` (default 2, for break-glass accounts), `--entra-stale-days` (default 90), `--entra-mfa-exempt <object id or UPN>` (repeatable or comma-separated: break-glass accounts `users_mfa_covered` lists by object id but does not judge; the UPN never reaches a result).
 
-Licences matter. The registration report, Conditional Access and `signInActivity` need Entra ID P1; PIM schedules and risk-based policies need P2. The collector reads `/subscribedSkus`, and a P2 check on a tenant without `AAD_PREMIUM_P2` comes back `skipped`.
+Licences matter. The registration report (so `mfa_registered`, `admins_phishing_resistant` and `users_mfa_covered`), Conditional Access and `signInActivity` need Entra ID P1; PIM schedules and risk-based policies need P2. The collector reads `/subscribedSkus`, and a P2 check on a tenant without `AAD_PREMIUM_P2` comes back `skipped`.
 
 ```sh
 node src/cli.ts run --source entra --entra-stale-days 60 \
@@ -375,6 +374,9 @@ node src/cli.ts run --source entra --entra-stale-days 60 \
 | `stale_accounts` | No enabled account without a sign-in for `--entra-stale-days` days (P1) |
 | `audit_log_available` | The directory audit log is readable and not empty |
 | `risk_policies` | An enabled policy acts on sign-in or user risk (P2) |
+| `users_mfa_covered` | Every enabled member account has `isMfaCapable` and is in scope of MFA: security defaults, or a resolved Conditional Access policy (P1) |
+
+`users_mfa_covered` judges each account, where `mfa_registered` and `ca_mfa_all_users` judge the tenant. A policy that exists but leaves people out does not pass it. The accounts come from `GET /users` (guests and disabled accounts are counted, not judged). Each needs `isMfaCapable` in the registration report: Microsoft's flag for a strong method that the authentication methods policy allows (SMS and voice count; a registered method the policy disallows does not). Then it must be covered: security defaults on (Microsoft prompts non-admins only "whenever necessary", which the detail says), or an enabled policy for all apps, with no risk, location, platform or client-app condition, that makes MFA mandatory. A policy that offers MFA as one choice among others under OR does not count: the other control (a managed device, say) lets people in without MFA. Included and excluded groups are resolved through `/groups/{id}/transitiveMembers` and roles through their active assignments, at most 100 lookups. If an exclusion cannot be read, the policy earns no credit, and a result that turns on it is `skipped`. So is a policy that excludes B2B collaboration members, whom the check cannot tell apart from other members. Without the registration report (no P1 or P2, or no `AuditLog.Read.All`) the check is `skipped`. Microsoft advises against the per-user methods API for whole-tenant audits, and its method objects carry phone numbers, so the collector does not fall back to it. Pages read 2026-10-20 are cited in `src/sources/entra.ts` and in the catalogue notes.
 
 Left out: audit log retention (Graph does not expose it), password expiry and smart lockout (the directory setting template behind them is not in the v1.0 reference, so the field names could not be confirmed).
 

@@ -7,7 +7,9 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const KEEP_DOC = ["source", "title", "readScopes", "engine", "provider", "profile"];
-const KEEP_CHECK = ["id", "title", "scope", "evidenceType", "severity"];
+// retiredIn, removed and replacedBy are CISA's retirement facts, not Sagentix mappings: scuba.ts reads them to drop a
+// policy from a ScubaGear 2.0.0 report (2026-10-21; the mirror's own tests caught the collector running without them).
+const KEEP_CHECK = ["id", "title", "scope", "evidenceType", "severity", "retiredIn", "removed", "replacedBy"];
 const pick = (o, keys) => Object.fromEntries(keys.filter((k) => o[k] !== undefined).map((k) => [k, o[k]]));
 
 const [from, to] = process.argv.slice(2);

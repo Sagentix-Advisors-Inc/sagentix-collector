@@ -14,6 +14,9 @@
 //
 //   GET /rest/api/3/search/jql?jql=…&fields=…&maxResults=100&nextPageToken=…
 //   response: { issues: [{ key, fields }], nextPageToken?, isLast? }
+// Checked in https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json (read 2026-10-20): that GET is
+// "Search for issues using JQL enhanced search", not deprecated, response SearchAndReconcileResults; the older
+// GET /rest/api/3/search is marked deprecated there and is never called.
 
 import type { OptionSpec, OptionValue, Result, Source, SourceContext } from "../types.ts";
 import { Results, allSkipped, arr, httpWhy, isObj, scrub, str, withRetry, type HttpReply, type Obj } from "./shared-cloud.ts";

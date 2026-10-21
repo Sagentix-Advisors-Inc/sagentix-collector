@@ -104,6 +104,42 @@ test("github: classic protection unreadable and no ruleset → skipped, not fail
   assert.equal(r.result, "skipped");
 });
 
+test("github: a Team organization's audit log (404) is skipped with its plan named, never failed", async () => {
+  const rs = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(),
+    "/orgs/acme": ok({ ...ORG, plan: { name: "team", seats: 5, filled_seats: 4 } }),
+    "/orgs/acme/audit-log": res(404, { message: "Not Found" }) }));
+  const r = of(rs, "github.audit_log_available")[0];
+  assert.equal(r.result, "skipped");
+  assert.equal(r.detail, "the audit-log API is available only on GitHub Enterprise Cloud; this organization's plan is team");
+});
+
+test("github: a Free organization's audit log (403) is skipped with its plan named", async () => {
+  const rs = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(),
+    "/orgs/acme": ok({ ...ORG, plan: { name: "free" } }),
+    "/orgs/acme/audit-log": res(403, { message: "Resource not accessible by personal access token" }) }));
+  const r = of(rs, "github.audit_log_available")[0];
+  assert.equal(r.result, "skipped");
+  assert.match(r.detail, /available only on GitHub Enterprise Cloud; this organization's plan is free$/);
+});
+
+test("github: audit log 404 with the plan hidden from the token is skipped and says the plan was not shown", async () => {
+  const rs = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme/audit-log": res(404, { message: "Not Found" }) }));
+  const r = of(rs, "github.audit_log_available")[0];
+  assert.equal(r.result, "skipped");
+  assert.match(r.detail, /^the audit-log API is available only on GitHub Enterprise Cloud; GitHub answered 404 .*plan\.name to organization owners only/);
+});
+
+test("github: an Enterprise Cloud organization's readable audit log passes; an unreadable one names the owner requirement", async () => {
+  const ent = { ...ORG, plan: { name: "enterprise" } };
+  const pass = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme": ok(ent) }));
+  assert.equal(of(pass, "github.audit_log_available")[0].result, "pass");
+  const denied = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme": ok(ent),
+    "/orgs/acme/audit-log": res(403, { message: "Must have admin rights to Repository." }) }));
+  const r = of(denied, "github.audit_log_available")[0];
+  assert.equal(r.result, "skipped");
+  assert.match(r.detail, /the plan is enterprise, so the token needs an organization owner with Organization: Administration \(read\)/);
+});
+
 test("github: two_factor_requirement_enabled hidden from a non-owner is skipped", async () => {
   const rs = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme": ok({ login: "acme" }) }));
   assert.equal(of(rs, "github.org_requires_2fa")[0].result, "skipped");

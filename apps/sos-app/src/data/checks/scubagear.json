@@ -282,37 +282,55 @@
    "id": "scubagear.ms.teams.6.1v1",
    "title": "MS.TEAMS.6.1v1: A DLP solution SHALL be enabled and SHOULD offer services comparable to the native DLP solution offered by Microsoft.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.2v1"
   },
   {
    "id": "scubagear.ms.teams.6.2v1",
    "title": "MS.TEAMS.6.2v1: The DLP solution SHALL protect personally identifiable information (PII)",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.1v1"
   },
   {
    "id": "scubagear.ms.teams.7.1v1",
    "title": "MS.TEAMS.7.1v1: Attachments included with Teams messages SHOULD be scanned for malware.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.4v1"
   },
   {
    "id": "scubagear.ms.teams.7.2v1",
    "title": "MS.TEAMS.7.2v1: Users SHOULD be prevented from opening or downloading files detected as malware.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.4v1"
   },
   {
    "id": "scubagear.ms.teams.8.1v1",
    "title": "MS.TEAMS.8.1v1: URL comparison with a blocklist SHOULD be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.7.1v1"
   },
   {
    "id": "scubagear.ms.teams.8.2v1",
    "title": "MS.TEAMS.8.2v1: User click tracking SHOULD be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.7.3v1"
   },
   {
    "id": "scubagear.ms.sharepoint.1.1v1",
@@ -528,37 +546,55 @@
    "id": "scubagear.ms.exo.8.1v2",
    "title": "MS.EXO.8.1v2: A DLP solution SHALL be used.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.1v1"
   },
   {
    "id": "scubagear.ms.exo.8.2v2",
    "title": "MS.EXO.8.2v2: The DLP solution SHALL protect personally identifiable information (PII) and sensitive information, as defined by the agency.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.1v1"
   },
   {
    "id": "scubagear.ms.exo.8.3v1",
    "title": "MS.EXO.8.3v1: The selected DLP solution SHOULD offer services comparable to the native DLP solution offered by Microsoft.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": null
   },
   {
    "id": "scubagear.ms.exo.8.4v1",
    "title": "MS.EXO.8.4v1: At a minimum, the DLP solution SHALL restrict sharing credit card numbers, U.S. Individual Taxpayer Identification Numbers (ITIN), and U.S. Social Security numbers (SSN) via email.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.1v1"
   },
   {
    "id": "scubagear.ms.exo.9.1v2",
    "title": "MS.EXO.9.1v2: Emails SHALL be filtered by attachment file types.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1"
   },
   {
    "id": "scubagear.ms.exo.9.2v1",
    "title": "MS.EXO.9.2v1: The attachment filter SHOULD attempt to determine the true file type and assess the file extension.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": null
   },
   {
    "id": "scubagear.ms.exo.9.3v2",
@@ -570,61 +606,91 @@
    "id": "scubagear.ms.exo.9.4v1",
    "title": "MS.EXO.9.4v1: If a third-party filtering solution is used, it SHOULD offer services comparable to Microsoft Defender's Common Attachment Filter.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": null
   },
   {
    "id": "scubagear.ms.exo.9.5v1",
    "title": "MS.EXO.9.5v1: At a minimum, click-to-run files SHOULD be blocked (e.g., .exe, .cmd, and .vbe).",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1"
   },
   {
    "id": "scubagear.ms.exo.10.1v1",
    "title": "MS.EXO.10.1v1: Emails SHALL be scanned for malware.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.3v1"
   },
   {
    "id": "scubagear.ms.exo.10.2v1",
    "title": "MS.EXO.10.2v1: Emails identified as containing malware SHALL be quarantined or dropped.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.3v1"
   },
   {
    "id": "scubagear.ms.exo.10.3v1",
    "title": "MS.EXO.10.3v1: Email scanning SHALL be capable of reviewing emails after delivery.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.2v1"
   },
   {
    "id": "scubagear.ms.exo.11.1v1",
    "title": "MS.EXO.11.1v1: Impersonation protection checks SHOULD be used.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.2.1v1"
   },
   {
    "id": "scubagear.ms.exo.11.2v1",
    "title": "MS.EXO.11.2v1: User warnings, comparable to the user safety tips included with EOP, SHOULD be displayed.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.2.4v1"
   },
   {
    "id": "scubagear.ms.exo.11.3v1",
    "title": "MS.EXO.11.3v1: The phishing protection solution SHOULD include an AI-based phishing detection tool comparable to EOP Mailbox Intelligence.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": null
   },
   {
    "id": "scubagear.ms.exo.12.1v1",
    "title": "MS.EXO.12.1v1: IP allow lists SHOULD NOT be created.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.8.1v1"
   },
   {
    "id": "scubagear.ms.exo.12.2v1",
    "title": "MS.EXO.12.2v1: Safe lists SHOULD NOT be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.8.2v1"
   },
   {
    "id": "scubagear.ms.exo.13.1v1",
@@ -636,13 +702,19 @@
    "id": "scubagear.ms.exo.14.1v2",
    "title": "MS.EXO.14.1v2: A spam filter SHALL be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.6.1v1"
   },
   {
    "id": "scubagear.ms.exo.14.2v1",
    "title": "MS.EXO.14.2v1: Spam and high confidence spam SHALL be moved to either the junk email folder or the quarantine folder.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.6.1v1"
   },
   {
    "id": "scubagear.ms.exo.14.3v1",
@@ -660,157 +732,235 @@
    "id": "scubagear.ms.exo.15.1v1",
    "title": "MS.EXO.15.1v1: URL comparison with a block-list SHOULD be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.7.1v1"
   },
   {
    "id": "scubagear.ms.exo.15.2v1",
    "title": "MS.EXO.15.2v1: Direct download links SHOULD be scanned for malware.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.7.2v1"
   },
   {
    "id": "scubagear.ms.exo.15.3v1",
    "title": "MS.EXO.15.3v1: User click tracking SHOULD be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.7.3v1"
   },
   {
    "id": "scubagear.ms.exo.16.1v1",
    "title": "MS.EXO.16.1v1: At a minimum, the following alerts SHALL be enabled:",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.4.1v1"
   },
   {
    "id": "scubagear.ms.exo.16.2v1",
    "title": "MS.EXO.16.2v1: The alerts SHOULD be sent to a monitored address or incorporated into a security information and event management (SIEM) system.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.4.2v1"
   },
   {
    "id": "scubagear.ms.exo.17.1v1",
    "title": "MS.EXO.17.1v1: Unified Audit logging SHALL be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.5.1v1"
   },
   {
    "id": "scubagear.ms.exo.17.3v1",
    "title": "MS.EXO.17.3v1: Audit logs SHALL be maintained for at least the minimum duration dictated by OMB M-21-31 (Appendix C).",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.5.2v1"
   },
   {
    "id": "scubagear.ms.defender.1.1v1",
    "title": "MS.DEFENDER.1.1v1: The standard and strict preset security policies SHALL be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1 - MS.SECURITYSUITE.1.4v1"
   },
   {
    "id": "scubagear.ms.defender.1.2v1",
    "title": "MS.DEFENDER.1.2v1: All users SHALL be added to Exchange Online Protection (EOP) in either the standard or strict preset security policy.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1 - MS.SECURITYSUITE.1.4v2"
   },
   {
    "id": "scubagear.ms.defender.1.3v1",
    "title": "MS.DEFENDER.1.3v1: All users SHALL be added to Defender for Office 365 protection in either the standard or strict preset security policy.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1 - MS.SECURITYSUITE.1.4v3"
   },
   {
    "id": "scubagear.ms.defender.1.4v1",
    "title": "MS.DEFENDER.1.4v1: Sensitive accounts SHALL be added to Exchange Online Protection in the strict preset security policy.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1 - MS.SECURITYSUITE.1.4v4"
   },
   {
    "id": "scubagear.ms.defender.1.5v1",
    "title": "MS.DEFENDER.1.5v1: Sensitive accounts SHALL be added to Defender for Office 365 protection in the strict preset security policy.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.1v1 - MS.SECURITYSUITE.1.4v5"
   },
   {
    "id": "scubagear.ms.defender.2.1v1",
    "title": "MS.DEFENDER.2.1v1: User impersonation protection SHOULD be enabled for sensitive accounts in both the standard and strict preset policies.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.2.1v1"
   },
   {
    "id": "scubagear.ms.defender.2.2v1",
    "title": "MS.DEFENDER.2.2v1: Domain impersonation protection SHOULD be enabled for domains owned by the agency in both the standard and strict preset policies.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.2.2v1"
   },
   {
    "id": "scubagear.ms.defender.2.3v1",
    "title": "MS.DEFENDER.2.3v1: Domain impersonation protection SHOULD be added for important partners in both the standard and strict preset policies.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.2.3v1"
   },
   {
    "id": "scubagear.ms.defender.3.1v1",
    "title": "MS.DEFENDER.3.1v1: Safe attachments SHOULD be enabled for SharePoint, OneDrive, and Microsoft Teams.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.1.4v1"
   },
   {
    "id": "scubagear.ms.defender.4.1v2",
    "title": "MS.DEFENDER.4.1v2: A custom policy SHALL be configured to protect PII and sensitive information, as defined by the agency, blocking at a minimum: credit card numbers, U.S. Individual Taxpayer Ident...",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.1v1"
   },
   {
    "id": "scubagear.ms.defender.4.2v1",
    "title": "MS.DEFENDER.4.2v1: The custom policy SHOULD be applied to Exchange, OneDrive, SharePoint, Teams chat, and Devices.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.2v1"
   },
   {
    "id": "scubagear.ms.defender.4.3v1",
    "title": "MS.DEFENDER.4.3v1: The action for the custom policy SHOULD be set to block sharing sensitive information with everyone.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.3v1"
   },
   {
    "id": "scubagear.ms.defender.4.4v1",
    "title": "MS.DEFENDER.4.4v1: Notifications to inform users and help educate them on the proper use of sensitive information SHOULD be enabled in the custom policy.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.4v1"
   },
   {
    "id": "scubagear.ms.defender.4.5v1",
    "title": "MS.DEFENDER.4.5v1: A list of apps that are restricted from accessing files protected by DLP policy SHOULD be defined.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": null
   },
   {
    "id": "scubagear.ms.defender.4.6v1",
    "title": "MS.DEFENDER.4.6v1: The custom policy SHOULD include an action to block access to sensitive",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.3.5v1"
   },
   {
    "id": "scubagear.ms.defender.5.1v1",
    "title": "MS.DEFENDER.5.1v1: At a minimum, the alerts required by the CISA M365 Secure Configuration Baseline for Exchange Online SHALL be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.4.1v1"
   },
   {
    "id": "scubagear.ms.defender.5.2v1",
    "title": "MS.DEFENDER.5.2v1: The alerts SHOULD be sent to a monitored address or incorporated into a Security Information and Event Management (SIEM).",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.4.2v1"
   },
   {
    "id": "scubagear.ms.defender.6.1v1",
    "title": "MS.DEFENDER.6.1v1: Unified Audit logging SHALL be enabled.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.5.1v1"
   },
   {
    "id": "scubagear.ms.defender.6.3v1",
    "title": "MS.DEFENDER.6.3v1: Audit logs SHALL be maintained for at least the minimum duration dictated by OMB M-21-31.",
    "scope": "The Microsoft 365 tenant ScubaGear assessed; ScubaGear's own Details (which can name users, groups and policies) are not copied.",
-   "evidenceType": "Configuration"
+   "evidenceType": "Configuration",
+   "retiredIn": "2.0.0",
+   "removed": "2026-04",
+   "replacedBy": "MS.SECURITYSUITE.5.2v1"
   }
  ]
 }

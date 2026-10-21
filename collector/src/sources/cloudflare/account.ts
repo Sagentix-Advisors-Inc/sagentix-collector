@@ -11,7 +11,7 @@
 //   GET /accounts/{a}/access/organizations                 Access: Organizations, Identity Providers, and Groups Read
 //   GET /accounts/{a}/gateway/rules                        Zero Trust Read [unconfirmed: the OpenAPI names no group]
 //   GET /accounts/{a}/devices/posture                      Zero Trust Read [unconfirmed: the OpenAPI names no group]
-//   GET /accounts/{a}/gateway/locations                    Zero Trust Read [unconfirmed: the OpenAPI names no group]
+//   GET /accounts/{a}/gateway/locations                    Zero Trust Read (named by the OpenAPI at api-schemas bdeecc5c, read 2026-10-20)
 //   GET /accounts/{a}/devices/physical-devices             Zero Trust Read [unconfirmed: the OpenAPI names no group]
 //   GET /accounts/{a}/r2/buckets                           Workers R2 Storage Read
 //   GET /accounts/{a}/r2/buckets/{b}/domains/managed       Workers R2 Storage Read (com.cloudflare.edge.r2.bucket.read)

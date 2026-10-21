@@ -8,7 +8,8 @@
 //   iam   GetAccountPasswordPolicy                            iam:GetAccountPasswordPolicy
 //   cloudtrail DescribeTrails, GetTrailStatus                 cloudtrail:DescribeTrails, cloudtrail:GetTrailStatus
 //   guardduty  GET /detector, GET /detector/{id}              guardduty:ListDetectors, guardduty:GetDetector
-//   securityhub GET /accounts (DescribeHub)                   securityhub:DescribeHub
+//   securityhub GET /accounts (DescribeHub, Security Hub CSPM) securityhub:DescribeHub
+//   securityhub GET /hubv2 (DescribeSecurityHubV2, AWS Security Hub) securityhub:DescribeSecurityHubV2
 //   config DescribeConfigurationRecorderStatus                config:DescribeConfigurationRecorderStatus
 //   s3control GET /v20180820/configuration/publicAccessBlock  s3:GetAccountPublicAccessBlock
 //   s3    ListBuckets, GetBucketEncryption                    s3:ListAllMyBuckets, s3:GetEncryptionConfiguration
@@ -229,13 +230,40 @@ async function guardduty(aws: Aws, out: Out, rr: string, region: string) {
   out.add("guardduty_enabled", rr, states.includes("ENABLED") ? "pass" : "fail", `detector status ${states.join(", ")}; ENABLED required`);
 }
 
+// AWS sells two products behind the one `securityhub` endpoint and IAM prefix (AWS docs, read 2026-10-20:
+// docs.aws.amazon.com/securityhub/latest/userguide/what-are-securityhub-services.html). Security Hub CSPM
+// (the former Security Hub) runs the standards and control checks; DescribeHub, GET /accounts, answers for
+// it. The newer "AWS Security Hub" correlates findings into exposures; DescribeSecurityHubV2, GET /hubv2,
+// answers for it. This check is about posture checks, so CSPM decides the result. AWS: "if you enable
+// Security Hub without enabling Security Hub CSPM, Security Hub cannot use Security Hub CSPM findings".
+// The detail always says which product was read and whether the other one is on, so a client running
+// only the newer Security Hub sees why the posture check fails instead of a bare "not enabled".
+async function securityhubV2(aws: Aws, region: string): Promise<{ on: boolean; text: string }> {
+  const r = await aws.json(restReq("securityhub", region, `securityhub.${region}.amazonaws.com`, "/hubv2"));
+  if (r.ok) {
+    const arn = str(r.o.HubV2Arn);
+    return arn ? { on: true, text: `AWS Security Hub is on (DescribeSecurityHubV2: ${arn})` } : { on: false, text: "AWS Security Hub: DescribeSecurityHubV2 returned no HubV2Arn" };
+  }
+  const code = errorOf(r.r).code;
+  // [Unverified] AWS lists ResourceNotFoundException for DescribeSecurityHubV2 without saying it means "not enabled".
+  if (code === "ResourceNotFoundException") return { on: false, text: "AWS Security Hub is not enabled (DescribeSecurityHubV2: ResourceNotFoundException)" };
+  return { on: false, text: `AWS Security Hub not readable (DescribeSecurityHubV2: ${awsWhy(r.r)})` };
+}
+
 async function securityhub(aws: Aws, out: Out, rr: string, region: string) {
   const r = await aws.json(restReq("securityhub", region, `securityhub.${region}.amazonaws.com`, "/accounts"));
-  if (r.ok) return out.add("securityhub_enabled", rr, str(r.o.HubArn) ? "pass" : "fail", str(r.o.HubArn) ? `Security Hub enabled (${r.o.HubArn}), subscribed ${String(r.o.SubscribedAt ?? "?")}` : "DescribeHub returned no HubArn");
+  const v2 = await securityhubV2(aws, region);
+  if (r.ok) return out.add("securityhub_enabled", rr, str(r.o.HubArn) ? "pass" : "fail", str(r.o.HubArn)
+    ? `Security Hub CSPM enabled (DescribeHub: ${r.o.HubArn}), subscribed ${String(r.o.SubscribedAt ?? "?")}; ${v2.text}`
+    : `Security Hub CSPM: DescribeHub returned no HubArn; ${v2.text}`);
   const code = errorOf(r.r).code;
-  // DescribeHub answers InvalidAccessException when the account is not subscribed to Security Hub.
-  if (code === "InvalidAccessException" || code === "ResourceNotFoundException") return out.add("securityhub_enabled", rr, "fail", `Security Hub is not enabled in the region (${code})`);
-  out.skip("securityhub_enabled", rr, `Security Hub not readable: ${awsWhy(r.r)}`);
+  // DescribeHub answers InvalidAccessException when the account is not subscribed to Security Hub CSPM.
+  if (code === "InvalidAccessException" || code === "ResourceNotFoundException") {
+    return out.add("securityhub_enabled", rr, "fail", v2.on
+      ? `Security Hub CSPM is not enabled in the region (DescribeHub: ${code}); ${v2.text}, but without CSPM it has no standards or control checks to use, so turn on Security Hub CSPM too`
+      : `Security Hub CSPM is not enabled in the region (DescribeHub: ${code}); ${v2.text}`);
+  }
+  out.skip("securityhub_enabled", rr, `Security Hub CSPM not readable (DescribeHub: ${awsWhy(r.r)}); ${v2.text}`);
 }
 
 async function configRecorder(aws: Aws, out: Out, rr: string, region: string) {

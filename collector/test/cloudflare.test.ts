@@ -27,7 +27,6 @@ const FAILS: Record<string, Record<string, CfResponse>> = {
   automatic_https_rewrites: { [`${Z}/settings/automatic_https_rewrites`]: setting("automatic_https_rewrites", "off") },
   ssl_mode: { [`${Z}/settings/ssl`]: setting("ssl", "flexible") },
   hsts: { [`${Z}/settings/security_header`]: setting("security_header", { strict_transport_security: { enabled: true, max_age: 86400, include_subdomains: true } }) },
-  security_level: { [`${Z}/settings/security_level`]: setting("security_level", "essentially_off") },
   browser_integrity_check: { [`${Z}/settings/browser_check`]: setting("browser_check", "off") },
   dnssec: { [`${Z}/dnssec`]: okBody({ status: "disabled" }) },
   waf_managed_ruleset: { [`${Z}/rulesets/phases/http_request_firewall_managed/entrypoint`]: errBody(404, "not found") },

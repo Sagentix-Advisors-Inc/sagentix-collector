@@ -6,7 +6,8 @@
   "Policy.Read.All",
   "RoleManagement.Read.Directory",
   "User.Read.All",
-  "LicenseAssignment.Read.All"
+  "LicenseAssignment.Read.All",
+  "GroupMember.Read.All"
  ],
  "checks": [
   {
@@ -74,6 +75,12 @@
    "title": "An enabled Conditional Access policy acts on sign-in or user risk",
    "scope": "Needs Entra ID P2; skipped when the tenant has none.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "entra.users_mfa_covered",
+   "title": "Every enabled member account has a strong method registered and is in scope of an MFA requirement",
+   "scope": "Per account, from the registration report (isMfaCapable: a strong method allowed by the authentication methods policy; SMS and voice count, as Microsoft counts them) and from coverage: security defaults, or an enabled Conditional Access policy for all apps without risk, location, platform or client-app conditions that makes MFA mandatory (mfa or an MFA authentication strength, no other control under OR), with included and excluded users, groups (transitive) and roles (active assignments) resolved to accounts. A policy whose exclusions cannot be resolved is not credited. Guests and disabled accounts are counted, not judged; --entra-mfa-exempt names break-glass accounts, listed by object id. Needs Entra ID P1 or P2; skipped without the report. Excluded applications and PIM-eligible role holders are not judged.",
+   "evidenceType": "Report"
   }
  ]
 }

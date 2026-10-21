@@ -1,7 +1,9 @@
 // Okta management API (GET only), with an API token of a Read-Only Administrator (SSWS) or an OAuth
 // access token from a service app granted the okta.*.read scopes below.
 //
-// Endpoint → OAuth scope (Okta management OpenAPI, github.com/okta/okta-management-openapi-spec):
+// Endpoint → OAuth scope (Okta management OpenAPI,
+// github.com/okta/okta-management-openapi-spec/blob/master/dist/current/management-minimal.yaml,
+// info.version 2026.41.0 at commit 2bc3a36, read 2026-10-20; each path's `security` names the scope):
 //   GET /api/v1/policies?type=MFA_ENROLL|OKTA_SIGN_ON|ACCESS_POLICY|PASSWORD   okta.policies.read
 //   GET /api/v1/policies/{id}/rules                                           okta.policies.read
 //   GET /api/v1/authenticators, /api/v1/authenticators/{id}/methods           okta.authenticators.read (Identity Engine)

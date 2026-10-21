@@ -12,13 +12,20 @@
 //   GET /zones/{z}/custom_hostnames                        SSL and Certificates Read
 //   GET /zones/{z}/page_shield                             Zone Settings Read (or Page Shield Read)
 //   GET /zones/{z}/security-center/securitytxt             Zone Settings Read
+// (each group checked against openapi.json at github.com/cloudflare/api-schemas commit bdeecc5c, read 2026-10-20)
+//
+// Not read: the security_level setting (check cloudflare.security_level, retired 2026-10-20). Cloudflare's Security
+// Level page (developers.cloudflare.com/waf/tools/security-level/, last updated 2026-04-16, read 2026-10-20): the
+// dashboard value is fixed at "Always protected", in the API and Terraform security_level now turns Under Attack mode
+// on or off, and the threat score it acted on "is always 0". The API still takes off ... under_attack, but no value
+// challenges visitors by IP reputation any more, so a pass on "medium" or a fail on "off" would show nothing.
 
 import type { Outcome, Result } from "../../types.ts";
 import { arr, getAll, isObj, ok, resultOf, safeGet, str, why, type CfResponse, type CloudflareApi, type Obj } from "./api.ts";
 
 export const ZONE_CHECKS = [
   "min_tls_version", "tls_1_3", "always_use_https", "automatic_https_rewrites", "ssl_mode", "hsts",
-  "security_level", "browser_integrity_check", "dnssec", "waf_managed_ruleset", "waf_custom_rules",
+  "browser_integrity_check", "dnssec", "waf_managed_ruleset", "waf_custom_rules",
   "rate_limiting_rules", "bot_protection", "leaked_credential_checks", "edge_certificates_valid",
   "custom_hostname_min_tls", "page_shield", "security_txt",
 ] as const;
@@ -37,7 +44,6 @@ const SETTINGS: [ZoneCheck, string][] = [
   ["automatic_https_rewrites", "automatic_https_rewrites"],
   ["ssl_mode", "ssl"],
   ["hsts", "security_header"],
-  ["security_level", "security_level"],
   ["browser_integrity_check", "browser_check"],
 ];
 
@@ -74,10 +80,6 @@ function judgeSetting(out: Out, check: ZoneCheck, id: string, value: unknown): v
     case "automatic_https_rewrites": return simple(["on"], "on required");
     case "ssl_mode": return simple(["strict"], "strict (Full (strict)) required");
     case "browser_integrity_check": return simple(["on"], "on required");
-    case "security_level": {
-      const off = ["off", "essentially_off"].includes(String(value));
-      return out.add(check, off ? "fail" : "pass", `security_level is ${j(value)}; anything but off or essentially_off required`);
-    }
     case "hsts": {
       const h = isObj(value) && isObj(value.strict_transport_security) ? value.strict_transport_security : {};
       const pass = h.enabled === true && Number(h.max_age) >= 31536000 && h.include_subdomains === true;

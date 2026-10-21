@@ -55,8 +55,8 @@
   },
   {
    "id": "aws.securityhub_enabled",
-   "title": "Security Hub is enabled in the region",
-   "scope": "Each region given with --aws-regions; enabled standards and the findings themselves are not checked.",
+   "title": "Security Hub CSPM (standards and control checks) is enabled in the region",
+   "scope": "Each region given with --aws-regions. The result is Security Hub CSPM's (DescribeHub); the detail also says whether the newer AWS Security Hub is on (DescribeSecurityHubV2), which alone does not pass. Enabled standards and the findings themselves are not checked.",
    "evidenceType": "Configuration"
   },
   {

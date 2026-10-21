@@ -2,9 +2,12 @@
 // make, and they go to the identity provider's token endpoint, never to a resource API.
 //
 //   Entra ID: client-credentials grant, with a client secret or a certificate-signed client assertion
-//     (PS256, x5t#S256; learn.microsoft.com/entra/identity-platform/certificate-credentials).
+//     (PS256 with PSS padding, x5t#S256, aud = the tenant's v2.0 token endpoint, iss = sub = the client id,
+//     exp 10 minutes after nbf, the page's upper bound; learn.microsoft.com/entra/identity-platform/certificate-credentials,
+//     read 2026-10-20).
 //   Google:   service-account JWT bearer grant with domain-wide delegation (RS256, `sub` = the admin
-//     the account acts as; developers.google.com/identity/protocols/oauth2/service-account), or a
+//     the account acts as, aud = Google's token endpoint, exp one hour after iat, the page's maximum;
+//     developers.google.com/identity/protocols/oauth2/service-account, read 2026-10-20), or a
 //     Workspace admin's refresh token from a one-time desktop sign-in (google_oauth.ts).
 //
 // A failed token request throws an Error whose message names the HTTP status and the provider's

@@ -4,6 +4,14 @@
 // Finding becomes one result, `prowler.<provider>.<CheckID>`; a check sos-app's catalogue
 // (apps/sos-app/src/data/checks/prowler_<provider>.json) does not list is dropped and counted.
 //
+// Fields read, checked against Prowler 5.45.0, the pinned release (tag 5.45.0, commit bffc884; read 2026-10-20):
+// https://github.com/prowler-cloud/prowler/blob/5.45.0/prowler/lib/outputs/ocsf/ocsf.py writes metadata.event_code
+// (the CheckID), finding_info.analytic.uid, status_code (PASS, FAIL, MANUAL), status "Suppressed" when muted,
+// status_detail, message, resources[].uid/name/region (namespace for Kubernetes), cloud.account.uid, cloud.region
+// and unmapped.provider; prowler/lib/cli/parser.py still has --output-filename, --output-directory, --no-banner and
+// --ignore-exit-code-3, and the file ends .ocsf.json. https://docs.prowler.com/user-guide/cli/tutorials/reporting
+// (read 2026-10-20) lists json-ocsf among the output formats.
+//
 // The collector never passes a Prowler option that writes, fixes or sends anywhere (Security Hub, S3,
 // Slack, Shodan, Prowler Cloud, secret validation), and refuses one given in --prowler-args.
 

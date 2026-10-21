@@ -46,6 +46,7 @@ function strong(): Record<string, Route> {
     "guardduty GET /detector": json({ detectorIds: ["d1"] }),
     "guardduty GET /detector/d1": json({ status: "ENABLED", findingPublishingFrequency: "SIX_HOURS" }),
     "securityhub GET /accounts": json({ HubArn: `arn:aws:securityhub:us-east-1:${ACCT}:hub/default`, SubscribedAt: "2025-01-01T00:00:00Z" }),
+    "securityhub GET /hubv2": json({ HubV2Arn: `arn:aws:securityhub:us-east-1:${ACCT}:hubv2/default`, SubscribedAt: "2026-01-01T00:00:00Z", Features: {} }),
     "config DescribeConfigurationRecorderStatus": json({ ConfigurationRecordersStatus: [{ name: "default", recording: true, lastStatus: "SUCCESS" }] }),
     "s3 GET /v20180820/configuration/publicAccessBlock": pab(true),
     "s3 GET /": xml(`<ListAllMyBucketsResult><Owner><ID>o</ID></Owner><Buckets><Bucket><Name>logs</Name><CreationDate>2025-01-01T00:00:00Z</CreationDate><BucketRegion>us-east-1</BucketRegion></Bucket></Buckets></ListAllMyBucketsResult>`),
@@ -316,4 +317,28 @@ test("the XML reader handles namespaces, entities, CDATA and self-closing tags",
   assert.equal(deepText(x, "M"), "x & y A");
   assert.equal(deepText(x, "C"), "<raw>");
   assert.throws(() => parseXml("<a><b></a>"));
+});
+
+// Security Hub CSPM (DescribeHub) and the newer AWS Security Hub (DescribeSecurityHubV2) share one endpoint
+// and IAM prefix; the check reads both, decides on CSPM, and says which product each part of the detail is.
+test("aws securityhub_enabled: names Security Hub CSPM and AWS Security Hub separately", async () => {
+  const notCspm = { "securityhub GET /accounts": jsonErr(401, "InvalidAccessException", "Account 111122223333 is not subscribed to AWS Security Hub") };
+  const v2Only = of(await run(fakeAws(notCspm)), "securityhub_enabled");
+  assert.equal(v2Only.length, 1);
+  assert.equal(v2Only[0].result, "fail");
+  assert.match(v2Only[0].detail, /Security Hub CSPM is not enabled/);
+  assert.match(v2Only[0].detail, /AWS Security Hub is on \(DescribeSecurityHubV2/);
+  assert.match(v2Only[0].detail, /turn on Security Hub CSPM too/);
+
+  const neither = of(await run(fakeAws({ ...notCspm, "securityhub GET /hubv2": jsonErr(404, "ResourceNotFoundException", "not found") })), "securityhub_enabled");
+  assert.equal(neither[0].result, "fail");
+  assert.match(neither[0].detail, /AWS Security Hub is not enabled/);
+
+  const cspmOnly = of(await run(fakeAws({ "securityhub GET /hubv2": jsonErr(404, "ResourceNotFoundException", "not found") })), "securityhub_enabled");
+  assert.equal(cspmOnly[0].result, "pass", cspmOnly[0].detail);
+  assert.match(cspmOnly[0].detail, /Security Hub CSPM enabled \(DescribeHub/);
+
+  const v2Denied = of(await run(fakeAws({ "securityhub GET /hubv2": jsonErr(403, "AccessDeniedException", "not authorized to perform: securityhub:DescribeSecurityHubV2") })), "securityhub_enabled");
+  assert.equal(v2Denied[0].result, "pass", "a policy without DescribeSecurityHubV2 must not turn a CSPM pass into anything else");
+  assert.match(v2Denied[0].detail, /AWS Security Hub not readable/);
 });

@@ -1,7 +1,8 @@
 // GitHub organization and its repositories over the REST API (GET only), with a fine-grained personal
 // access token or a GitHub App installation token in GITHUB_TOKEN.
 //
-// Endpoint → fine-grained permission, read (docs.github.com/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens):
+// Endpoint → fine-grained permission, read (docs.github.com/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens,
+// read 2026-10-20, no updated date shown; each endpoint below is listed there under the permission named):
 //   GET /orgs/{org}                                         none (two_factor_requirement_enabled shows to owners only)
 //     default_repository_permission ("read", "write", "admin" or "none"), members_can_create_repositories,
 //     members_can_create_public_repositories and members_can_change_repo_visibility, from "Get an organization"
@@ -13,7 +14,9 @@
 //   GET /orgs/{org}/members?role=admin|filter=2fa_disabled  Organization: Members
 //   GET /orgs/{org}/outside_collaborators                   Organization: Members
 //   GET /orgs/{org}/actions/permissions[/workflow]          Organization: Administration
-//   GET /orgs/{org}/audit-log                               Organization: Administration (Enterprise Cloud only)
+//   GET /orgs/{org}/audit-log                               Organization: Administration (Enterprise Cloud only: missing from the
+//     Free/Team permissions page, listed on the Enterprise Cloud one and at docs.github.com/enterprise-cloud@latest/rest/
+//     orgs/orgs#get-the-audit-log-for-an-organization, read 2026-10-20; owners only; plan.name words the skip)
 //   GET /orgs/{org}/repos, /repos/{o}/{r}                    Repository: Metadata
 //   GET /repos/{o}/{r}/rules/branches/{b}                   Repository: Metadata
 //   GET /repos/{o}/{r}/branches/{b}/protection              Repository: Administration
@@ -109,12 +112,28 @@ async function orgChecks(api: RestApi, o: GithubOptions, out: Emitter<C>): Promi
   }
 
   const al = await api.get(`/orgs/${org}/audit-log?per_page=1`);
-  if (!ok(al) || !Array.isArray(al.body)) out.skip("audit_log_available", al, "organization audit log (GitHub Enterprise Cloud only)");
+  if (!ok(al) || !Array.isArray(al.body)) out.add("audit_log_available", "skipped", auditLogSkipped(g, al));
   else {
     const e = al.body[0];
     out.add("audit_log_available", e ? "pass" : "fail",
       e ? `organization audit log readable; latest event at ${eventTime(e)}` : "organization audit log readable but empty");
   }
+}
+
+/** Why the audit log gave nothing. GitHub: "To use the audit log API, your organization must use GitHub Enterprise
+ *  Cloud" (reviewing-the-audit-log-for-your-organization, Enterprise Cloud docs, read 2026-10-20), and the endpoint
+ *  needs an organization owner. Its only documented answer is 200, so what a Free or Team organization gets back
+ *  (404 expected, 403 possible) is not documented [Unverified]. GET /orgs/{org} shows plan.name to owners; GitHub
+ *  does not list its values (the docs' example is "Medium"), so only a name containing "enterprise" counts as
+ *  Enterprise Cloud. A skip, never a fail: the plan, not the organization's configuration, withholds the log. */
+export function auditLogSkipped(g: HttpResponse, al: HttpResponse): string {
+  const ghec = "the audit-log API is available only on GitHub Enterprise Cloud";
+  const p = ok(g) && isObj(g.body) && isObj(g.body.plan) ? g.body.plan : undefined;
+  const plan = p ? str(p.name) : undefined;
+  if (plan && !/enterprise/i.test(plan)) return `${ghec}; this organization's plan is ${plan}`;
+  if (plan) return `organization audit log not readable: ${why(al)}; the plan is ${plan}, so the token needs an organization owner with Organization: Administration (read)`;
+  if (al.status === 404) return `${ghec}; GitHub answered 404 and did not show this token the organization's plan (GET /orgs/{org} shows plan.name to organization owners only)`;
+  return `organization audit log not readable: ${why(al)}; ${ghec}, and only to an organization owner with Organization: Administration (read)`;
 }
 
 /** Base repository permission and who may make a repository public, from the same GET /orgs/{org}. */

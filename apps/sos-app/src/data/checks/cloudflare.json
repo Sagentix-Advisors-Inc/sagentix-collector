@@ -12,6 +12,7 @@
   "Account API Tokens Read",
   "Notifications Read",
   "Access: Apps and Policies Read",
+  "Access: Organizations, Identity Providers, and Groups Read",
   "Zero Trust Read",
   "Workers R2 Storage Read"
  ],
@@ -81,12 +82,6 @@
    "title": "The account audit log records configuration changes",
    "scope": "Cloudflare configuration changes; whether someone reviews them is attested in sos-app.",
    "evidenceType": "Audit Record"
-  },
-  {
-   "id": "cloudflare.security_level",
-   "title": "The zone's security level challenges visitors with a poor IP reputation",
-   "scope": "Inbound HTTP(S) through the Cloudflare proxy; passes at any level above essentially_off.",
-   "evidenceType": "Configuration"
   },
   {
    "id": "cloudflare.browser_integrity_check",

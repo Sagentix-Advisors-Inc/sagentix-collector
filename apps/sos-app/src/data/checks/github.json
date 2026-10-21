@@ -44,7 +44,7 @@
   {
    "id": "github.audit_log_available",
    "title": "The organization audit log is readable and not empty",
-   "scope": "GitHub Enterprise Cloud only; streaming to a SIEM is not visible.",
+   "scope": "GitHub Enterprise Cloud only (skipped on Free and Team, with the plan named); streaming to a SIEM is not visible.",
    "evidenceType": "Audit Record"
   },
   {

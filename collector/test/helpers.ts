@@ -33,7 +33,6 @@ export function strongRoutes(): Record<string, CfResponse> {
     [`${Z}/settings/automatic_https_rewrites`]: setting("automatic_https_rewrites", "on"),
     [`${Z}/settings/ssl`]: setting("ssl", "strict"),
     [`${Z}/settings/security_header`]: setting("security_header", { strict_transport_security: { enabled: true, max_age: 31536000, include_subdomains: true, nosniff: true, preload: false } }),
-    [`${Z}/settings/security_level`]: setting("security_level", "medium"),
     [`${Z}/settings/browser_check`]: setting("browser_check", "on"),
     [`${Z}/dnssec`]: okBody({ status: "active" }),
     [`${Z}/rulesets/phases/http_request_firewall_managed/entrypoint`]: okBody({ phase: "http_request_firewall_managed", rules: [{ action: "execute", enabled: true, action_parameters: { id: "efb7b8c949ac4650a09736fc376e9aee" } }] }),
