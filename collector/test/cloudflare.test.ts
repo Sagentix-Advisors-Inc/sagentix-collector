@@ -50,6 +50,7 @@ const FAILS: Record<string, Record<string, CfResponse>> = {
   gateway_dns_filtering: { [`${A}/gateway/rules`]: okBody([{ id: "g2", enabled: true, action: "allow", filters: ["dns"] }]) },
   device_posture_rules: { [`${A}/devices/posture`]: okBody([]) },
   r2_public_access_off: { [`${A}/r2/buckets/logs/domains/managed`]: okBody({ domain: "pub-1.r2.dev", enabled: true }) },
+  gateway_antivirus: { [`${A}/gateway/configuration`]: okBody({ settings: { antivirus: { enabled_download_phase: true }, tls_decrypt: { enabled: false } } }) },
 };
 
 test("every API check the source declares has a pass and a fail case here", () => {
@@ -196,6 +197,57 @@ test("a Cloudflare-managed certificate with 20 days left passes; an uploaded one
   assert.equal(of(await runCf(fakeCloudflare(pack("sni_custom"))), "edge_certificates_valid")[0].result, "fail");
 });
 
+test("ssl_mode: Strict (SSL-Only Origin Pull) validates the origin as Full (strict) does, so origin_pull passes; full fails", async () => {
+  assert.equal(of(await runCf(fakeCloudflare({ [`${Z}/settings/ssl`]: setting("ssl", "origin_pull") })), "ssl_mode")[0].result, "pass");
+  assert.equal(of(await runCf(fakeCloudflare({ [`${Z}/settings/ssl`]: setting("ssl", "full") })), "ssl_mode")[0].result, "fail");
+});
+
+test("bot_protection: on a zone routed to Cloudflare Tunnel, definitely automated set to allow is what Cloudflare asks for", async () => {
+  const tunnel = { [`${Z}/dns_records`]: okBody([{ id: "r1", type: "CNAME", name: "app.example.com", content: "6ff42ae2-765d-4adf-8112-31c55c1551ef.cfargotunnel.com" }]) };
+  const sbfm = (extra: Record<string, unknown>) => ({ [`${Z}/bot_management`]: okBody({ fight_mode: false, sbfm_definitely_automated: "allow", ...extra }) });
+  const calls: string[] = [];
+  const t = of(await runCf(fakeCloudflare({ ...tunnel, ...sbfm({}) }, calls)), "bot_protection")[0];
+  assert.equal(t.result, "skipped", t.detail);
+  assert.ok(calls.some((c) => c.startsWith(`${Z}/dns_records?type=CNAME&content.endswith=.cfargotunnel.com`)));
+  assert.equal(of(await runCf(fakeCloudflare({ ...tunnel, ...sbfm({ sbfm_likely_automated: "managed_challenge" }) })), "bot_protection")[0].result, "pass");
+  // No tunnel record: allow is still a fail.
+  assert.equal(of(await runCf(fakeCloudflare({ [`${Z}/dns_records`]: okBody([]), ...sbfm({}) })), "bot_protection")[0].result, "fail");
+});
+
+test("edge_certificates_valid: a managed pack's floor follows its validity period (Cloudflare renews 2-week certificates 3 days out)", async () => {
+  const pack = (validity_days: number, left: number) => ({ [`${Z}/ssl/certificate_packs`]: okBody([{ id: "p", type: "advanced", status: "active", validity_days, certificates: [{ expires_on: inDays(left) }] }]) });
+  assert.equal(of(await runCf(fakeCloudflare(pack(14, 10))), "edge_certificates_valid")[0].result, "pass");
+  assert.equal(of(await runCf(fakeCloudflare(pack(30, 6))), "edge_certificates_valid")[0].result, "pass");
+  assert.equal(of(await runCf(fakeCloudflare(pack(30, 2))), "edge_certificates_valid")[0].result, "fail");
+  assert.equal(of(await runCf(fakeCloudflare(pack(90, 10))), "edge_certificates_valid")[0].result, "fail");
+});
+
+test("security_txt: an expiry at or before the run date, or none, is a fail (RFC 9116 §2.5.5: the file is stale)", async () => {
+  const st = (extra: Record<string, unknown>) => ({ [`${Z}/security-center/securitytxt`]: okBody({ enabled: true, contact: ["mailto:security@example.com"], ...extra }) });
+  const past = of(await runCf(fakeCloudflare(st({ expires: inDays(-1) }))), "security_txt")[0];
+  assert.equal(past.result, "fail");
+  assert.match(past.detail, /stale/);
+  assert.equal(of(await runCf(fakeCloudflare(st({}))), "security_txt")[0].result, "fail");
+  assert.equal(of(await runCf(fakeCloudflare(st({ expires: inDays(30) }))), "security_txt")[0].result, "pass");
+});
+
+test("access_session_duration: a policy's own session duration overrides the application's", async () => {
+  const app = (session_duration: string) => ({ [`${A}/access/apps`]: okBody([{ id: "app1", name: "Admin", type: "self_hosted", domain: "admin.example.com", session_duration }]) });
+  const pol = (session_duration?: string) => ({ [`${A}/access/apps/app1/policies`]: okBody([{ id: "p1", decision: "allow", include: [{ email_domain: { domain: "example.com" } }], require: [{ auth_method: { auth_method: "mfa" } }], ...(session_duration ? { session_duration } : {}) }]) });
+  const longPolicy = of(await runCf(fakeCloudflare({ ...app("8h"), ...pol("720h") })), "access_session_duration")[0];
+  assert.equal(longPolicy.result, "fail", longPolicy.detail);
+  assert.equal(of(await runCf(fakeCloudflare({ ...app("720h"), ...pol("12h") })), "access_session_duration")[0].result, "pass");
+  assert.equal(of(await runCf(fakeCloudflare({ ...app("720h"), ...pol() })), "access_session_duration")[0].result, "fail");
+});
+
+test("access_apps_have_policies: an application behind Service Auth that names its service token passes; MFA is skipped", async () => {
+  const svc = (include: unknown[]) => ({ [`${A}/access/apps/app1/policies`]: okBody([{ id: "s1", decision: "non_identity", include, require: [], exclude: [] }]) });
+  const rs = await runCf(fakeCloudflare(svc([{ service_token: { token_id: "7a1f0c2e-0000-4000-8000-000000000001" } }])));
+  assert.equal(of(rs, "access_apps_have_policies")[0].result, "pass", of(rs, "access_apps_have_policies")[0].detail);
+  assert.equal(of(rs, "access_mfa_required")[0].result, "skipped");
+  assert.equal(of(await runCf(fakeCloudflare(svc([{ everyone: {} }]))), "access_apps_have_policies")[0].result, "fail");
+});
+
 test("an account with no Access app, R2 bucket or custom hostname gets skipped for those checks", async () => {
   const rs = await runCf(fakeCloudflare({
     [`${A}/access/apps`]: okBody([]), [`${A}/r2/buckets`]: okBody({ buckets: [] }), [`${Z}/custom_hostnames`]: okBody([]),
@@ -262,4 +314,14 @@ test("the Cloudflare source runs OPA only with --tofu-state and merges its resul
   const rs = await runCf(fakeCloudflare(), { "tofu-state": statePath, policy: dir }, cannedOpa([{ rule: "hsts", zone_id: "z1", pass: true, msg: "ok" }]));
   assert.ok(rs.some((r) => r.check === "cloudflare.hsts" && r.resource === "tofu module.baseline.cloudflare_zone_setting.security_header"));
   assert.ok(rs.some((r) => r.check === "cloudflare.hsts" && r.resource === "zone example.com"));
+});
+
+test("gateway_antivirus: download scanning without TLS decryption fails; an unreadable configuration is skipped", async () => {
+  const noTls = (await runCf(fakeCloudflare({ [`${A}/gateway/configuration`]: okBody({ settings: { antivirus: { enabled_download_phase: true }, tls_decrypt: { enabled: false } } }) }))).filter((r) => r.check === "cloudflare.gateway_antivirus");
+  assert.equal(noTls[0].result, "fail");
+  assert.match(noTls[0].detail, /tls_decrypt.enabled false/);
+  const off = (await runCf(fakeCloudflare({ [`${A}/gateway/configuration`]: okBody({ settings: {} }) }))).filter((r) => r.check === "cloudflare.gateway_antivirus");
+  assert.equal(off[0].result, "fail");
+  const denied = (await runCf(fakeCloudflare({ [`${A}/gateway/configuration`]: errBody(403) }))).filter((r) => r.check === "cloudflare.gateway_antivirus");
+  assert.equal(denied[0].result, "skipped");
 });

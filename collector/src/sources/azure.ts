@@ -46,7 +46,7 @@ export const azure: Source = {
       if (!subs.length) return allSkipped("azure", AZURE_CHECKS, "subscription (list)", "the identity can list no enabled subscription; give --azure-subscription");
     }
     const min = Number(ctx.opts["azure-min-secure-score"] ?? DEFAULT_MIN_SECURE_SCORE);
-    for (const s of [...new Set(subs)]) out.push(...(await subscriptionChecks(t, s, { minSecureScore: Number.isFinite(min) ? min : DEFAULT_MIN_SECURE_SCORE })));
+    for (const s of [...new Set(subs)]) out.push(...(await subscriptionChecks(t, s, { minSecureScore: Number.isFinite(min) ? min : DEFAULT_MIN_SECURE_SCORE, now: ctx.now })));
     return scrub(out, secrets);
   },
 };

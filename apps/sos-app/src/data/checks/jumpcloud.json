@@ -21,7 +21,7 @@
   {
    "id": "jumpcloud.policies_require_mfa",
    "title": "Every enabled allow authentication (conditional access) policy requires MFA",
-   "scope": "Policies not disabled and not monitor-only, with effect.action allow, of every type (User Portal, SSO applications, LDAP, Admin Portal); a policy that lets a trusted network sign in with a password alone fails. Skipped when no such policy exists.",
+   "scope": "Policies not disabled and not monitor-only, with effect.action allow, of every type (User Portal, SSO applications, LDAP, Admin Portal); a policy that lets a trusted network sign in with a password alone fails. Skipped when no such policy exists. Default Access Policies, which apply when no conditional access policy does (SSO Applications and LDAP default to Allow authentication without MFA; jumpcloud.com/support/set-a-global-policy, read 2026-10-26), are not read: JumpCloud's API 2.0 OpenAPI file (Last-Modified 2026-10-26) declares /authn/policy/fallback/{resource_type} with a path parameter and no operation, and no JumpCloud SDK or CLI on GitHub calls it (rechecked 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {

@@ -13,7 +13,8 @@
 //   csrutil status                        "System Integrity Protection status: enabled." | "... disabled."
 //   socketfilterfw --getglobalstate       "Firewall is enabled. (State = 1)" | "Firewall is disabled. (State = 0)"
 //   sysadminctl -screenLock status        on stderr: "screenLock delay is 300 seconds" | "screenLock delay is immediate" | "screenLock is off"
-//   pmset -g                              " displaysleep         10"  (minutes; 0 = never)
+//   pmset -g custom                       "Battery Power:" / "AC Power:" blocks, each with " displaysleep 10" (minutes; 0 = never);
+//                                         plain pmset -g (the source in use) only when -g custom gives no block
 //   defaults -currentHost read com.apple.screensaver idleTime     seconds; absent or 0 = never
 //   defaults export /Library/Preferences/com.apple.SoftwareUpdate -    XML plist. Keys and defaults (all true when absent)
 //       from developer.apple.com/documentation/devicemanagement/softwareupdate: that MDM payload is deprecated in
@@ -139,6 +140,21 @@ export function lockSeconds(screenLock: string, pmset: string, idleTime: string 
   return { total: onset + d, why: `idle ${onset} s before the display sleeps or the screen saver starts, then ${d} s before a password is asked` };
 }
 
+/**
+ * The pmset settings of each power source, from `pmset -g custom` ("Battery Power:", "AC Power:", "UPS Power:",
+ * each followed by its settings). man pmset (macOS 27.0.1, read 2026-10-26): "-g (with no argument) will display the
+ * settings currently in use" and "-g custom displays custom settings for all power sources". A laptop on its charger
+ * shows only the AC values under plain -g, so its battery display sleep went unseen.
+ */
+export function powerSources(custom: string): [string, string][] {
+  const out: [string, string][] = [];
+  for (const block of custom.split(/^(?=\S[^\n]*Power:\s*$)/m)) {
+    const name = block.match(/^(\S[^\n]*Power):\s*$/m)?.[1];
+    if (name && /displaysleep/.test(block)) out.push([name, block]);
+  }
+  return out;
+}
+
 export async function runMacos(exec: MacExec, o: { lockSeconds: number; xprotectDays: number; backupDays: number }, now: Date): Promise<Result[]> {
   const sh = (c: string, a: string[], t?: number) => exec(c, a, t);
   const [ver, serialOut] = await Promise.all([sh(CMD.swVers, ["-productVersion"]), sh(CMD.ioreg, ["-rd1", "-c", "IOPlatformExpertDevice"])]);
@@ -163,8 +179,16 @@ export async function runMacos(exec: MacExec, o: { lockSeconds: number; xprotect
   if (prefs.code !== 0 && !prefs.missing) out.add("automatic_updates", "pass", `no software-update preference is set, so every automatic option is on (Apple's default)`);
   else if (prefs.missing) gone(prefs, "defaults", "automatic_updates");
   else {
-    const off = UPDATE_KEYS.filter((k) => plistBool(prefs.stdout, k) === false);
-    out.add("automatic_updates", off.length ? "fail" : "pass", off.length ? `turned off: ${off.join(", ")}` : `on: ${UPDATE_KEYS.join(", ")} (absent keys default to on)`);
+    // macOS 27 dropped the "Check for updates" switch: Apple's "Software Update settings on Mac" (support.apple.com/
+    // guide/mac-help/mchla7037245, macOS 27 edition, read 2026-10-26) lists only "Download new updates when available",
+    // "Install macOS updates" and "Install Security Responses and system files", and the SoftwareUpdate payload marks
+    // AutomaticCheckEnabled "Removed: macOS 27+" (developer.apple.com/documentation/devicemanagement/softwareupdate,
+    // read 2026-10-26). A leftover false there can be neither seen nor changed in Settings, so from 27 it is not judged.
+    const major = Number((osVersion ?? "").split(".")[0]);
+    const keys = major >= 27 ? UPDATE_KEYS.filter((k) => k !== "AutomaticCheckEnabled") : [...UPDATE_KEYS];
+    const note = keys.length < UPDATE_KEYS.length ? "; AutomaticCheckEnabled not judged on macOS 27 or later" : "";
+    const off = keys.filter((k) => plistBool(prefs.stdout, k) === false);
+    out.add("automatic_updates", off.length ? "fail" : "pass", off.length ? `turned off: ${off.join(", ")}${note}` : `on: ${keys.join(", ")} (absent keys default to on)${note}`);
   }
 
   const [gk, xs] = await Promise.all([sh(CMD.spctl, ["--status"]), sh(CMD.xprotect, ["status", "--json"])]);
@@ -193,13 +217,19 @@ export async function runMacos(exec: MacExec, o: { lockSeconds: number; xprotect
   if (state === undefined) gone(fw, "socketfilterfw --getglobalstate", "firewall");
   else out.add("firewall", state === "0" ? "fail" : "pass", state === "0" ? "the macOS application firewall is off" : `the macOS application firewall is on (state ${state})`);
 
-  const [sl, pm, idle] = await Promise.all([sh(CMD.sysadminctl, ["-screenLock", "status"]), sh(CMD.pmset, ["-g"]),
+  const [sl, pmc, idle] = await Promise.all([sh(CMD.sysadminctl, ["-screenLock", "status"]), sh(CMD.pmset, ["-g", "custom"]),
     sh(CMD.defaults, ["-currentHost", "read", "com.apple.screensaver", "idleTime"])]);
   if (!/screenLock/i.test(`${sl.stdout}${sl.stderr}`)) gone(sl, "sysadminctl -screenLock status", "screen_lock");
   else {
-    const l = lockSeconds(`${sl.stdout}\n${sl.stderr}`, pm.stdout, idle.code === 0 ? idle.stdout.trim() : undefined);
+    // Every power source is judged and the worst one counts; plain -g (the source in use) only when -g custom says nothing.
+    let sources = pmc.code === 0 ? powerSources(pmc.stdout) : [];
+    if (!sources.length) sources = [["the power source in use", (await sh(CMD.pmset, ["-g"])).stdout]];
+    const saver = idle.code === 0 ? idle.stdout.trim() : undefined;
+    const each = sources.map(([name, txt]) => ({ name, ...lockSeconds(`${sl.stdout}\n${sl.stderr}`, txt, saver) }));
+    const l = each.find((x) => x.total === null) ?? each.reduce((a, b) => ((b.total as number) > (a.total as number) ? b : a));
+    const on = sources.length > 1 ? ` on ${l.name}` : "";
     out.add("screen_lock", l.total !== null && l.total <= o.lockSeconds ? "pass" : "fail",
-      `${l.total === null ? "never locks" : `locks after ${l.total} s`} (at most ${o.lockSeconds}): ${l.why}`);
+      `${l.total === null ? "never locks" : `locks after ${l.total} s`}${on} (at most ${o.lockSeconds}): ${l.why}${sources.length > 1 ? ` (worst of ${sources.map(([n]) => n).join(", ")})` : ""}`);
   }
 
   const lw = await sh(CMD.defaults, ["export", "/Library/Preferences/com.apple.loginwindow", "-"]);

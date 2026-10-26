@@ -1,7 +1,7 @@
 // AWS client for the collector: SigV4-signed HTTPS calls with Node's fetch, no SDK. Three wire
 // protocols are used, each a read action only:
 //   query  (IAM, EC2, RDS, STS)               GET  ?Action=<Get|List|Describe…>&Version=…   XML reply
-//   json   (CloudTrail, Config, KMS)          POST x-amz-target: <Service>.<Get|List|Describe…>  JSON reply
+//   json   (CloudTrail, Config, KMS, SSM)     POST x-amz-target: <Service>.<Get|List|Describe…>  JSON reply
 //   rest   (GuardDuty, Security Hub, Backup,  GET  <path>                                  JSON or XML reply
 //           Access Analyzer, S3, S3 Control)
 // The client refuses any action whose name does not start with Get, List or Describe, apart from
@@ -117,6 +117,9 @@ const JSON_TARGET: Record<string, string> = {
   cloudtrail: "com.amazonaws.cloudtrail.v20131101.CloudTrail_20131101",
   config: "StarlingDoveService",
   kms: "TrentService",
+  // AWS Systems Manager API Reference, ListResourceComplianceSummaries sample request (read 2026-10-26):
+  // "X-Amz-Target: AmazonSSM.ListResourceComplianceSummaries", Content-Type application/x-amz-json-1.1.
+  ssm: "AmazonSSM",
 };
 
 export function jsonReq(service: keyof typeof JSON_TARGET | string, region: string, action: string, payload: unknown): AwsRequest {

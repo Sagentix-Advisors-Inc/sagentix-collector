@@ -20,10 +20,7 @@
 
 import type { Result, Source, SourceContext } from "../types.ts";
 import { cachedToken, tokenRequest } from "./oauth.ts";
-import {
-  Emitter, fetchRest, isObj, ok, realSleep, redact, str, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, fetchRest, isObj, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, cmpVersion, deviceResource, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
 
 export const JAMF_ENV = { url: "JAMF_URL", client: "JAMF_CLIENT_ID", secret: "JAMF_CLIENT_SECRET" } as const;
@@ -82,6 +79,7 @@ export async function jamfChecks(api: RestApi, server: string, o: { inventoryDay
   if ("error" in got) { for (const c of JAMF_CHECKS) out.skip(c, got.error, "computer inventory"); return out.results; }
   if (!got.items.length) { out.skipAll(JAMF_CHECKS, "Jamf Pro lists no computer; nothing to judge"); return out.results; }
   const cap = got.truncated ? `; only the first ${o.maxComputers} computers read (--jamf-max-computers)` : "";
+  const from = out.results.length;
   const floor = o.minOs.get("macos") ?? o.minOs.get("*");
   if (!floor) out.add("os_minimum", "skipped", `no minimum macOS version given (--jamf-min-os, e.g. 15.0); ${got.items.length} computer(s) not judged`);
 
@@ -114,6 +112,7 @@ export async function jamfChecks(api: RestApi, server: string, o: { inventoryDay
     if (typeof managed === "boolean") out.add("managed", managed ? "pass" : "fail", `remoteManagement.managed is ${managed}${where}`, res);
     else out.add("managed", "skipped", `remoteManagement.managed not reported${where}`, res);
   }
+  stampRead(out.results, from, listRead(got));   // a capped list leaves devices unseen: format 3 says so
   return out.results;
 }
 

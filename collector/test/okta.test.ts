@@ -118,3 +118,17 @@ test("okta: the fetch client sends SSWS and GET only; the token never reaches a 
   assert.ok(!JSON.stringify(rs).includes("00okta-api-token-value-777"));
   for (const r of rs) assert.equal(r.result, "skipped");
 });
+
+test("okta.global_session_requires_mfa: a rule that hands the session to app sign-in policies (PASSWORD_IDP_ANY_FACTOR) passes only when they all require 2FA", async () => {
+  const handed = { "/api/v1/policies/pg1/rules": ok([{ id: "r1", name: "Default Rule", status: "ACTIVE", actions: { signon: { access: "ALLOW", requireFactor: false, primaryFactor: "PASSWORD_IDP_ANY_FACTOR" } } }]) };
+  const pass = of(await runWith(C, fakeRest(BASE, { ...strong(), ...handed })), "okta.global_session_requires_mfa")[0];
+  assert.equal(pass.result, "pass", pass.detail);
+  assert.match(pass.detail, /PASSWORD_IDP_ANY_FACTOR/);
+  const weakApps = of(await runWith(C, fakeRest(BASE, { ...strong(), ...handed, "/api/v1/policies/pa1/rules": ok(aspRule("1FA")) })), "okta.global_session_requires_mfa")[0];
+  assert.equal(weakApps.result, "fail", weakApps.detail);
+  const classic = of(await runWith(C, fakeRest(BASE, { ...strong(), ...handed, "/api/v1/policies?type=ACCESS_POLICY": res(400, { errorCode: "E0000001", errorSummary: "Api validation failed: type" }) })), "okta.global_session_requires_mfa")[0];
+  assert.equal(classic.result, "skipped", classic.detail);
+  // A password-only session rule without requireFactor still fails, whatever the app policies say.
+  const pwdOnly = { "/api/v1/policies/pg1/rules": ok([{ id: "r1", name: "Default Rule", status: "ACTIVE", actions: { signon: { access: "ALLOW", requireFactor: false, primaryFactor: "PASSWORD_IDP" } } }]) };
+  assert.equal(of(await runWith(C, fakeRest(BASE, { ...strong(), ...pwdOnly })), "okta.global_session_requires_mfa")[0].result, "fail");
+});

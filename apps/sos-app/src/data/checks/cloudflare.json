@@ -43,8 +43,8 @@
   },
   {
    "id": "cloudflare.ssl_mode",
-   "title": "Origin connections use Full (strict) TLS",
-   "scope": "Edge to origin only.",
+   "title": "Origin connections use Full (strict) TLS, or the Strict origin-pull mode",
+   "scope": "Edge to origin only. Both modes validate the origin certificate (developers.cloudflare.com/ssl/origin-configuration/ssl-modes/, read 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {
@@ -104,7 +104,7 @@
   {
    "id": "cloudflare.bot_protection",
    "title": "Bot Fight Mode, or Super Bot Fight Mode acting on definitely automated traffic, is on",
-   "scope": "Inbound HTTP(S) through the Cloudflare proxy; Enterprise Bot Management (rules on the bot score) is reported as skipped.",
+   "scope": "Inbound HTTP(S) through the Cloudflare proxy; Enterprise Bot Management (rules on the bot score) is reported as skipped. On a zone with a CNAME to cfargotunnel.com, where Cloudflare asks that definitely automated traffic stay allowed (developers.cloudflare.com/bots/get-started/super-bot-fight-mode/, read 2026-10-26), likely automated traffic set to block or challenge passes and anything else is skipped.",
    "evidenceType": "Configuration"
   },
   {
@@ -116,7 +116,7 @@
   {
    "id": "cloudflare.edge_certificates_valid",
    "title": "Every edge certificate pack is active and not near expiry",
-   "scope": "Certificates Cloudflare serves at the edge; more than 30 days left for uploaded certificates, more than 14 for Cloudflare-managed ones. Origin certificates are not visible.",
+   "scope": "Certificates Cloudflare serves at the edge; more than 30 days left for uploaded certificates; for Cloudflare-managed ones more than 14 (3-month and 1-year), 3 (1-month) or 1 (2-week), set against Cloudflare's renewal windows of 30, 7 and 3 days (developers.cloudflare.com/ssl/reference/certificate-validity-periods/, read 2026-10-26). Origin certificates are not visible.",
    "evidenceType": "Configuration"
   },
   {
@@ -128,13 +128,13 @@
   {
    "id": "cloudflare.page_shield",
    "title": "Client-side security (Page Shield) monitors the scripts pages load",
-   "scope": "Scripts and connections seen in visitors' browsers on the zone; Pro plan or higher.",
+   "scope": "Scripts and connections seen in visitors' browsers on the zone; script monitoring is on every plan, Free included (developers.cloudflare.com/client-side-security/, last updated 2026-08-14, read 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {
    "id": "cloudflare.security_txt",
-   "title": "Cloudflare serves a security.txt with a contact",
-   "scope": "A security.txt served by Cloudflare's Security Center; one served by the origin is not visible and gives a fail.",
+   "title": "Cloudflare serves a security.txt with a contact and an expiry still to come",
+   "scope": "A security.txt served by Cloudflare's Security Center; one served by the origin is not visible and gives a fail. An Expires at or before the run date fails (RFC 9116 §2.5.5).",
    "evidenceType": "Configuration"
   },
   {
@@ -157,7 +157,7 @@
   },
   {
    "id": "cloudflare.access_apps_have_policies",
-   "title": "Every Access application has an allow policy that names who may enter, and no bypass for everyone",
+   "title": "Every Access application has an allow or service auth policy that names who may enter, and no bypass for everyone",
    "scope": "Applications behind Cloudflare Access; applications not behind Access are not visible.",
    "evidenceType": "Configuration"
   },
@@ -170,7 +170,7 @@
   {
    "id": "cloudflare.access_session_duration",
    "title": "Access application sessions last 24 hours or less",
-   "scope": "Applications behind Cloudflare Access; an unset duration is Access's default of 24 hours.",
+   "scope": "Applications behind Cloudflare Access; an unset duration is Access's default of 24 hours. An allow policy's own session duration overrides the application's, so the longest one is judged.",
    "evidenceType": "Configuration"
   },
   {
@@ -189,6 +189,12 @@
    "id": "cloudflare.r2_public_access_off",
    "title": "No R2 bucket is public through its r2.dev domain",
    "scope": "R2 buckets in the default jurisdiction; public access through a custom domain is a deliberate choice and not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "cloudflare.gateway_antivirus",
+   "title": "Gateway scans downloads for malware, with TLS decryption on",
+   "scope": "The account's Zero Trust configuration (GET /accounts/{id}/gateway/configuration, read 2026-10-26): settings.antivirus.enabled_download_phase and settings.tls_decrypt.enabled must both be true, since Gateway cannot scan HTTPS files it does not decrypt (developers.cloudflare.com/cloudflare-one/traffic-policies/http-policies/tls-decryption/, last updated 2026-10-15). Upload scanning and fail_closed are reported. Only traffic sent through Gateway is scanned; Do Not Scan and Do Not Inspect policies, and whether devices send their traffic, are not judged. Needs Zero Trust Read [unconfirmed: the OpenAPI names no token group for this endpoint].",
    "evidenceType": "Configuration"
   }
  ]

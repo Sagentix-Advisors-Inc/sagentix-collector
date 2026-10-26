@@ -6,10 +6,10 @@
  ],
  "engine": {
   "name": "Checkov",
-  "version": "3.3.21",
-  "tag": "3.3.21",
-  "commit": "bbe2e102088f6ef4204ea6ff728e2c2ade38cc51",
-  "tarballSha256": "2084ae6d0d2a06aa819007feabf5d644e4538c724a990c5c14666b8e293749cf",
+  "version": "3.3.27",
+  "tag": "3.3.27",
+  "commit": "22ba0d2077cd3a09fc1547ae80be9ffe4e471e6c",
+  "tarballSha256": "8404798c2257fede6d169bde4be9beaba9dc6f6b597cc9098145dfd8b0738042",
   "licence": "Apache-2.0",
   "url": "https://github.com/bridgecrewio/checkov"
  },
@@ -17,331 +17,331 @@
   {
    "id": "checkov.ckv_aws_1",
    "title": "CKV_AWS_1: IAM policy documents grant no full '*:*' administrative privileges",
-   "scope": "Checkov 3.3.21 check CKV_AWS_1 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard admin grant. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_1 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard admin grant. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_103",
    "title": "CKV_AWS_103: Load balancer listeners use TLS 1.2 or later",
-   "scope": "Checkov 3.3.21 check CKV_AWS_103 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_103 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_145",
    "title": "CKV_AWS_145: S3 buckets are encrypted with KMS by default",
-   "scope": "Checkov 3.3.21 check CKV_AWS_145 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_145 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_158",
    "title": "CKV_AWS_158: CloudWatch log groups are encrypted with KMS",
-   "scope": "Checkov 3.3.21 check CKV_AWS_158 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_158 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_16",
    "title": "CKV_AWS_16: RDS instances are encrypted at rest",
-   "scope": "Checkov 3.3.21 check CKV_AWS_16 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_16 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_17",
    "title": "CKV_AWS_17: RDS instances are not publicly accessible",
-   "scope": "Checkov 3.3.21 check CKV_AWS_17 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public endpoint. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_17 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public endpoint. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_18",
    "title": "CKV_AWS_18: S3 buckets have access logging",
-   "scope": "Checkov 3.3.21 check CKV_AWS_18 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_18 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_19",
    "title": "CKV_AWS_19: S3 buckets have server-side encryption",
-   "scope": "Checkov 3.3.21 check CKV_AWS_19 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_19 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_2",
    "title": "CKV_AWS_2: Application load balancers listen on HTTPS",
-   "scope": "Checkov 3.3.21 check CKV_AWS_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_20",
    "title": "CKV_AWS_20: S3 buckets do not grant READ to everyone",
-   "scope": "Checkov 3.3.21 check CKV_AWS_20 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public read. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_20 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public read. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_24",
    "title": "CKV_AWS_24: Security groups do not allow SSH (22) from 0.0.0.0/0",
-   "scope": "Checkov 3.3.21 check CKV_AWS_24 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_24 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_25",
    "title": "CKV_AWS_25: Security groups do not allow RDP (3389) from 0.0.0.0/0",
-   "scope": "Checkov 3.3.21 check CKV_AWS_25 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_25 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_26",
    "title": "CKV_AWS_26: SNS topics are encrypted at rest",
-   "scope": "Checkov 3.3.21 check CKV_AWS_26 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_26 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_27",
    "title": "CKV_AWS_27: SQS queues are encrypted at rest",
-   "scope": "Checkov 3.3.21 check CKV_AWS_27 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_27 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_3",
    "title": "CKV_AWS_3: EBS volumes are encrypted at rest",
-   "scope": "Checkov 3.3.21 check CKV_AWS_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_338",
    "title": "CKV_AWS_338: CloudWatch log groups keep logs for at least one year",
-   "scope": "Checkov 3.3.21 check CKV_AWS_338 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit record retention. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_338 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit record retention. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_35",
    "title": "CKV_AWS_35: CloudTrail logs are encrypted at rest with KMS",
-   "scope": "Checkov 3.3.21 check CKV_AWS_35 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit logs are encrypted and protected. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_35 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit logs are encrypted and protected. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_36",
    "title": "CKV_AWS_36: CloudTrail log file validation is enabled",
-   "scope": "Checkov 3.3.21 check CKV_AWS_36 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit logs carry a cryptographic integrity check. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_36 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; audit logs carry a cryptographic integrity check. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_41",
    "title": "CKV_AWS_41: No hard-coded AWS access key in the provider block",
-   "scope": "Checkov 3.3.21 check CKV_AWS_41 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_41 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_45",
    "title": "CKV_AWS_45: No hard-coded secret in Lambda environment variables",
-   "scope": "Checkov 3.3.21 check CKV_AWS_45 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_45 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_46",
    "title": "CKV_AWS_46: No hard-coded secret in EC2 user data",
-   "scope": "Checkov 3.3.21 check CKV_AWS_46 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_46 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no embedded credentials. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_53",
    "title": "CKV_AWS_53: S3 public access block: block public ACLs",
-   "scope": "Checkov 3.3.21 check CKV_AWS_53 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_53 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_54",
    "title": "CKV_AWS_54: S3 public access block: block public policy",
-   "scope": "Checkov 3.3.21 check CKV_AWS_54 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_54 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_55",
    "title": "CKV_AWS_55: S3 public access block: ignore public ACLs",
-   "scope": "Checkov 3.3.21 check CKV_AWS_55 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_55 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_56",
    "title": "CKV_AWS_56: S3 public access block: restrict public buckets",
-   "scope": "Checkov 3.3.21 check CKV_AWS_56 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_56 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; public access blocked. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_57",
    "title": "CKV_AWS_57: S3 buckets do not grant WRITE to everyone",
-   "scope": "Checkov 3.3.21 check CKV_AWS_57 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public write. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_57 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public write. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_62",
    "title": "CKV_AWS_62: IAM policies grant no full '*:*' administrative privileges",
-   "scope": "Checkov 3.3.21 check CKV_AWS_62 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard admin grant. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_62 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard admin grant. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_63",
    "title": "CKV_AWS_63: IAM policy documents allow no '*' action",
-   "scope": "Checkov 3.3.21 check CKV_AWS_63 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard action. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_63 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no wildcard action. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_64",
    "title": "CKV_AWS_64: Redshift clusters are encrypted at rest",
-   "scope": "Checkov 3.3.21 check CKV_AWS_64 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_64 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_67",
    "title": "CKV_AWS_67: CloudTrail is enabled in all regions",
-   "scope": "Checkov 3.3.21 check CKV_AWS_67 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; account activity is logged. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_67 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; account activity is logged. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_7",
    "title": "CKV_AWS_7: Customer-managed KMS keys rotate",
-   "scope": "Checkov 3.3.21 check CKV_AWS_7 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; key rotation is automated. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_7 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; key rotation is automated. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_8",
    "title": "CKV_AWS_8: Launch configurations and instances encrypt their EBS volumes",
-   "scope": "Checkov 3.3.21 check CKV_AWS_8 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_8 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_aws_84",
    "title": "CKV_AWS_84: Elasticsearch/OpenSearch domains have logging enabled",
-   "scope": "Checkov 3.3.21 check CKV_AWS_84 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AWS_84 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_10",
    "title": "CKV_AZURE_10: Network security groups restrict SSH from the internet",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_10 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_10 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_2",
    "title": "CKV_AZURE_2: Azure managed disks are encrypted",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption at rest. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_3",
    "title": "CKV_AZURE_3: Azure storage accounts accept HTTPS only",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_33",
    "title": "CKV_AZURE_33: Azure queue storage logs read, write and delete requests",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_33 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_33 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_44",
    "title": "CKV_AZURE_44: Azure storage accounts require the latest TLS version",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_44 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_44 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_59",
    "title": "CKV_AZURE_59: Azure storage accounts disallow public access",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_59 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public access. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_59 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public access. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_azure_9",
    "title": "CKV_AZURE_9: Network security groups restrict RDP from the internet",
-   "scope": "Checkov 3.3.21 check CKV_AZURE_9 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_AZURE_9 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_docker_3",
    "title": "CKV_DOCKER_3: Dockerfiles create and use a non-root user",
-   "scope": "Checkov 3.3.21 check CKV_DOCKER_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; least privilege. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_DOCKER_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; least privilege. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_2",
    "title": "CKV_GCP_2: Compute firewall ingress does not allow unrestricted SSH",
-   "scope": "Checkov 3.3.21 check CKV_GCP_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_2 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_28",
    "title": "CKV_GCP_28: Cloud Storage buckets are not anonymously or publicly accessible",
-   "scope": "Checkov 3.3.21 check CKV_GCP_28 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public access. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_28 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no public access. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_3",
    "title": "CKV_GCP_3: Compute firewall ingress does not allow unrestricted RDP",
-   "scope": "Checkov 3.3.21 check CKV_GCP_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_3 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no unrestricted remote-admin ingress. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_43",
    "title": "CKV_GCP_43: Cloud KMS keys rotate within 90 days",
-   "scope": "Checkov 3.3.21 check CKV_GCP_43 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; key rotation is automated. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_43 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; key rotation is automated. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_6",
    "title": "CKV_GCP_6: Cloud SQL instances require SSL for incoming connections",
-   "scope": "Checkov 3.3.21 check CKV_GCP_6 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_6 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; encryption in transit. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_gcp_62",
    "title": "CKV_GCP_62: Cloud Storage buckets log access",
-   "scope": "Checkov 3.3.21 check CKV_GCP_62 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_GCP_62 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; access is logged. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_16",
    "title": "CKV_K8S_16: Kubernetes containers are not privileged",
-   "scope": "Checkov 3.3.21 check CKV_K8S_16 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; container isolation. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_16 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; container isolation. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_17",
    "title": "CKV_K8S_17: Kubernetes containers do not share the host PID namespace",
-   "scope": "Checkov 3.3.21 check CKV_K8S_17 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; process isolation. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_17 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; process isolation. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_18",
    "title": "CKV_K8S_18: Kubernetes containers do not share the host IPC namespace",
-   "scope": "Checkov 3.3.21 check CKV_K8S_18 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; process isolation. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_18 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; process isolation. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_19",
    "title": "CKV_K8S_19: Kubernetes containers do not share the host network namespace",
-   "scope": "Checkov 3.3.21 check CKV_K8S_19 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; network isolation. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_19 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; network isolation. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_20",
    "title": "CKV_K8S_20: Kubernetes containers do not allow privilege escalation",
-   "scope": "Checkov 3.3.21 check CKV_K8S_20 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no setuid escalation. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_20 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; no setuid escalation. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_22",
    "title": "CKV_K8S_22: Kubernetes containers use a read-only root filesystem",
-   "scope": "Checkov 3.3.21 check CKV_K8S_22 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; a change needs a redeployment, not an edit in place. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_22 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; a change needs a redeployment, not an edit in place. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_23",
    "title": "CKV_K8S_23: Kubernetes containers do not run as root",
-   "scope": "Checkov 3.3.21 check CKV_K8S_23 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; least privilege. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_23 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; least privilege. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {
    "id": "checkov.ckv_k8s_35",
    "title": "CKV_K8S_35: Kubernetes secrets are mounted as files, not environment variables",
-   "scope": "Checkov 3.3.21 check CKV_K8S_35 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; authenticators protected. Resources deployed outside that code are not seen.",
+   "scope": "Checkov 3.3.27 check CKV_K8S_35 over the infrastructure-as-code files or Terraform plan in one report: one result per report, counting the resources it evaluated; authenticators protected. Resources deployed outside that code are not seen.",
    "evidenceType": "Configuration"
   },
   {

@@ -1,0 +1,26 @@
+# Go module floors for the engines built from source (collector/runner/build_go_engine.sh).
+# <binary> <module> <minimum version> [advisories]. Written by go_fixes.py from a Trivy scan; a line only moves up.
+# A line whose last word is companion-of-<module> was added by hand: that module's floor breaks the build without it.
+gitleaks github.com/klauspost/compress v1.18.7 CVE-2026-63209
+gitleaks github.com/mholt/archives v0.1.5 companion-of-rardecode-v2.2.0
+gitleaks github.com/nwaples/rardecode/v2 v2.2.0 CVE-2025-11579
+gitleaks github.com/ulikunitz/xz v0.5.15 CVE-2025-58058
+gitleaks golang.org/x/crypto v0.56.0 CVE-2026-56855 CVE-2026-78662
+gitleaks golang.org/x/text v0.41.0 CVE-2026-56851
+kubescape github.com/aquasecurity/trivy v0.72.0 CVE-2026-63328
+kubescape github.com/cilium/cilium v1.19.5 CVE-2026-56742 CVE-2026-56743
+kubescape github.com/containerd/containerd/v2 v2.3.6 CVE-2026-53493
+kubescape github.com/go-chi/chi/v5 v5.4.0 CVE-2026-114437
+kubescape go.opentelemetry.io/otel/sdk/log v1.47.0 CVE-2026-81872
+kubescape go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.23.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.23.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape go.opentelemetry.io/otel/exporters/stdout/stdoutlog v0.23.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape go.opentelemetry.io/otel/log v1.47.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape go.opentelemetry.io/contrib/bridges/otelslog v0.21.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape github.com/uptrace/opentelemetry-go-extra/otelutil v0.4.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape github.com/uptrace/opentelemetry-go-extra/otelzap v0.4.0 companion-of-go.opentelemetry.io/otel/sdk/log
+kubescape golang.org/x/image v0.45.0 CVE-2026-46603
+kubescape golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032
+opa golang.org/x/crypto v0.56.0 CVE-2026-56855 CVE-2026-78662
+opa golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032
+trivy golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032

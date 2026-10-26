@@ -1,5 +1,5 @@
 // Google Cloud: per-project checks over Google's REST APIs with a read-only service account's access
-// token (GOOGLE_OAUTH_ACCESS_TOKEN). Every call is a GET, except POST :getIamPolicy, which reads.
+// token (GOOGLE_OAUTH_ACCESS_TOKEN). Every call is a GET, except POST :getIamPolicy and :getAncestry, which read.
 
 import type { Source } from "../types.ts";
 import { Results, allSkipped, list, scrub } from "./shared-cloud.ts";

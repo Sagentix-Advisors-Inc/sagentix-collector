@@ -8,8 +8,8 @@
  "checks": [
   {
    "id": "azure.defender_plans",
-   "title": "Each Microsoft Defender for Cloud plan is on (Standard tier)",
-   "scope": "One result per plan the subscription lists; deprecated plans are left out. Shows the plan is paid for and on, not that its alerts are triaged.",
+   "title": "Each Microsoft Defender for Cloud plan the subscription's resources need is on (Standard tier)",
+   "scope": "One result per plan the subscription lists; deprecated plans are left out. Since 2026-10-26 a plan is required only when the subscription holds a resource type it protects (Resources - List filtered by type: for example virtual machines, scale sets and Arc machines for Servers, storage accounts for Storage, AKS clusters and registries for Containers); otherwise it is skipped as not needed. Defender for Resource Manager (Arm) is always required. CloudPosture and plans the collector has no mapping for are reported, not judged. Shows the plan is paid for and on, not that its alerts are triaged.",
    "evidenceType": "Configuration"
   },
   {
@@ -77,6 +77,18 @@
    "title": "Each Recovery Services vault protects at least one item, and the subscription has a vault",
    "scope": "Azure Backup in Recovery Services vaults; Backup vaults (Microsoft.DataProtection), restore tests and retention are not read.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.sql_firewall_not_open",
+   "title": "No Azure SQL server firewall rule opens it to the whole internet",
+   "scope": "Server-level IP firewall rules of each Azure SQL logical server: a rule wider than 16,777,216 addresses (a /8) fails. A server with publicNetworkAccess Disabled passes without its rules being read, since only private endpoints connect then. The Allow Azure services rule (0.0.0.0) is reported, not failed, though it admits other customers' Azure services too (learn.microsoft.com/azure/azure-sql/database/firewall-configure, read 2026-10-26). Database-level rules, virtual network rules, managed instances and Synapse are not read.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "azure.vm_patches_current",
+   "title": "Each running virtual machine has a recent patch assessment with no critical or security update pending",
+   "scope": "Running Azure VMs, from the instance view's patchStatus.availablePatchSummary (criticalAndSecurityPatchCount, status, lastModifiedTime; Virtual Machines - Instance View, read 2026-10-26). Fails when the VM has no assessment, the last one is older than 7 days or did not succeed, or a critical or security patch is pending; stopped VMs are skipped. The patch mode is reported. Arc-enabled servers and scale-set instances are not read.",
+   "evidenceType": "Report"
   }
  ]
 }

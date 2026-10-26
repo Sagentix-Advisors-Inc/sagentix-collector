@@ -33,7 +33,7 @@ function strong(): Routes {
     "/roleManagement/directory/roleEligibilitySchedules": page([sched("e1", "u1", "Eligible", "noExpiration")]),
     "/policies/authorizationPolicy": res(200, { id: "authorizationPolicy", allowInvitesFrom: "adminsAndGuestInviters" }),
     "/users": (url) => url.includes("signInActivity") ? page([
-        { id: "u1", accountEnabled: true, createdDateTime: daysAgo(400), signInActivity: { lastSignInDateTime: daysAgo(2) } },
+        { id: "u1", accountEnabled: true, createdDateTime: daysAgo(400), signInActivity: { lastSignInDateTime: daysAgo(2), lastSuccessfulSignInDateTime: daysAgo(2) } },
         { id: "u2", accountEnabled: true, createdDateTime: daysAgo(10), signInActivity: { lastSignInDateTime: null } },
         { id: "u3", accountEnabled: false, createdDateTime: daysAgo(900), signInActivity: { lastSignInDateTime: daysAgo(800) } },
       ])
@@ -85,6 +85,32 @@ test("entra: without P2, PIM and risk policies are skipped, not failed", async (
     "/identity/conditionalAccess/policies": page([caMfa, caLegacy]) }));
   assert.equal(of(rs, "entra.pim_no_permanent_admins")[0].result, "skipped");
   assert.equal(of(rs, "entra.risk_policies")[0].result, "skipped");
+});
+
+test("entra.stale_accounts: a failed sign-in yesterday does not keep an account active; only lastSuccessfulSignInDateTime counts", async () => {
+  const users = (signInActivity: Record<string, unknown>) => ({ "/users": (url: string) => (url.includes("signInActivity")
+    ? page([{ id: "sprayed", accountEnabled: true, createdDateTime: daysAgo(500), signInActivity }]) : page([])) });
+  const sprayed = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...users({ lastSignInDateTime: daysAgo(1), lastNonInteractiveSignInDateTime: daysAgo(1), lastSuccessfulSignInDateTime: daysAgo(200) }) })), "entra.stale_accounts")[0];
+  assert.equal(sprayed.result, "fail", sprayed.detail);
+  const never = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...users({ lastSignInDateTime: daysAgo(1), lastSuccessfulSignInDateTime: null }) })), "entra.stale_accounts")[0];
+  assert.equal(never.result, "fail", never.detail);   // attempts only, created 500 days ago
+  const used = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...users({ lastSignInDateTime: daysAgo(90), lastSuccessfulSignInDateTime: daysAgo(3) }) })), "entra.stale_accounts")[0];
+  assert.equal(used.result, "pass", used.detail);
+});
+
+test("entra.pim_no_permanent_admins: a tenant licensed for PIM only through Entra ID Governance is judged, not skipped", async () => {
+  const gov = { "/subscribedSkus": page([{ skuPartNumber: "Microsoft_Entra_ID_Governance", capabilityStatus: "Enabled", servicePlans: [{ servicePlanName: "Entra_Identity_Governance" }, { servicePlanName: "AAD_PREMIUM" }] }]) };
+  assert.equal(of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...gov })), "entra.pim_no_permanent_admins")[0].result, "pass");
+  const over = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...gov, "/roleManagement/directory/roleAssignmentSchedules": page(["a", "b", "c"].map((p) => sched(p, p, "Assigned", "noExpiration"))) })), "entra.pim_no_permanent_admins")[0];
+  assert.equal(over.result, "fail", over.detail);
+});
+
+test("entra.audit_log_available: an empty log on Entra ID Free (seven days kept) is skipped; on P1 or P2 (30 days) it fails", async () => {
+  const empty = { "/auditLogs/directoryAudits": page([]) };
+  const free = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...empty, "/subscribedSkus": page([{ skuPartNumber: "O365_BUSINESS_PREMIUM", capabilityStatus: "Enabled", servicePlans: [{ servicePlanName: "EXCHANGE_S_STANDARD" }] }]) })), "entra.audit_log_available")[0];
+  assert.equal(free.result, "skipped", free.detail);
+  assert.match(free.detail, /seven days/);
+  assert.equal(of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), ...empty })), "entra.audit_log_available")[0].result, "fail");
 });
 
 test("entra: security defaults on pass without Conditional Access", async () => {

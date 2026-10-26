@@ -15,14 +15,16 @@
 //   GET /accounts/{a}/devices/physical-devices             Zero Trust Read [unconfirmed: the OpenAPI names no group]
 //   GET /accounts/{a}/r2/buckets                           Workers R2 Storage Read
 //   GET /accounts/{a}/r2/buckets/{b}/domains/managed       Workers R2 Storage Read (com.cloudflare.edge.r2.bucket.read)
+//   GET /accounts/{a}/gateway/configuration                Zero Trust Read [unconfirmed: the OpenAPI names no group]
 
-import type { Outcome, Result } from "../../types.ts";
+import type { Outcome, Read, Result } from "../../types.ts";
 import { arr, durationSeconds, getAll, isObj, ok, resultOf, safeGet, str, why, type CfResponse, type CloudflareApi, type Obj } from "./api.ts";
 
 export const ACCOUNT_CHECKS = [
   "account_enforces_2fa", "members_have_2fa", "super_admins_limited", "audit_log_available",
   "account_tokens_expire", "security_notifications", "access_apps_have_policies", "access_mfa_required",
   "access_session_duration", "gateway_dns_filtering", "device_posture_rules", "r2_public_access_off",
+  "gateway_antivirus",
 ] as const;
 export type AccountCheck = (typeof ACCOUNT_CHECKS)[number];
 
@@ -49,11 +51,11 @@ class Out {
   results: Result[] = [];
   readonly resource: string;
   constructor(resource: string) { this.resource = resource; }
-  add(check: AccountCheck, result: Outcome, detail: string, resource = this.resource) {
-    this.results.push({ check: `cloudflare.${check}`, resource, result, detail });
+  add(check: AccountCheck, result: Outcome, detail: string, resource = this.resource, read?: Read) {
+    this.results.push({ ...read, check: `cloudflare.${check}`, resource, result, detail });
   }
   skip(check: AccountCheck, r: CfResponse, what: string, resource = this.resource) {
-    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource);
+    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource, { method: "config-read", apiError: { status: r.status, message: why(r) } });
   }
 }
 
@@ -126,7 +128,31 @@ export async function accountChecks(api: CloudflareApi, account: string, o: Acco
   }
 
   await r2(api, ap, out);
+  await antivirus(api, ap, out);
   return out.results;
+}
+
+// Gateway anti-virus scanning. "Get Zero Trust account configuration" (developers.cloudflare.com/api/resources/
+// zero_trust/subresources/gateway/subresources/configurations/methods/get/, read 2026-10-26): GET
+// /accounts/{a}/gateway/configuration, result.settings.antivirus { enabled_download_phase, enabled_upload_phase,
+// fail_closed } and settings.tls_decrypt.enabled ("whether to inspect encrypted HTTP traffic"). "AV scanning"
+// (developers.cloudflare.com/cloudflare-one/traffic-policies/http-policies/antivirus-scanning/, last updated
+// 2026-10-12, read 2026-10-26): Gateway "inspects files as they pass through the proxy and blocks any file that contains
+// a known malicious payload". "TLS decryption" (.../http-policies/tls-decryption/, last updated 2026-10-15, read
+// 2026-10-26): without inspection "you will lose the ability to ... perform AV scanning", so HTTPS downloads, most of
+// them, are scanned only with TLS decryption on. Downloads are where malicious code comes in; uploads are reported.
+// The OpenAPI (api-schemas 1a8429dc, read 2026-10-26) names no token group for this endpoint, as for gateway/rules:
+// Zero Trust Read [unconfirmed].
+async function antivirus(api: CloudflareApi, ap: string, out: Out): Promise<void> {
+  const r = await safeGet(api, `${ap}/gateway/configuration`);
+  const res = resultOf(r);
+  if (!ok(r) || !isObj(res)) return out.skip("gateway_antivirus", r, "Gateway account configuration");
+  const st = isObj(res.settings) ? res.settings : {};
+  const av = isObj(st.antivirus) ? st.antivirus : {};
+  const tls = isObj(st.tls_decrypt) ? st.tls_decrypt.enabled : undefined;
+  const down = av.enabled_download_phase === true;
+  out.add("gateway_antivirus", down && tls === true ? "pass" : "fail",
+    `antivirus.enabled_download_phase ${j(av.enabled_download_phase ?? null)}, enabled_upload_phase ${j(av.enabled_upload_phase ?? null)}, fail_closed ${j(av.fail_closed ?? null)}; tls_decrypt.enabled ${j(tls ?? null)}; download scanning and TLS decryption on required (only traffic sent through Gateway is scanned)`);
 }
 
 async function members(api: CloudflareApi, ap: string, out: Out, maxSuper: number): Promise<void> {
@@ -213,26 +239,53 @@ async function access(api: CloudflareApi, ap: string, out: Out): Promise<void> {
   for (const a of list) {
     const resource = `access app ${String(a.name ?? "")} (${String(a.domain ?? a.id ?? "?")})`.slice(0, 300);
     const sd = str(a.session_duration);
-    const secs = sd === undefined ? MAX_ACCESS_SESSION_SECONDS : durationSeconds(sd);
-    if (secs === undefined) out.add("access_session_duration", "skipped", `session_duration ${j(sd)} does not parse`, resource);
-    else out.add("access_session_duration", secs <= MAX_ACCESS_SESSION_SECONDS ? "pass" : "fail",
-      `session_duration is ${sd === undefined ? "not set (Access default 24h)" : j(sd)}; 24h or less required`, resource);
+    const appSecs = sd === undefined ? MAX_ACCESS_SESSION_SECONDS : durationSeconds(sd);
+    const appShown = sd === undefined ? "not set (Access default 24h)" : j(sd);
 
     const pr = await safeGet(api, `${ap}/access/apps/${enc(String(a.id))}/policies`);
     if (!ok(pr) || !Array.isArray(resultOf(pr))) {
       out.skip("access_apps_have_policies", pr, "the application's policies", resource);
       out.skip("access_mfa_required", pr, "the application's policies", resource);
+      // A policy's own duration can be longer than the application's, so a short application value proves nothing alone.
+      if (appSecs !== undefined && appSecs > MAX_ACCESS_SESSION_SECONDS) out.add("access_session_duration", "fail", `session_duration is ${appShown}; 24h or less required`, resource);
+      else out.skip("access_session_duration", pr, "the application's policies (a policy session duration overrides the application's)", resource);
       continue;
     }
     const pols = (resultOf(pr) as unknown[]).filter(isObj) as Rule[];
     const allow = pols.filter((p) => p.decision === "allow");
+
+    // The application token lasts the policy session duration, "which defaults to the application session
+    // duration" (developers.cloudflare.com/cloudflare-one/access-controls/access-settings/session-management/,
+    // last updated 2026-10-14, read 2026-10-26: "Policy session — Controls access to a specific application for
+    // users matching a specific policy"). So the longest allow policy is what a user gets, not the application value.
+    const lens = allow.map((p) => { const ps = str(p.session_duration); return { ps, secs: ps === undefined ? appSecs : durationSeconds(ps) }; });
+    const own = lens.filter((l) => l.ps !== undefined);
+    const unparsed = own.find((l) => l.secs === undefined);
+    if (unparsed) out.add("access_session_duration", "skipped", `a policy session_duration ${j(unparsed.ps)} does not parse`, resource);
+    else if (lens.some((l) => l.secs === undefined) || (!allow.length && appSecs === undefined)) out.add("access_session_duration", "skipped", `session_duration ${j(sd)} does not parse`, resource);
+    else {
+      const worst = Math.max(...(allow.length ? lens.map((l) => l.secs as number) : [appSecs as number]));
+      const ownLongest = own.length ? Math.max(...own.map((l) => l.secs as number)) : 0;
+      out.add("access_session_duration", worst <= MAX_ACCESS_SESSION_SECONDS ? "pass" : "fail",
+        `session_duration is ${appShown}${own.length ? `; ${own.length} of ${allow.length} allow polic(ies) set their own, which overrides it (longest ${Math.round(ownLongest / 60)} min)` : ""}; 24h or less required for every allow policy`,
+        resource);
+    }
+
+    // Service Auth (decision non_identity) admits a service token or a client certificate instead of a person:
+    // "Service Auth rules in Cloudflare Access enforce authentication flows that do not require an identity
+    // provider IdP login, such as service tokens and mutual TLS" (developers.cloudflare.com/cloudflare-one/
+    // access-controls/policies/, last updated 2026-10-01, read 2026-10-26). One that names its tokens or
+    // certificates counts as naming who may enter; one that includes everyone is as open as a bypass.
+    const service = pols.filter((p) => p.decision === "non_identity" && ruleKeys(p.include).length && !ruleKeys(p.include).includes("everyone"));
     const openBypass = pols.filter((p) => (p.decision === "bypass" || p.decision === "non_identity") && ruleKeys(p.include).includes("everyone"));
     const openAllow = allow.filter((p) => ruleKeys(p.include).every((k) => k === "everyone") && !arr(p.require).length);
-    const named = allow.length - openAllow.length;
+    const named = allow.length - openAllow.length + service.length;
     out.add("access_apps_have_policies", named > 0 && !openBypass.length ? "pass" : "fail",
-      `${pols.length} polic(ies): ${allow.length} allow (${openAllow.length} let everyone in), ${openBypass.length} bypass or service-auth for everyone; an allow policy that names who may enter, and no bypass for everyone, required`,
+      `${pols.length} polic(ies): ${allow.length} allow (${openAllow.length} let everyone in), ${service.length} service auth naming its tokens or certificates, ${openBypass.length} bypass or service-auth for everyone; an allow or service auth policy that names who may enter, and no bypass for everyone, required`,
       resource);
     const mfa = allow.filter((p) => hasMfa(p.require) || hasMfa(p.include) || independentMfa(p, a, orgOn));
+    // A service-auth-only application admits no person, so there is no one to ask for a second factor.
+    if (!allow.length && service.length) { out.add("access_mfa_required", "skipped", `no allow policy: the application admits only service tokens or certificates (${service.length} service auth polic(ies))`, resource); continue; }
     out.add("access_mfa_required", allow.length > 0 && mfa.length === allow.length ? "pass" : "fail",
       `${mfa.length} of ${allow.length} allow polic(ies) require MFA (an auth_method "mfa" rule, or Access independent MFA set on the policy, the application or the organisation); all required (MFA enforced only at the identity provider is not visible here)`,
       resource);

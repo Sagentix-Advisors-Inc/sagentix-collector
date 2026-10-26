@@ -219,17 +219,58 @@ The licence text, as distributed with Prowler 5.45.0:
    limitations under the License.
 ```
 
+## Go
+
+- Project: https://go.dev (source https://github.com/golang/go)
+- Version: 1.27.3 (git tag `go1.27.3`, commit 2aae1000ea1d4b28923b96db28acf4e3b99d6aff)
+- Licence: BSD 3-Clause License
+- Copyright: Copyright 2009 The Go Authors.
+- Used for: compiling Trivy, Gitleaks, OpenSSF Scorecard, OPA and Kubescape in the runner image's build stage. The toolchain is not in the image; its runtime and standard library are inside each of those five binaries.
+- Downloaded from: https://go.dev/dl/go1.27.3.linux-amd64.tar.gz (SHA-256 65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40) and go1.27.3.linux-arm64.tar.gz (SHA-256 a06e99309dbcbdca1a8ccd2282c3ee146e55930886e26b4f1193269587165f49), as listed at https://go.dev/dl/?mode=json
+- Changes: none
+
+The licence text, as distributed with Go 1.27.3:
+
+```text
+Copyright 2009 The Go Authors.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+   * Neither the name of Google LLC nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
 ## Trivy
 
 - Project: https://github.com/aquasecurity/trivy
-- Version: 0.74.0 (git tag `v0.74.0`, commit e1fd17a0ea4a8cf24bc4b4dd7e2cfbf4bb31b994)
+- Version: 0.75.0 (git tag `v0.75.0`, commit 591e9799316a602e703f0b484f6c6d7b234ec8f3)
 - Licence: Apache License 2.0
 - Copyright: Copyright 2019-2020 Aqua Security Software Ltd. (as stated in Trivy's NOTICE file; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`)
 - Used for: the runner image bundles `trivy` so a job can write the JSON report (`--format json`) that the `trivy` source (`src/sources/trivy.ts`) reads. `apps/sos-app/src/data/checks/trivy.json` names the checks.
-- Downloaded from: https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz (SHA-256 2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a) and trivy_0.74.0_Linux-ARM64.tar.gz (SHA-256 b94ce1976bbf3c15b514b605ee88be7c6d94a29be2302847ff01cb794d47aad5), as listed in trivy_0.74.0_checksums.txt
-- Changes: none
+- Built from source: the runner image fetches the tag `v0.75.0` (commit 591e9799316a602e703f0b484f6c6d7b234ec8f3) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v0.74.0` differs only in its appendix template. Trivy ships this NOTICE file at the tag, reproduced as distributed:
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v0.75.0` differs only in its appendix template. Trivy ships this NOTICE file at the tag, reproduced as distributed:
 
 ```text
 Trivy
@@ -238,32 +279,6 @@ Copyright 2019-2020 Aqua Security Software Ltd.
 This product includes software developed by Aqua Security (https://aquasec.com).
 ```
 
-## Syft
-
-- Project: https://github.com/anchore/syft
-- Version: 1.52.0 (git tag `v1.52.0`, commit 02ba369d13b4248395b20a504eca94b0cab564d8)
-- Licence: Apache License 2.0
-- Copyright: none stated; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`, and the README says Syft development is sponsored by Anchore
-- Used for: the runner image bundles `syft` so a job can write the CycloneDX, SPDX or Syft JSON SBOM that the `syft` source (`src/sources/syft.ts`) reads.
-- Downloaded from: https://github.com/anchore/syft/releases/download/v1.52.0/syft_1.52.0_linux_amd64.tar.gz (SHA-256 caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d) and syft_1.52.0_linux_arm64.tar.gz (SHA-256 c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706), as listed in syft_1.52.0_checksums.txt
-- Changes: none
-- Syft ships no NOTICE file at this tag.
-
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v1.52.0` differs only in its appendix template.
-
-## Grype
-
-- Project: https://github.com/anchore/grype
-- Version: 0.119.0 (git tag `v0.119.0`, commit b6f5194537747ee7f705f4113069ac9eb269919f)
-- Licence: Apache License 2.0
-- Copyright: none stated; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`, and the README says Grype development is sponsored by Anchore
-- Used for: the runner image bundles `grype` so a job can write the JSON report (`-o json`) that the `grype` source (`src/sources/grype.ts`) reads.
-- Downloaded from: https://github.com/anchore/grype/releases/download/v0.119.0/grype_0.119.0_linux_amd64.tar.gz (SHA-256 3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b) and grype_0.119.0_linux_arm64.tar.gz (SHA-256 29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8), as listed in grype_0.119.0_checksums.txt
-- Changes: none
-- Grype ships no NOTICE file at this tag.
-
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v0.119.0` differs only in its appendix template.
-
 ## Gitleaks
 
 - Project: https://github.com/gitleaks/gitleaks
@@ -271,8 +286,7 @@ The licence terms (sections 1 to 9 and the end of terms) are identical, word for
 - Licence: MIT License
 - Copyright: Copyright (c) 2019 Zachary Rice (as stated in Gitleaks' LICENSE file)
 - Used for: the runner image bundles `gitleaks` so a job can write the JSON report (`--report-format json`) that the `gitleaks` source (`src/sources/gitleaks.ts`) reads.
-- Downloaded from: https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz (SHA-256 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb) and gitleaks_8.30.1_linux_arm64.tar.gz (SHA-256 e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080), as listed in gitleaks_8.30.1_checksums.txt
-- Changes: none
+- Built from source: the runner image fetches the tag `v8.30.1` (commit 83d9cd684c87d95d656c1458ef04895a7f1cbd8e) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 
 The licence text, as distributed with Gitleaks 8.30.1:
 
@@ -303,15 +317,14 @@ SOFTWARE.
 ## OpenSSF Scorecard
 
 - Project: https://github.com/ossf/scorecard
-- Version: 5.5.0 (git tag `v5.5.0`, commit c395761df6afe1a69e476bc60a013a94bcbc153f)
+- Version: 5.6.0 (git tag `v5.6.0`, commit 61e84743356275f6ffca23b1b2f2cb945e19eb96)
 - Licence: Apache License 2.0
 - Copyright: Copyright 2020 OpenSSF Scorecard Authors (as stated in Scorecard's LICENSE file)
 - Used for: the runner image bundles `scorecard` so a job can write the JSON result (`--format=json`) that the `scorecard` source (`src/sources/scorecard.ts`) reads.
-- Downloaded from: https://github.com/ossf/scorecard/releases/download/v5.5.0/scorecard_5.5.0_linux_amd64.tar.gz (SHA-256 83b90a05c1540ef1390db1cd5711e5fd04be9c1d8537fb84d39d02092d6a8dff) and scorecard_5.5.0_linux_arm64.tar.gz (SHA-256 3ce59d20c1d53e540c4a14e0da1e0d96b3b294e8ddc96a3c5a7b8a637b32991e), as listed in scorecard_checksums.txt of that release
-- Changes: none
+- Built from source: the runner image fetches the tag `v5.6.0` (commit 61e84743356275f6ffca23b1b2f2cb945e19eb96) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 - Scorecard ships no NOTICE file at this tag.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v5.5.0` differs only in its appendix, which carries the copyright line above.
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v5.6.0` differs only in its appendix, which carries the copyright line above.
 
 ## Open Policy Agent (OPA)
 
@@ -320,8 +333,7 @@ The licence terms (sections 1 to 9 and the end of terms) are identical, word for
 - Licence: Apache License 2.0
 - Copyright: none stated; the LICENSE appendix keeps the template line `Copyright {yyyy} {name of copyright owner}`
 - Used for: ScubaGoggles evaluates its Rego baselines with the bundled `opa`, and the `cloudflare` source (`src/sources/cloudflare/opa.ts`) runs `opa eval` over `iac/policy/cloudflare` when given `--tofu-state`.
-- Downloaded from: https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static (SHA-256 668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031, from opa_linux_amd64_static.sha256) and opa_linux_arm64_static (SHA-256 9a1f3625529c6f01240fe68286dde06aa0b23c5253da700ac48f4d943ff8a4de, from opa_linux_arm64_static.sha256)
-- Changes: none
+- Built from source: the runner image fetches the tag `v1.21.1` (commit 2a109e54103370d2ef288782ef3cb4c8a37902b2) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 - OPA ships no NOTICE file at this tag.
 
 The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v1.21.1` differs only in its appendix template.
@@ -541,8 +553,7 @@ For further information, please contact The MITRE Corporation, Contracts Managem
 - Licence: Apache License 2.0
 - Copyright: none stated; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`
 - Used for: the runner image bundles `kubescape` so a job can write the JSON report (`--format json`) that the `kubescape` source (`src/sources/kubescape.ts`) reads. It runs offline from `/opt/kubescape/artifacts` (the regolibrary files below), with its version check off (`KS_SKIP_UPDATE_CHECK=true`).
-- Downloaded from: https://github.com/kubescape/kubescape/releases/download/v4.0.15/kubescape_4.0.15_linux_amd64.tar.gz (SHA-256 6c9fd51bcdcd1093d19383ef20e1c58c2bf83c9026073f8dcc786680ed2a0093) and kubescape_4.0.15_linux_arm64.tar.gz (SHA-256 416326e66c5d6cd5a542fceb912072e7c5dc2bb313d6c35d5dd13ff8fc26d31d), as listed in checksums.sha256 of that release
-- Changes: none
+- Built from source: the runner image fetches the tag `v4.0.15` (commit 16cfe102f11551a6455fe9bf8e37d7083da90484) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 - Kubescape ships no NOTICE file at this tag.
 
 The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v4.0.15` differs only in leading white space and its appendix template.
@@ -562,12 +573,12 @@ The licence terms (sections 1 to 9 and the end of terms) are identical, word for
 ## Checkov
 
 - Project: https://github.com/bridgecrewio/checkov
-- Version: 3.3.21 (git tag `3.3.21`, commit bbe2e102088f6ef4204ea6ff728e2c2ade38cc51; PyPI `checkov==3.3.21`)
+- Version: 3.3.27 (git tag `3.3.27`, commit 22ba0d2077cd3a09fc1547ae80be9ffe4e471e6c; PyPI `checkov==3.3.27`)
 - Licence: Apache License 2.0
 - Copyright: Copyright 2019 Palo Alto Networks (as stated in Checkov's LICENSE appendix)
 - Used for: the runner image installs Checkov in `/opt/checkov` so a job can write the JSON report (`-o json`) that the `checkov` source (`src/sources/checkov.ts`) reads, with `BC_SKIP_MAPPING=TRUE` and `CKV_SKIP_PACKAGE_UPDATE_CHECK=true` so it fetches neither Prisma Cloud's mapping nor PyPI's latest version. `apps/sos-app/src/data/checks/checkov.json` names 55 Checkov check ids, each checked to exist at that tag by `apps/sos-app/scripts/build_checkov_catalog.py`; its titles and its control mapping are Sagentix's own words, not Checkov's.
-- Downloaded from: https://files.pythonhosted.org/packages/86/7b/fd0d8803b773a82fdef37b795b738b0b673732139853931ebc8557276c03/checkov-3.3.21-py3-none-any.whl (SHA-256 735cda1e6059fc9ec37735dddef1d30e3f05ae1ef74d4c291dbf23348d0b914c, the digest PyPI lists for that file). Its Python dependencies come from PyPI at install time, unpinned, as Prowler's do.
+- Downloaded from: https://files.pythonhosted.org/packages/26/ec/0042c3eecc84f394867554efdb25425b0b84f690997de512924850009c71/checkov-3.3.27-py3-none-any.whl (SHA-256 f162b1fee91e204cc5891baa7e3dc1775fe9843dd11a0809986b9bce806528a2, the digest PyPI lists for that file). Its Python dependencies come from PyPI at install time, unpinned, as Prowler's do.
 - Changes: none
 - Checkov ships no NOTICE file at this tag.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `3.3.21` differs only in leading white space and its appendix, which carries the copyright line above.
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `3.3.27` differs only in leading white space and its appendix, which carries the copyright line above.

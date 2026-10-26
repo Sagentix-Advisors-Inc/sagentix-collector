@@ -49,7 +49,7 @@
   {
    "id": "entra.pim_no_permanent_admins",
    "title": "Global Administrator is held through PIM eligibility, with at most --entra-max-permanent-admins permanent (break-glass) assignments",
-   "scope": "Needs Entra ID P2; Global Administrator only.",
+   "scope": "Needs Entra ID P2 or Entra ID Governance (service plan AAD_PREMIUM_P2 or Entra_Identity_Governance; learn.microsoft.com/entra/id-governance/licensing-fundamentals, read 2026-10-26); Global Administrator only.",
    "evidenceType": "Configuration"
   },
   {
@@ -61,13 +61,13 @@
   {
    "id": "entra.stale_accounts",
    "title": "No enabled account has gone --entra-stale-days days without signing in",
-   "scope": "Interactive and non-interactive sign-ins; needs Entra ID P1. Service principals are not users and are not counted.",
+   "scope": "Successful sign-ins only (signInActivity.lastSuccessfulSignInDateTime; lastSignInDateTime also records failed attempts, learn.microsoft.com/graph/api/resources/signinactivity, read 2026-10-26), else the creation date; needs Entra ID P1. Service principals are not users and are not counted.",
    "evidenceType": "Report"
   },
   {
    "id": "entra.audit_log_available",
    "title": "The directory audit log is readable and not empty",
-   "scope": "Readability only; retention and forwarding to a SIEM are not visible.",
+   "scope": "Readability only; retention and forwarding to a SIEM are not visible. An empty log is skipped on Entra ID Free, which keeps audit entries seven days, and fails on P1 or P2, which keep 30 (learn.microsoft.com/entra/identity/monitoring-health/reference-reports-data-retention, read 2026-10-26).",
    "evidenceType": "Audit Record"
   },
   {

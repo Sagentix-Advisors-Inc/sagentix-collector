@@ -18,7 +18,7 @@
   {
    "id": "macos.automatic_updates",
    "title": "Automatic checking, download and install of macOS, security and system data updates are on",
-   "scope": "/Library/Preferences/com.apple.SoftwareUpdate; an absent key is Apple's default (on).",
+   "scope": "/Library/Preferences/com.apple.SoftwareUpdate; an absent key is Apple's default (on). On macOS 27 or later AutomaticCheckEnabled is not judged: Settings has no switch for it and Apple marks the key Removed: macOS 27+ (read 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {
@@ -48,7 +48,7 @@
   {
    "id": "macos.screen_lock",
    "title": "The Mac asks for a password within --macos-max-lock-seconds seconds of inactivity",
-   "scope": "Display sleep or screen saver onset (pmset, com.apple.screensaver idleTime) plus sysadminctl's screen-lock delay.",
+   "scope": "Display sleep or screen saver onset (pmset -g custom, every power source, the worst one counting; com.apple.screensaver idleTime) plus sysadminctl's screen-lock delay.",
    "evidenceType": "Configuration"
   },
   {

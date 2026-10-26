@@ -15,10 +15,7 @@
 // for X-Rate-Limit-Reset. Personal data: counts and Okta user ids only.
 
 import type { Result, Source, SourceContext } from "../types.ts";
-import {
-  DAY_MS, Emitter, arr, enc, fetchRest, firstIds, getAll, intOpt, isObj, linkNext, ok, realSleep, redact, str, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { DAY_MS, Emitter, arr, enc, fetchRest, firstIds, getAll, intOpt, isObj, linkNext, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead } from "./readonly_http.ts";
 
 export const OKTA_ENV = { domain: "OKTA_DOMAIN", token: "OKTA_API_TOKEN", access: "OKTA_ACCESS_TOKEN" } as const;
 export const DEFAULTS = { maxSuperAdmins: 3, staleDays: 90, minPasswordLength: 12 };
@@ -89,7 +86,36 @@ export async function oktaChecks(api: RestApi, org: string, o: OktaOptions, now:
       `active authenticators: ${on.map((a) => String(a.key)).join(", ") || "none"}; phishing-resistant: ${resistant.join(", ") || "none"}; at least one required`);
   }
 
-  // Global session policies: every active ALLOW rule requires a factor.
+  // App sign-in (authentication) policies: every active ALLOW rule asks for two factors. Read first, because a
+  // global session rule may hand MFA to them (below).
+  const asp = await policies(api, "ACCESS_POLICY");
+  let apps: "all2fa" | "weak" | "unknown" = "unknown";
+  if ("error" in asp) out.skip("app_policies_require_2fa", asp.error, "app sign-in policies (Identity Engine only)");
+  else if (!asp.items.length) out.add("app_policies_require_2fa", "skipped", "no active app sign-in (ACCESS_POLICY) policy");
+  else {
+    const verdicts: string[] = [];
+    for (const p of asp.items) {
+      const r = await rules(api, p);
+      if ("error" in r) { out.skip("app_policies_require_2fa", r.error, "the policy's rules", label("app sign-in", p)); verdicts.push("unknown"); continue; }
+      const allow = r.items.filter((x) => isObj(x.actions) && isObj(x.actions.appSignOn) && x.actions.appSignOn.access === "ALLOW");
+      const vm = (x: Obj) => { const a = ((x.actions as Obj).appSignOn as Obj).verificationMethod; return isObj(a) ? a : {}; };
+      const chains = allow.filter((x) => vm(x).type === "AUTH_METHOD_CHAIN");
+      const weak = allow.filter((x) => vm(x).type !== "AUTH_METHOD_CHAIN" && vm(x).factorMode !== "2FA").map((x) => JSON.stringify(String(x.name ?? x.id)));
+      verdicts.push(weak.length ? "weak" : chains.length ? "unknown" : "all2fa");
+      if (!weak.length && chains.length) out.add("app_policies_require_2fa", "skipped", `${chains.length} ALLOW rule(s) use an authentication method chain, which this check does not judge`, label("app sign-in", p));
+      else out.add("app_policies_require_2fa", weak.length ? "fail" : "pass",
+        `${allow.length} active ALLOW rule(s), ${weak.length} not requiring factorMode 2FA${weak.length ? ` (${weak.slice(0, 10).join(", ")})` : ""}; 2FA required on every ALLOW rule`,
+        label("app sign-in", p));
+    }
+    apps = verdicts.includes("weak") ? "weak" : verdicts.every((v) => v === "all2fa") ? "all2fa" : "unknown";
+  }
+
+  // Global session policies: every active ALLOW rule requires a factor, or hands the session to app sign-in policies
+  // that all require two. Okta's API (management OpenAPI 2026.42.1, read 2026-10-26) defines primaryFactor
+  // PASSWORD_IDP_ANY_FACTOR as "users can use any factor required by the app's app sign-in policy to establish a
+  // session", and Okta's default global session policy "allows access with a password, IdP, or any factor allowed by
+  // the app sign-in policies" (help.okta.com, "Global session policies", read 2026-10-26). Such a rule without
+  // requireFactor leaves MFA to the app sign-in policies, so it passes only when every one of them asks for 2FA.
   const gsp = await policies(api, "OKTA_SIGN_ON");
   if ("error" in gsp) out.skip("global_session_requires_mfa", gsp.error, "global session policies");
   else if (!gsp.items.length) out.add("global_session_requires_mfa", "fail", "no active global session (OKTA_SIGN_ON) policy");
@@ -97,27 +123,15 @@ export async function oktaChecks(api: RestApi, org: string, o: OktaOptions, now:
     const r = await rules(api, p);
     if ("error" in r) { out.skip("global_session_requires_mfa", r.error, "the policy's rules", label("global session", p)); continue; }
     const allow = r.items.filter((x) => isObj(x.actions) && isObj(x.actions.signon) && x.actions.signon.access === "ALLOW");
-    const weak = allow.filter((x) => (((x.actions as Obj).signon) as Obj).requireFactor !== true).map((x) => JSON.stringify(String(x.name ?? x.id)));
-    out.add("global_session_requires_mfa", weak.length ? "fail" : "pass",
-      `${allow.length} active ALLOW rule(s), ${weak.length} without requireFactor${weak.length ? ` (${weak.slice(0, 10).join(", ")})` : ""}; MFA required on every ALLOW rule (MFA set only in app sign-in policies is judged by okta.app_policies_require_2fa)`,
+    const signon = (x: Obj) => ((x.actions as Obj).signon) as Obj;
+    const noFactor = allow.filter((x) => signon(x).requireFactor !== true);
+    const handed = noFactor.filter((x) => signon(x).primaryFactor === "PASSWORD_IDP_ANY_FACTOR");
+    const weak = noFactor.filter((x) => !handed.includes(x) || apps === "weak").map((x) => JSON.stringify(String(x.name ?? x.id)));
+    const appsNote = handed.length ? `; ${handed.length} rule(s) without requireFactor establish the session with any factor the app sign-in policies require (PASSWORD_IDP_ANY_FACTOR), and those policies ${apps === "all2fa" ? "all require 2FA" : apps === "weak" ? "do not all require 2FA" : "could not all be judged"}` : "";
+    const result = weak.length ? "fail" : handed.length && apps === "unknown" ? "skipped" : "pass";
+    out.add("global_session_requires_mfa", result,
+      `${allow.length} active ALLOW rule(s), ${noFactor.length} without requireFactor${weak.length ? ` (${weak.slice(0, 10).join(", ")})` : ""}${appsNote}; MFA required on every ALLOW rule, here or in every app sign-in policy`,
       label("global session", p));
-  }
-
-  // App sign-in (authentication) policies: every active ALLOW rule asks for two factors.
-  const asp = await policies(api, "ACCESS_POLICY");
-  if ("error" in asp) out.skip("app_policies_require_2fa", asp.error, "app sign-in policies (Identity Engine only)");
-  else if (!asp.items.length) out.add("app_policies_require_2fa", "skipped", "no active app sign-in (ACCESS_POLICY) policy");
-  else for (const p of asp.items) {
-    const r = await rules(api, p);
-    if ("error" in r) { out.skip("app_policies_require_2fa", r.error, "the policy's rules", label("app sign-in", p)); continue; }
-    const allow = r.items.filter((x) => isObj(x.actions) && isObj(x.actions.appSignOn) && x.actions.appSignOn.access === "ALLOW");
-    const vm = (x: Obj) => { const a = ((x.actions as Obj).appSignOn as Obj).verificationMethod; return isObj(a) ? a : {}; };
-    const chains = allow.filter((x) => vm(x).type === "AUTH_METHOD_CHAIN");
-    const weak = allow.filter((x) => vm(x).type !== "AUTH_METHOD_CHAIN" && vm(x).factorMode !== "2FA").map((x) => JSON.stringify(String(x.name ?? x.id)));
-    if (!weak.length && chains.length) out.add("app_policies_require_2fa", "skipped", `${chains.length} ALLOW rule(s) use an authentication method chain, which this check does not judge`, label("app sign-in", p));
-    else out.add("app_policies_require_2fa", weak.length ? "fail" : "pass",
-      `${allow.length} active ALLOW rule(s), ${weak.length} not requiring factorMode 2FA${weak.length ? ` (${weak.slice(0, 10).join(", ")})` : ""}; 2FA required on every ALLOW rule`,
-      label("app sign-in", p));
   }
 
   // Password policies: length, and a lockout.
@@ -155,7 +169,8 @@ export async function oktaChecks(api: RestApi, org: string, o: OktaOptions, now:
     else {
       const over = supers.length > o.maxSuperAdmins;
       out.add("super_admins_limited", over ? "fail" : "pass",
-        `${supers.length} of ${holders.items.length} admin user(s) hold SUPER_ADMIN${over ? firstIds(supers) : ""}; at most ${o.maxSuperAdmins} allowed (--okta-max-super-admins)`);
+        `${supers.length} of ${holders.items.length} admin user(s) hold SUPER_ADMIN${over ? firstIds(supers) : ""}; at most ${o.maxSuperAdmins} allowed (--okta-max-super-admins)${holders.truncated ? "; the admin list stopped at 50 pages" : ""}`,
+        out.resource, listRead(holders));
     }
   }
 
@@ -172,7 +187,8 @@ export async function oktaChecks(api: RestApi, org: string, o: OktaOptions, now:
       return Number.isFinite(created) && created < cutoff;
     }).map((u) => String(u.id ?? "?"));
     out.add("inactive_users", stale.length ? "fail" : "pass",
-      `${stale.length} of ${all.length} ACTIVE user(s) have not signed in for ${o.staleDays} days${firstIds(stale)}; none allowed (--okta-stale-days)${users.truncated ? "; list truncated at 100 pages" : ""}`);
+      `${stale.length} of ${all.length} ACTIVE user(s) have not signed in for ${o.staleDays} days${firstIds(stale)}; none allowed (--okta-stale-days)${users.truncated ? "; list truncated at 100 pages" : ""}`,
+      out.resource, listRead(users));
   }
 
   // System Log.

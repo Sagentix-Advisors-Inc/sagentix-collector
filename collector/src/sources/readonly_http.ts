@@ -3,7 +3,7 @@
 // redaction. The only non-GET request any of these sources makes is the OAuth token request in
 // oauth.ts, to the identity provider's token endpoint.
 
-import type { Outcome, Result } from "../types.ts";
+import type { Outcome, Read, Result } from "../types.ts";
 
 export interface HttpResponse {
   status: number;
@@ -130,18 +130,28 @@ export async function getAll(
   items: (body: unknown) => unknown[] | undefined,
   next: (r: HttpResponse) => string | undefined,
   maxPages = 100,
-): Promise<{ items: unknown[]; truncated: boolean } | { error: HttpResponse }> {
+): Promise<{ items: unknown[]; truncated: boolean; pages: number } | { error: HttpResponse }> {
   const out: unknown[] = [];
   let url: string | undefined = first;
   for (let page = 0; url; page++) {
-    if (page >= maxPages) return { items: out, truncated: true };
+    if (page >= maxPages) return { items: out, truncated: true, pages: page };
     const r = await api.get(url);
     const got = ok(r) ? items(r.body) : undefined;
     if (!got) return { error: r };
     out.push(...got);
     url = next(r);
+    if (!url) return { items: out, truncated: false, pages: page + 1 };
   }
-  return { items: out, truncated: false };
+  return { items: out, truncated: false, pages: 0 };
+}
+
+/** What a paged read saw, for the results built from it (format 3): a truncated list makes them incomplete. */
+export const listRead = (l: { items?: unknown[]; hosts?: unknown[]; truncated: boolean; pages?: number }): Read =>
+  ({ method: "config-read", itemsRead: (l.items ?? l.hosts ?? []).length, ...(l.pages !== undefined ? { pagesRead: l.pages } : {}), complete: !l.truncated });
+
+/** Stamps every result from index `from` on that has no read of its own: one line after the results a list produced. */
+export function stampRead(results: Result[], from: number, read: Read): void {
+  for (let i = from; i < results.length; i++) if (results[i].method === undefined && results[i].complete === undefined) Object.assign(results[i], read);
 }
 
 /** Collects results for one source, one resource at a time. */
@@ -150,11 +160,11 @@ export class Emitter<C extends string> {
   readonly prefix: string;
   readonly resource: string;
   constructor(prefix: string, resource: string) { this.prefix = prefix; this.resource = resource; }
-  add(check: C, result: Outcome, detail: string, resource = this.resource) {
-    this.results.push({ check: `${this.prefix}.${check}`, resource: resource.slice(0, 300), result, detail: detail.slice(0, 1000) });
+  add(check: C, result: Outcome, detail: string, resource = this.resource, read?: Read) {
+    this.results.push({ ...read, check: `${this.prefix}.${check}`, resource: resource.slice(0, 300), result, detail: detail.slice(0, 1000) });
   }
   skip(check: C, r: HttpResponse, what: string, resource = this.resource) {
-    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource);
+    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource, { method: "config-read", apiError: { status: r.status, message: why(r) } });
   }
   skipAll(checks: readonly C[], detail: string, resource = this.resource) {
     for (const c of checks) this.add(c, "skipped", detail, resource);
@@ -166,7 +176,10 @@ export function redact(results: Result[], secrets: (string | undefined)[]): Resu
   const s = secrets.filter((x): x is string => typeof x === "string" && x.length >= 8);
   if (!s.length) return results;
   const clean = (t: string) => s.reduce((acc, x) => acc.split(x).join("[redacted]"), t);
-  return results.map((r) => ({ ...r, resource: clean(r.resource), detail: clean(r.detail) }));
+  // Every text a result carries: an API's error message (apiError, format 3) can echo a credential as easily as a detail.
+  return results.map((r) => ({ ...r, resource: clean(r.resource), detail: clean(r.detail),
+    ...(r.expected !== undefined ? { expected: clean(r.expected) } : {}), ...(r.observed !== undefined ? { observed: clean(r.observed) } : {}),
+    ...(r.apiError ? { apiError: { status: r.apiError.status, message: clean(r.apiError.message) } } : {}) }));
 }
 
 /** Up to `n` identifiers, for a failing detail. */

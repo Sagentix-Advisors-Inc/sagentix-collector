@@ -38,10 +38,7 @@
 // result.
 
 import type { Result, Source, SourceContext } from "../types.ts";
-import {
-  Emitter, enc, fetchRest, isObj, ok, realSleep, redact, str, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, enc, fetchRest, isObj, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
 
 export const KANDJI_ENV = { url: "KANDJI_API_URL", token: "KANDJI_API_TOKEN" } as const;
@@ -114,6 +111,7 @@ export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDay
   if ("error" in got) { for (const c of KANDJI_CHECKS) out.skip(c, got.error, "device list"); return out.results; }
   if (!got.items.length) { out.skipAll(KANDJI_CHECKS, "Iru Endpoint Management lists no Mac; nothing to judge"); return out.results; }
   const cap = got.truncated ? `; only the first ${o.maxDevices} Macs read (--kandji-max-devices)` : "";
+  const from = out.results.length;
   const floor = o.minOs.get("macos") ?? o.minOs.get("*");
   if (!floor) out.add("os_minimum", "skipped", `no minimum macOS version given (--kandji-min-os, e.g. 15.0); ${got.items.length} Mac(s) not judged`);
 
@@ -188,6 +186,7 @@ export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDay
     judge(out, "library_items", s.body.library_items, FAIL_ITEM, PASS_ITEM, "library item(s)", res, where);
     judge(out, "parameters", s.body.parameters, FAIL_PARAM, PASS_PARAM, "parameter(s)", res, where);
   }
+  stampRead(out.results, from, listRead(got));   // a capped list leaves devices unseen: format 3 says so
   return out.results;
 }
 

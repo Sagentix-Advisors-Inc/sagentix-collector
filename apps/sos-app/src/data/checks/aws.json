@@ -7,8 +7,8 @@
  "checks": [
   {
    "id": "aws.root_mfa",
-   "title": "The root user has MFA enabled",
-   "scope": "The AWS account's root user only; IAM Identity Center and federated users are not visible here.",
+   "title": "The root user has MFA enabled, or has no credentials",
+   "scope": "The AWS account's root user only; IAM Identity Center and federated users are not visible here. A root user whose password, access keys and signing certificates were all deleted (centralized root access) passes, as in AWS Security Hub IAM.9 (read 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {
@@ -130,6 +130,30 @@
    "title": "IAM Access Analyzer has an active analyzer in the region",
    "scope": "Each region given; the analyzer's findings are not read.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.iam_users_inactive",
+   "title": "No IAM user's console password and active access keys have all gone unused for 90 days",
+   "scope": "IAM users with a console password or an active access key, from the IAM credential report (password_last_used, access_key_N_last_used_date); a credential never used counts from its creation (IAM User Guide, credential reports, read 2026-10-26). --aws-inactive-days changes the limit. Federated and Identity Center users are not IAM users and are not seen. Prowler's iam_user_console_access_unused and iam_user_accesskey_unused cover the same ground for a client that runs Prowler; this one serves a role kept at SecurityAudit alone.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "aws.s3_bucket_not_public",
+   "title": "No S3 bucket is public through its bucket policy or its ACL",
+   "scope": "Each bucket the account lists. Passes at once when the account's and the bucket's Block Public Access settings together set RestrictPublicBuckets and IgnorePublicAcls; otherwise GetBucketPolicyStatus (IsPublic) and GetBucketAcl (effective grants to AllUsers or AuthenticatedUsers) decide (Amazon S3 User Guide, Block Public Access, read 2026-10-26). Object ACLs and access points are not read. Prowler's s3_bucket_public_access is the same idea; this one serves a role kept at SecurityAudit alone.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.guardduty_malware_protection",
+   "title": "GuardDuty Malware Protection for EC2 is on in the region",
+   "scope": "Each region given: an ENABLED detector whose EBS_MALWARE_PROTECTION feature is ENABLED (GetDetector features, or the older dataSources.malwareProtection; GuardDuty API Reference, read 2026-10-26). It scans the EBS volumes of instances GuardDuty finds suspicious; Malware Protection for S3, agents on the instances and the scan results are not read. Prowler has no check for it.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "aws.ssm_patch_compliance",
+   "title": "Each running EC2 instance is COMPLIANT in Systems Manager Patch Manager",
+   "scope": "Running EC2 instances in each region given (DescribeInstances), against ListResourceComplianceSummaries with ComplianceType Patch (AWS Systems Manager API Reference, read 2026-10-26). An instance with no Patch summary fails: it is not a managed node or Patch Manager never scanned it. The patch baseline decides what COMPLIANT means; it is not read. On-premises managed nodes, containers and Lambda are not judged. Prowler's ssm_managed_compliant_patching covers managed instances for a client that runs Prowler; this one also fails a running instance Systems Manager does not know, and serves a role kept at SecurityAudit alone.",
+   "evidenceType": "Report"
   }
  ]
 }

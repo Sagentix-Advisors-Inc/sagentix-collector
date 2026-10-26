@@ -30,6 +30,7 @@ async function apiChecks(api: CloudflareApi | null, ctx: SourceContext): Promise
         out.push(...zoneSkipped("zone (list)", `zones not listable: ${why(r.error)}`));
         continue;
       }
+      if (r.truncated) ctx.warn(`cloudflare: the zone list stopped at 40 pages (2,000 zones); give --zone for the rest`);
       zones.push(...r.items.filter(isObj).map((z) => str(z.id)).filter((x): x is string => !!x));
     }
     zones = [...new Set(zones)];

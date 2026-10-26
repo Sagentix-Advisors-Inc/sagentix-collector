@@ -23,8 +23,8 @@ const report = (rows: string[]) => Buffer.from([
   ...rows,
 ].join("\n")).toString("base64");
 const ROOT_ROW = `<root_account>,arn:aws:iam::${ACCT}:root,2020-01-01T00:00:00+00:00,not_supported,2026-10-01T00:00:00+00:00,not_supported,not_supported,true,false,N/A,N/A,N/A,N/A,false,N/A,N/A,N/A,N/A,false,N/A,false,N/A`;
-const userRow = (name: string, console: boolean, mfa: boolean, keyRotated?: string) =>
-  `${name},arn:aws:iam::${ACCT}:user/${name},2024-01-01T00:00:00+00:00,${console},N/A,N/A,N/A,${mfa},${keyRotated ? "true" : "false"},${keyRotated ?? "N/A"},N/A,N/A,N/A,false,N/A,N/A,N/A,N/A,false,N/A,false,N/A`;
+const userRow = (name: string, console: boolean, mfa: boolean, keyRotated?: string, lastUsed = inDays(-5)) =>
+  `${name},arn:aws:iam::${ACCT}:user/${name},2024-01-01T00:00:00+00:00,${console},${console ? lastUsed : "N/A"},N/A,N/A,${mfa},${keyRotated ? "true" : "false"},${keyRotated ?? "N/A"},${keyRotated ? lastUsed : "N/A"},N/A,N/A,false,N/A,N/A,N/A,N/A,false,N/A,false,N/A`;
 
 const sgXml = (perms: string) => xml(`<DescribeSecurityGroupsResponse><requestId>r</requestId><securityGroupInfo><item><ownerId>${ACCT}</ownerId><groupId>sg-1</groupId><groupName>web</groupName><ipPermissions>${perms}</ipPermissions><ipPermissionsEgress><item><ipProtocol>-1</ipProtocol><ipRanges><item><cidrIp>0.0.0.0/0</cidrIp></item></ipRanges></item></ipPermissionsEgress></item></securityGroupInfo></DescribeSecurityGroupsResponse>`);
 const perm = (proto: string, from: number, to: number, cidr: string) => `<item><ipProtocol>${proto}</ipProtocol><fromPort>${from}</fromPort><toPort>${to}</toPort><ipRanges><item><cidrIp>${cidr}</cidrIp></item></ipRanges><ipv6Ranges/></item>`;
@@ -32,6 +32,21 @@ const rdsXml = (enc: boolean, pub: boolean, keep: number) => xml(`<DescribeDBIns
 const pab = (v: boolean) => xml(`<PublicAccessBlockConfiguration xmlns="http://awss3control.amazonaws.com/doc/2018-08-20/"><BlockPublicAcls>true</BlockPublicAcls><IgnorePublicAcls>true</IgnorePublicAcls><BlockPublicPolicy>${v}</BlockPublicPolicy><RestrictPublicBuckets>true</RestrictPublicBuckets></PublicAccessBlockConfiguration>`);
 
 type Route = HttpReply | ((req: AwsRequest) => HttpReply);
+
+const SSE = xml(`<ServerSideEncryptionConfiguration><Rule><ApplyServerSideEncryptionByDefault><SSEAlgorithm>aws:kms</SSEAlgorithm></ApplyServerSideEncryptionByDefault><BucketKeyEnabled>true</BucketKeyEnabled></Rule></ServerSideEncryptionConfiguration>`);
+const ALL_USERS = "http://acs.amazonaws.com/groups/global/AllUsers";
+const aclXml = (grantees: string[]) => xml(`<AccessControlPolicy><Owner><ID>o</ID></Owner><AccessControlList><Grant><Grantee><ID>o</ID></Grantee><Permission>FULL_CONTROL</Permission></Grant>${grantees.map((u) => `<Grant><Grantee><URI>${u}</URI></Grantee><Permission>READ</Permission></Grant>`).join("")}</AccessControlList></AccessControlPolicy>`);
+/** One bucket's sub-resources, by query: ?encryption, ?publicAccessBlock, ?policyStatus, ?acl. */
+const bucket = (o: { pab?: HttpReply; policyPublic?: boolean; acl?: string[] } = {}): Route => (req) => {
+  if ("encryption" in req.query) return SSE;
+  if ("publicAccessBlock" in req.query) return o.pab ?? xmlErr(404, "NoSuchPublicAccessBlockConfiguration", "The public access block configuration was not found");
+  if ("policyStatus" in req.query) return o.policyPublic === undefined ? xmlErr(404, "NoSuchBucketPolicy", "The bucket policy does not exist") : xml(`<PolicyStatus><IsPublic>${o.policyPublic}</IsPublic></PolicyStatus>`);
+  if ("acl" in req.query) return aclXml(o.acl ?? []);
+  return jsonErr(404, "NotFound", "no such sub-resource in the fake");
+};
+const instancesXml = (...ids: string[]) => xml(`<DescribeInstancesResponse><requestId>r</requestId><reservationSet><item><reservationId>r-1</reservationId><instancesSet>${ids.map((id) => `<item><instanceId>${id}</instanceId><instanceState><code>16</code><name>running</name></instanceState></item>`).join("")}</instancesSet></item></reservationSet></DescribeInstancesResponse>`);
+const patchItem = (id: string, status: string, missing = 0) => ({ ComplianceType: "Patch", ResourceId: id, ResourceType: "ManagedInstance", Status: status, OverallSeverity: "UNSPECIFIED",
+  NonCompliantSummary: { NonCompliantCount: missing }, ExecutionSummary: { ExecutionTime: 1760000000 } });
 
 /** A well-configured account in one region: every check passes. Keyed "<service> <action>". */
 function strong(): Record<string, Route> {
@@ -44,13 +59,13 @@ function strong(): Record<string, Route> {
     "cloudtrail DescribeTrails": json({ trailList: [{ Name: "org", TrailARN: `arn:aws:cloudtrail:us-east-1:${ACCT}:trail/org`, HomeRegion: "us-east-1", IsMultiRegionTrail: true, LogFileValidationEnabled: true, KmsKeyId: `arn:aws:kms:us-east-1:${ACCT}:key/k1`, S3BucketName: "trail-logs" }] }),
     "cloudtrail GetTrailStatus": json({ IsLogging: true }),
     "guardduty GET /detector": json({ detectorIds: ["d1"] }),
-    "guardduty GET /detector/d1": json({ status: "ENABLED", findingPublishingFrequency: "SIX_HOURS" }),
+    "guardduty GET /detector/d1": json({ status: "ENABLED", findingPublishingFrequency: "SIX_HOURS", features: [{ name: "CLOUD_TRAIL", status: "ENABLED" }, { name: "EBS_MALWARE_PROTECTION", status: "ENABLED" }] }),
     "securityhub GET /accounts": json({ HubArn: `arn:aws:securityhub:us-east-1:${ACCT}:hub/default`, SubscribedAt: "2025-01-01T00:00:00Z" }),
     "securityhub GET /hubv2": json({ HubV2Arn: `arn:aws:securityhub:us-east-1:${ACCT}:hubv2/default`, SubscribedAt: "2026-01-01T00:00:00Z", Features: {} }),
     "config DescribeConfigurationRecorderStatus": json({ ConfigurationRecordersStatus: [{ name: "default", recording: true, lastStatus: "SUCCESS" }] }),
     "s3 GET /v20180820/configuration/publicAccessBlock": pab(true),
     "s3 GET /": xml(`<ListAllMyBucketsResult><Owner><ID>o</ID></Owner><Buckets><Bucket><Name>logs</Name><CreationDate>2025-01-01T00:00:00Z</CreationDate><BucketRegion>us-east-1</BucketRegion></Bucket></Buckets></ListAllMyBucketsResult>`),
-    "s3 GET /logs": xml(`<ServerSideEncryptionConfiguration><Rule><ApplyServerSideEncryptionByDefault><SSEAlgorithm>aws:kms</SSEAlgorithm></ApplyServerSideEncryptionByDefault><BucketKeyEnabled>true</BucketKeyEnabled></Rule></ServerSideEncryptionConfiguration>`),
+    "s3 GET /logs": bucket(),
     "ec2 GetEbsEncryptionByDefault": xml(`<GetEbsEncryptionByDefaultResponse><requestId>r</requestId><ebsEncryptionByDefault>true</ebsEncryptionByDefault></GetEbsEncryptionByDefaultResponse>`),
     "rds DescribeDBInstances": rdsXml(true, false, 7),
     "ec2 DescribeSecurityGroups": sgXml(perm("tcp", 443, 443, "0.0.0.0/0") + perm("tcp", 22, 22, "10.0.0.0/8")),
@@ -63,6 +78,8 @@ function strong(): Record<string, Route> {
     "ec2 DescribeVpcs": xml(`<DescribeVpcsResponse><vpcSet><item><vpcId>vpc-1</vpcId></item></vpcSet></DescribeVpcsResponse>`),
     "ec2 DescribeFlowLogs": xml(`<DescribeFlowLogsResponse><flowLogSet><item><flowLogId>fl-1</flowLogId><resourceId>vpc-1</resourceId><flowLogStatus>ACTIVE</flowLogStatus></item></flowLogSet></DescribeFlowLogsResponse>`),
     "access-analyzer GET /analyzer": json({ analyzers: [{ name: "account", status: "ACTIVE", type: "ACCOUNT" }] }),
+    "ec2 DescribeInstances": instancesXml("i-0abc"),
+    "ssm ListResourceComplianceSummaries": json({ ResourceComplianceSummaryItems: [patchItem("i-0abc", "COMPLIANT")] }),
   };
 }
 
@@ -108,6 +125,10 @@ const FAILS: Record<string, Record<string, Route>> = {
   backup_plans_exist: { "backup GET /backup/plans/": json({ BackupPlansList: [] }) },
   vpc_flow_logs: { "ec2 DescribeFlowLogs": xml(`<DescribeFlowLogsResponse><flowLogSet/></DescribeFlowLogsResponse>`) },
   access_analyzer_enabled: { "access-analyzer GET /analyzer": json({ analyzers: [{ name: "old", status: "DISABLED", type: "ACCOUNT" }] }) },
+  iam_users_inactive: { "iam GetCredentialReport": xml(`<GetCredentialReportResponse><GetCredentialReportResult><Content>${report([ROOT_ROW, userRow("alice.smith", true, true, undefined, inDays(-200))])}</Content></GetCredentialReportResult></GetCredentialReportResponse>`) },
+  s3_bucket_not_public: { "s3 GET /v20180820/configuration/publicAccessBlock": xmlErr(404, "NoSuchPublicAccessBlockConfiguration", "none"), "s3 GET /logs": bucket({ policyPublic: true }) },
+  guardduty_malware_protection: { "guardduty GET /detector/d1": json({ status: "ENABLED", features: [{ name: "EBS_MALWARE_PROTECTION", status: "DISABLED" }] }) },
+  ssm_patch_compliance: { "ssm ListResourceComplianceSummaries": json({ ResourceComplianceSummaryItems: [patchItem("i-0abc", "NON_COMPLIANT", 3)] }) },
 };
 
 test("every check the AWS source declares has a pass and a fail case here", () => {
@@ -341,4 +362,57 @@ test("aws securityhub_enabled: names Security Hub CSPM and AWS Security Hub sepa
   const v2Denied = of(await run(fakeAws({ "securityhub GET /hubv2": jsonErr(403, "AccessDeniedException", "not authorized to perform: securityhub:DescribeSecurityHubV2") })), "securityhub_enabled");
   assert.equal(v2Denied[0].result, "pass", "a policy without DescribeSecurityHubV2 must not turn a CSPM pass into anything else");
   assert.match(v2Denied[0].detail, /AWS Security Hub not readable/);
+});
+
+test("root_mfa: a root user with no password, access key or signing certificate passes without MFA (Security Hub IAM.9)", async () => {
+  const summary = (entries: Record<string, string>) => ({ "iam GetAccountSummary": xml(`<GetAccountSummaryResponse><GetAccountSummaryResult><SummaryMap>${Object.entries(entries).map(([k, v]) => `<entry><key>${k}</key><value>${v}</value></entry>`).join("")}</SummaryMap></GetAccountSummaryResult></GetAccountSummaryResponse>`) });
+  const none = of(await run(fakeAws(summary({ AccountMFAEnabled: "0", AccountPasswordPresent: "0", AccountAccessKeysPresent: "0", AccountSigningCertificatesPresent: "0" }))), "root_mfa")[0];
+  assert.equal(none.result, "pass", none.detail);
+  assert.match(none.detail, /no password, access key or signing certificate/);
+  // A password left, or a key not reported, keeps the fail.
+  assert.equal(of(await run(fakeAws(summary({ AccountMFAEnabled: "0", AccountPasswordPresent: "1", AccountAccessKeysPresent: "0", AccountSigningCertificatesPresent: "0" }))), "root_mfa")[0].result, "fail");
+  assert.equal(of(await run(fakeAws(summary({ AccountMFAEnabled: "0", AccountPasswordPresent: "0", AccountAccessKeysPresent: "0" }))), "root_mfa")[0].result, "fail");
+});
+
+test("iam_users_inactive: a never-used password counts from the user's creation; a recent key use keeps the user active", async () => {
+  const never = of(await run(fakeAws({ "iam GetCredentialReport": xml(`<GetCredentialReportResponse><GetCredentialReportResult><Content>${report([ROOT_ROW, userRow("bob", true, true, undefined, "no_information")])}</Content></GetCredentialReportResult></GetCredentialReportResponse>`) })), "iam_users_inactive");
+  assert.equal(never[0].result, "fail");
+  assert.match(never[0].detail, /console password active; last used \d+ day\(s\) ago/);
+  assert.ok(!/bob/.test(never[0].resource + never[0].detail));
+  const keyOnly = of(await run(fakeAws()), "iam_users_inactive").find((r) => /AIDACIDEP/.test(r.resource));
+  assert.equal(keyOnly?.result, "pass");
+});
+
+test("s3_bucket_not_public: account RestrictPublicBuckets and IgnorePublicAcls pass without reading the bucket; a public ACL grant fails", async () => {
+  const calls: AwsRequest[] = [];
+  assert.equal(of(await run(fakeAws({}, calls)), "s3_bucket_not_public")[0].result, "pass");
+  assert.ok(!calls.some((c) => "policyStatus" in c.query || "acl" in c.query), "no bucket policy or ACL read when the account blocks both");
+  const acl = of(await run(fakeAws({ "s3 GET /v20180820/configuration/publicAccessBlock": xmlErr(404, "NoSuchPublicAccessBlockConfiguration", "none"), "s3 GET /logs": bucket({ acl: [ALL_USERS] }) })), "s3_bucket_not_public");
+  assert.equal(acl[0].result, "fail");
+  assert.match(acl[0].detail, /AllUsers READ/);
+  const none = of(await run(fakeAws({ "s3 GET /v20180820/configuration/publicAccessBlock": xmlErr(404, "NoSuchPublicAccessBlockConfiguration", "none") })), "s3_bucket_not_public");
+  assert.equal(none[0].result, "pass", "no policy (NoSuchBucketPolicy) and no public grant");
+  const bucketBlock = pab(true);
+  const own = of(await run(fakeAws({ "s3 GET /v20180820/configuration/publicAccessBlock": xmlErr(404, "NoSuchPublicAccessBlockConfiguration", "none"), "s3 GET /logs": bucket({ pab: bucketBlock, policyPublic: true, acl: [ALL_USERS] }) })), "s3_bucket_not_public");
+  assert.equal(own[0].result, "pass", "the bucket's own Block Public Access restricts the public policy and ignores the ACL");
+});
+
+test("guardduty_malware_protection: read from the older dataSources shape too; no detector fails", async () => {
+  const old = of(await run(fakeAws({ "guardduty GET /detector/d1": json({ status: "ENABLED", dataSources: { malwareProtection: { scanEc2InstanceWithFindings: { ebsVolumes: { status: "ENABLED" } } } } }) })), "guardduty_malware_protection");
+  assert.equal(old[0].result, "pass");
+  const none = of(await run(fakeAws({ "guardduty GET /detector": json({ detectorIds: [] }) })), "guardduty_malware_protection");
+  assert.equal(none[0].result, "fail");
+});
+
+test("ssm_patch_compliance: an instance Patch Manager never scanned fails; no running instance is skipped; the filter asks for Patch", async () => {
+  const calls: AwsRequest[] = [];
+  const unscanned = of(await run(fakeAws({ "ec2 DescribeInstances": instancesXml("i-0abc", "i-0new") }, calls)), "ssm_patch_compliance");
+  assert.deepEqual(unscanned.map((r) => [r.resource, r.result]), [["ec2 instance us-east-1/i-0abc", "pass"], ["ec2 instance us-east-1/i-0new", "fail"]]);
+  const ssm = calls.find((c) => c.action === "ListResourceComplianceSummaries")!;
+  assert.equal(ssm.headers["x-amz-target"], "AmazonSSM.ListResourceComplianceSummaries");
+  assert.deepEqual(JSON.parse(ssm.body).Filters, [{ Key: "ComplianceType", Values: ["Patch"], Type: "EQUAL" }]);
+  const di = calls.find((c) => c.action === "DescribeInstances")!;
+  assert.equal(di.query["Filter.1.Name"], "instance-state-name");
+  const idle = of(await run(fakeAws({ "ec2 DescribeInstances": instancesXml() })), "ssm_patch_compliance");
+  assert.equal(idle[0].result, "skipped");
 });

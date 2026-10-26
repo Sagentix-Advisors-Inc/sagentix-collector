@@ -75,9 +75,10 @@
 //   Get-CimInstance Win32_Service -Filter Name='wuauserv'   StartMode "Auto" | "Manual" | "Disabled"
 //       learn.microsoft.com/windows/win32/cimwin32prov/win32-service [2023-11-09]
 //   Minimum build: Windows release information lists, per version, the end of updates for Home and Pro. On
-//       2026-10-20 Windows 11 24H2 (26100) had reached it and 25H2 (26200) runs to 2027-10-12, so the default
-//       --windows-min-build is 26200; Enterprise and Education 24H2 is updated to 2027-10-12, and such a firm lowers
-//       the option. Windows 10 22H2 (19045) is past its end of updates; Extended Security Updates enrolment is not
+//       2026-10-20 Windows 11 24H2 (26100) had reached it and 25H2 (26200) runs to 2027-10-12. Without
+//       --windows-min-build the build is judged against those dates on the run date (WINDOWS_HOME_PRO_UPDATES,
+//       re-read 2026-10-26), so the floor rises to 26300 (26H2) on 2027-10-13 by itself; Enterprise and Education
+//       24H2 is updated to 2027-10-12, and such a firm sets the option. Windows 10 22H2 (19045) is past its end of updates; Extended Security Updates enrolment is not
 //       readable here. learn.microsoft.com/windows/release-health/windows11-release-information and
 //       release-information [both 2026-10-13]
 //   whoami.exe /groups /fo csv /nh             "Group Name","Type","SID","Attributes" per group in the signed-in
@@ -109,7 +110,35 @@ export const WINDOWS_CHECKS = ["disk_encryption", "os_updates_installed", "autom
   "malware_definitions_current", "firewall", "screen_lock", "auto_login_off", "user_not_admin", "secure_boot"] as const;
 type C = (typeof WINDOWS_CHECKS)[number];
 
-export const DEFAULTS = { lockSeconds: 900, signatureDays: 7, updateDays: 35, minBuild: 26200 } as const;
+export const DEFAULTS = { lockSeconds: 900, signatureDays: 7, updateDays: 35 } as const;
+
+/**
+ * Windows 11 versions Microsoft still updated for Home and Pro, with the last day of those updates, from "Windows 11
+ * release information" (learn.microsoft.com/windows/release-health/windows11-release-information, updated
+ * 2026-10-13, read 2026-10-26), column "End of updates: Home, Pro, Pro Education, and Pro for Workstations":
+ * 25H2 2027-10-12, 26H1 2028-03-14, 26H2 2028-10-10. 24H2 (26100) and older already read "End of updates".
+ * Without --windows-min-build a build is judged by the row at or just below it, so on 2027-10-13 25H2 stops
+ * passing by itself (the floor moves from 26200 to 26300) without a code change. A build above every row is
+ * newer than the page and passes. Refresh this table when Microsoft adds a version.
+ */
+export const WINDOWS_HOME_PRO_UPDATES: { build: number; version: string; endOfUpdates: string }[] = [
+  { build: 26200, version: "25H2", endOfUpdates: "2027-10-12" },
+  { build: 26300, version: "26H2", endOfUpdates: "2028-10-10" },
+  { build: 28000, version: "26H1", endOfUpdates: "2028-03-14" },
+];
+
+/** Is a build still updated on `now` (Home and Pro dates), or at least `minBuild` when the option is given? */
+export function buildSupported(build: number, now: Date, minBuild?: number): { pass: boolean; detail: string } {
+  if (minBuild !== undefined) return { pass: build >= minBuild, detail: `Windows build ${build} (at least ${minBuild}, --windows-min-build)` };
+  const rows = [...WINDOWS_HOME_PRO_UPDATES].sort((a, b) => a.build - b.build);
+  const day = now.toISOString().slice(0, 10);
+  const floor = rows.find((r) => r.endOfUpdates >= day)?.build;
+  if (build > rows[rows.length - 1].build) return { pass: true, detail: `Windows build ${build}, newer than every version on Microsoft's release information page (read 2026-10-26)` };
+  const row = rows.filter((r) => r.build <= build).at(-1);
+  if (!row) return { pass: false, detail: `Windows build ${build} is older than ${rows[0].build} (${rows[0].version}), the oldest version Microsoft still updates for Home and Pro${floor ? `; at least ${floor} required on ${day}` : ""}` };
+  const live = row.endOfUpdates >= day;
+  return { pass: live, detail: `Windows build ${build} (${row.version}): Home and Pro updates ${live ? "until" : "ended"} ${row.endOfUpdates}${live ? "" : `; at least ${floor ?? "a newer version"} required on ${day}`} (Enterprise and Education dates are later: set --windows-min-build)` };
+}
 export const ADMINISTRATORS_SID = "S-1-5-32-544";
 
 export interface Run { code: number; stdout: string; stderr: string; missing?: boolean }
@@ -252,7 +281,7 @@ export function lockAfter(v: ScreenValues): { total: number | null; why: string 
 const DEFENDER = /^(windows defender|microsoft defender( antivirus)?)$/i;
 const days = (d: number) => `${d} day(s)`;
 
-export async function runWindows(exec: WinExec, o: { lockSeconds: number; signatureDays: number; updateDays: number; minBuild: number }, now: Date): Promise<Result[]> {
+export async function runWindows(exec: WinExec, o: { lockSeconds: number; signatureDays: number; updateDays: number; minBuild?: number }, now: Date): Promise<Result[]> {
   const ps = async <T>(q: Query, t?: number) => parseReading<T>(await exec(CMD.powershell, psArgs(q), t), q);
   const os = await ps<{ version?: string; build?: string; serial?: string }>("os");
   const v = os.ok ? os.value : undefined;
@@ -307,7 +336,7 @@ export async function runWindows(exec: WinExec, o: { lockSeconds: number; signat
   const build = Number(v?.build);
   if (!os.ok) skip("os_supported", os);
   else if (!Number.isInteger(build) || build <= 0) out.add("os_supported", "skipped", "Win32_OperatingSystem gave no build number");
-  else out.add("os_supported", build >= o.minBuild ? "pass" : "fail", `Windows build ${build} (at least ${o.minBuild}, --windows-min-build)`);
+  else { const s = buildSupported(build, now, o.minBuild); out.add("os_supported", s.pass ? "pass" : "fail", s.detail); }
 
   // Malware protection: Microsoft Defender Antivirus when it is the active antivirus; another product is named, not judged.
   const [def, avs] = [await ps<{ mode?: string; amService?: boolean; antivirus?: boolean; realTime?: boolean; signatureAge?: number; signatureUpdated?: string | null; signatureVersion?: string }>("defender"),
@@ -386,7 +415,7 @@ export const windows: Source = {
     "windows-max-lock-seconds": { type: "string", help: `seconds of inactivity before Windows must lock (default ${DEFAULTS.lockSeconds})` },
     "windows-signature-days": { type: "string", help: `days since Defender's definitions were updated before malware_definitions_current fails (default ${DEFAULTS.signatureDays})` },
     "windows-update-days": { type: "string", help: `days since the last Windows update installation before os_updates_installed fails (default ${DEFAULTS.updateDays})` },
-    "windows-min-build": { type: "string", help: `lowest Windows build still updated, e.g. 26100 for Enterprise 24H2 (default ${DEFAULTS.minBuild}, Windows 11 25H2)` },
+    "windows-min-build": { type: "string", help: "lowest Windows build still updated, e.g. 26100 for Enterprise 24H2 (default: the versions Microsoft still updates for Home and Pro on the run date, 26200 until 2027-10-12, then 26300)" },
   },
   emits: WINDOWS_CHECKS.map((c) => `windows.${c}`),
   describe: () => "this Windows PC (PowerShell and built-in tools, no administrator)",
@@ -400,6 +429,6 @@ export const windows: Source = {
     return runWindows(exec, { lockSeconds: posInt(ctx.opts["windows-max-lock-seconds"], DEFAULTS.lockSeconds),
                               signatureDays: posInt(ctx.opts["windows-signature-days"], DEFAULTS.signatureDays),
                               updateDays: posInt(ctx.opts["windows-update-days"], DEFAULTS.updateDays),
-                              minBuild: posInt(ctx.opts["windows-min-build"], DEFAULTS.minBuild) }, ctx.now);
+                              minBuild: posInt(ctx.opts["windows-min-build"], 0) || undefined }, ctx.now);
   },
 };

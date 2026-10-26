@@ -38,6 +38,10 @@ export const API = {
   disks: "2023-10-02",
   recoveryServices: "2023-04-01",
   backup: "2023-04-01",
+  // Resources - List (learn.microsoft.com/rest/api/resources/resources/list, read 2026-10-26).
+  resources: "2021-04-01",
+  // Virtual Machines - List All and Instance View (learn.microsoft.com/rest/api/compute/virtual-machines/, read 2026-10-26).
+  compute: "2026-04-01",
 } as const;
 
 const headersOf = (res: Response): Record<string, string> => {

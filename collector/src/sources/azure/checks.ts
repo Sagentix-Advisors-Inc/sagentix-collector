@@ -14,15 +14,21 @@
 //   GET /providers/Microsoft.Authorization/policyAssignments       Reader
 //   GET /providers/Microsoft.Compute/disks                         Reader
 //   GET /providers/Microsoft.RecoveryServices/vaults, {vault}/backupProtectedItems   Reader
+//   GET /resources?$filter=resourceType eq '<type>'                Reader (which Defender plans the subscription needs)
+//   GET {sql server}/firewallRules                                 Reader
+//   GET /providers/Microsoft.Compute/virtualMachines, {vm}/instanceView   Reader
 
-import { ADMIN_PORTS, Results, arr, isObj, j, rangeHits, str, httpWhy, type Obj } from "../shared-cloud.ts";
+import { ADMIN_PORTS, Results, ageDays, arr, isObj, j, rangeHits, str, httpWhy, type Obj } from "../shared-cloud.ts";
 import { API, ARM, armGet, armMessage, listAll, okStatus, rgName, type ArmReply, type AzureTransport } from "./api.ts";
 
 export const AZURE_CHECKS = [
   "defender_plans", "secure_score", "activity_log_export", "keyvault_recoverable",
   "storage_secure_transfer", "storage_no_public_blob", "storage_min_tls", "sql_tde",
   "nsg_no_open_admin_ports", "policy_assignments", "disk_encryption", "backup_protected_items",
+  "sql_firewall_not_open", "vm_patches_current",
 ] as const;
+/** Oldest a VM's patch assessment may be (Azure Update Manager's periodic assessment runs every 24 hours). */
+export const MAX_ASSESSMENT_DAYS = 7;
 export type AzureCheck = (typeof AZURE_CHECKS)[number];
 
 const why = (r: ArmReply) => httpWhy(r.reply, armMessage(r));
@@ -32,7 +38,68 @@ const OPEN_SOURCES = new Set(["*", "internet", "any", "0.0.0.0/0", "0.0.0.0", ":
 const TLS_OK = new Set(["TLS1_2", "TLS1_3"]);
 const DISK_ENCRYPTION_TYPES = new Set(["EncryptionAtRestWithPlatformKey", "EncryptionAtRestWithCustomerKey", "EncryptionAtRestWithPlatformAndCustomerKeys"]);
 
-export interface AzureOptions { minSecureScore: number }
+export interface AzureOptions { minSecureScore: number; now: Date }
+
+// Which resource types each Defender for Cloud plan protects, so a plan is demanded only where the subscription has
+// something for it to protect (Stéphane, 2026-10-26). Plan names are the pricings API's (Pricings - List,
+// learn.microsoft.com/rest/api/defenderforcloud/pricings/list, read 2026-10-26); what each plan covers is from its
+// Defender for Cloud page, read 2026-10-26: Servers (defender-for-servers-overview: machines in Azure, other clouds and
+// on-premises through Azure Arc), Azure SQL (defender-for-sql-introduction: Azure SQL databases, managed instances,
+// Synapse dedicated SQL pools), SQL servers on machines, App Service, Storage (storage accounts), Key Vault, Containers
+// (Kubernetes clusters and registries), open-source relational databases (defender-for-databases-introduction:
+// PostgreSQL and MySQL Flexible Server), Cosmos DB and APIs (API Management). Each type name was confirmed on the
+// service's REST reference on 2026-10-26, except Microsoft.ContainerRegistry/registries and
+// Microsoft.DBforMySQL/flexibleServers [Unverified: the REST page did not load]. Arm (Defender for Resource Manager)
+// watches the subscription's own management operations, so every subscription needs it. Any other plan (CloudPosture,
+// whose foundational tier is free, and plans added after this list) is reported and not judged.
+export const PLAN_TYPES: Record<string, string[]> = {
+  VirtualMachines: ["Microsoft.Compute/virtualMachines", "Microsoft.Compute/virtualMachineScaleSets", "Microsoft.HybridCompute/machines"],
+  SqlServers: ["Microsoft.Sql/servers", "Microsoft.Sql/managedInstances", "Microsoft.Synapse/workspaces/sqlPools"],
+  SqlServerVirtualMachines: ["Microsoft.SqlVirtualMachine/sqlVirtualMachines"],
+  AppServices: ["Microsoft.Web/sites"],
+  StorageAccounts: ["Microsoft.Storage/storageAccounts"],
+  KeyVaults: ["Microsoft.KeyVault/vaults"],
+  Containers: ["Microsoft.ContainerService/managedClusters", "Microsoft.Kubernetes/connectedClusters", "Microsoft.ContainerRegistry/registries"],
+  OpenSourceRelationalDatabases: ["Microsoft.DBforPostgreSQL/flexibleServers", "Microsoft.DBforMySQL/flexibleServers"],
+  CosmosDbs: ["Microsoft.DocumentDB/databaseAccounts"],
+  Api: ["Microsoft.ApiManagement/service"],
+};
+export const SUBSCRIPTION_WIDE_PLANS = new Set(["Arm"]);
+
+async function defenderPlans(t: AzureTransport, S: string, subRes: string, out: Results<AzureCheck>): Promise<void> {
+  const pr = await listAll(t, `${S}/providers/Microsoft.Security/pricings?api-version=${API.pricings}`);
+  if ("error" in pr) return out.skip("defender_plans", subRes, `Defender for Cloud plans not readable: ${why(pr.error)}`);
+  const plans = pr.items.filter((p) => !(isObj(p.properties) && p.properties.deprecated === true));
+  if (!plans.length) return out.skip("defender_plans", subRes, "the API listed no current Defender for Cloud plan");
+  // Resources - List with $filter=resourceType eq '<type>' (learn.microsoft.com/rest/api/resources/resources/list, read
+  // 2026-10-26; Reader). One filtered call per type, so a large subscription is not paged through.
+  const seen = new Map<string, number | string>();
+  const count = async (type: string) => {
+    if (!seen.has(type)) {
+      const r = await listAll(t, `${S}/resources?$filter=${encodeURIComponent(`resourceType eq '${type}'`)}&api-version=${API.resources}`, 5);
+      seen.set(type, "error" in r ? why(r.error) : r.items.length);
+    }
+    return seen.get(type)!;
+  };
+  for (const p of plans) {
+    const name = String(p.name);
+    const tier = isObj(p.properties) ? p.properties.pricingTier : undefined;
+    const res = `defender plan ${name} (${subRes})`;
+    const on = tier === "Standard";
+    if (SUBSCRIPTION_WIDE_PLANS.has(name)) { out.add("defender_plans", res, on ? "pass" : "fail", `pricingTier is ${j(tier)}; "Standard" required (the plan protects the subscription itself)`); continue; }
+    const types = PLAN_TYPES[name];
+    if (!types) { out.add("defender_plans", res, "skipped", `pricingTier is ${j(tier)}; the plan has no resource-type mapping in the collector, so whether the subscription needs it is not judged`); continue; }
+    const found: string[] = [], unread: string[] = [];
+    for (const ty of types) {
+      const n = await count(ty);
+      if (typeof n === "string") unread.push(`${ty} (${n})`);
+      else if (n > 0) found.push(`${n} ${ty}`);
+    }
+    if (found.length) out.add("defender_plans", res, on ? "pass" : "fail", `pricingTier is ${j(tier)}; the subscription has ${found.join(", ")}; "Standard" required`);
+    else if (unread.length) out.add("defender_plans", res, on ? "pass" : "skipped", `pricingTier is ${j(tier)}; resources not listable to see whether the plan is needed: ${unread.join("; ")}`);
+    else out.add("defender_plans", res, on ? "pass" : "skipped", `pricingTier is ${j(tier)}; the subscription has no ${types.join(", ")}, so the plan is not required`);
+  }
+}
 
 /** Ports a destination port spec covers among 22 and 3389 ("*", "22", "20-30"). */
 export function adminPortsIn(spec: string): number[] {
@@ -65,17 +132,7 @@ export async function subscriptionChecks(t: AzureTransport, sub: string, o: Azur
   const S = `${ARM}/subscriptions/${encodeURIComponent(sub)}`;
   const subRes = `subscription ${sub}`;
 
-  // Defender for Cloud plans: one result per plan that is not deprecated.
-  const pr = await listAll(t, `${S}/providers/Microsoft.Security/pricings?api-version=${API.pricings}`);
-  if ("error" in pr) out.skip("defender_plans", subRes, `Defender for Cloud plans not readable: ${why(pr.error)}`);
-  else {
-    const plans = pr.items.filter((p) => !(isObj(p.properties) && p.properties.deprecated === true));
-    if (!plans.length) out.skip("defender_plans", subRes, "the API listed no current Defender for Cloud plan");
-    for (const p of plans) {
-      const tier = isObj(p.properties) ? p.properties.pricingTier : undefined;
-      out.add("defender_plans", `defender plan ${String(p.name)} (${subRes})`, tier === "Standard" ? "pass" : "fail", `pricingTier is ${j(tier)}; "Standard" required`);
-    }
-  }
+  await defenderPlans(t, S, subRes, out);
 
   // Secure score: the ascScore item.
   const sc = await listAll(t, `${S}/providers/Microsoft.Security/secureScores?api-version=${API.secureScores}`);
@@ -140,6 +197,8 @@ export async function subscriptionChecks(t: AzureTransport, sub: string, o: Azur
   }
 
   await sqlTde(t, S, subRes, out);
+  await sqlFirewall(t, S, subRes, out);
+  await vmPatches(t, S, subRes, out, o.now);
 
   // NSGs: inbound Allow from the Internet to 22 or 3389, per NSG.
   const ns = await listAll(t, `${S}/providers/Microsoft.Network/networkSecurityGroups?api-version=${API.network}`);
@@ -208,4 +267,79 @@ async function sqlTde(t: AzureTransport, S: string, subRes: string, out: Results
     }
   }
   if (!judged) out.skip("sql_tde", subRes, "the subscription has no Azure SQL database (master excluded)");
+}
+
+/** True for a dotted IPv4 address (no range check beyond 0 to 255 per part). */
+const ipv4 = (s: unknown): number | undefined => {
+  const m = typeof s === "string" ? /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s.trim()) : null;
+  if (!m || m.slice(1).some((x) => Number(x) > 255)) return undefined;
+  return m.slice(1).reduce((n, x) => n * 256 + Number(x), 0);
+};
+/** Rules wider than this many addresses are "open to the internet" (a /8 holds 16,777,216). */
+export const MAX_SQL_RULE_ADDRESSES = 16_777_216;
+
+// Azure SQL server-level IP firewall rules. "Azure SQL Database and Azure Synapse IP firewall rules"
+// (learn.microsoft.com/azure/azure-sql/database/firewall-configure, read 2026-10-26): a rule from 0.0.0.0 to 0.0.0.0 is
+// "Allow Azure Services and resources to access this server" (AllowAllWindowsAzureIps), reported and not failed. "Azure
+// SQL connectivity settings" (learn.microsoft.com/azure/azure-sql/database/connectivity-settings, read 2026-10-26):
+// "When Public network access is set to Disable, only connections from private endpoints are allowed", so the rules do
+// not apply then. Firewall Rules - List By Server (learn.microsoft.com/rest/api/sql/firewall-rules/list-by-server,
+// read 2026-10-26): properties.startIpAddress and endIpAddress.
+async function sqlFirewall(t: AzureTransport, S: string, subRes: string, out: Results<AzureCheck>): Promise<void> {
+  const servers = await listAll(t, `${S}/providers/Microsoft.Sql/servers?api-version=${API.sql}`);
+  if ("error" in servers) return out.skip("sql_firewall_not_open", subRes, `SQL servers not readable: ${why(servers.error)}`);
+  const list = servers.items.filter((s) => typeof s.id === "string");
+  if (!list.length) return out.skip("sql_firewall_not_open", subRes, "the subscription has no Azure SQL logical server");
+  for (const s of list) {
+    const res = `sql server ${rgName(s.id, s.name)}`;
+    const pna = isObj(s.properties) ? str(s.properties.publicNetworkAccess) : undefined;
+    if (pna === "Disabled") { out.add("sql_firewall_not_open", res, "pass", `publicNetworkAccess is "Disabled": only private endpoints connect, so IP firewall rules do not apply`); continue; }
+    const fw = await listAll(t, `${ARM}${String(s.id)}/firewallRules?api-version=${API.sql}`);
+    if ("error" in fw) { out.skip("sql_firewall_not_open", res, `firewall rules not readable: ${why(fw.error)}`); continue; }
+    const wide: string[] = [];
+    let azure = false;
+    for (const r of fw.items) {
+      const p = isObj(r.properties) ? r.properties : {};
+      const a = ipv4(p.startIpAddress), b = ipv4(p.endIpAddress);
+      if (a === undefined || b === undefined) continue;
+      if (a === 0 && b === 0) { azure = true; continue; }
+      if (b - a + 1 > MAX_SQL_RULE_ADDRESSES) wide.push(`${String(r.name ?? "?")} ${String(p.startIpAddress)}-${String(p.endIpAddress)}`);
+    }
+    out.add("sql_firewall_not_open", res, wide.length ? "fail" : "pass",
+      `publicNetworkAccess ${j(pna ?? null)}; ${fw.items.length} firewall rule(s)${azure ? ", including Allow Azure services (0.0.0.0, which also admits services in other customers' subscriptions)" : ""}; ${wide.length ? `wider than a /8: ${wide.slice(0, 10).join(", ")}` : "none wider than a /8"}; no rule wider than ${MAX_SQL_RULE_ADDRESSES.toLocaleString("en-US")} addresses allowed`);
+  }
+}
+
+// Each running VM's last patch assessment. Virtual Machines - Instance View (learn.microsoft.com/rest/api/compute/
+// virtual-machines/instance-view, api-version 2026-04-01, read 2026-10-26): statuses[] carries "PowerState/running";
+// patchStatus.availablePatchSummary has status (InProgress, Unknown, Failed, Succeeded, CompletedWithWarnings),
+// criticalAndSecurityPatchCount ("critical or security patches that have been detected as available and not yet
+// installed"), otherPatchCount and lastModifiedTime. Azure Update Manager's periodic assessment "fetch[es] latest updates
+// for your machines every 24 hours" (learn.microsoft.com/azure/update-manager/assessment-options, read 2026-10-26), so
+// an assessment older than MAX_ASSESSMENT_DAYS, or none, shows nothing about the VM today. The patch mode
+// (osProfile.windowsConfiguration / linuxConfiguration .patchSettings.patchMode, Virtual Machines - List All) is reported.
+async function vmPatches(t: AzureTransport, S: string, subRes: string, out: Results<AzureCheck>, now: Date): Promise<void> {
+  const vms = await listAll(t, `${S}/providers/Microsoft.Compute/virtualMachines?api-version=${API.compute}`);
+  if ("error" in vms) return out.skip("vm_patches_current", subRes, `virtual machines not readable: ${why(vms.error)}`);
+  const list = vms.items.filter((v) => typeof v.id === "string");
+  if (!list.length) return out.skip("vm_patches_current", subRes, "the subscription has no virtual machine");
+  for (const v of list) {
+    const res = `vm ${rgName(v.id, v.name)}`;
+    const os = isObj(v.properties) && isObj(v.properties.osProfile) ? v.properties.osProfile : {};
+    const cfg = isObj(os.windowsConfiguration) ? os.windowsConfiguration : isObj(os.linuxConfiguration) ? os.linuxConfiguration : {};
+    const mode = isObj(cfg.patchSettings) ? str(cfg.patchSettings.patchMode) : undefined;
+    const iv = await armGet(t, `${ARM}${String(v.id)}/instanceView?api-version=${API.compute}`);
+    if (!okStatus(iv.status) || !isObj(iv.json)) { out.skip("vm_patches_current", res, `instance view not readable: ${why(iv)}`); continue; }
+    const power = arr(iv.json.statuses).filter(isObj).map((s) => String(s.code ?? "")).find((c) => c.startsWith("PowerState/"));
+    if (power !== "PowerState/running") { out.add("vm_patches_current", res, "skipped", `${power ?? "power state not reported"}: only running VMs are assessed`); continue; }
+    const sum = isObj(iv.json.patchStatus) && isObj(iv.json.patchStatus.availablePatchSummary) ? iv.json.patchStatus.availablePatchSummary : undefined;
+    const head = `patchMode ${j(mode ?? null)}`;
+    if (!sum) { out.add("vm_patches_current", res, "fail", `${head}; no patch assessment reported for the VM; a recent assessment with 0 critical or security patches pending required`); continue; }
+    const st = str(sum.status), crit = Number(sum.criticalAndSecurityPatchCount ?? NaN), age = ageDays(str(sum.lastModifiedTime), now);
+    const seen = `${head}; last assessment ${st ?? "status unknown"}${age === undefined ? "" : ` ${Math.floor(age)} day(s) ago`}, ${Number.isFinite(crit) ? crit : "?"} critical or security patch(es) pending, ${String(sum.otherPatchCount ?? "?")} other`;
+    if (st === "InProgress") { out.add("vm_patches_current", res, "skipped", `${seen}; the assessment is still running`); continue; }
+    const fresh = age !== undefined && age <= MAX_ASSESSMENT_DAYS && (st === "Succeeded" || st === "CompletedWithWarnings");
+    out.add("vm_patches_current", res, fresh && crit === 0 ? "pass" : "fail",
+      `${seen}; an assessment that succeeded within ${MAX_ASSESSMENT_DAYS} days with 0 critical or security patches pending required`);
+  }
 }

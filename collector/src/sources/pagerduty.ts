@@ -16,9 +16,12 @@
 //   GET /automation_actions/actions?limit&cursor    -> { actions: [ { id } ], next_cursor }
 // Auth header `Authorization: Token token=<key>`, Accept `application/vnd.pagerduty+json;version=2`.
 //
-// PagerDuty has no REST field for a postmortem (its postmortem endpoints belong to status pages), so a
-// review counts when an incident note matches the configured pattern (default: postmortem,
-// post-mortem, retrospective, post-incident review, PIR) or, with --pagerduty-review-field, when that
+//   GET /incidents/{id}/review                      -> { incident_review: { status: started|in_review|completed } }, 404 when none
+//                                                      incident_reviews.read (added to the OpenAPI by commit 9bf642f, 2026-10-21)
+//
+// A review counts when the incident's Post-Incident Review is completed, or when an incident note matches
+// the configured pattern (default: postmortem, post-mortem, retrospective, post-incident review, PIR) or,
+// with --pagerduty-review-field, when that
 // incident custom field holds a value. Note text is matched locally and never sent. Results carry
 // incident numbers and PagerDuty's opaque service, policy and schedule ids; never a user's name or email.
 
@@ -80,10 +83,20 @@ async function incidentReviews(api: RestApi, out: Emitter<C>, ctx: SourceContext
   if (!incidents.length) return out.add("incident_reviews_linked", "skipped", `no resolved ${urgency === "all" ? "" : `${urgency}-urgency `}incident in the last ${days} days; nothing to judge`);
   const judged = incidents.slice(0, max);
   const missing: string[] = [];
-  let byNote = 0, byField = 0;
+  let byNote = 0, byField = 0, byReview = 0;
+  let reviewsUnread: string | undefined;
   for (const inc of judged) {
     const id = encodeURIComponent(String(inc.id));
     const num = `#${String(inc.incident_number ?? inc.id)}`;
+    // PagerDuty's Post-Incident Review now has a REST read (OpenAPI api-schema commit 9bf642f, 2026-10-21, read
+    // 2026-10-26): GET /incidents/{id}/review, "Returns `404` if the Incident has no Incident Review", status started,
+    // in_review or completed; scope incident_reviews.read. A completed review counts; the older Postmortems reports
+    // reach end of life on 2026-10-31 and were never read. Another refusal (no plan for reviews) falls back to notes.
+    if (!reviewsUnread) {
+      const rv = await api.get(`/incidents/${id}/review`);
+      if (ok(rv) && isObj(rv.body) && isObj(rv.body.incident_review) && rv.body.incident_review.status === "completed") { byReview++; continue; }
+      if (!ok(rv) && rv.status !== 404) reviewsUnread = why(rv);
+    }
     if (field) {
       const cf = await api.get(`/incidents/${id}/custom_fields/values`);
       if (!ok(cf)) return out.skip("incident_reviews_linked", cf, "incident custom fields");
@@ -97,7 +110,7 @@ async function incidentReviews(api: RestApi, out: Emitter<C>, ctx: SourceContext
   }
   const cap = incidents.length > judged.length ? `; the first ${judged.length} of ${incidents.length} judged (--pagerduty-max-incidents)` : "";
   out.add("incident_reviews_linked", missing.length ? "fail" : "pass",
-    `${judged.length} resolved ${urgency === "all" ? "" : `${urgency}-urgency `}incident(s) in the last ${days} days: ${byNote} with a review note${field ? `, ${byField} with ${field} set` : ""}, ${missing.length} without${idList(missing, "incidents ")}${cap}; a review for every one required`);
+    `${judged.length} resolved ${urgency === "all" ? "" : `${urgency}-urgency `}incident(s) in the last ${days} days: ${byReview} with a completed Post-Incident Review, ${byNote} with a review note${field ? `, ${byField} with ${field} set` : ""}, ${missing.length} without${idList(missing, "incidents ")}${cap}${reviewsUnread ? `; Post-Incident Reviews not readable (${reviewsUnread}), so notes were used` : ""}; a review for every one required`);
 }
 
 export const pagerduty: Source = {

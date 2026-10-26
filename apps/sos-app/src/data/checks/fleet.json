@@ -14,13 +14,13 @@
   {
    "id": "fleet.screen_lock",
    "title": "Each host passes the Fleet policy that checks its screen lock",
-   "scope": "Hosts on which a screen-lock policy runs; what the policy's osquery SQL tests is the customer's, so the idle time it enforces is not judged here.",
+   "scope": "Hosts on which a screen-lock policy runs; what the policy's osquery SQL tests is the customer's. A pass from a query that allows an InactivityTimeoutSecs above 900 s, such as Fleet's library Windows policy at 1800 s (fleetdm.com/policies/screen-lock-enabled-windows, read 2026-10-26), is not counted; other idle times are not judged.",
    "evidenceType": "Configuration"
   },
   {
    "id": "fleet.os_up_to_date",
    "title": "Each host passes the Fleet OS-currency policy, or runs an OS at or above the given version floor",
-   "scope": "Hosts with an OS-currency policy or a --fleet-min-os floor for their platform; vendor support dates are not looked up.",
+   "scope": "Hosts with an OS-currency policy or a --fleet-min-os floor for their platform; vendor support dates are not looked up. A pass from a version >= floor query whose floor is below --fleet-min-os, or is Fleet's library macOS floor 14.1.1 left unchanged (fleetdm.com/policies/operating-system-up-to-date-mac-os, read 2026-10-26), is not counted.",
    "evidenceType": "Configuration"
   },
   {
@@ -32,7 +32,7 @@
   {
    "id": "fleet.edr_present",
    "title": "Each host passes the Fleet policy that checks for an EDR or antivirus agent",
-   "scope": "Hosts on which an EDR or antivirus policy runs; whether the agent's signatures are current or its alerts are reviewed is not judged.",
+   "scope": "Hosts on which an EDR or antivirus policy runs; whether the agent's signatures are current or its alerts are reviewed is not judged. On macOS, Fleet's library policy checks XProtect, which Apple calls built-in antivirus (support.apple.com/guide/security/sec469d47bd8, read 2026-10-26), not an EDR agent.",
    "evidenceType": "Configuration"
   },
   {

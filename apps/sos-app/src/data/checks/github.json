@@ -26,7 +26,7 @@
   {
    "id": "github.actions_allowed_restricted",
    "title": "Actions are limited to the organization's own or selected actions",
-   "scope": "Organization setting; the selected list itself is not reviewed.",
+   "scope": "Organization setting; for selected, a list pattern made only of wildcards (*, */*, */*@*) allows every action and fails (docs.github.com/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization, read 2026-10-26). The other entries of the list are not reviewed.",
    "evidenceType": "Configuration"
   },
   {

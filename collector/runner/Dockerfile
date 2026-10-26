@@ -1,6 +1,6 @@
 # Sagentix collector runner: Node 24 for the collector, Python 3.13 for Prowler, ScubaGoggles and Checkov, Cinc
-# Auditor with MITRE's DISA STIG profiles, and the engines whose JSON the collector reads (Trivy, Syft, Grype,
-# Gitleaks, OpenSSF Scorecard, OPA, Kubescape).
+# Auditor with MITRE's DISA STIG profiles, and the Go engines whose JSON the collector reads (Trivy, Gitleaks,
+# OpenSSF Scorecard, OPA, Kubescape), built here from their release tags with a current Go toolchain.
 #
 #   docker build -f collector/runner/Dockerfile -t sagentix-collector-runner .     (from the repository root)
 #
@@ -14,43 +14,37 @@ ARG PYTHON_IMAGE=python:3.13-slim-bookworm
 ARG FETCH_IMAGE=debian:bookworm-slim
 ARG PROWLER_VERSION=5.45.0
 
-# Engines from their GitHub releases. Each SHA-256 is copied from the checksum file the project publishes
-# with the release (URL above each group) and was matched on 2026-10-15 against the asset digest that
-# GitHub's release API reports. Versions are the newest stable release at least 14 days old on 2026-10-15.
-# https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_checksums.txt
-ARG TRIVY_VERSION=0.74.0
-ARG TRIVY_SHA256_AMD64=2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a
-ARG TRIVY_SHA256_ARM64=b94ce1976bbf3c15b514b605ee88be7c6d94a29be2302847ff01cb794d47aad5
-# https://github.com/anchore/syft/releases/download/v1.52.0/syft_1.52.0_checksums.txt
-ARG SYFT_VERSION=1.52.0
-ARG SYFT_SHA256_AMD64=caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d
-ARG SYFT_SHA256_ARM64=c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706
-# https://github.com/anchore/grype/releases/download/v0.119.0/grype_0.119.0_checksums.txt
-ARG GRYPE_VERSION=0.119.0
-ARG GRYPE_SHA256_AMD64=3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b
-ARG GRYPE_SHA256_ARM64=29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8
-# https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt
+# Go and the engines built from source (Stéphane, 2026-10-26: "build those tools yourself with a current go version -
+# and of course find a way to keep everything up to date - less tools the better and less weaknesses the better").
+# The projects' release binaries were built with older Go and older modules: Trivy's scan of the 2026-10-26 image
+# found 304 medium-or-worse advisories in them, 170 in Go's standard library. Each engine is fetched at the commit its
+# release tag points at (the build fails if the tag has moved), built with the Go below, and its modules raised to the
+# floors in go-module-fixes.txt. update_engines.py moves a version and its commit together; Go moves the day a new
+# patch release is out, since Go's point releases are its security releases.
+# Go: https://go.dev/dl/?mode=json (the sha256 of each linux archive), checked 2026-10-26.
+ARG GO_VERSION=1.27.3
+ARG GO_SHA256_AMD64=65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
+ARG GO_SHA256_ARM64=a06e99309dbcbdca1a8ccd2282c3ee146e55930886e26b4f1193269587165f49
+# https://github.com/aquasecurity/trivy/releases/tag/v0.75.0
+ARG TRIVY_VERSION=0.75.0
+ARG TRIVY_COMMIT=591e9799316a602e703f0b484f6c6d7b234ec8f3
+# https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1
 ARG GITLEAKS_VERSION=8.30.1
-ARG GITLEAKS_SHA256_AMD64=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
-ARG GITLEAKS_SHA256_ARM64=e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
-# https://github.com/ossf/scorecard/releases/download/v5.5.0/scorecard_checksums.txt
-ARG SCORECARD_VERSION=5.5.0
-ARG SCORECARD_SHA256_AMD64=83b90a05c1540ef1390db1cd5711e5fd04be9c1d8537fb84d39d02092d6a8dff
-ARG SCORECARD_SHA256_ARM64=3ce59d20c1d53e540c4a14e0da1e0d96b3b294e8ddc96a3c5a7b8a637b32991e
-# https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256
-# https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_arm64_static.sha256
+ARG GITLEAKS_COMMIT=83d9cd684c87d95d656c1458ef04895a7f1cbd8e
+# https://github.com/ossf/scorecard/releases/tag/v5.6.0
+ARG SCORECARD_VERSION=5.6.0
+ARG SCORECARD_COMMIT=61e84743356275f6ffca23b1b2f2cb945e19eb96
+# https://github.com/open-policy-agent/opa/releases/tag/v1.21.1
 # ScubaGoggles 1.0.1 asks for OPA v1.18.2 or later (docs/installation/OPA.md at tag v1.0.1).
 ARG OPA_VERSION=1.21.1
-ARG OPA_SHA256_AMD64=668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031
-ARG OPA_SHA256_ARM64=9a1f3625529c6f01240fe68286dde06aa0b23c5253da700ac48f4d943ff8a4de
+ARG OPA_COMMIT=2a109e54103370d2ef288782ef3cb4c8a37902b2
+# https://github.com/kubescape/kubescape/releases/tag/v4.0.15
+ARG KUBESCAPE_VERSION=4.0.15
+ARG KUBESCAPE_COMMIT=16cfe102f11551a6455fe9bf8e37d7083da90484
 # ScubaGoggles from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/scubagoggles/1.0.1/json
 ARG SCUBAGOGGLES_VERSION=1.0.1
 ARG SCUBAGOGGLES_WHEEL_URL=https://files.pythonhosted.org/packages/6e/23/9cacc45e30c1253e235f372468505330aaef16c0cc5d1559b0d34e5606c2/scubagoggles-1.0.1-py3-none-any.whl
 ARG SCUBAGOGGLES_WHEEL_SHA256=0fcbbc73f2c646fb6b01ec8a1a068954684a6022d0a7a32b3b21bba9f408bdc9
-# https://github.com/kubescape/kubescape/releases/download/v4.0.15/checksums.sha256
-ARG KUBESCAPE_VERSION=4.0.15
-ARG KUBESCAPE_SHA256_AMD64=6c9fd51bcdcd1093d19383ef20e1c58c2bf83c9026073f8dcc786680ed2a0093
-ARG KUBESCAPE_SHA256_ARM64=416326e66c5d6cd5a542fceb912072e7c5dc2bb313d6c35d5dd13ff8fc26d31d
 # Kubescape's controls, read offline (--use-artifacts-from /opt/kubescape/artifacts), never fetched at scan time.
 # https://github.com/kubescape/regolibrary/releases/download/v2.0.38/checksums.txt
 ARG REGOLIBRARY_VERSION=2.0.38
@@ -59,10 +53,10 @@ ARG REGOLIBRARY_MITRE_SHA256=66ede046cacd778b80b1afd6432288b7cb5ba44f10b6dd39f99
 ARG REGOLIBRARY_ATTACK_TRACKS_SHA256=80f3db3161aee990a8bab7fa0261576123fb7acf9654c595e7a47bdab339a6bb
 ARG REGOLIBRARY_CONFIG_INPUTS_SHA256=6b78fae941db97d00780898da40581168303985e6dae0c74799f2c0a6ff5a8b6
 ARG REGOLIBRARY_EXCEPTIONS_SHA256=d0b662af82db3fd6b2d8a242e1c7a46f47941ac7c298c2525481f817d928ddc3
-# Checkov from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/checkov/3.3.21/json
-ARG CHECKOV_VERSION=3.3.21
-ARG CHECKOV_WHEEL_URL=https://files.pythonhosted.org/packages/86/7b/fd0d8803b773a82fdef37b795b738b0b673732139853931ebc8557276c03/checkov-3.3.21-py3-none-any.whl
-ARG CHECKOV_WHEEL_SHA256=735cda1e6059fc9ec37735dddef1d30e3f05ae1ef74d4c291dbf23348d0b914c
+# Checkov from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/checkov/3.3.27/json
+ARG CHECKOV_VERSION=3.3.27
+ARG CHECKOV_WHEEL_URL=https://files.pythonhosted.org/packages/26/ec/0042c3eecc84f394867554efdb25425b0b84f690997de512924850009c71/checkov-3.3.27-py3-none-any.whl
+ARG CHECKOV_WHEEL_SHA256=f162b1fee91e204cc5891baa7e3dc1775fe9843dd11a0809986b9bce806528a2
 # Cinc Auditor (Apache-2.0 community build of Chef InSpec; never Chef's EULA binary), Debian 12 package. Each SHA-256
 # is the one Cinc's omnitruck lists: https://omnitruck.cinc.sh/stable/cinc-auditor/metadata?p=debian&pv=12&m=x86_64&v=7.2.1
 # (and m=aarch64), matched on 2026-10-15 against the downloaded package.
@@ -92,17 +86,47 @@ COPY collector/scripts/public-catalogue.mjs /tmp/public-catalogue.mjs
 COPY apps/sos-app/src/data/checks /tmp/checks
 RUN node /tmp/public-catalogue.mjs /tmp/checks /opt/sagentix/catalogue
 
-# Fetch each pinned asset, check its SHA-256 (a mismatch fails the build), keep the binary and its LICENSE.
+# The Go engines, built on the build machine's own architecture for TARGETARCH (Go cross-compiles; CGO is off).
+FROM --platform=$BUILDPLATFORM ${FETCH_IMAGE} AS gobuild
+ARG BUILDARCH TARGETARCH
+ARG GO_VERSION GO_SHA256_AMD64 GO_SHA256_ARM64
+SHELL ["/bin/bash", "-o", "pipefail", "-euc"]
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git \
+    && rm -rf /var/lib/apt/lists/*
+RUN case "${TARGETARCH}" in amd64|arm64) ;; *) echo "unsupported TARGETARCH '${TARGETARCH}'" >&2; exit 1 ;; esac \
+    && if [ "${BUILDARCH}" = amd64 ]; then s="${GO_SHA256_AMD64}"; else s="${GO_SHA256_ARM64}"; fi \
+    && f="go${GO_VERSION}.linux-${BUILDARCH}.tar.gz" \
+    && curl -fsSL --proto =https --tlsv1.2 --retry 3 -o "/tmp/$f" "https://go.dev/dl/$f" \
+    && echo "$s  /tmp/$f" | sha256sum -c - && tar -xzf "/tmp/$f" -C /usr/local && rm "/tmp/$f"
+# GOTOOLCHAIN=local: a go.mod asking for a newer Go fails the build instead of downloading one.
+ENV PATH=/usr/local/go/bin:/root/go/bin:$PATH GOTOOLCHAIN=local GOFLAGS=-mod=mod TARGETARCH=${TARGETARCH}
+COPY collector/runner/build_go_engine.sh /usr/local/bin/build_go_engine.sh
+COPY collector/runner/go-module-fixes.txt /fixes/go-module-fixes.txt
+# Each project's own release flags: goreleaser.yml (Trivy, Gitleaks, Scorecard, Kubescape) or the Makefile (OPA).
+ARG TRIVY_VERSION TRIVY_COMMIT
+RUN --mount=type=cache,target=/root/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    build_go_engine.sh trivy aquasecurity/trivy "${TRIVY_COMMIT}" "v${TRIVY_VERSION}" ./cmd/trivy "" \
+      "-X github.com/aquasecurity/trivy/pkg/version/app.ver=${TRIVY_VERSION}"
+ARG GITLEAKS_VERSION GITLEAKS_COMMIT
+RUN --mount=type=cache,target=/root/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    build_go_engine.sh gitleaks gitleaks/gitleaks "${GITLEAKS_COMMIT}" "v${GITLEAKS_VERSION}" . gore2regex \
+      "-X=github.com/zricethezav/gitleaks/v8/version.Version=${GITLEAKS_VERSION}"
+ARG SCORECARD_VERSION SCORECARD_COMMIT
+RUN --mount=type=cache,target=/root/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    build_go_engine.sh scorecard ossf/scorecard "${SCORECARD_COMMIT}" "v${SCORECARD_VERSION}" . netgo \
+      "-X sigs.k8s.io/release-utils/version.gitVersion=v${SCORECARD_VERSION} -X sigs.k8s.io/release-utils/version.gitCommit=${SCORECARD_COMMIT} -X sigs.k8s.io/release-utils/version.gitTreeState=clean"
+ARG OPA_VERSION OPA_COMMIT
+RUN --mount=type=cache,target=/root/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    build_go_engine.sh opa open-policy-agent/opa "${OPA_COMMIT}" "v${OPA_VERSION}" . opa_wasm ""
+ARG KUBESCAPE_VERSION KUBESCAPE_COMMIT
+RUN --mount=type=cache,target=/root/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    build_go_engine.sh kubescape kubescape/kubescape "${KUBESCAPE_COMMIT}" "v${KUBESCAPE_VERSION}" . "" \
+      "-X main.version=v${KUBESCAPE_VERSION} -X main.commit=${KUBESCAPE_COMMIT}"
+
+# Fetch each pinned asset, check its SHA-256 (a mismatch fails the build).
 FROM ${FETCH_IMAGE} AS engines
-ARG TARGETARCH
-ARG TRIVY_VERSION TRIVY_SHA256_AMD64 TRIVY_SHA256_ARM64
-ARG SYFT_VERSION SYFT_SHA256_AMD64 SYFT_SHA256_ARM64
-ARG GRYPE_VERSION GRYPE_SHA256_AMD64 GRYPE_SHA256_ARM64
-ARG GITLEAKS_VERSION GITLEAKS_SHA256_AMD64 GITLEAKS_SHA256_ARM64
-ARG SCORECARD_VERSION SCORECARD_SHA256_AMD64 SCORECARD_SHA256_ARM64
-ARG OPA_VERSION OPA_SHA256_AMD64 OPA_SHA256_ARM64
 ARG SCUBAGOGGLES_VERSION SCUBAGOGGLES_WHEEL_URL SCUBAGOGGLES_WHEEL_SHA256
-ARG KUBESCAPE_VERSION KUBESCAPE_SHA256_AMD64 KUBESCAPE_SHA256_ARM64
 ARG REGOLIBRARY_VERSION REGOLIBRARY_NSA_SHA256 REGOLIBRARY_MITRE_SHA256 REGOLIBRARY_ATTACK_TRACKS_SHA256
 ARG REGOLIBRARY_CONFIG_INPUTS_SHA256 REGOLIBRARY_EXCEPTIONS_SHA256
 ARG CHECKOV_VERSION CHECKOV_WHEEL_URL CHECKOV_WHEEL_SHA256
@@ -111,55 +135,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-euc"]
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /dl
-RUN case "${TARGETARCH}" in amd64|arm64) ;; *) echo "unsupported TARGETARCH '${TARGETARCH}'" >&2; exit 1 ;; esac \
-    && mkdir -p /out/bin /out/licenses /out/wheels
+RUN mkdir -p /out/wheels
 ENV CURL="curl -fsSL --proto =https --tlsv1.2 --retry 3"
-# Trivy (names its archives Linux-64bit and Linux-ARM64)
-RUN if [ "${TARGETARCH}" = amd64 ]; then a=64bit s="${TRIVY_SHA256_AMD64}"; else a=ARM64 s="${TRIVY_SHA256_ARM64}"; fi \
-    && f="trivy_${TRIVY_VERSION}_Linux-${a}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin trivy && mkdir /out/licenses/trivy && tar -xzf "$f" -C /out/licenses/trivy LICENSE && rm "$f"
-# Syft
-RUN if [ "${TARGETARCH}" = amd64 ]; then s="${SYFT_SHA256_AMD64}"; else s="${SYFT_SHA256_ARM64}"; fi \
-    && f="syft_${SYFT_VERSION}_linux_${TARGETARCH}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin syft && mkdir /out/licenses/syft && tar -xzf "$f" -C /out/licenses/syft LICENSE && rm "$f"
-# Grype
-RUN if [ "${TARGETARCH}" = amd64 ]; then s="${GRYPE_SHA256_AMD64}"; else s="${GRYPE_SHA256_ARM64}"; fi \
-    && f="grype_${GRYPE_VERSION}_linux_${TARGETARCH}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/anchore/grype/releases/download/v${GRYPE_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin grype && mkdir /out/licenses/grype && tar -xzf "$f" -C /out/licenses/grype LICENSE && rm "$f"
-# Gitleaks (names its amd64 archive x64)
-RUN if [ "${TARGETARCH}" = amd64 ]; then a=x64 s="${GITLEAKS_SHA256_AMD64}"; else a=arm64 s="${GITLEAKS_SHA256_ARM64}"; fi \
-    && f="gitleaks_${GITLEAKS_VERSION}_linux_${a}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin gitleaks && mkdir /out/licenses/gitleaks && tar -xzf "$f" -C /out/licenses/gitleaks LICENSE && rm "$f"
-# OpenSSF Scorecard
-RUN if [ "${TARGETARCH}" = amd64 ]; then s="${SCORECARD_SHA256_AMD64}"; else s="${SCORECARD_SHA256_ARM64}"; fi \
-    && f="scorecard_${SCORECARD_VERSION}_linux_${TARGETARCH}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/ossf/scorecard/releases/download/v${SCORECARD_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin scorecard && mkdir /out/licenses/scorecard && tar -xzf "$f" -C /out/licenses/scorecard LICENSE && rm "$f"
-# OPA: a bare static binary, no archive and no LICENSE beside it (THIRD_PARTY_NOTICES.md carries it)
-RUN if [ "${TARGETARCH}" = amd64 ]; then s="${OPA_SHA256_AMD64}"; else s="${OPA_SHA256_ARM64}"; fi \
-    && f="opa_linux_${TARGETARCH}_static" \
-    && ${CURL} -o "$f" "https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && install -m 0755 "$f" /out/bin/opa && rm "$f"
 # ScubaGoggles wheel (pure Python, same file for both architectures)
 RUN f="scubagoggles-${SCUBAGOGGLES_VERSION}-py3-none-any.whl" \
     && ${CURL} -o "/out/wheels/$f" "${SCUBAGOGGLES_WHEEL_URL}" \
     && echo "${SCUBAGOGGLES_WHEEL_SHA256}  /out/wheels/$f" | sha256sum -c -
-# Kubescape
-RUN if [ "${TARGETARCH}" = amd64 ]; then s="${KUBESCAPE_SHA256_AMD64}"; else s="${KUBESCAPE_SHA256_ARM64}"; fi \
-    && f="kubescape_${KUBESCAPE_VERSION}_linux_${TARGETARCH}.tar.gz" \
-    && ${CURL} -o "$f" "https://github.com/kubescape/kubescape/releases/download/v${KUBESCAPE_VERSION}/$f" \
-    && echo "$s  $f" | sha256sum -c - \
-    && tar -xzf "$f" -C /out/bin kubescape && mkdir /out/licenses/kubescape && tar -xzf "$f" -C /out/licenses/kubescape LICENSE && rm "$f"
 # regolibrary: the NSA and MITRE frameworks, attack tracks, default control inputs and exceptions (same for both architectures)
 RUN mkdir -p /out/kubescape \
     && for a in "nsa:${REGOLIBRARY_NSA_SHA256}" "mitre:${REGOLIBRARY_MITRE_SHA256}" "attack_tracks:${REGOLIBRARY_ATTACK_TRACKS_SHA256}" \
@@ -170,8 +151,7 @@ RUN mkdir -p /out/kubescape \
 # Checkov wheel (pure Python; its dependencies come from PyPI at install time, unpinned, as Prowler's do)
 RUN f="checkov-${CHECKOV_VERSION}-py3-none-any.whl" \
     && ${CURL} -o "/out/wheels/$f" "${CHECKOV_WHEEL_URL}" \
-    && echo "${CHECKOV_WHEEL_SHA256}  /out/wheels/$f" | sha256sum -c - \
-    && chmod 0755 /out/bin/*
+    && echo "${CHECKOV_WHEEL_SHA256}  /out/wheels/$f" | sha256sum -c -
 
 # Cinc Auditor and the STIG profiles. Each profile is archived here with its one dependency (MITRE's
 # inspec-profile-resources, fetched by git at the commit its inspec.yml pins), so a scan never fetches anything.
@@ -205,6 +185,10 @@ RUN for p in "rhel9:redhat-enterprise-linux-9-stig-baseline:${STIG_RHEL9_TAG}:${
     && cp /opt/cinc-auditor/LICENSE /out/licenses/cinc-auditor.LICENSE
 
 FROM ${PYTHON_IMAGE}
+# Debian security fixes published after the base image was built: Trivy found OpenSSL 3.0.22-1~deb12u1 in it on
+# 2026-10-26, with deb12u2 already out. An upgrade within bookworm only; nothing new is installed.
+# hadolint ignore=DL3005
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
 ARG PROWLER_VERSION
 ARG SCUBAGOGGLES_VERSION
 # Prowler, at the version the sos-app catalogues were built from (apps/sos-app/scripts/build_prowler_catalog.py).
@@ -224,8 +208,19 @@ RUN --mount=type=bind,from=engines,source=/out/wheels,target=/wheels \
 RUN --mount=type=bind,from=stig,source=/out,target=/stig dpkg -i /stig/cinc-auditor.deb
 COPY --from=stig /out/stig/ /opt/sagentix/stig/
 COPY --from=stig /out/licenses/ /usr/share/doc/sagentix-engines/
-COPY --from=engines /out/bin/ /usr/local/bin/
-COPY --from=engines /out/licenses/ /usr/share/doc/sagentix-engines/
+COPY --from=gobuild /out/bin/ /usr/local/bin/
+COPY --from=gobuild /out/licenses/ /usr/share/doc/sagentix-engines/
+# Python package floors (python-fixes.txt), raised in each environment that has the package. A raise that breaks an
+# engine's own pin is rolled back and logged as held; pip check must pass in every environment.
+COPY collector/runner/python-fixes.txt collector/runner/apply_python_fixes.py /tmp/pyfix/
+RUN for py in /usr/local/bin/python /opt/scubagoggles/bin/python /opt/checkov/bin/python; do \
+      "$py" /tmp/pyfix/apply_python_fixes.py /tmp/pyfix/python-fixes.txt || exit 1; done \
+    && rm -rf /tmp/pyfix /root/.cache/pip
+# pip leaves the image once everything is installed: nothing runs it at scan time, and it carries its own vendored
+# copies of urllib3, msgpack and setuptools, older than the environments' (pip 26.2.2's vendor.txt; Trivy, 2026-10-26).
+RUN for py in /usr/local/bin/python /opt/scubagoggles/bin/python /opt/checkov/bin/python; do \
+      "$py" -m pip uninstall --yes --quiet pip || exit 1; done \
+    && rm -rf /usr/local/lib/python3.13/ensurepip/_bundled /usr/local/bin/pip /usr/local/bin/pip3*
 # Kubescape reads its framework files from here; controls-inputs.json is the release's postureControlInputs.
 RUN --mount=type=bind,from=engines,source=/out/kubescape,target=/rego \
     mkdir -p /opt/kubescape/artifacts \
@@ -245,19 +240,17 @@ COPY collector/THIRD_PARTY_NOTICES.md collector/THIRD_PARTY_NOTICES.md
 
 RUN useradd --uid 10001 --create-home --shell /usr/sbin/nologin sagentix
 USER 10001:10001
-# Syft and Grype skip their check for a newer release; Trivy skips its version notice and sends no usage
-# data to Aqua (on by default in 0.74.0). ScubaGoggles' defaults file points at the bundled OPA, so neither
+# Trivy skips its version notice and sends no usage data to Aqua (on by default since 0.74.0). ScubaGoggles' defaults file points at the bundled OPA, so neither
 # `scubagoggles setup` nor `getopa` has to download it. Kubescape skips its version check, which posts the scan
 # context to version-check.ks-services.co; Checkov fetches no Prisma Cloud mapping and skips its PyPI check.
 ENV HOME=/home/sagentix NODE_ENV=production PYTHONDONTWRITEBYTECODE=1 \
-    SYFT_CHECK_FOR_APP_UPDATE=false GRYPE_CHECK_FOR_APP_UPDATE=false \
     TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true \
     KS_SKIP_UPDATE_CHECK=true BC_SKIP_MAPPING=TRUE CKV_SKIP_PACKAGE_UPDATE_CHECK=true
 RUN mkdir -p /home/sagentix/.scubagoggles \
     && printf 'scubagoggles:\n  opa_dir: /usr/local/bin\n  output_dir: ./\n  credentials: null\n' \
        > /home/sagentix/.scubagoggles/userdefaults.yaml
 # Every engine answers as the runtime user, and the build fails if one does not.
-RUN trivy --version && syft version && grype version && gitleaks version && scorecard version \
+RUN trivy --version && gitleaks version && scorecard version \
     && opa version \
     && scubagoggles version && kubescape version && checkov --version && cinc-auditor version \
     && for a in /opt/sagentix/stig/*.tar.gz; do tar -tzf "$a" inspec.lock >/dev/null; done \

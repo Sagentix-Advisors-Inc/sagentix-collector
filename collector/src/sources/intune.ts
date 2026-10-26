@@ -19,10 +19,7 @@
 
 import type { Result, Source, SourceContext } from "../types.ts";
 import { entraFromEnv } from "./entra.ts";
-import {
-  Emitter, enc, getAll, isObj, ok, realSleep, redact, str, why, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, enc, getAll, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
 
 export const INTUNE_ENV = { tenant: "INTUNE_TENANT_ID", client: "INTUNE_CLIENT_ID", secret: "INTUNE_CLIENT_SECRET", cert: "INTUNE_CLIENT_CERT_FILE" } as const;
@@ -116,6 +113,7 @@ export async function intuneChecks(api: RestApi, tenant: string, o: IntuneOption
   if (!devices) { for (const c of DEVICE_CHECKS) out.skip(c, (devR as { error: HttpResponse }).error, "managed devices"); return out.results; }
   if (!devices.length) { out.skipAll(DEVICE_CHECKS, "Intune lists no managed device; nothing to judge"); return out.results; }
   const cap = !("error" in devR) && devR.truncated ? "; device list truncated at 200 pages" : "";
+  const from = out.results.length;
   for (const d of devices) {
     const res = deviceResource("intune device", d.id, d.serialNumber);
     const os = String(d.operatingSystem ?? "?");
@@ -143,6 +141,7 @@ export async function intuneChecks(api: RestApi, tenant: string, o: IntuneOption
     if (age === undefined) out.add("device_last_sync", "skipped", `lastSyncDateTime not reported${where}`, res);
     else out.add("device_last_sync", age <= o.syncDays ? "pass" : "fail", `last synced ${age} day(s) ago; at most ${o.syncDays} allowed (--intune-sync-days)${where}`, res);
   }
+  if (!("error" in devR)) stampRead(out.results, from, listRead(devR));   // a list cut at 200 pages leaves devices unseen
   return out.results;
 }
 

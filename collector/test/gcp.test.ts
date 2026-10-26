@@ -27,6 +27,14 @@ const LOCS = `https://cloudkms.googleapis.com/v1/projects/${P}/locations`;
 const RINGS = `${LOCS}/us-central1/keyRings`;
 const RING = `projects/${P}/locations/us-central1/keyRings/main`;
 const CKEYS = `https://cloudkms.googleapis.com/v1/${RING}/cryptoKeys`;
+const CRM3 = "https://cloudresourcemanager.googleapis.com/v3";
+const ANCESTRY = `https://cloudresourcemanager.googleapis.com/v1/projects/${P}:getAncestry`;
+const FOLDER = `${CRM3}/folders/111`, ORGN = `${CRM3}/organizations/222`;
+const INSTANCES = `https://compute.googleapis.com/compute/v1/projects/${P}/aggregated/instances`;
+const VULNS = `https://osconfig.googleapis.com/v1/projects/${P}/locations/us-central1-a/instances/-/vulnerabilityReports`;
+const vulnReport = (id: string, sev: string, updated = daysAgo(1)) => ({ name: `projects/123/locations/us-central1-a/instances/${id}/vulnerabilityReport`, highestUpgradableCveSeverity: sev, vulnerabilities: [{}, {}], updateTime: updated });
+const NMCFG = `https://networkmanagement.googleapis.com/v1/projects/${P}/locations/global/vpcFlowLogsConfigs`;
+const NMORG = `${NMCFG}:queryOrgVpcFlowLogsConfigs`;
 
 type Route = unknown | ((url: string) => HttpReply);
 const ok = (json: unknown): HttpReply => ({ status: 200, headers: {}, body: JSON.stringify(json) });
@@ -36,6 +44,11 @@ const err = (status: number, message = "The caller does not have permission"): H
 function strong(): Record<string, Route> {
   return {
     [CRM]: { version: 3, bindings: [{ role: "roles/owner", members: ["user:alice@example.com"] }], auditConfigs: [{ service: "allServices", auditLogConfigs: [{ logType: "ADMIN_READ" }, { logType: "DATA_READ" }, { logType: "DATA_WRITE" }] }] },
+    [ANCESTRY]: { ancestor: [{ resourceId: { type: "project", id: P } }, { resourceId: { type: "folder", id: "111" } }, { resourceId: { type: "organization", id: "222" } }] },
+    [`${FOLDER}:getIamPolicy`]: { version: 3, bindings: [] },
+    [`${ORGN}:getIamPolicy`]: { version: 3, bindings: [] },
+    [NMCFG]: { vpcFlowLogsConfigs: [] },
+    [NMORG]: { vpcFlowLogsConfigs: [] },
     [ORG("iam.disableServiceAccountKeyCreation")]: { name: "x", spec: { rules: [{ enforce: true }] } },
     [ORG("storage.publicAccessPrevention")]: { name: "y", spec: { rules: [{ enforce: true }] } },
     [SAS]: { accounts: [{ email: SA, uniqueId: "1" }] },
@@ -48,6 +61,8 @@ function strong(): Record<string, Route> {
     [LOCS]: { locations: [{ locationId: "us-central1", name: `projects/${P}/locations/us-central1` }] },
     [RINGS]: { keyRings: [{ name: RING }] },
     [CKEYS]: { cryptoKeys: [{ name: `${RING}/cryptoKeys/app`, purpose: "ENCRYPT_DECRYPT", rotationPeriod: "7776000s" }, { name: `${RING}/cryptoKeys/sign`, purpose: "ASYMMETRIC_SIGN" }] },
+    [INSTANCES]: { items: { "zones/us-central1-a": { instances: [{ id: "4001", name: "web-1", zone: "https://x/zones/us-central1-a", status: "RUNNING" }, { id: "4002", name: "old", zone: "https://x/zones/us-central1-a", status: "TERMINATED" }] }, "zones/europe-west1-b": { warning: { code: "NO_RESULTS_ON_PAGE" } } } },
+    [VULNS]: { vulnerabilityReports: [vulnReport("4001", "LOW")] },
     [SUBNETS]: { items: { "regions/us-central1": { subnetworks: [{ name: "app", region: "https://x/regions/us-central1", purpose: "PRIVATE", logConfig: { enable: true } }, { name: "proxy", region: "r/us-central1", purpose: "REGIONAL_MANAGED_PROXY" }] }, "regions/europe-west1": { warning: { code: "NO_RESULTS_ON_PAGE" } } } },
   };
 }
@@ -82,7 +97,35 @@ const FAILS: Record<string, Record<string, Route>> = {
   scc_api_enabled: { [SU]: { state: "DISABLED" } },
   kms_rotation: { [CKEYS]: { cryptoKeys: [{ name: `${RING}/cryptoKeys/app`, purpose: "ENCRYPT_DECRYPT" }] } },
   vpc_flow_logs: { [SUBNETS]: { items: { "regions/us-central1": { subnetworks: [{ name: "app", region: "r/us-central1", logConfig: { enable: false } }] } } } },
+  vm_os_vulnerabilities: { [VULNS]: { vulnerabilityReports: [vulnReport("4001", "CRITICAL")] } },
 };
+
+test("data_access_audit_logs: DATA_READ and DATA_WRITE set at the folder or organization count for the project (the hierarchy's union)", async () => {
+  const projectOnlyAdmin = { [CRM]: { bindings: [], auditConfigs: [{ service: "allServices", auditLogConfigs: [{ logType: "ADMIN_READ" }] }] } };
+  const orgSet = { [`${ORGN}:getIamPolicy`]: { version: 3, auditConfigs: [{ service: "allServices", auditLogConfigs: [{ logType: "DATA_READ" }, { logType: "DATA_WRITE" }] }] } };
+  const viaOrg = of(await run(fake({ ...projectOnlyAdmin, ...orgSet })), "data_access_audit_logs")[0];
+  assert.equal(viaOrg.result, "pass", viaOrg.detail);
+  assert.match(viaOrg.detail, /organizations\/222/);
+  const split = of(await run(fake({ ...projectOnlyAdmin,
+    [`${FOLDER}:getIamPolicy`]: { auditConfigs: [{ service: "allServices", auditLogConfigs: [{ logType: "DATA_READ" }] }] },
+    [`${ORGN}:getIamPolicy`]: { auditConfigs: [{ service: "allServices", auditLogConfigs: [{ logType: "DATA_WRITE" }] }] } })), "data_access_audit_logs")[0];
+  assert.equal(split.result, "pass", split.detail);
+  const hidden = of(await run(fake({ ...projectOnlyAdmin, [`${ORGN}:getIamPolicy`]: () => err(403) })), "data_access_audit_logs")[0];
+  assert.equal(hidden.result, "skipped", hidden.detail);
+});
+
+test("vpc_flow_logs: a subnet off in Compute Engine passes when a Network Management API configuration covers it, its network or the organization", async () => {
+  const off = { [SUBNETS]: { items: { "regions/us-central1": { subnetworks: [{ name: "app", region: "https://x/regions/us-central1", network: `https://www.googleapis.com/compute/v1/projects/${P}/global/networks/vpc1`, logConfig: { enable: false } }] } } } };
+  const cfg = (c: Record<string, unknown>) => ({ vpcFlowLogsConfigs: [{ name: `projects/${P}/locations/global/vpcFlowLogsConfigs/c1`, state: "ENABLED", ...c }] });
+  const r = async (over: Record<string, Route>) => of(await run(fake({ ...off, ...over })), "vpc_flow_logs")[0];
+  assert.equal((await r({ [NMCFG]: cfg({ subnet: `projects/${P}/regions/us-central1/subnetworks/app` }) })).result, "pass");
+  assert.equal((await r({ [NMCFG]: cfg({ network: `projects/${P}/global/networks/vpc1` }) })).result, "pass");
+  assert.equal((await r({ [NMORG]: cfg({ name: "organizations/222/locations/global/vpcFlowLogsConfigs/o1" }) })).result, "pass");
+  assert.equal((await r({ [NMCFG]: cfg({ network: `projects/${P}/global/networks/vpc1`, state: "DISABLED" }) })).result, "fail");
+  assert.equal((await r({ [NMORG]: cfg({ filterExpr: "src_ip == '10.0.0.1'" }) })).result, "fail");
+  assert.equal((await r({ [NMCFG]: () => err(403, "Network Management API has not been used in project 123 before or it is disabled"), [NMORG]: () => err(403, "Network Management API has not been used in project 123 before or it is disabled") })).result, "fail");
+  assert.equal((await r({ [NMCFG]: () => err(403) })).result, "skipped");
+});
 
 test("every check the source declares has a pass and a fail case here", () => {
   assert.deepEqual(Object.keys(FAILS).sort(), gcp.emits.map((c) => c.replace(/^gcp\./, "")).sort());
@@ -174,13 +217,37 @@ test("no secret in any result: a token echoed in an error body is redacted; memb
   assert.ok(!all.includes("alice@example.com"));
 });
 
-test("getIamPolicy is a POST asking for policy version 3; everything else is GET", async () => {
+test("getIamPolicy is a POST asking for policy version 3, getAncestry a POST with an empty body; everything else is GET", async () => {
   const calls: Call[] = [];
-  await run(fake({}, calls));
+  await run(fake({ [CRM]: { bindings: [], auditConfigs: [] } }, calls));
+  assert.ok(calls.some((c) => c.url === ANCESTRY), "the ancestry is read when the project falls short");
   for (const c of calls) {
-    if (c.method === "POST") { assert.match(c.url, /:getIamPolicy$/); assert.deepEqual(c.body, { options: { requestedPolicyVersion: 3 } }); }
+    if (c.method === "POST" && c.url.endsWith(":getAncestry")) assert.deepEqual(c.body, {});
+    else if (c.method === "POST") { assert.match(c.url, /:getIamPolicy$/); assert.deepEqual(c.body, { options: { requestedPolicyVersion: 3 } }); }
     else assert.equal(c.method, "GET");
   }
+  assert.ok(!calls.some((c) => /\/v3\/(projects|folders)\/[^:]+$/.test(c.url)), "folders are never walked with folders.get");
+});
+
+test("data_access_audit_logs: an unreadable ancestry leaves the result skipped, not failed", async () => {
+  const r = of(await run(fake({ [CRM]: { bindings: [], auditConfigs: [] }, [ANCESTRY]: () => err(403) })), "data_access_audit_logs")[0];
+  assert.equal(r.result, "skipped", r.detail);
+  assert.match(r.detail, /ancestry not readable/);
+});
+
+test("vm_os_vulnerabilities: a running VM without a report fails, a stale report fails, a stopped VM is not judged", async () => {
+  const strongRun = of(await run(fake()), "vm_os_vulnerabilities");
+  assert.deepEqual(strongRun.map((r) => [r.resource, r.result]), [[`instance ${P}/us-central1-a/web-1`, "pass"]]);
+  const none = of(await run(fake({ [VULNS]: { vulnerabilityReports: [] } })), "vm_os_vulnerabilities");
+  assert.equal(none[0].result, "fail");
+  assert.match(none[0].detail, /no vulnerability report/);
+  const stale = of(await run(fake({ [VULNS]: { vulnerabilityReports: [vulnReport("4001", "LOW", daysAgo(30))] } })), "vm_os_vulnerabilities");
+  assert.equal(stale[0].result, "fail");
+  const off = of(await run(fake({ [VULNS]: () => err(403, "OS Config API has not been used in project 123 before or it is disabled") })), "vm_os_vulnerabilities");
+  assert.equal(off[0].result, "fail");
+  assert.match(off[0].detail, /OS Config API is off/);
+  const denied = of(await run(fake({ [VULNS]: () => err(403) })), "vm_os_vulnerabilities");
+  assert.equal(denied[0].result, "skipped");
 });
 
 test("the fetch client sends the bearer token and refuses any POST but :getIamPolicy", async () => {
@@ -194,6 +261,8 @@ test("the fetch client sends the bearer token and refuses any POST but :getIamPo
   assert.equal(seen[0].init.body, undefined);
   await t.request("POST", CRM, { options: { requestedPolicyVersion: 3 } });
   assert.equal(seen[1].init.method, "POST");
+  await t.request("POST", ANCESTRY, {});
+  assert.equal(seen[2].init.method, "POST");
   await assert.rejects(t.request("POST", `https://cloudresourcemanager.googleapis.com/v1/projects/${P}:setIamPolicy`, {}), /refused/);
-  assert.equal(seen.length, 2);
+  assert.equal(seen.length, 3);
 });

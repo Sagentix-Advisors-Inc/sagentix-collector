@@ -26,7 +26,7 @@ export const REGISTRY: readonly KsiEntry[] = [
     ksiId: "KSI-SVC-SIN",
     method: "partial",
     implementation:
-      "Cloudflare edge: minimum TLS 1.2, TLS 1.3 on, HTTP redirected to HTTPS, automatic HTTPS rewrites, HSTS of at least one year with subdomains, and Full (strict) TLS to the origin.",
+      "Cloudflare edge: minimum TLS 1.2, TLS 1.3 on, HTTP redirected to HTTPS, automatic HTTPS rewrites, HSTS of at least one year with subdomains, and Full (strict) or Strict (SSL-Only Origin Pull) TLS to the origin.",
     scope: "Data in transit through the Cloudflare proxy only. Encryption at rest and inside the vendor's network is attested in sos-app.",
   },
   {

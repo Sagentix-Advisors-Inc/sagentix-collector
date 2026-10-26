@@ -36,14 +36,19 @@
 // in the reference; /providers/{id}/administrators is for MSPs only), and a screen-lock policy (policy template names and
 // their settings are not in the reference).
 //
+// Default Access Policies (the fallback applied when no conditional access policy matches) are not read either.
+// Checked again on 2026-10-26: the API 2.0 OpenAPI file (docs.jumpcloud.com/api/2.0/index.yaml, Last-Modified
+// 2026-10-26 14:52 GMT) declares the path /authn/policy/fallback/{resource_type} with only its path parameter
+// (resource_type: userportal, adminportal, application, ldap) and no operation: no get, no response schema. The API 1.0
+// file has no fallback path. GitHub code search over the TheJumpCloud organization (jcapi-go, jcapi-python,
+// jcapi-powershell, jc-cli and the rest) finds no "policy/fallback" call, and the Terraform registry lists no
+// JumpCloud-published provider. Reading an undocumented endpoint would mean guessing its reply, so it stays out.
+//
 // Personal data: users are named by their JumpCloud id and devices by id and serial. The user and system lists ask for
 // the fields above only (fields=), so usernames, email addresses, hostnames and display names never reach the collector.
 
 import type { Result, Source, SourceContext } from "../types.ts";
-import {
-  Emitter, enc, fetchRest, firstIds, intOpt, isObj, ok, realSleep, redact, str, why, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, enc, fetchRest, firstIds, intOpt, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
 
 export const JUMPCLOUD_ENV = { key: "JUMPCLOUD_API_KEY", org: "JUMPCLOUD_ORG_ID" } as const;
@@ -197,6 +202,7 @@ export async function jumpcloudChecks(api: RestApi, o: JumpcloudOptions, now: Da
     const active = us.items.filter(isActive);
     const notJudged = us.items.length - active.length;
     const skippedNote = `${notJudged} staged or suspended user(s) not judged${us.truncated ? `; only the first ${DEFAULTS.maxUsers} users read` : ""}`;
+    const fromU = out.results.length;
     if (!active.length) out.skipAll(["users_mfa_enrolled", "users_mfa_required"], `no active user; ${skippedNote}`);
     else {
       // Enrolment: overallStatus, else a TOTP, Push or WebAuthn status, else totp_enabled.
@@ -226,6 +232,7 @@ export async function jumpcloudChecks(api: RestApi, o: JumpcloudOptions, now: Da
       else if (portal.length) out.add("users_mfa_required", "skipped", `${head}; ${unflagged.length} without it${firstIds(unflagged)}, and ${portal.length} enabled User Portal polic(ies) require MFA (${portal.slice(0, 3).map(policyName).join(", ")}), whose user groups this check does not resolve`);
       else out.add("users_mfa_required", "fail", `${head}; ${unflagged.length} without it${firstIds(unflagged)}, and no enabled User Portal authentication policy requires MFA`);
     }
+    stampRead(out.results, fromU, listRead(us));
   }
 
   // Devices.
@@ -233,6 +240,7 @@ export async function jumpcloudChecks(api: RestApi, o: JumpcloudOptions, now: Da
   if ("error" in sy) { for (const c of DEVICE_CHECKS) out.skip(c, sy.error, "systems"); return out.results; }
   if (!sy.items.length) { out.skipAll(DEVICE_CHECKS, "JumpCloud lists no device; nothing to judge"); return out.results; }
   const cap = sy.truncated ? `; only the first ${o.maxDevices} devices read (--jumpcloud-max-devices)` : "";
+  const from = out.results.length;
   if (!o.minOs.size) out.add("device_os_minimum", "skipped", `no minimum OS version given (--jumpcloud-min-os, e.g. macos=15.0 or windows=10.0.22631); ${sy.items.length} device(s) not judged`);
   for (const s of sy.items) {
     const res = deviceResource("jumpcloud system", s._id, s.serialNumber);
@@ -258,6 +266,7 @@ export async function jumpcloudChecks(api: RestApi, o: JumpcloudOptions, now: Da
     if (age === undefined) out.add("device_last_contact", "skipped", `lastContact not reported${where}`, res);
     else out.add("device_last_contact", age <= o.contactDays ? "pass" : "fail", `last contact ${age} day(s) ago; at most ${o.contactDays} allowed (--jumpcloud-contact-days)${where}`, res);
   }
+  stampRead(out.results, from, listRead(sy));   // a capped list leaves devices unseen: format 3 says so
   return out.results;
 }
 

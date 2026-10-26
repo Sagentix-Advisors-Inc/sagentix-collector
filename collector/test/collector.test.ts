@@ -81,13 +81,13 @@ test("a check id the catalogue does not know is refused, the rest still go", asy
 
 // ── Payload and signature ─────────────────────────────────────────────────────────────────────────
 
-test("the payload matches sos-app's sagentix-collect/2 contract", async () => {
+test("the payload matches sos-app's sagentix-collect/3 contract", async () => {
   const c = capture();
   assert.equal(await main([...base, "--dry-run"], c.deps), EXIT.ok, c.stderr.join("\n"));
   const { payload } = JSON.parse(c.stdout.join("\n"));
   assert.deepEqual(Object.keys(payload).sort(), ["collector", "format", "issuedAt", "nonce", "results"]);
   assert.equal(payload.format, FORMAT);
-  assert.equal(payload.format, "sagentix-collect/2");
+  assert.equal(payload.format, "sagentix-collect/3");
   assert.equal(payload.issuedAt, "2026-10-15T12:00:00.000Z");
   assert.match(payload.nonce, /^[0-9a-f-]{36}$/);
   assert.equal(payload.collector.version, COLLECTOR_VERSION);
@@ -95,7 +95,9 @@ test("the payload matches sos-app's sagentix-collect/2 contract", async () => {
   assert.ok(payload.results.length >= 1 && payload.results.length <= MAX_RESULTS);
   const keys = new Set<string>();
   for (const r of payload.results) {
-    assert.deepEqual(Object.keys(r).sort(), ["check", "detail", "resource", "result"]);
+    // The four version 2 fields always; format 3's provenance fields only when a source knew them (sos-app migration 0040).
+    const READ = ["apiError", "complete", "expected", "itemsRead", "method", "observed", "observedAt", "pagesRead"];
+    assert.deepEqual(Object.keys(r).filter((k) => !READ.includes(k)).sort(), ["check", "detail", "resource", "result"]);
     assert.ok(catalog.has(r.check), r.check);
     assert.ok(["pass", "fail", "skipped"].includes(r.result));
     assert.ok(r.detail.length <= 1000 && r.resource.length <= 300 && r.resource.length > 0);
@@ -126,7 +128,7 @@ test("a run POSTs to /api/collect with the key id and a signature over the exact
   // One byte off and it no longer verifies.
   const tampered = new Uint8Array(body); tampered[tampered.length - 2] ^= 1;
   assert.equal(await verify(publicKey, h["x-sagentix-signature"], tampered), false);
-  assert.equal(JSON.parse(new TextDecoder().decode(body)).format, "sagentix-collect/2");
+  assert.equal(JSON.parse(new TextDecoder().decode(body)).format, "sagentix-collect/3");
 });
 
 test("--out keeps the exact signed bytes, and they verify", async () => {

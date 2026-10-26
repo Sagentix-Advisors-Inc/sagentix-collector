@@ -26,10 +26,7 @@ import { readFileSync } from "node:fs";
 import type { Result, Source, SourceContext } from "../types.ts";
 import { cachedToken, googleAssertion, tokenRequest } from "./oauth.ts";
 import { OAUTH_ENV, googleOAuthFromEnv } from "./google_oauth.ts";
-import {
-  DAY_MS, Emitter, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { DAY_MS, Emitter, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 
 export const ADMIN_BASE = "https://admin.googleapis.com";
 export const GOOGLE_ENV = { keyFile: "GOOGLE_SA_KEY_FILE", admin: "GOOGLE_ADMIN_EMAIL", customer: "GOOGLE_CUSTOMER_ID" } as const;
@@ -152,6 +149,7 @@ export async function googleChecks(api: RestApi, customer: string, o: GoogleOpti
     const suspended = users.items.length - live.length;
     const ids = (xs: Obj[]) => xs.map((u) => String(u.id ?? "?"));
     const trunc = users.truncated ? "; list truncated at 200 pages" : "";
+    const from = out.results.length;
     if (!live.length) out.skipAll(["two_step_enrolled", "two_step_enforced", "admins_two_step", "super_admins_limited", "inactive_users"], "the directory lists no active user");
     else {
       const notEnrolled = live.filter((u) => u.isEnrolledIn2Sv !== true);
@@ -180,6 +178,7 @@ export async function googleChecks(api: RestApi, customer: string, o: GoogleOpti
       out.add("inactive_users", stale.length ? "fail" : "pass",
         `${stale.length} of ${live.length} active user(s) have not signed in for ${o.staleDays} days${firstIds(ids(stale))}; ${suspended} suspended or archived not counted; none allowed (--google-stale-days)${trunc}`);
     }
+    stampRead(out.results, from, listRead(users));   // every user check reads this one list
   }
 
   const rep = await api.get("/admin/reports/v1/activity/users/all/applications/admin?maxResults=1");

@@ -46,10 +46,7 @@
 
 import type { Result, Source, SourceContext } from "../types.ts";
 import { entraFromEnv } from "./entra.ts";
-import {
-  Emitter, enc, firstIds, intOpt, isObj, ok, realSleep, redact, str, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, enc, firstIds, intOpt, isObj, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, deviceResource, posInt } from "./device_common.ts";
 
 export const DEFENDER_BASE = "https://api.security.microsoft.com";
@@ -127,7 +124,7 @@ export async function defenderChecks(api: RestApi, tenant: string, o: DefenderOp
   if ("error" in mR) for (const c of MACHINE_CHECKS) out.skip(c, mR.error, "machines");
   else if (!mR.items.length) out.skipAll(MACHINE_CHECKS, "Defender for Endpoint lists no machine seen within the retention period; nothing to judge");
   else {
-    const cap = capped(mR.truncated);
+    const cap = capped(mR.truncated), fromM = out.results.length;
     const onboarded: Obj[] = [];
     for (const m of mR.items) {
       const res = devRes(m.id), where = ` (${String(m.osPlatform ?? "platform not reported")})`;
@@ -153,6 +150,7 @@ export async function defenderChecks(api: RestApi, tenant: string, o: DefenderOp
       else if (high.length > o.maxExposure) out.add("high_exposure_devices", "fail", `${n}${firstIds(high)}${cap}`);
       else out.add("high_exposure_devices", mR.truncated ? "skipped" : "pass", `${n}; ${onboarded.length - known} report no level${mR.truncated ? `; the machine list was capped at ${o.maxDevices}, so the count is incomplete` : ""}`);
     }
+    stampRead(out.results, fromM, listRead(mR));   // a capped machine list leaves machines unseen
   }
 
   // Antivirus health, one result per machine (the export holds one row per machine and state; the latest wins).
@@ -160,7 +158,7 @@ export async function defenderChecks(api: RestApi, tenant: string, o: DefenderOp
   if ("error" in aR) for (const c of AV_CHECKS) out.skip(c, aR.error, "antivirus health (deviceavinfo)");
   else if (!aR.items.length) out.skipAll(AV_CHECKS, "the antivirus health export lists no device (Microsoft Defender Antivirus reports none)");
   else {
-    const cap = capped(aR.truncated);
+    const cap = capped(aR.truncated), fromA = out.results.length;
     const latest = new Map<string, Obj>();
     for (const r of aR.items) {
       const id = String(r.machineId ?? r.id ?? "?");
@@ -183,6 +181,7 @@ export async function defenderChecks(api: RestApi, tenant: string, o: DefenderOp
       else if (sig === "true" && eng === "true") out.add("av_signatures_current", "pass", `${seen}${where}`, res);
       else out.add("av_signatures_current", "skipped", `${seen}, which does not show whether they are current${where}`, res);
     }
+    stampRead(out.results, fromA, listRead(aR));
   }
 
   // Devices with at least one critical vulnerability.
@@ -195,7 +194,7 @@ export async function defenderChecks(api: RestApi, tenant: string, o: DefenderOp
     const n = `${devs.length} device(s) with at least one critical vulnerability (${kb.size} of them fixed by a Microsoft update not yet installed, fixingKbId); at most ${o.maxExposure} allowed (--defender-max-exposure)`;
     if (devs.length > o.maxExposure) out.add("critical_vulnerability_devices", "fail", `${n}${firstIds(devs)}`);
     else if (vR.truncated) out.add("critical_vulnerability_devices", "skipped", `${n}, but the list stopped at ${MAX_VULN_ROWS} rows, so the count is incomplete`);
-    else out.add("critical_vulnerability_devices", "pass", n);
+    else out.add("critical_vulnerability_devices", "pass", n, out.resource, listRead(vR));
   }
 
   // Tamper protection, from the "Turn on Tamper Protection" security recommendation.

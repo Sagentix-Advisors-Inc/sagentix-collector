@@ -24,7 +24,7 @@
   {
    "id": "windows.os_supported",
    "title": "The Windows build is at least --windows-min-build (a version Microsoft still updates)",
-   "scope": "Win32_OperatingSystem BuildNumber against the option (default 26200, Windows 11 25H2, the oldest version still updated for Home and Pro on 2026-10-20). Windows 10 Extended Security Updates enrolment is not readable.",
+   "scope": "Win32_OperatingSystem BuildNumber against the option, or by default against the Home and Pro end-of-updates dates of Windows 11 release information (read 2026-10-26) on the run date: 25H2 (26200) until 2027-10-12, 26H1 (28000) until 2028-03-14, 26H2 (26300) until 2028-10-10, so the floor rises to 26300 on 2027-10-13. Windows 10 Extended Security Updates enrolment is not readable.",
    "evidenceType": "Configuration"
   },
   {

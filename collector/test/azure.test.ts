@@ -23,6 +23,19 @@ const armErr = (status: number, message: string) => json(status, { error: { code
 
 const rule = (name: string, props: Record<string, unknown>) => ({ name, properties: { direction: "Inbound", access: "Allow", protocol: "Tcp", sourceAddressPrefix: "10.0.0.0/8", destinationPortRange: "443", priority: 100, ...props } });
 
+/** Resources - List answering `$filter=resourceType eq '<type>'` from a list of the types the subscription holds. */
+const resources = (types: string[]) => (url: string): HttpReply => {
+  const f = decodeURIComponent(/[?&]\$filter=([^&]*)/.exec(url)?.[1] ?? "");
+  const want = /resourceType eq '([^']+)'/.exec(f)?.[1];
+  return json(200, list(types.filter((t) => t === want).map((t, i) => ({ id: `${RG}/providers/${t}/r${i}`, type: t }))));
+};
+const VM = `${RG}/providers/Microsoft.Compute/virtualMachines/vm1`;
+const patchView = (summary: Record<string, unknown> | undefined, power = "PowerState/running") => ({
+  statuses: [{ code: "ProvisioningState/succeeded" }, { code: power }],
+  ...(summary ? { patchStatus: { availablePatchSummary: summary } } : {}),
+});
+const goodPatch = { status: "Succeeded", criticalAndSecurityPatchCount: 0, otherPatchCount: 2, lastModifiedTime: "2026-10-14T03:00:00Z" };
+
 /** A well-configured subscription: every check passes. Keyed by path without the query. */
 function strong(): Record<string, Route> {
   return {
@@ -46,6 +59,13 @@ function strong(): Record<string, Route> {
     [`${S}/providers/Microsoft.Compute/disks`]: list([{ id: `${RG}/providers/Microsoft.Compute/disks/os1`, name: "os1", properties: { encryption: { type: "EncryptionAtRestWithPlatformKey" } } }]),
     [`${S}/providers/Microsoft.RecoveryServices/vaults`]: list([{ id: `${RG}/providers/Microsoft.RecoveryServices/vaults/rsv`, name: "rsv" }]),
     [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupProtectedItems`]: list([{ name: "VM;iaasvmcontainerv2;prod;vm1" }]),
+    [`${S}/resources`]: resources(["Microsoft.Compute/virtualMachines"]),
+    [`${RG}/providers/Microsoft.Sql/servers/sql1/firewallRules`]: list([
+      { name: "AllowAllWindowsAzureIps", properties: { startIpAddress: "0.0.0.0", endIpAddress: "0.0.0.0" } },
+      { name: "office", properties: { startIpAddress: "203.0.113.0", endIpAddress: "203.0.113.255" } },
+    ]),
+    [`${S}/providers/Microsoft.Compute/virtualMachines`]: list([{ id: VM, name: "vm1", properties: { osProfile: { linuxConfiguration: { patchSettings: { patchMode: "AutomaticByPlatform", assessmentMode: "AutomaticByPlatform" } } } } }]),
+    [`${VM}/instanceView`]: patchView(goodPatch),
   };
 }
 
@@ -84,6 +104,8 @@ const FAILS: Record<string, Record<string, Route>> = {
   policy_assignments: { [`${S}/providers/Microsoft.Authorization/policyAssignments`]: list([]) },
   disk_encryption: { [`${S}/providers/Microsoft.Compute/disks`]: list([{ id: `${RG}/x/os1`, name: "os1", properties: {} }]) },
   backup_protected_items: { [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupProtectedItems`]: list([]) },
+  sql_firewall_not_open: { [`${RG}/providers/Microsoft.Sql/servers/sql1/firewallRules`]: list([{ name: "any", properties: { startIpAddress: "0.0.0.0", endIpAddress: "255.255.255.255" } }]) },
+  vm_patches_current: { [`${VM}/instanceView`]: patchView({ ...goodPatch, criticalAndSecurityPatchCount: 4 }) },
 };
 
 test("every check the source declares has a pass and a fail case here", () => {
@@ -237,4 +259,45 @@ test("a refused token request makes every check skipped, with no secret in the d
   for (const r of rs) assert.equal(r.result, "skipped");
   assert.ok(!JSON.stringify(rs).includes(env.AZURE_CLIENT_SECRET));
   assert.match(rs[0].detail, /invalid_client/);
+});
+
+test("defender_plans: a plan is demanded only where the subscription has resources it protects; Arm always", async () => {
+  const pricings = list([
+    { name: "VirtualMachines", properties: { pricingTier: "Free" } },
+    { name: "StorageAccounts", properties: { pricingTier: "Free" } },
+    { name: "Arm", properties: { pricingTier: "Free" } },
+    { name: "CloudPosture", properties: { pricingTier: "Free" } },
+  ]);
+  const calls: string[] = [];
+  const rs = of(await run(fake({ [`${S}/providers/Microsoft.Security/pricings`]: pricings }, calls)), "defender_plans");
+  const by = Object.fromEntries(rs.map((r) => [r.resource.split(" ")[2], r]));
+  assert.equal(by.VirtualMachines.result, "fail");
+  assert.match(by.VirtualMachines.detail, /1 Microsoft.Compute\/virtualMachines/);
+  assert.equal(by.StorageAccounts.result, "skipped");
+  assert.match(by.StorageAccounts.detail, /no Microsoft.Storage\/storageAccounts, so the plan is not required/);
+  assert.equal(by.Arm.result, "fail");
+  assert.equal(by.CloudPosture.result, "skipped");
+  assert.ok(calls.some((c) => c.includes(encodeURIComponent("resourceType eq 'Microsoft.HybridCompute/machines'"))), "Arc machines count for Defender for Servers");
+  const denied = of(await run(fake({ [`${S}/providers/Microsoft.Security/pricings`]: pricings, [`${S}/resources`]: armErr(403, "no") })), "defender_plans");
+  assert.equal(denied.find((r) => r.resource.includes("StorageAccounts"))?.result, "skipped");
+});
+
+test("sql_firewall_not_open: public network access off passes without reading rules; Allow Azure services is reported, not failed", async () => {
+  const calls: string[] = [];
+  const off = of(await run(fake({ [`${S}/providers/Microsoft.Sql/servers`]: list([{ id: `${RG}/providers/Microsoft.Sql/servers/sql1`, name: "sql1", properties: { publicNetworkAccess: "Disabled" } }]) }, calls)), "sql_firewall_not_open");
+  assert.equal(off[0].result, "pass");
+  assert.ok(!calls.some((c) => c.includes("/firewallRules")));
+  const azureOnly = of(await run(fake()), "sql_firewall_not_open");
+  assert.equal(azureOnly[0].result, "pass");
+  assert.match(azureOnly[0].detail, /Allow Azure services/);
+});
+
+test("vm_patches_current: no assessment fails, a stale one fails, a stopped VM is skipped", async () => {
+  const none = of(await run(fake({ [`${VM}/instanceView`]: patchView(undefined) })), "vm_patches_current");
+  assert.equal(none[0].result, "fail");
+  assert.match(none[0].detail, /patchMode "AutomaticByPlatform"; no patch assessment/);
+  const stale = of(await run(fake({ [`${VM}/instanceView`]: patchView({ ...goodPatch, lastModifiedTime: "2026-09-01T00:00:00Z" }) })), "vm_patches_current");
+  assert.equal(stale[0].result, "fail");
+  const stopped = of(await run(fake({ [`${VM}/instanceView`]: patchView(goodPatch, "PowerState/deallocated") })), "vm_patches_current");
+  assert.equal(stopped[0].result, "skipped");
 });

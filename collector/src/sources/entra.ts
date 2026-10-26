@@ -83,10 +83,7 @@
 import { readFileSync } from "node:fs";
 import type { Result, Source, SourceContext } from "../types.ts";
 import { cachedToken, entraClientAssertion, tokenRequest } from "./oauth.ts";
-import {
-  DAY_MS, Emitter, arr, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { DAY_MS, Emitter, arr, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead } from "./readonly_http.ts";
 
 export const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 export const ENTRA_ENV = { tenant: "ENTRA_TENANT_ID", client: "ENTRA_CLIENT_ID", secret: "ENTRA_CLIENT_SECRET", cert: "ENTRA_CLIENT_CERT_FILE" } as const;
@@ -358,6 +355,12 @@ export async function entraChecks(api: RestApi, tenant: string, o: EntraOptions,
   const plans = "error" in skus ? undefined : new Set(skus.items.filter(isObj).filter((s) => s.capabilityStatus === undefined || s.capabilityStatus === "Enabled")
     .flatMap((s) => arr(s.servicePlans).filter(isObj).map((p) => String(p.servicePlanName))));
   const p2 = plans ? plans.has("AAD_PREMIUM_P2") : undefined;
+  // PIM comes with P2 or with Entra ID Governance: "You need either Microsoft Entra ID Governance licenses or Microsoft
+  // Entra ID P2 licenses to use PIM" (learn.microsoft.com/entra/id-governance/licensing-fundamentals, updated
+  // 2026-10-16, read 2026-10-26). Governance's service plan is Entra_Identity_Governance (licensing-service-plan-
+  // reference, updated 2026-09-29, read 2026-10-26), also inside Microsoft 365 E7 and the Entra Suite.
+  const pim = plans ? plans.has("AAD_PREMIUM_P2") || plans.has("Entra_Identity_Governance") : undefined;
+  const premium = plans ? plans.has("AAD_PREMIUM") || plans.has("AAD_PREMIUM_P2") : undefined;
 
   // Authentication methods registration.
   const regs = await list(api, "/reports/authenticationMethods/userRegistrationDetails");
@@ -424,7 +427,7 @@ export async function entraChecks(api: RestApi, tenant: string, o: EntraOptions,
   }
 
   // PIM: permanent active vs eligible Global Administrator.
-  if (p2 === false) out.add("pim_no_permanent_admins", "skipped", "Privileged Identity Management needs Entra ID P2 (AAD_PREMIUM_P2); the tenant has none");
+  if (pim === false) out.add("pim_no_permanent_admins", "skipped", "Privileged Identity Management needs Entra ID P2 (AAD_PREMIUM_P2) or Entra ID Governance (Entra_Identity_Governance); the tenant has neither");
   else {
     const act = await list(api, "/roleManagement/directory/roleAssignmentSchedules");
     const elig = "error" in act ? act : await list(api, "/roleManagement/directory/roleEligibilitySchedules");
@@ -461,23 +464,35 @@ export async function entraChecks(api: RestApi, tenant: string, o: EntraOptions,
   else {
     const cutoff = now.getTime() - o.staleDays * DAY_MS;
     const live = us.items.filter(isObj).filter((u) => u.accountEnabled !== false);
+    // Only a successful sign-in counts. signInActivity (learn.microsoft.com/graph/api/resources/signinactivity,
+    // updated 2025-07-05, read 2026-10-26): lastSignInDateTime "records the last time a user attempted an interactive
+    // sign-in to the directory—whether the attempt was successful or not", lastNonInteractiveSignInDateTime likewise
+    // ("either successfully or unsuccessfully"), and lastSuccessfulSignInDateTime is the one to "use ... if you need to
+    // determine when the account was truly accessed". A password spray against an abandoned account kept it "active".
+    // With no successful sign-in recorded, the account is judged by its creation date.
     const stale = live.filter((u) => {
       const s = isObj(u.signInActivity) ? u.signInActivity : {};
-      const times = [s.lastSignInDateTime, s.lastNonInteractiveSignInDateTime, s.lastSuccessfulSignInDateTime].map((t) => Date.parse(String(t))).filter(Number.isFinite);
-      if (times.length) return Math.max(...times) < cutoff;
+      const last = Date.parse(String(s.lastSuccessfulSignInDateTime));
+      if (Number.isFinite(last)) return last < cutoff;
       const created = Date.parse(String(u.createdDateTime));
       return Number.isFinite(created) && created < cutoff;
     }).map((u) => String(u.id ?? "?"));
     out.add("stale_accounts", stale.length ? "fail" : "pass",
-      `${stale.length} of ${live.length} enabled account(s) have not signed in for ${o.staleDays} days${firstIds(stale)}; none allowed (--entra-stale-days)${us.truncated ? "; list truncated at 200 pages" : ""}`);
+      `${stale.length} of ${live.length} enabled account(s) have not signed in successfully for ${o.staleDays} days (failed attempts do not count)${firstIds(stale)}; none allowed (--entra-stale-days)${us.truncated ? "; list truncated at 200 pages" : ""}`,
+      out.resource, listRead(us));
   }
 
   // Directory audit log.
   const al = await api.get("/auditLogs/directoryAudits?$top=1");
   const first = ok(al) ? values(al.body) : undefined;
+  // An empty log is a quiet tenant, not a missing one: "Microsoft Entra data retention" (learn.microsoft.com/entra/
+  // identity/monitoring-health/reference-reports-data-retention, updated 2026-03-25, read 2026-10-26) keeps audit logs
+  // "Seven days" on Entra ID Free and 30 days on P1 and P2, so a week with no change on Free leaves nothing to read:
+  // empty is skipped there (or when licences are unreadable). Thirty days without one entry on P1 or P2 still fails.
   if (!first) out.skip("audit_log_available", al, "directory audit log");
-  else out.add("audit_log_available", first.length ? "pass" : "fail",
-    first.length ? `directory audit log readable; latest entry at ${String(isObj(first[0]) ? first[0].activityDateTime : "?")}` : "directory audit log readable but empty");
+  else if (first.length) out.add("audit_log_available", "pass", `directory audit log readable; latest entry at ${String(isObj(first[0]) ? first[0].activityDateTime : "?")}`);
+  else if (premium === true) out.add("audit_log_available", "fail", "directory audit log readable but empty, and Entra ID P1 or P2 keeps 30 days of entries");
+  else out.add("audit_log_available", "skipped", `directory audit log readable but empty; ${premium === false ? "Entra ID Free keeps audit entries seven days" : "licences not readable (/subscribedSkus), and Entra ID Free keeps audit entries seven days"}, so a quiet week shows none`);
 
   return out.results;
 }

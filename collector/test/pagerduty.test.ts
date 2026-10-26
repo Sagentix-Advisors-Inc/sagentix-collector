@@ -76,6 +76,20 @@ test("pagerduty: a configured custom field marks the review before notes are rea
   assert.ok(!calls.some((c) => c.endsWith("/notes")));
 });
 
+test("pagerduty: a completed Post-Incident Review (GET /incidents/{id}/review) counts without a note; started does not", async () => {
+  const review = (status: string) => ok({ incident_review: { id: "AGOB1", incident_id: "PINC2", title: "Database outage review", status } });
+  const calls: string[] = [];
+  const done = of(await runWith(C, fakeRest(PAGERDUTY_BASE, { ...strong(), ...C.fails.incident_reviews_linked, "/incidents/PINC2/review": review("completed") }, calls)), "pagerduty.incident_reviews_linked")[0];
+  assert.equal(done.result, "pass", done.detail);
+  assert.match(done.detail, /1 with a completed Post-Incident Review/);
+  assert.ok(!calls.includes("/incidents/PINC2/notes"));
+  assert.ok(!done.detail.includes("Database outage"), "review titles are not copied");
+  assert.equal(of(await runWith(C, fakeRest(PAGERDUTY_BASE, { ...strong(), ...C.fails.incident_reviews_linked, "/incidents/PINC2/review": review("started") })), "pagerduty.incident_reviews_linked")[0].result, "fail");
+  const noPlan = of(await runWith(C, fakeRest(PAGERDUTY_BASE, { ...strong(), "/incidents/PINC1/review": res(403, { error: { message: "Access Denied", code: 2010 } }) })), "pagerduty.incident_reviews_linked")[0];
+  assert.equal(noPlan.result, "pass", noPlan.detail);   // falls back to the notes, which name the reviews
+  assert.match(noPlan.detail, /Post-Incident Reviews not readable/);
+});
+
 test("pagerduty: disabled services are left out; --pagerduty-service narrows the set; no incidents gives skipped", async () => {
   let rs = await runWith(C, fakeRest(PAGERDUTY_BASE, strong()));
   assert.match(of(rs, "pagerduty.escalation_multi_level")[0].detail, /^2 service/);

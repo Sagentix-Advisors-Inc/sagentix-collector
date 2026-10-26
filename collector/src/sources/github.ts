@@ -13,7 +13,7 @@
 //     restricting-repository-creation-in-your-organization and …/restricting-repository-visibility-changes-in-your-organization), all read 2026-10-20.
 //   GET /orgs/{org}/members?role=admin|filter=2fa_disabled  Organization: Members
 //   GET /orgs/{org}/outside_collaborators                   Organization: Members
-//   GET /orgs/{org}/actions/permissions[/workflow]          Organization: Administration
+//   GET /orgs/{org}/actions/permissions[/workflow|/selected-actions] Organization: Administration
 //   GET /orgs/{org}/audit-log                               Organization: Administration (Enterprise Cloud only: missing from the
 //     Free/Team permissions page, listed on the Enterprise Cloud one and at docs.github.com/enterprise-cloud@latest/rest/
 //     orgs/orgs#get-the-audit-log-for-an-organization, read 2026-10-20; owners only; plan.name words the skip)
@@ -88,9 +88,27 @@ async function orgChecks(api: RestApi, o: GithubOptions, out: Emitter<C>): Promi
   if (!ok(ap) || !isObj(ap.body)) out.skip("actions_allowed_restricted", ap, "Actions permissions");
   else {
     const en = ap.body.enabled_repositories, al = ap.body.allowed_actions;
-    const pass = en === "none" || (typeof al === "string" && al !== "all");
-    out.add("actions_allowed_restricted", pass ? "pass" : "fail",
-      `enabled_repositories ${JSON.stringify(en)}, allowed_actions ${JSON.stringify(al ?? null)}, sha_pinning_required ${JSON.stringify(ap.body.sha_pinning_required ?? null)}; allowed_actions "local_only" or "selected" (or Actions off) required`);
+    const head = `enabled_repositories ${JSON.stringify(en)}, allowed_actions ${JSON.stringify(al ?? null)}, sha_pinning_required ${JSON.stringify(ap.body.sha_pinning_required ?? null)}`;
+    const want = `allowed_actions "local_only" or "selected" without an allow-everything pattern (or Actions off) required`;
+    if (en !== "none" && al === "selected") {
+      // "selected" restricts nothing when its list allows everything. GitHub's "Disabling or limiting GitHub Actions
+      // for your organization" (docs.github.com/organizations/managing-organization-settings/disabling-or-limiting-
+      // github-actions-for-your-organization, read 2026-10-26): "To allow all actions and reusable workflows while also
+      // blocking specific actions, you can specify `*, !space-org/action@*`". Read from GET /orgs/{org}/actions/
+      // permissions/selected-actions (docs.github.com/rest/actions/permissions, read 2026-10-26), same permission.
+      const sa = await api.get(`/orgs/${org}/actions/permissions/selected-actions`);
+      if (!ok(sa) || !isObj(sa.body)) out.skip("actions_allowed_restricted", sa, "the selected actions list");
+      else {
+        const pats = arr(sa.body.patterns_allowed).map(String);
+        // A pattern of nothing but *, / and @ (*, */*, */*@*, **) matches every owner and repository.
+        const all = pats.filter((p) => !p.trim().startsWith("!") && p.trim() !== "" && p.replace(/[*/@\s]/g, "") === "");
+        out.add("actions_allowed_restricted", all.length ? "fail" : "pass",
+          `${head}; ${pats.length} allowed pattern(s)${all.length ? `, ${all.length} of them (${all.map((p) => JSON.stringify(p.trim())).join(", ")}) allowing every action` : ""}, github_owned_allowed ${JSON.stringify(sa.body.github_owned_allowed ?? null)}, verified_allowed ${JSON.stringify(sa.body.verified_allowed ?? null)}; ${want}`);
+      }
+    } else {
+      const pass = en === "none" || (typeof al === "string" && al !== "all");
+      out.add("actions_allowed_restricted", pass ? "pass" : "fail", `${head}; ${want}`);
+    }
   }
 
   const owners = await list(api, `/orgs/${org}/members?role=admin&per_page=100`);

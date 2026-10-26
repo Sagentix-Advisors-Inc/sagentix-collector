@@ -7,3 +7,7 @@
 !collector/THIRD_PARTY_NOTICES.md
 !apps/sos-app/src/data/checks
 !apps/sos-app/src/data/fedramp_rules.json
+!collector/runner/build_go_engine.sh
+!collector/runner/go-module-fixes.txt
+!collector/runner/python-fixes.txt
+!collector/runner/apply_python_fixes.py

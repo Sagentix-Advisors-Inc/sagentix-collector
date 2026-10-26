@@ -13,8 +13,11 @@
 //   config DescribeConfigurationRecorderStatus                config:DescribeConfigurationRecorderStatus
 //   s3control GET /v20180820/configuration/publicAccessBlock  s3:GetAccountPublicAccessBlock
 //   s3    ListBuckets, GetBucketEncryption                    s3:ListAllMyBuckets, s3:GetEncryptionConfiguration
+//   s3    GetPublicAccessBlock, GetBucketPolicyStatus,        s3:GetBucketPublicAccessBlock, s3:GetBucketPolicyStatus,
+//         GetBucketAcl                                        s3:GetBucketAcl (SecurityAudit grants s3:GetBucket*)
 //   ec2   GetEbsEncryptionByDefault, DescribeSecurityGroups,  ec2:GetEbsEncryptionByDefault, ec2:DescribeSecurityGroups,
-//         DescribeVpcs, DescribeFlowLogs                      ec2:DescribeVpcs, ec2:DescribeFlowLogs
+//         DescribeVpcs, DescribeFlowLogs, DescribeInstances   ec2:DescribeVpcs, ec2:DescribeFlowLogs, ec2:DescribeInstances
+//   ssm   ListResourceComplianceSummaries                     ssm:ListResourceComplianceSummaries
 //   rds   DescribeDBInstances                                 rds:DescribeDBInstances
 //   kms   ListKeys, DescribeKey, GetKeyRotationStatus         kms:ListKeys, kms:DescribeKey, kms:GetKeyRotationStatus
 //   backup GET /backup/plans/ (ListBackupPlans)               backup:ListBackupPlans
@@ -31,13 +34,16 @@ export const AWS_CHECKS = [
   "config_recorder_on", "s3_account_public_access_block", "s3_bucket_encryption", "ebs_encryption_default",
   "rds_encrypted", "rds_not_public", "rds_automated_backups", "sg_no_open_admin_ports", "kms_rotation",
   "backup_plans_exist", "vpc_flow_logs", "access_analyzer_enabled",
+  "iam_users_inactive", "s3_bucket_not_public", "guardduty_malware_protection", "ssm_patch_compliance",
 ] as const;
 export type AwsCheck = (typeof AWS_CHECKS)[number];
 
 export const DEFAULT_KEY_MAX_AGE_DAYS = 90;
+/** As entra.ts staleDays: 90 days without a sign-in or a key use. */
+export const DEFAULT_INACTIVE_DAYS = 90;
 export const MIN_PASSWORD_LENGTH = 14;
 
-export interface AwsOptions { regions: string[]; keyMaxAgeDays: number; now: Date }
+export interface AwsOptions { regions: string[]; keyMaxAgeDays: number; inactiveDays: number; now: Date }
 
 const IAM_V = "2010-05-08", EC2_V = "2016-11-15", RDS_V = "2014-10-31";
 const MAX_PAGES = 50;
@@ -52,8 +58,8 @@ export async function accountChecks(aws: Aws, account: string, o: AwsOptions): P
   await userChecks(aws, out, acct, o);
   await passwordPolicy(aws, out, acct);
   await cloudtrail(aws, out, acct, home);
-  await s3AccountBlock(aws, out, acct, account, home);
-  await s3Buckets(aws, out, acct);
+  const accountBlock = await s3AccountBlock(aws, out, acct, account, home);
+  await s3Buckets(aws, out, acct, accountBlock);
   let rdsSeen = 0, kmsSeen = 0;
   for (const region of o.regions) {
     const rr = `${acct} region ${region}`;
@@ -67,6 +73,7 @@ export async function accountChecks(aws: Aws, account: string, o: AwsOptions): P
     await backupPlans(aws, out, rr, region);
     await flowLogs(aws, out, rr, region);
     await accessAnalyzer(aws, out, rr, region);
+    await patchCompliance(aws, out, rr, region);
   }
   if (rdsSeen === 0) for (const c of ["rds_encrypted", "rds_not_public", "rds_automated_backups"] as const) {
     if (!out.results.some((r) => r.check === `aws.${c}`)) out.skip(c, acct, `no RDS DB instance in ${o.regions.join(", ")}`);
@@ -86,8 +93,16 @@ async function rootChecks(aws: Aws, out: Out, acct: string) {
   }
   const map = new Map(items(deep(r.x, "SummaryMap")).concat(kids(deep(r.x, "SummaryMap"), "entry")).map((e) => [kidText(e, "key") ?? "", kidText(e, "value") ?? ""]));
   const mfa = map.get("AccountMFAEnabled"), keys = map.get("AccountAccessKeysPresent");
+  // A root user with no credentials at all has nothing to protect with MFA. AWS "Centralize root access for member
+  // accounts" (docs.aws.amazon.com/IAM/latest/UserGuide/id_root-enable-root-access.html, read 2026-10-26): "You can
+  // remove the root user password, access keys, signing certificates, and deactivate multi-factor authentication
+  // (MFA)", and AWS Security Hub [IAM.9] (securityhub/latest/userguide/iam-controls.html, read 2026-10-26) passes when
+  // "Root user credentials aren't present in the account". Absent means AccountPasswordPresent,
+  // AccountAccessKeysPresent and AccountSigningCertificatesPresent all reported as 0; a key not reported is not absence.
+  const none = ["AccountPasswordPresent", "AccountAccessKeysPresent", "AccountSigningCertificatesPresent"].every((k) => map.get(k) === "0");
   if (mfa === undefined) out.skip("root_mfa", acct, "GetAccountSummary returned no AccountMFAEnabled");
-  else out.add("root_mfa", acct, mfa === "1" ? "pass" : "fail", `AccountMFAEnabled is ${mfa}; 1 required`);
+  else if (mfa !== "1" && none) out.add("root_mfa", acct, "pass", `AccountMFAEnabled is ${mfa}, but the root user has no password, access key or signing certificate (AccountPasswordPresent, AccountAccessKeysPresent and AccountSigningCertificatesPresent are 0), so it cannot sign in`);
+  else out.add("root_mfa", acct, mfa === "1" ? "pass" : "fail", `AccountMFAEnabled is ${mfa}; 1 required, unless the root user has no credentials`);
   if (keys === undefined) out.skip("root_no_access_keys", acct, "GetAccountSummary returned no AccountAccessKeysPresent");
   else out.add("root_no_access_keys", acct, keys === "0" ? "pass" : "fail", `AccountAccessKeysPresent is ${keys}; 0 required`);
 }
@@ -143,9 +158,10 @@ async function userIds(aws: Aws): Promise<Map<string, string> | { error: string 
 
 async function userChecks(aws: Aws, out: Out, acct: string, o: AwsOptions) {
   const rep = await credentialReport(aws);
-  if ("error" in rep) { out.skipAll(["iam_users_mfa", "access_keys_rotated"], acct, rep.error); return; }
+  const checks: AwsCheck[] = ["iam_users_mfa", "access_keys_rotated", "iam_users_inactive"];
+  if ("error" in rep) { out.skipAll(checks, acct, rep.error); return; }
   const ids = await userIds(aws);
-  if ("error" in ids) { out.skipAll(["iam_users_mfa", "access_keys_rotated"], acct, ids.error); return; }
+  if ("error" in ids) { out.skipAll(checks, acct, ids.error); return; }
   const users = rep.rows.filter((r) => r.user !== "<root_account>");
   const idOf = (name: string) => `iam user ${ids.get(name) || "(id not listed)"}`;
   const console = users.filter((u) => u.password_enabled === "true");
@@ -167,6 +183,39 @@ async function userChecks(aws: Aws, out: Out, acct: string, o: AwsOptions) {
       `${ages.length} active access key(s), last rotated ${ages.map((a) => (Number.isFinite(a) ? `${a} days` : "at an unknown date")).join(" and ")} ago; ${o.keyMaxAgeDays} days or less required (--aws-key-max-age-days)`);
   }
   if (!withKeys) out.skip("access_keys_rotated", acct, `${users.length} IAM user(s), none with an active access key`);
+  inactiveUsers(out, acct, users, idOf, o);
+}
+
+/** A credential report date, or undefined for N/A, no_information, not_supported and anything that does not parse. */
+const reportDate = (v: string | undefined): number | undefined => {
+  const t = v && /^\d{4}-/.test(v) ? Date.parse(v) : NaN;
+  return Number.isFinite(t) ? t : undefined;
+};
+
+// IAM User Guide, "Generate credential reports for your AWS account" (docs.aws.amazon.com/IAM/latest/UserGuide/
+// id_credentials_getting-report.html, read 2026-10-26): password_last_used is "no_information" when "The user's
+// password has never been used", and access_key_N_last_used_date is "N/A" when the key was never used. A credential
+// never used counts from user_creation_time (or, for a key, its access_key_N_last_rotated). A user whose console
+// password and active keys have all gone unused for --aws-inactive-days fails: the account should be disabled.
+function inactiveUsers(out: Out, acct: string, users: Record<string, string>[], idOf: (n: string) => string, o: AwsOptions) {
+  const cutoff = o.now.getTime() - o.inactiveDays * 86_400_000;
+  let judged = 0;
+  for (const u of users) {
+    const creds: { what: string; last?: number }[] = [];
+    const created = reportDate(u.user_creation_time);
+    if (u.password_enabled === "true") creds.push({ what: "console password", last: reportDate(u.password_last_used) ?? created });
+    for (const n of ["1", "2"]) {
+      if (u[`access_key_${n}_active`] !== "true") continue;
+      creds.push({ what: `access key ${n}`, last: reportDate(u[`access_key_${n}_last_used_date`]) ?? reportDate(u[`access_key_${n}_last_rotated`]) ?? created });
+    }
+    if (!creds.length) continue;
+    judged++;
+    const latest = Math.max(...creds.map((c) => c.last ?? -Infinity));
+    const days = Number.isFinite(latest) ? Math.floor((o.now.getTime() - latest) / 86_400_000) : undefined;
+    out.add("iam_users_inactive", idOf(u.user), latest >= cutoff ? "pass" : "fail",
+      `${creds.map((c) => c.what).join(" and ")} active; last used ${days === undefined ? "at an unknown date" : `${days} day(s) ago`} (a credential never used counts from its creation); ${o.inactiveDays} days or less required (--aws-inactive-days)`);
+  }
+  if (!judged) out.skip("iam_users_inactive", acct, `${users.length} IAM user(s), none with a console password or an active access key`);
 }
 
 async function passwordPolicy(aws: Aws, out: Out, acct: string) {
@@ -210,24 +259,49 @@ async function cloudtrail(aws: Aws, out: Out, acct: string, home: string) {
   }
 }
 
+// GuardDuty Malware Protection for EC2 scans the EBS volumes of an instance GuardDuty finds behaving suspiciously.
+// GuardDuty API Reference, GetDetector and DetectorFeatureConfigurationResult (docs.aws.amazon.com/guardduty/latest/
+// APIReference/API_GetDetector.html and API_DetectorFeatureConfigurationResult.html, read 2026-10-26): features[] has
+// name (EBS_MALWARE_PROTECTION among the valid values) and status ENABLED | DISABLED; the older
+// dataSources.malwareProtection.scanEc2InstanceWithFindings.ebsVolumes.status is read when features is absent.
+export function ebsMalwareStatus(d: Record<string, unknown>): string | undefined {
+  const f = arr(d.features).filter(isObj).find((x) => x.name === "EBS_MALWARE_PROTECTION");
+  if (f) return str(f.status);
+  const ds = isObj(d.dataSources) && isObj(d.dataSources.malwareProtection) ? d.dataSources.malwareProtection : undefined;
+  const scan = ds && isObj(ds.scanEc2InstanceWithFindings) && isObj(ds.scanEc2InstanceWithFindings.ebsVolumes) ? ds.scanEc2InstanceWithFindings.ebsVolumes : undefined;
+  return scan ? str(scan.status) : undefined;
+}
+
 async function guardduty(aws: Aws, out: Out, rr: string, region: string) {
   const host = `guardduty.${region}.amazonaws.com`;
   const ids: string[] = [];
   let next: string | undefined;
   for (let p = 0; p < MAX_PAGES; p++) {
     const r = await aws.json(restReq("guardduty", region, host, "/detector", { maxResults: "50", ...(next ? { nextToken: next } : {}) }));
-    if (!r.ok) return out.skip("guardduty_enabled", rr, `detectors not readable: ${awsWhy(r.r)}`);
+    if (!r.ok) { out.skipAll(["guardduty_enabled", "guardduty_malware_protection"], rr, `detectors not readable: ${awsWhy(r.r)}`); return; }
     ids.push(...arr(r.o.detectorIds).map(String));
     next = str(r.o.nextToken) || undefined;
     if (!next) break;
   }
-  if (!ids.length) return out.add("guardduty_enabled", rr, "fail", "no GuardDuty detector in the region; an enabled detector required");
-  const states: string[] = [];
+  if (!ids.length) {
+    out.add("guardduty_enabled", rr, "fail", "no GuardDuty detector in the region; an enabled detector required");
+    out.add("guardduty_malware_protection", rr, "fail", "no GuardDuty detector in the region, so no Malware Protection for EC2; an enabled detector with EBS_MALWARE_PROTECTION ENABLED required");
+    return;
+  }
+  const states: string[] = [], malware: string[] = [];
+  let malwareOn = false, unread: string | undefined;
   for (const id of ids) {
     const d = await aws.json(restReq("guardduty", region, host, `/detector/${id}`));
-    states.push(d.ok ? String(d.o.status) : `unreadable (${awsWhy(d.r)})`);
+    if (!d.ok) { states.push(`unreadable (${awsWhy(d.r)})`); unread ??= awsWhy(d.r); continue; }
+    states.push(String(d.o.status));
+    const m = ebsMalwareStatus(d.o);
+    malware.push(`detector ${id} ${String(d.o.status)}, EBS_MALWARE_PROTECTION ${m ?? "not reported"}`);
+    if (d.o.status === "ENABLED" && m === "ENABLED") malwareOn = true;
   }
   out.add("guardduty_enabled", rr, states.includes("ENABLED") ? "pass" : "fail", `detector status ${states.join(", ")}; ENABLED required`);
+  if (!malwareOn && unread && !malware.length) out.skip("guardduty_malware_protection", rr, `detector not readable: ${unread}`);
+  else out.add("guardduty_malware_protection", rr, malwareOn ? "pass" : "fail",
+    `${malware.join("; ")}; an ENABLED detector with EBS_MALWARE_PROTECTION ENABLED required (Malware Protection for S3 is a separate plan and not judged)`);
 }
 
 // AWS sells two products behind the one `securityhub` endpoint and IAM prefix (AWS docs, read 2026-10-20:
@@ -307,31 +381,79 @@ async function accessAnalyzer(aws: Aws, out: Out, rr: string, region: string) {
 
 // ── Storage and encryption ──────────────────────────────────────────────────────────────────────
 
-async function s3AccountBlock(aws: Aws, out: Out, acct: string, account: string, region: string) {
+const PAB = ["BlockPublicAcls", "IgnorePublicAcls", "BlockPublicPolicy", "RestrictPublicBuckets"] as const;
+/** The Block Public Access settings that are true; undefined when they could not be read. */
+type Block = Set<string> | undefined;
+const blockOf = (x: XNode): Set<string> => { const c = deep(x, "PublicAccessBlockConfiguration") ?? x; return new Set(PAB.filter((n) => kidText(c, n) === "true")); };
+
+async function s3AccountBlock(aws: Aws, out: Out, acct: string, account: string, region: string): Promise<Block> {
   const r = await aws.xml(restReq("s3", region, `${account}.s3-control.${region}.amazonaws.com`, "/v20180820/configuration/publicAccessBlock", {}, { "x-amz-account-id": account }));
   if (!r.ok) {
-    if (errorOf(r.r).code === "NoSuchPublicAccessBlockConfiguration") return out.add("s3_account_public_access_block", acct, "fail", "no account-level S3 Block Public Access configuration; all four settings true required");
-    return out.skip("s3_account_public_access_block", acct, `account public access block not readable: ${awsWhy(r.r)}`);
+    if (errorOf(r.r).code === "NoSuchPublicAccessBlockConfiguration") {
+      out.add("s3_account_public_access_block", acct, "fail", "no account-level S3 Block Public Access configuration; all four settings true required");
+      return new Set();
+    }
+    out.skip("s3_account_public_access_block", acct, `account public access block not readable: ${awsWhy(r.r)}`);
+    return undefined;
   }
   const c = deep(r.x, "PublicAccessBlockConfiguration") ?? r.x;
-  const names = ["BlockPublicAcls", "IgnorePublicAcls", "BlockPublicPolicy", "RestrictPublicBuckets"];
-  const vals = names.map((n) => `${n} ${kidText(c, n) ?? "unset"}`);
-  out.add("s3_account_public_access_block", acct, names.every((n) => kidText(c, n) === "true") ? "pass" : "fail", `${vals.join(", ")}; all true required`);
+  const vals = PAB.map((n) => `${n} ${kidText(c, n) ?? "unset"}`);
+  out.add("s3_account_public_access_block", acct, PAB.every((n) => kidText(c, n) === "true") ? "pass" : "fail", `${vals.join(", ")}; all true required`);
+  return blockOf(r.x);
 }
 
-async function s3Buckets(aws: Aws, out: Out, acct: string) {
+const PUBLIC_GROUPS = new Set(["http://acs.amazonaws.com/groups/global/AllUsers", "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"]);
+
+// Whether a bucket is open to the public, as S3 itself judges it. Amazon S3 User Guide, "Blocking public access to
+// your Amazon S3 storage" (docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html, read
+// 2026-10-26): S3 "applies the most restrictive combination of the access point, bucket, and account settings";
+// RestrictPublicBuckets limits a bucket with a public policy to AWS service principals and the owner's account; an ACL
+// is public "if it grants any permissions to members of the predefined AllUsers or AuthenticatedUsers groups"; and
+// GetBucketAcl returns "the effective permissions", so IgnorePublicAcls is already applied to what it returns.
+// Policy: GetBucketPolicyStatus PolicyStatus/IsPublic (API_GetBucketPolicyStatus.html, read 2026-10-26). A bucket
+// with no policy answers NoSuchBucketPolicy ("The specified bucket does not have a bucket policy", S3 API Reference,
+// Error responses, read 2026-10-26). Object ACLs and access points are not read.
+async function bucketPublic(aws: Aws, out: Out, b: { name: string; region: string }, account: Block): Promise<void> {
+  const res = `s3 bucket ${b.name}`;
+  const host = `s3.${b.region}.amazonaws.com`, p = `/${b.name}`;
+  let block = new Set(account ?? []);
+  if (!(block.has("RestrictPublicBuckets") && block.has("IgnorePublicAcls"))) {
+    const r = await aws.xml(restReq("s3", b.region, host, p, { publicAccessBlock: "" }));
+    if (r.ok) block = new Set([...block, ...blockOf(r.x)]);
+    else if (errorOf(r.r).code !== "NoSuchPublicAccessBlockConfiguration") return out.skip("s3_bucket_not_public", res, `bucket Block Public Access not readable: ${awsWhy(r.r)}`);
+  }
+  const restrict = block.has("RestrictPublicBuckets"), ignore = block.has("IgnorePublicAcls");
+  const head = `RestrictPublicBuckets ${restrict}, IgnorePublicAcls ${ignore} (account and bucket settings combined)`;
+  if (restrict && ignore) return out.add("s3_bucket_not_public", res, "pass", `${head}: S3 refuses public access through the bucket policy and ignores public ACLs`);
+  let policyPublic = false;
+  if (!restrict) {
+    const ps = await aws.xml(restReq("s3", b.region, host, p, { policyStatus: "" }));
+    if (ps.ok) policyPublic = deepText(ps.x, "IsPublic") === "true";
+    else if (errorOf(ps.r).code !== "NoSuchBucketPolicy") return out.skip("s3_bucket_not_public", res, `bucket policy status not readable: ${awsWhy(ps.r)}`);
+  }
+  const acl = await aws.xml(restReq("s3", b.region, host, p, { acl: "" }));
+  if (!acl.ok) return out.skip("s3_bucket_not_public", res, `bucket ACL not readable: ${awsWhy(acl.r)}`);
+  const grants = kids(deep(acl.x, "AccessControlList"), "Grant").filter((g) => PUBLIC_GROUPS.has(deepText(g, "URI") ?? ""))
+    .map((g) => `${(deepText(g, "URI") ?? "").split("/").pop()} ${deepText(g, "Permission") ?? "?"}`);
+  const open = policyPublic || grants.length > 0;
+  out.add("s3_bucket_not_public", res, open ? "fail" : "pass",
+    `${head}; bucket policy public: ${restrict ? "restricted, not read" : policyPublic}; ACL grants to AllUsers or AuthenticatedUsers: ${grants.length ? grants.join(", ") : "none"}; no public policy or ACL grant required`);
+}
+
+async function s3Buckets(aws: Aws, out: Out, acct: string, account: Block) {
   const buckets: { name: string; region: string }[] = [];
   let token: string | undefined;
   for (let p = 0; p < MAX_PAGES; p++) {
     const r = await aws.xml(restReq("s3", "us-east-1", "s3.us-east-1.amazonaws.com", "/", { "max-buckets": "1000", ...(token ? { "continuation-token": token } : {}) }));
-    if (!r.ok) return out.skip("s3_bucket_encryption", acct, `buckets not listable: ${awsWhy(r.r)}`);
+    if (!r.ok) { out.skipAll(["s3_bucket_encryption", "s3_bucket_not_public"], acct, `buckets not listable: ${awsWhy(r.r)}`); return; }
     const res = deep(r.x, "ListAllMyBucketsResult") ?? r.x;
     for (const b of kids(path(res, "Buckets"), "Bucket")) buckets.push({ name: kidText(b, "Name") ?? "?", region: kidText(b, "BucketRegion") || "us-east-1" });
     token = kidText(res, "ContinuationToken") || undefined;
     if (!token) break;
   }
-  if (!buckets.length) return out.skip("s3_bucket_encryption", acct, "the account has no S3 bucket");
+  if (!buckets.length) { out.skipAll(["s3_bucket_encryption", "s3_bucket_not_public"], acct, "the account has no S3 bucket"); return; }
   for (const b of buckets) {
+    await bucketPublic(aws, out, b, account);
     const res = `s3 bucket ${b.name}`;
     const r = await aws.xml(restReq("s3", b.region, `s3.${b.region}.amazonaws.com`, `/${b.name}`, { encryption: "" }));
     if (!r.ok) {
@@ -456,5 +578,42 @@ async function securityGroups(aws: Aws, out: Out, rr: string, region: string) {
     const open = [...new Set(items(path(g, "ipPermissions")).flatMap(openAdminPorts))].sort((a, b) => a - b);
     out.add("sg_no_open_admin_ports", `security group ${region}/${kidText(g, "groupId") ?? "?"}`, open.length ? "fail" : "pass",
       open.length ? `ingress from 0.0.0.0/0 or ::/0 allows port(s) ${open.join(", ")}` : "no ingress rule opens 22 or 3389 to 0.0.0.0/0 or ::/0");
+  }
+}
+
+// ── Patching ────────────────────────────────────────────────────────────────────────────────────
+
+// Each running EC2 instance against Systems Manager Patch Manager's last scan. AWS Systems Manager API Reference,
+// ListResourceComplianceSummaries and ResourceComplianceSummaryItem (docs.aws.amazon.com/systems-manager/latest/
+// APIReference/API_ListResourceComplianceSummaries.html, read 2026-10-26): MaxResults 1 to 50, NextToken, items with
+// ResourceId, ComplianceType, Status COMPLIANT | NON_COMPLIANT and NonCompliantSummary.NonCompliantCount; the filter
+// Key=ComplianceType,Values=Patch,Type=EQUAL is the AWS CLI reference's own example (docs.aws.amazon.com/cli/latest/
+// reference/ssm/list-resource-compliance-summaries.html, read 2026-10-26). Running instances come from EC2
+// DescribeInstances with Filter instance-state-name=running (API_DescribeInstances.html, read 2026-10-26). An instance
+// with no Patch summary was never scanned by Patch Manager (or is not a managed node), so nothing shows it is patched.
+async function patchCompliance(aws: Aws, out: Out, rr: string, region: string) {
+  const res = await ec2List(aws, region, "DescribeInstances", "reservationSet", { "Filter.1.Name": "instance-state-name", "Filter.1.Value.1": "running" });
+  if ("error" in res) return out.skip("ssm_patch_compliance", rr, `EC2 instances not listable: ${res.error}`);
+  const instances = res.items.flatMap((r) => items(path(r, "instancesSet"))).map((i) => kidText(i, "instanceId")).filter((x): x is string => !!x);
+  if (!instances.length) return out.skip("ssm_patch_compliance", rr, "no running EC2 instance in the region");
+  const patch = new Map<string, Record<string, unknown>>();
+  let next: string | undefined;
+  for (let p = 0; p < MAX_PAGES; p++) {
+    const r = await aws.json(jsonReq("ssm", region, "ListResourceComplianceSummaries", {
+      Filters: [{ Key: "ComplianceType", Values: ["Patch"], Type: "EQUAL" }], MaxResults: 50, ...(next ? { NextToken: next } : {}),
+    }));
+    if (!r.ok) return out.skip("ssm_patch_compliance", rr, `Systems Manager patch compliance not readable: ${awsWhy(r.r)}`);
+    for (const i of arr(r.o.ResourceComplianceSummaryItems).filter(isObj)) if (i.ComplianceType === "Patch" && str(i.ResourceId)) patch.set(String(i.ResourceId), i);
+    next = str(r.o.NextToken) || undefined;
+    if (!next) break;
+  }
+  for (const id of instances) {
+    const s = patch.get(id);
+    const resource = `ec2 instance ${region}/${id}`;
+    if (!s) { out.add("ssm_patch_compliance", resource, "fail", "running, but Systems Manager has no Patch compliance for it (not a managed node, or never scanned by Patch Manager); COMPLIANT required"); continue; }
+    const missing = isObj(s.NonCompliantSummary) ? Number(s.NonCompliantSummary.NonCompliantCount ?? 0) : 0;
+    const when = isObj(s.ExecutionSummary) && typeof s.ExecutionSummary.ExecutionTime === "number" ? new Date(s.ExecutionSummary.ExecutionTime * 1000).toISOString().slice(0, 10) : "unknown";
+    out.add("ssm_patch_compliance", resource, s.Status === "COMPLIANT" ? "pass" : "fail",
+      `Patch compliance ${j(s.Status)}, ${missing} non-compliant patch(es), overall severity ${j(s.OverallSeverity ?? null)}, last scan ${when}; COMPLIANT required`);
   }
 }

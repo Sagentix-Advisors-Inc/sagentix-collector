@@ -2,6 +2,7 @@
 // throttling, a result builder, and a scrubber that keeps secret values out of every detail.
 
 import type { OptionValue, Outcome, Result } from "../types.ts";
+import { redact } from "./readonly_http.ts";
 
 export type Obj = Record<string, unknown>;
 export const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -78,10 +79,7 @@ export const allSkipped = (prefix: string, checks: readonly string[], resource: 
  * string never blanks out ordinary words.
  */
 export function scrub(results: Result[], secrets: (string | undefined)[]): Result[] {
-  const s = secrets.filter((x): x is string => typeof x === "string" && x.length >= 8);
-  if (!s.length) return results;
-  const clean = (t: string) => s.reduce((acc, x) => acc.split(x).join("[redacted]"), t);
-  return results.map((r) => ({ ...r, resource: clean(r.resource), detail: clean(r.detail) }));
+  return redact(results, secrets);   // one implementation: it also cleans format 3's apiError, expected and observed
 }
 
 /** Days between an ISO timestamp and now; undefined when it does not parse. */

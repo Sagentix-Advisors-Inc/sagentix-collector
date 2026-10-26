@@ -30,7 +30,8 @@
 //                         the HTTPS answer counts. canada.ca 1.2: "Enable HTTP Strict Transport Security (HSTS)."
 //   csp                   an enforced Content-Security-Policy (Report-Only alone fails) with script-src or default-src,
 //                         whose script sources do not allow 'unsafe-inline' unless a nonce or hash is also given
-//                         (CSP Level 3 then ignores 'unsafe-inline'). OWASP HTTP Headers Cheat Sheet
+//                         (CSP Level 3 then ignores 'unsafe-inline'), nor *, https:, http: or data: unless
+//                         'strict-dynamic' and a nonce or hash are given (CSP3 §6 and §8.2). OWASP HTTP Headers Cheat Sheet
 //                         (cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html).
 //   content_type_options  X-Content-Type-Options: nosniff (OWASP, same page).
 //   frame_protection      CSP frame-ancestors, or X-Frame-Options DENY or SAMEORIGIN (OWASP: "Use Content Security
@@ -41,9 +42,10 @@
 //                         Server "Remove this header or set non-informative values"; "Remove all X-Powered-By headers").
 //   spf                   exactly one TXT record starting v=spf1 at the mail domain (RFC 7208 §4.5: more than one is a
 //                         permerror), ending in -all or ~all (§5.1 "all"; qualifiers - and ~ give fail and softfail).
-//   dmarc                 _dmarc.<domain> with p=quarantine or p=reject (RFC 7489 §6.3) and pct 100 when given. With no
-//                         record there, the parent domains are asked in turn up to two labels: §6.6.3 asks the
-//                         Organizational Domain, which needs the Public Suffix List; this walk approximates it.
+//   dmarc                 _dmarc.<domain> with p, sp and np each quarantine or reject (RFC 9989 §4.7, which obsoletes
+//                         RFC 7489; sp and np default to p) after t=y lowers each a level, and pct 100 when given. With no
+//                         record there, the parent domains are asked in turn up to two labels, and the parent's sp then
+//                         governs the domain: RFC 9989 §4.10 walks to the Organizational Domain; this walk approximates it.
 //   dnssec                a DS record for the domain, read by DNS over HTTPS (GET https://cloudflare-dns.com/dns-query,
 //                         accept application/dns-json; developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/
 //                         make-api-requests/dns-json/). Recommended, not required by the pages above.
@@ -189,14 +191,22 @@ export function judgeCsp(enforced: string | undefined, reportOnly: string | unde
   const scripted = policies.filter((p) => p.has("script-src") || p.has("default-src"));
   if (!scripted.length) return { pass: false, detail: "Content-Security-Policy has neither script-src nor default-src, so scripts are not restricted" };
   // A script loads only when every policy allows it, so one strict policy is enough.
+  // CSP Level 3 (www.w3.org/TR/CSP3/, read 2026-10-26), §6: developers "SHOULD NOT include either 'unsafe-inline', or
+  // data: as valid sources in their policies. Both enable XSS attacks"; and "Schemes such as https: (which matches any
+  // resource having the specified scheme)", so https: or http: lets in a script from any host, as * does. §8.2: with
+  // 'strict-dynamic' beside a
+  // nonce or hash, "host-source and scheme-source expressions, as well as the "'unsafe-inline'" and "'self'
+  // keyword-sources will be ignored when loading script", which is how a strict policy stays backward compatible.
   const weak = (p: Map<string, string[]>) => {
-    const src = p.get("script-src") ?? p.get("default-src") ?? [];
+    const src = (p.get("script-src") ?? p.get("default-src") ?? []).map((s) => s.toLowerCase());
     const keyed = src.some((s) => /^'(nonce-|sha256-|sha384-|sha512-)/i.test(s));
-    return (src.includes("'unsafe-inline'") && !keyed) || src.includes("*");
+    const dynamic = keyed && src.includes("'strict-dynamic'");
+    const anyHost = src.some((s) => s === "*" || /^(https?|data):$/.test(s));
+    return (src.includes("'unsafe-inline'") && !keyed) || (anyHost && !dynamic);
   };
   const strict = scripted.find((p) => !weak(p));
   const extras = [...new Set(scripted.flatMap((p) => (p.get("script-src") ?? p.get("default-src") ?? []).filter((s) => s === "'unsafe-eval'")))];
-  if (!strict) return { pass: false, detail: "script sources allow 'unsafe-inline' without a nonce or hash, or any origin (*)" };
+  if (!strict) return { pass: false, detail: "script sources allow 'unsafe-inline' without a nonce or hash, or any origin (*, or a bare scheme such as https: or data:) without 'strict-dynamic' and a nonce or hash" };
   // A nonce changes on every answer, so its value is left out of the detail.
   const shown = (strict.get("script-src") ?? strict.get("default-src"))!.map((s) => s.replace(/^'nonce-[^']*'$/i, "'nonce-…'")).join(" ");
   return { pass: true, detail: `enforced; scripts from ${shown.slice(0, 300)}${extras.length ? "; note 'unsafe-eval' is allowed" : ""}` };
@@ -241,12 +251,34 @@ export function judgeSpf(records: string[]): { result: "pass" | "fail" | "skippe
   return { result: q === "-" || q === "~" ? "pass" : "fail", detail: `${spf[0].slice(0, 200)} (ends ${all}: ${q === "-" ? "fail" : q === "~" ? "softfail" : q === "?" ? "neutral" : "pass"} for unlisted senders)` };
 }
 
-export function judgeDmarc(record: string | undefined, at: string): { pass: boolean; detail: string } {
+// RFC 9989 (DMARC, May 2026, obsoletes RFC 7489; www.rfc-editor.org/rfc/rfc9989, read 2026-10-26), §4.7:
+//   p  "The policy applies to the domain queried and to subdomains, unless the subdomain policy is explicitly
+//      described using the "sp" or "np" tags."
+//   sp "applies only to existing subdomains of the message's Organizational Domain"; "Note that "sp" will be ignored
+//      for DMARC Policy Records published on subdomains of Organizational Domains and PSDs".
+//   np for non-existent subdomains; absent, sp applies, else p.
+//   t=y asks receivers to apply "one level below the specified policy" (reject acts as quarantine, quarantine as none).
+//   pct is historic (Appendix A.6) but RFC 7489 receivers still sample by it, so anything under 100 still fails.
+// So p=reject with sp=none leaves every subdomain open to spoofing, and a domain whose record was found at a parent
+// is itself a subdomain, governed by the parent's sp. The Organizational Domain is approximated as two labels, as in
+// the walk below.
+const ENFORCE = ["quarantine", "reject"];
+export function judgeDmarc(record: string | undefined, at: string, domain: string = at): { pass: boolean; detail: string } {
   if (!record) return { pass: false, detail: "no DMARC record at _dmarc of the domain or its parents" };
   const tags = new Map(record.split(";").map((t) => t.trim().split("=").map((s) => s.trim())).filter((kv) => kv.length === 2).map(([k, v]) => [k.toLowerCase(), v.toLowerCase()]));
-  const p = tags.get("p"), pct = tags.has("pct") ? Number(tags.get("pct")) : 100;
-  const ok = (p === "quarantine" || p === "reject") && pct === 100;
-  return { pass: ok, detail: `_dmarc.${at}: p=${p ?? "(none)"}${tags.has("sp") ? `, sp=${tags.get("sp")}` : ""}${tags.has("pct") ? `, pct=${pct}` : ""}${ok ? "" : pct !== 100 ? "; the policy covers only part of the mail" : "; p must be quarantine or reject"}` };
+  const p = tags.get("p"), pct = tags.has("pct") ? Number(tags.get("pct")) : 100, testing = tags.get("t") === "y";
+  const orgLevel = at.split(".").length <= 2;
+  const sp = orgLevel ? tags.get("sp") ?? p : p;
+  const np = orgLevel ? tags.get("np") ?? sp : p;
+  const applied = (v: string | undefined) => !testing ? v : v === "reject" ? "quarantine" : v === "quarantine" ? "none" : v;
+  // A record found at a parent governs this domain as a subdomain; one at the domain must also cover its subdomains.
+  const judged: [string, string | undefined][] = domain !== at ? [["sp", applied(sp)], ["np", applied(np)]] : [["p", applied(p)], ["sp", applied(sp)], ["np", applied(np)]];
+  const weak = judged.filter(([, v]) => !ENFORCE.includes(v ?? ""));
+  const ok = !weak.length && pct === 100;
+  const shown = ["p", "sp", "np", "pct", "t"].filter((k) => tags.has(k)).map((k) => `${k}=${tags.get(k)}`).join(", ") || "p=(none)";
+  const why = pct !== 100 ? "the policy covers only part of the mail"
+    : `${weak.map(([k, v]) => `${k === "p" ? "the domain" : k === "sp" ? "existing subdomains" : "non-existent subdomains"} get ${v ?? "none"}`).join(", ")}${testing ? " (t=y: test mode applies one level lower)" : ""}; quarantine or reject required`;
+  return { pass: ok, detail: `_dmarc.${at}: ${shown}${p === undefined ? " (no p: treated as none)" : ""}${domain !== at ? `; governs ${domain} as a subdomain` : ""}${ok ? "" : `; ${why}`}` };
 }
 
 /** Is a TLS error a local limit (this Node cannot offer the old protocol) or a network failure, rather than the server refusing? */
@@ -395,7 +427,7 @@ async function domainChecks(c: Ctx, out: Emitter<C>, domain: string, prefix: str
     if (found.length > 1) { dmarc = undefined; at = d; put("dmarc", "fail", `${found.length} DMARC records at _dmarc.${d}; there must be one`); failed = true; break; }
     if (found.length) { dmarc = found[0]; at = d; break; }
   }
-  if (!failed) { const m = judgeDmarc(dmarc, at); put("dmarc", m.pass ? "pass" : "fail", m.detail); }
+  if (!failed) { const m = judgeDmarc(dmarc, at, domain); put("dmarc", m.pass ? "pass" : "fail", m.detail); }
   else if (!out.results.some((r) => r.check === "web.dmarc" && r.resource === res)) put("dmarc", "skipped", "a DMARC lookup failed");
 
   const ds = await dsRecord(c, domain);

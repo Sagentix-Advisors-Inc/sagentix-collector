@@ -212,6 +212,29 @@ test("judges: SPF, DMARC, CSP and Referrer-Policy edge cases", () => {
   assert.equal(judgeReferrer("no-referrer-when-downgrade").pass, false);
 });
 
+test("csp: a bare scheme (https:, http:, data:) in script-src lets in any host's script and fails, unless 'strict-dynamic' with a nonce or hash (CSP3 §8.2)", () => {
+  for (const weak of ["script-src 'self' https:", "default-src 'self' data:", "script-src http: 'self'", "script-src 'nonce-abc' https:", "script-src 'self' HTTPS:"]) {
+    assert.equal(judgeCsp(weak, undefined).pass, false, weak);
+  }
+  assert.equal(judgeCsp("script-src 'nonce-abc' 'strict-dynamic' https: 'unsafe-inline'; object-src 'none'", undefined).pass, true);
+  assert.equal(judgeCsp("script-src 'strict-dynamic' https:", undefined).pass, false);
+  assert.equal(judgeCsp("script-src 'self' https://cdn.example.net", undefined).pass, true);
+});
+
+test("dmarc: sp and np count (RFC 9989 §4.7), a parent's record governs a subdomain by its sp, and t=y applies one level lower", () => {
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; sp=none", "x.ca").pass, false);
+  assert.match(judgeDmarc("v=DMARC1; p=reject; sp=none", "x.ca").detail, /existing subdomains get none/);
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; np=none", "x.ca").pass, false);
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; sp=quarantine", "x.ca").pass, true);
+  // mail.x.ca has no record of its own: x.ca's sp is the one that applies to it.
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; sp=none", "x.ca", "mail.x.ca").pass, false);
+  assert.equal(judgeDmarc("v=DMARC1; p=none; sp=reject", "x.ca", "mail.x.ca").pass, true);
+  // sp on a record below the Organizational Domain is ignored, so its p covers its subdomains.
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; sp=none", "mail.x.ca").pass, true);
+  assert.equal(judgeDmarc("v=DMARC1; p=quarantine; t=y", "x.ca").pass, false);
+  assert.equal(judgeDmarc("v=DMARC1; p=reject; t=y", "x.ca").pass, true);
+});
+
 test("declared URLs: https only, default port, no user info, no IP address", () => {
   assert.ok(parseWebUrl("https://app.example.ca/path?q=1") instanceof URL);
   for (const bad of ["http://app.example.ca/", "https://u:p@app.example.ca/", "https://app.example.ca:8443/", "https://192.0.2.1/", "https://[2001:db8::1]/", "https://localhost/"]) {

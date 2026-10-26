@@ -1,0 +1,8 @@
+# Python package floors for the runner image's environments (collector/runner/Dockerfile).
+# <package> <minimum version> [advisories]. Written by go_fixes.py from a Trivy scan; a line only moves up.
+asteval 1.0.9 CVE-2026-55244 GHSA-9w56-46f6-3qhx
+h2 4.4.1 CVE-2026-71554
+msgpack 1.2.1 GHSA-6v7p-g79w-8964
+pymongo 4.18.2 CVE-2026-96747 CVE-2026-96748 CVE-2026-96749
+setuptools 83.0.0 CVE-2026-59890
+urllib3 2.8.0 CVE-2026-97687 CVE-2026-97688 CVE-2026-97689

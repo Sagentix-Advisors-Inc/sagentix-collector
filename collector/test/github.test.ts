@@ -35,6 +35,7 @@ function strong(): Routes {
     "/orgs/acme": ok(ORG),
     "/orgs/acme/actions/permissions/workflow": ok({ default_workflow_permissions: "read", can_approve_pull_request_reviews: false }),
     "/orgs/acme/actions/permissions": ok({ enabled_repositories: "all", allowed_actions: "selected", sha_pinning_required: true }),
+    "/orgs/acme/actions/permissions/selected-actions": ok({ github_owned_allowed: true, verified_allowed: false, patterns_allowed: ["docker/*", "*/octocat**@*"] }),
     "/orgs/acme/members?role=admin&per_page=100": ok([{ id: 1, login: "owner-one" }, { id: 2, login: "owner-two" }]),
     "/orgs/acme/outside_collaborators": ok([]),
     "/orgs/acme/audit-log": ok([{ "@timestamp": Date.parse(daysAgo(0)), action: "repo.create" }]),
@@ -74,6 +75,19 @@ const C: Contract = {
 };
 
 contractSuite(C);
+
+test("github: actions_allowed_restricted fails \"selected\" whose list allows everything (*, */*, */*@*), and passes a real allowlist", async () => {
+  for (const pats of [["*"], ["*", "!space-org/action@*"], ["*/*"], ["docker/*", "*/*@*"]]) {
+    const rs = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme/actions/permissions/selected-actions": ok({ github_owned_allowed: true, verified_allowed: false, patterns_allowed: pats }) }));
+    const r = of(rs, "github.actions_allowed_restricted")[0];
+    assert.equal(r.result, "fail", `${JSON.stringify(pats)}: ${r.detail}`);
+    assert.match(r.detail, /allowing every action/);
+  }
+  const good = of(await runWith(C, fakeRest(GITHUB_BASE, strong())), "github.actions_allowed_restricted")[0];
+  assert.equal(good.result, "pass", good.detail);
+  const unread = await runWith(C, fakeRest(GITHUB_BASE, { ...strong(), "/orgs/acme/actions/permissions/selected-actions": res(403, { message: "Resource not accessible" }) }));
+  assert.equal(of(unread, "github.actions_allowed_restricted")[0].result, "skipped");
+});
 
 test("github: repositories are read across Link pages; archived ones are left out", async () => {
   const calls: string[] = [];

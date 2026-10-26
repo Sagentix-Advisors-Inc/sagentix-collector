@@ -60,6 +60,7 @@ export function strongRoutes(): Record<string, CfResponse> {
     [`${A}/devices/posture`]: okBody([{ id: "d1", name: "Disk encrypted", type: "disk_encryption" }]),
     [`${A}/r2/buckets`]: okBody({ buckets: [{ name: "logs", creation_date: "2026-01-01T00:00:00Z" }] }),
     [`${A}/r2/buckets/logs/domains/managed`]: okBody({ bucketId: "b1", domain: "pub-1.r2.dev", enabled: false }),
+    [`${A}/gateway/configuration`]: okBody({ settings: { antivirus: { enabled_download_phase: true, enabled_upload_phase: true, fail_closed: false }, tls_decrypt: { enabled: true } } }),
   };
 }
 

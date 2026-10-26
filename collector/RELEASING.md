@@ -4,6 +4,10 @@
 
 Releases come from the public mirror `Sagentix-Advisors-Inc/sagentix-collector`, because npm refuses provenance for a package built from a private repository, and GitHub artifact attestations in a private repository need GitHub Enterprise Cloud. Sagentix decided on 2026-10-17: public mirror, Apache License 2.0 (`LICENSE`, `NOTICE`), npm scope `@sagentix-inc` (the name `sagentix` was taken on npm).
 
+## Release order for a new push format
+
+A collector that sends a new format waits for sos-app to accept it everywhere it pushes. Format `sagentix-collect/3` (2026-10-23) is taken by sos-app from the release that carries migration 0040; dev and demo get it on the push to `rnd`, staging and prod through `scripts/release.py`. sos-app keeps taking format 2, so older collectors go on working.
+
 ## The security gate
 
 Every change to the collector is scanned, and nothing ships without a pass (Sagentix, 2026-10-17). `.github/workflows/collector-security.yml` runs on each push and pull request that touches `collector/` or the catalogues, every Monday, and inside each release:

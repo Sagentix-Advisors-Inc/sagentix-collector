@@ -4,13 +4,15 @@
  "readScopes": [
   "roles/viewer",
   "roles/iam.securityReviewer",
-  "roles/cloudasset.viewer"
+  "roles/cloudasset.viewer",
+  "roles/osconfig.vulnerabilityReportViewer",
+  "roles/iam.securityReviewer on the organization (optional)"
  ],
  "checks": [
   {
    "id": "gcp.data_access_audit_logs",
    "title": "Data Access audit logs (DATA_READ and DATA_WRITE) are on for allServices",
-   "scope": "The project's IAM policy auditConfigs; a folder or organization audit config that adds log types is not read, and logs excluded by a log sink exclusion are not visible.",
+   "scope": "The project's IAM policy auditConfigs, joined with its folders' and organization's when the project falls short (Google applies the union across the hierarchy; cloud.google.com/logging/docs/audit/configure-data-access, read 2026-10-26). The ancestors come from projects.getAncestry; an ancestor whose policy cannot be read gives skipped, which roles/iam.securityReviewer granted once on the organization (read-only, inherited by its folders) prevents. Logs excluded by a log sink exclusion are not visible.",
    "evidenceType": "Configuration"
   },
   {
@@ -64,8 +66,14 @@
   {
    "id": "gcp.vpc_flow_logs",
    "title": "Each private subnetwork has VPC flow logs on",
-   "scope": "Subnetworks with purpose PRIVATE (or unset); proxy-only and other special-purpose subnets are not judged.",
+   "scope": "Subnetworks with purpose PRIVATE (or unset); proxy-only and other special-purpose subnets are not judged. Flow logs count when on in the subnet's own logConfig, or through an enabled Network Management API configuration for the subnet, its VPC network or the organization (an organization one with a filter does not count; cloud.google.com/vpc/docs/flow-logs, read 2026-10-26).",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "gcp.vm_os_vulnerabilities",
+   "title": "Each running Compute Engine VM has a recent OS Config vulnerability report with no high or critical CVE left unpatched",
+   "scope": "Running VMs of the project (compute aggregated/instances), against OS Config vulnerabilityReports per zone (OS Config API v1, read 2026-10-26): fails when highestUpgradableCveSeverity is HIGH or CRITICAL (a fix exists and is not installed), when the report is older than 7 days, or when the VM has none (no OS Config agent reporting, or VM Manager off). Needs roles/osconfig.vulnerabilityReportViewer. GKE nodes, containers and VMs whose OS VM Manager does not support are seen only as having no report. Prowler has no equivalent check.",
+   "evidenceType": "Report"
   }
  ]
 }

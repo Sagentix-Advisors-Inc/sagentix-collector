@@ -4,7 +4,7 @@
 
 import type { OptionValue, Result, Source } from "../types.ts";
 import { AWS_SECRET_ENVS, Aws, assumeRole, callerAccount, envCredentials, fetchAwsTransport, type AwsTransport } from "./aws/api.ts";
-import { AWS_CHECKS, DEFAULT_KEY_MAX_AGE_DAYS, accountChecks } from "./aws/checks.ts";
+import { AWS_CHECKS, DEFAULT_INACTIVE_DAYS, DEFAULT_KEY_MAX_AGE_DAYS, accountChecks } from "./aws/checks.ts";
 import { allSkipped, list, scrub } from "./shared-cloud.ts";
 
 export const DEFAULT_AWS_REGION = "us-east-1";
@@ -21,6 +21,7 @@ export const aws: Source = {
     "aws-role-arn": { type: "string", help: "IAM role to assume with the environment's credentials before reading (read-only role)" },
     "aws-external-id": { type: "string", help: "external id for --aws-role-arn" },
     "aws-key-max-age-days": { type: "string", help: `oldest an active IAM access key may be (default ${DEFAULT_KEY_MAX_AGE_DAYS})` },
+    "aws-inactive-days": { type: "string", help: `days an IAM user's password and active keys may go unused (default ${DEFAULT_INACTIVE_DAYS})` },
   },
   emits: AWS_CHECKS.map((c) => `aws.${c}`),
   describe(opts) {
@@ -54,7 +55,11 @@ export const aws: Source = {
     const who = await callerAccount(api, regions[0]);
     if ("error" in who) return scrub(skipAll(`the credentials' account is unknown (sts:GetCallerIdentity: ${who.error})`), secrets);
     const days = Number(ctx.opts["aws-key-max-age-days"] ?? DEFAULT_KEY_MAX_AGE_DAYS);
-    const results = await accountChecks(api, who.account, { regions, keyMaxAgeDays: Number.isFinite(days) && days > 0 ? days : DEFAULT_KEY_MAX_AGE_DAYS, now: ctx.now });
+    const idle = Number(ctx.opts["aws-inactive-days"] ?? DEFAULT_INACTIVE_DAYS);
+    const results = await accountChecks(api, who.account, {
+      regions, keyMaxAgeDays: Number.isFinite(days) && days > 0 ? days : DEFAULT_KEY_MAX_AGE_DAYS,
+      inactiveDays: Number.isFinite(idle) && idle > 0 ? idle : DEFAULT_INACTIVE_DAYS, now: ctx.now,
+    });
     return scrub(results, secrets);
   },
 };

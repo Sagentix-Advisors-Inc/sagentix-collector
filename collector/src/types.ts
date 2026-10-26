@@ -17,7 +17,20 @@ export interface Result {
   result: Outcome;
   /** What was observed, in words (sent truncated to 1000 characters). */
   detail: string;
+  /** How it was read (format sagentix-collect/3; every field optional). A pass with complete: false or an apiError
+   *  is not counted as a pass by sos-app. */
+  method?: "config-read" | "log-sample" | "active-test";
+  observedAt?: string;
+  expected?: string;
+  observed?: string;
+  itemsRead?: number;
+  pagesRead?: number;
+  complete?: boolean;
+  apiError?: { status: number; message: string };
 }
+
+/** The provenance fields of a Result. */
+export type Read = Pick<Result, "method" | "observedAt" | "expected" | "observed" | "itemsRead" | "pagesRead" | "complete" | "apiError">;
 
 /** Injectable clients. A source uses the one given here, or builds its own from the environment. */
 export interface Clients {

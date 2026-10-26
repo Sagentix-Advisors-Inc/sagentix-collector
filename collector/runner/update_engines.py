@@ -7,7 +7,7 @@ most up to date version of Prowler (and keep it up to date as soon as a new vers
   check                list the engines with a newer eligible release, as JSON (and a matrix for Actions)
   apply NAME VERSION   move NAME's pins to VERSION, regenerate its catalogues, write the PR body
 
-Pins live in collector/runner/Dockerfile (Prowler, Trivy, Syft, Grype, Gitleaks, Scorecard, OPA, ScubaGoggles,
+Pins live in collector/runner/Dockerfile (Prowler, Go, Trivy, Gitleaks, Scorecard, OPA, ScubaGoggles,
 Kubescape and its regolibrary, Checkov, Cinc Auditor, the five MITRE STIG profiles),
 apps/sos-app/scripts/build_prowler_catalog.py, collector/src/sources/prowler.ts,
 apps/sos-app/scripts/build_scuba_catalog.py (ScubaGoggles, ScubaGear), build_stig_catalog.py (STIG profiles),
@@ -18,8 +18,10 @@ release did (check counts, a missing wheel) is never rewritten: the PR body list
 
 Eligible: a published, non-prerelease GitHub release whose tag is a plain X.Y.Z (with or without "v"), at least
 MIN_AGE_DAYS old. Prowler's age is 0 (Sagentix's decision); the others keep the README's rule of 14 days.
-A binary's SHA-256 comes from the checksum file its project publishes with the release, and must agree with
-the digest GitHub's release API reports when it reports one; a disagreement stops with exit 2 and no PR.
+The Go engines (Trivy, Gitleaks, Scorecard, OPA, Kubescape) are built from source in the image, so their pin is the
+version and the commit its tag points at; the build fails if the tag has moved. Go itself comes from go.dev, whose
+listing gives each archive's SHA-256, and moves the day a stable release is out (age 0), since Go's point releases
+are its security releases.
 Cinc Auditor is not on GitHub: its versions, package digests and dates come from Cinc's omnitruck and package
 server, and its source tag and licence from InSpec's repository at the same version. MITRE publishes no checksum for
 a STIG profile, so its pin is the SHA-256 of GitHub's tarball of the release tag, taken when the pin moves.
@@ -52,44 +54,30 @@ KUBESCAPE_GEN = ROOT / "apps" / "sos-app" / "scripts" / "build_kubescape_catalog
 CHECKOV_GEN = ROOT / "apps" / "sos-app" / "scripts" / "build_checkov_catalog.py"
 STIG_TS = ROOT / "collector" / "src" / "sources" / "stig.ts"
 GUIDES_GEN = ROOT / "apps" / "sos-app" / "scripts" / "build_control_guides.py"
+PROPERTY_GEN = ROOT / "apps" / "sos-app" / "scripts" / "build_property_map.py"
 CHECKS = ROOT / "apps" / "sos-app" / "src" / "data" / "checks"
 
 ENGINES: dict[str, dict] = {
     "prowler": {"label": "Prowler", "repo": "prowler-cloud/prowler", "tag": "{v}", "kind": "prowler", "arg": "PROWLER",
                 "pypi": "prowler", "notices": "Prowler", "min_age_days": 0,
                 "tests": ["prowler-catalogue", "collector", "sos-app", "docker"]},
-    "trivy": {"label": "Trivy", "repo": "aquasecurity/trivy", "tag": "v{v}", "kind": "binary", "arg": "TRIVY",
-              "checksums": "trivy_{v}_checksums.txt",
-              "assets": {"amd64": "trivy_{v}_Linux-64bit.tar.gz", "arm64": "trivy_{v}_Linux-ARM64.tar.gz"},
+    # Built from source in the runner image (build_go_engine.sh): the pin is the version and the commit its tag points at.
+    "go": {"label": "Go", "repo": "golang/go", "tag": "go{v}", "kind": "go", "arg": "GO", "min_age_days": 0,
+           "notices": "Go", "readme": "Go", "tests": ["collector", "docker"]},
+    "trivy": {"label": "Trivy", "repo": "aquasecurity/trivy", "tag": "v{v}", "kind": "gosource", "arg": "TRIVY",
               "notices": "Trivy", "readme": "Trivy", "tests": ["collector", "docker"]},
-    "syft": {"label": "Syft", "repo": "anchore/syft", "tag": "v{v}", "kind": "binary", "arg": "SYFT",
-             "checksums": "syft_{v}_checksums.txt",
-             "assets": {"amd64": "syft_{v}_linux_amd64.tar.gz", "arm64": "syft_{v}_linux_arm64.tar.gz"},
-             "notices": "Syft", "readme": "Syft", "tests": ["collector", "docker"]},
-    "grype": {"label": "Grype", "repo": "anchore/grype", "tag": "v{v}", "kind": "binary", "arg": "GRYPE",
-              "checksums": "grype_{v}_checksums.txt",
-              "assets": {"amd64": "grype_{v}_linux_amd64.tar.gz", "arm64": "grype_{v}_linux_arm64.tar.gz"},
-              "notices": "Grype", "readme": "Grype", "tests": ["collector", "docker"]},
-    "gitleaks": {"label": "Gitleaks", "repo": "gitleaks/gitleaks", "tag": "v{v}", "kind": "binary", "arg": "GITLEAKS",
-                 "checksums": "gitleaks_{v}_checksums.txt",
-                 "assets": {"amd64": "gitleaks_{v}_linux_x64.tar.gz", "arm64": "gitleaks_{v}_linux_arm64.tar.gz"},
+    "gitleaks": {"label": "Gitleaks", "repo": "gitleaks/gitleaks", "tag": "v{v}", "kind": "gosource", "arg": "GITLEAKS",
                  "notices": "Gitleaks", "readme": "Gitleaks", "tests": ["collector", "docker"]},
-    "scorecard": {"label": "OpenSSF Scorecard", "repo": "ossf/scorecard", "tag": "v{v}", "kind": "binary", "arg": "SCORECARD",
-                  "checksums": "scorecard_checksums.txt",
-                  "assets": {"amd64": "scorecard_{v}_linux_amd64.tar.gz", "arm64": "scorecard_{v}_linux_arm64.tar.gz"},
+    "scorecard": {"label": "OpenSSF Scorecard", "repo": "ossf/scorecard", "tag": "v{v}", "kind": "gosource", "arg": "SCORECARD",
                   "notices": "OpenSSF Scorecard", "readme": "OpenSSF Scorecard", "tests": ["collector", "docker"]},
-    "opa": {"label": "OPA", "repo": "open-policy-agent/opa", "tag": "v{v}", "kind": "binary", "arg": "OPA",
-            "checksums": "{asset}.sha256",  # one file per asset
-            "assets": {"amd64": "opa_linux_amd64_static", "arm64": "opa_linux_arm64_static"},
+    "opa": {"label": "OPA", "repo": "open-policy-agent/opa", "tag": "v{v}", "kind": "gosource", "arg": "OPA",
             "notices": "Open Policy Agent (OPA)", "readme": "OPA", "tests": ["collector", "docker"]},
     "scubagoggles": {"label": "ScubaGoggles", "repo": "cisagov/ScubaGoggles", "tag": "v{v}", "kind": "scubagoggles",
                      "arg": "SCUBAGOGGLES", "pypi": "scubagoggles", "notices": "ScubaGoggles", "readme": "ScubaGoggles",
                      "tests": ["scuba-catalogue", "collector", "sos-app", "docker"]},
     "scubagear": {"label": "ScubaGear", "repo": "cisagov/ScubaGear", "tag": "v{v}", "kind": "scubagear",
                   "tests": ["scuba-catalogue", "collector", "sos-app"]},
-    "kubescape": {"label": "Kubescape", "repo": "kubescape/kubescape", "tag": "v{v}", "kind": "binary", "arg": "KUBESCAPE",
-                  "checksums": "checksums.sha256",
-                  "assets": {"amd64": "kubescape_{v}_linux_amd64.tar.gz", "arm64": "kubescape_{v}_linux_arm64.tar.gz"},
+    "kubescape": {"label": "Kubescape", "repo": "kubescape/kubescape", "tag": "v{v}", "kind": "gosource", "arg": "KUBESCAPE",
                   "notices": "Kubescape", "readme": "Kubescape", "tests": ["engine-catalogue", "collector", "sos-app", "docker"]},
     "regolibrary": {"label": "Kubescape regolibrary", "repo": "kubescape/regolibrary", "tag": "v{v}", "kind": "regolibrary",
                     "arg": "REGOLIBRARY", "checksums": "checksums.txt",
@@ -305,6 +293,27 @@ def pypi_has(name: str, version: str) -> dict | None:
         return None
 
 
+def go_releases(now: dt.datetime | None = None) -> list[dict]:
+    """Stable Go releases from go.dev, shaped like GitHub's (go.dev gives no date, so each counts as published now)."""
+    stamp = (now or dt.datetime.now(dt.timezone.utc)).isoformat().replace("+00:00", "Z")
+    return [{"tag_name": r["version"].removeprefix("go"), "published_at": stamp}
+            for r in json.loads(http("https://go.dev/dl/?mode=json&include=all", accept="*/*")) if r.get("stable")]
+
+
+def go_pins(old: str, new: str) -> list[tuple[str, str]]:
+    """The new linux archives' SHA-256 from go.dev's own listing."""
+    rel = next((r for r in json.loads(http("https://go.dev/dl/?mode=json&include=all", accept="*/*")) if r["version"] == f"go{new}"), None)
+    if rel is None:
+        raise Refused(f"Go {new} is not on go.dev")
+    dockerfile, subs = DOCKERFILE.read_text(), [(old, new)]
+    for arch in ("amd64", "arm64"):
+        f = next((f for f in rel["files"] if f["os"] == "linux" and f["arch"] == arch and f["kind"] == "archive"), None)
+        if not f or not re.fullmatch(r"[0-9a-f]{64}", f.get("sha256", "")):
+            raise Refused(f"Go {new}: go.dev lists no linux/{arch} archive")
+        subs.append((re.search(rf"^ARG GO_SHA256_{arch.upper()}=([0-9a-f]{{64}})$", dockerfile, re.M).group(1), f["sha256"]))
+    return subs
+
+
 def cinc_releases(newest: int = 5) -> list[dict]:
     """The newest Cinc Auditor versions as release-like dicts; the date is the Debian 12 package's Last-Modified."""
     out = []
@@ -341,7 +350,8 @@ def check(only: str | None, min_age_override: int | None, now: dt.datetime | Non
             continue
         cur = current_version(name, dockerfile, scuba_src)
         age = min_age_override if min_age_override is not None else e.get("min_age_days", DEFAULT_MIN_AGE_DAYS)
-        releases = cinc_releases() if e["kind"] == "cinc" else gh(f"repos/{e['repo']}/releases?per_page=30")
+        releases = (cinc_releases() if e["kind"] == "cinc" else go_releases(now) if e["kind"] == "go"
+                    else gh(f"repos/{e['repo']}/releases?per_page=30"))
         rel = pick_release(releases, cur, age, now)
         if rel is None:
             notes.append(f"{name}: {cur} is current (eligible: releases at least {age} days old)")
@@ -359,32 +369,6 @@ def check(only: str | None, min_age_override: int | None, now: dt.datetime | Non
 
 class Refused(Exception):
     """A supply-chain check failed: no PR."""
-
-
-def binary_pins(e: dict, old: str, new: str) -> list[tuple[str, str]]:
-    """Old -> new substitutions for a binary engine, each new SHA-256 from the published checksum file."""
-    old_tag, new_tag = e["tag"].format(v=old), e["tag"].format(v=new)
-    rel = gh(f"repos/{e['repo']}/releases/tags/{new_tag}")
-    api_digest = {a["name"]: str(a.get("digest") or "").removeprefix("sha256:") for a in rel.get("assets", [])}
-    base = f"https://github.com/{e['repo']}/releases/download/{new_tag}/"
-    dockerfile = DOCKERFILE.read_text()
-    subs = [(old, new), (old_tag, new_tag)]
-    for arch, pattern in e["assets"].items():
-        asset = pattern.format(v=new)
-        cfile = e["checksums"].format(v=new, asset=asset)
-        sums = parse_checksums(http(base + cfile, accept="*/*").decode())
-        sha = sums.get(asset) or (sums.get("") if cfile.endswith(".sha256") else None)
-        if not sha:
-            raise Refused(f"{e['label']} {new}: {asset} is not in {cfile}")
-        if api_digest.get(asset) and api_digest[asset] != sha:
-            raise Refused(f"{e['label']} {new}: {cfile} says {sha} for {asset}, GitHub's release API says {api_digest[asset]}")
-        if asset not in api_digest:
-            raise Refused(f"{e['label']} {new}: the release has no asset {asset}")
-        m = re.search(rf"^ARG {e['arg']}_SHA256_{arch.upper()}=([0-9a-f]{{64}})$", dockerfile, re.M)
-        if not m:
-            raise Refused(f"no ARG {e['arg']}_SHA256_{arch.upper()} in the Dockerfile")
-        subs.append((m.group(1), sha))
-    return subs
 
 
 def scubagoggles_wheel(old: str, new: str, package: str = "scubagoggles", arg: str = "SCUBAGOGGLES") -> list[tuple[str, str]]:
@@ -497,13 +481,15 @@ def apply(name: str, new: str, out_dir: Path) -> dict:
     except urllib.error.HTTPError:
         pass
     subs = [(old, new), (old_tag, new_tag)] + ([(old_commit, new_commit)] if old_commit else [])
-    if e["kind"] == "binary":
-        subs = binary_pins(e, old, new) + ([(old_commit, new_commit)] if old_commit else [])
+    if e["kind"] == "go":
+        subs = go_pins(old, new) + [(old_tag, new_tag)]
+    # The wheel URL goes first: once the version token moves, the old URL (PyPI's hash directory and the old file name)
+    # no longer matches, and the build fetched a URL that does not exist (Checkov 3.3.27, 2026-10-26).
     elif e["kind"] == "scubagoggles":
-        subs += scubagoggles_wheel(old, new)
+        subs = scubagoggles_wheel(old, new) + subs
         subs.append((f"pypi/scubagoggles/{old}/json", f"pypi/scubagoggles/{new}/json"))
     elif e["kind"] == "wheel":
-        subs += scubagoggles_wheel(old, new, e["pypi"], e["arg"])
+        subs = scubagoggles_wheel(old, new, e["pypi"], e["arg"]) + subs
         subs.append((f"pypi/{e['pypi']}/{old}/json", f"pypi/{e['pypi']}/{new}/json"))
     elif e["kind"] == "regolibrary":
         subs += regolibrary_pins(e, new_tag)
@@ -527,7 +513,7 @@ def apply(name: str, new: str, out_dir: Path) -> dict:
 
     # Pins.
     if e["kind"] != "scubagear":
-        hint = {"prowler": None, "binary": f"github.com/{e['repo']}/", "regolibrary": f"github.com/{e['repo']}/",
+        hint = {"prowler": None, "gosource": f"github.com/{e['repo']}/", "go": "go.dev/dl", "regolibrary": f"github.com/{e['repo']}/",
                 "scubagoggles": "pypi.org/pypi/scubagoggles/", "wheel": f"pypi.org/pypi/{e.get('pypi')}/",
                 "cinc": "omnitruck.cinc.sh", "stig": None}[e["kind"]]
         write(DOCKERFILE, edit_dockerfile(DOCKERFILE.read_text(), e["arg"], hint, subs))
@@ -547,7 +533,7 @@ def apply(name: str, new: str, out_dir: Path) -> dict:
         write(STIG_TS, edit_lines(STIG_TS.read_text(), f"  {e['profile']}: {{", subs))
     if e["kind"] == "regolibrary":
         write(KUBESCAPE_GEN, substitute(KUBESCAPE_GEN.read_text(), subs + [(old_commit or "", new_commit)]))
-    if e["kind"] == "binary" and name == "kubescape":
+    if name == "kubescape":
         write(KUBESCAPE_GEN, edit_lines(KUBESCAPE_GEN.read_text(), "KUBESCAPE_VERSION = ", subs))
     if e["kind"] == "wheel" and name == "checkov":
         tar_old = re.search(r'"tarSha256": "([0-9a-f]{64})"', CHECKOV_GEN.read_text()).group(1)
@@ -582,12 +568,18 @@ def apply(name: str, new: str, out_dir: Path) -> dict:
             refusal = log[-3000:]
     elif e["kind"] in ("stig", "regolibrary", "wheel") or name == "kubescape":
         gen, files = {"stig": (STIG_GEN, [f"stig_{e.get('profile')}.json"]), "regolibrary": (KUBESCAPE_GEN, ["kubescape.json"]),
-                      "wheel": (CHECKOV_GEN, ["checkov.json"]), "binary": (KUBESCAPE_GEN, ["kubescape.json"])}[e["kind"]]
+                      "wheel": (CHECKOV_GEN, ["checkov.json"]), "gosource": (KUBESCAPE_GEN, ["kubescape.json"])}[e["kind"]]
         before = catalogue_ids(files)
         rc, log = run([sys.executable, str(gen)] + (["--only", e["profile"]] if e["kind"] == "stig" else []))
         gen_report = log.strip() + "\n" + catalogue_diff(before, catalogue_ids(files))
         if rc != 0:
             refusal = log[-3000:]
+    # The property and objective maps hash every catalogue (tests/test_sos_app_common_evidence.py): rebuild them after one moves.
+    _, moved = run(["git", "status", "--porcelain", "--", "apps/sos-app/src/data/checks"])
+    if moved.strip() and PROPERTY_GEN.is_file():
+        rc, log = run([sys.executable, str(PROPERTY_GEN)])
+        if rc != 0:
+            flags.append("scripts/build_property_map.py failed on the new catalogue:\n\n```\n" + log[-2000:] + "\n```")
     _, status = run(["git", "status", "--porcelain", "--", "apps/sos-app/src/data"])
     changed += [l[3:] for l in status.splitlines() if l[3:] not in changed]
 
@@ -606,7 +598,13 @@ def apply(name: str, new: str, out_dir: Path) -> dict:
     if gen_report.strip():
         body += ["Generator report (checks added and removed per provider):", "", "```", gen_report.strip()[-6000:], "```", ""]
     body += ["Files changed: " + ", ".join(f"`{c}`" for c in changed), ""]
-    if e["kind"] in ("binary", "regolibrary"):
+    if e["kind"] == "gosource":
+        body += [f"The runner builds {e['label']} from source at commit `{new_commit}`, which the build checks the tag still "
+                 "points at, with the pinned Go and the floors in `collector/runner/go-module-fixes.txt`.", ""]
+    elif e["kind"] == "go":
+        body += ["Each SHA-256 is the one go.dev lists for the linux archive; the build checks it. Every Go engine is rebuilt "
+                 "with it, and the image scan shows which standard-library advisories it closes.", ""]
+    elif e["kind"] == "regolibrary":
         body += ["Each SHA-256 is from the project's checksum file for this release and matches the digest GitHub's "
                  "release API reports for the asset.", ""]
     elif e["kind"] == "cinc":

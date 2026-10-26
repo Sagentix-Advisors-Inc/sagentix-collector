@@ -1,12 +1,13 @@
-// The body sos-app's POST /api/collect accepts (format sagentix-collect/2), and the local checks that
+// The body sos-app's POST /api/collect accepts (format sagentix-collect/3: version 2 plus how each result was read),
+// and the local checks that
 // keep the server from refusing it: known check ids, (check, resource) unique, 1 to 5,000 results.
 
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { CatalogCheck } from "./catalog.ts";
-import type { Result } from "./types.ts";
+import type { Read, Result } from "./types.ts";
 
-export const FORMAT = "sagentix-collect/2";
+export const FORMAT = "sagentix-collect/3";
 export const MAX_RESULTS = 5000;
 export const MAX_DETAIL = 1000;
 export const MAX_RESOURCE = 300;
@@ -34,9 +35,17 @@ export function vet(results: Result[], catalog: Map<string, CatalogCheck>): { re
     const key = `${r.check}|${resource}`;
     if (seen.has(key)) { duplicates.push(key); continue; }
     seen.add(key);
-    out.push({ check: r.check, resource, result: r.result, detail: r.detail.trim().slice(0, MAX_DETAIL) });
+    out.push({ ...readOf(r), check: r.check, resource, result: r.result, detail: r.detail.trim().slice(0, MAX_DETAIL) });
   }
   return { results: out, unknown: [...unknown], duplicates };
+}
+
+const READ_KEYS = ["method", "observedAt", "expected", "observed", "itemsRead", "pagesRead", "complete", "apiError"] as const;
+/** The provenance fields a result carries, without undefined ones (they would change nothing, but keep the JSON short). */
+function readOf(r: Result): Read {
+  const out: Record<string, unknown> = {};
+  for (const k of READ_KEYS) if (r[k] !== undefined) out[k] = r[k];
+  return out as Read;
 }
 
 /** sos-app refuses a body over 4 MB; the margin leaves room for the envelope around the results. */

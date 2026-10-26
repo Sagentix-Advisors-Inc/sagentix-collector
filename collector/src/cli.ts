@@ -101,7 +101,7 @@ function keygen(argv: string[], deps: Deps): number {
   const path = resolve(values.out!);
   try {
     const { publicKey } = writeNewKey(path);
-    deps.err(`Private key written to ${path} (mode 0600). Keep it in your CI secret store; never send it to anyone.`);
+    deps.err(`Private key written to ${path} (mode 0600, readable by you only). Keep it where the collector runs (beside the script, or in your CI's secret store); never send it to anyone.`);
     deps.err("Register this public key in sos-app (Connect your environment, step 4; or Evidence > Collector keys):");
     deps.out(publicKey);
     return EXIT.ok;

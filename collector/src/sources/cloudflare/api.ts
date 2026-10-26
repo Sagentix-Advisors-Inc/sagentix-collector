@@ -48,7 +48,7 @@ export async function safeGet(api: CloudflareApi, path: string): Promise<CfRespo
  * Every item of a page/per_page list endpoint. Stops at result_info.total_pages, at a short page,
  * or after maxPages. Returns the first failing response instead when a page cannot be read.
  */
-export async function getAll(api: CloudflareApi, path: string, perPage = 50, maxPages = 40): Promise<{ items: unknown[] } | { error: CfResponse }> {
+export async function getAll(api: CloudflareApi, path: string, perPage = 50, maxPages = 40): Promise<{ items: unknown[]; truncated: boolean; pages: number } | { error: CfResponse }> {
   const items: unknown[] = [];
   const sep = path.includes("?") ? "&" : "?";
   for (let page = 1; page <= maxPages; page++) {
@@ -58,9 +58,10 @@ export async function getAll(api: CloudflareApi, path: string, perPage = 50, max
     items.push(...list);
     const info = isObj(r.body) && isObj(r.body.result_info) ? r.body.result_info : {};
     const total = Number(info.total_pages);
-    if (Number.isFinite(total) && total > 0 ? page >= total : list.length < perPage) break;
+    if (Number.isFinite(total) && total > 0 ? page >= total : list.length < perPage) return { items, truncated: false, pages: page };
   }
-  return { items };
+  // maxPages read and the list did not say it ended: what follows was never seen (format 3 sends complete: false).
+  return { items, truncated: true, pages: maxPages };
 }
 
 /** Go-style duration ("24h", "2h45m", "30m", "300ms") in seconds; undefined when it does not parse. */

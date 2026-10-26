@@ -31,6 +31,11 @@ const DISK = (fv: boolean) => ok(`<?xml version="1.0"?><plist version="1.0"><dic
 const BZ = "/Library/Backblaze.bzpkg/bzdata";
 const plist = (keys: Record<string, boolean>) => `<?xml version="1.0"?><plist version="1.0"><dict>${Object.entries(keys).map(([k, v]) => `<key>${k}</key><${v}/>`).join("")}</dict></plist>`;
 
+/** `pmset -g custom` on a laptop, as printed on macOS: one block per power source (display sleep in minutes). */
+const PMSET_CUSTOM = (battery: number, ac: number) =>
+  `Battery Power:\n Sleep On Power Button 1\n lowpowermode         0\n standby              1\n displaysleep         ${battery}\n sleep                1\n` +
+  `AC Power:\n Sleep On Power Button 1\n lowpowermode         0\n standby              1\n displaysleep         ${ac}\n sleep                1\n`;
+
 function fake(over: Record<string, Run> = {}): { exec: MacExec; calls: string[] } {
   const calls: string[] = [];
   const base: Record<string, Run> = {
@@ -46,6 +51,7 @@ function fake(over: Record<string, Run> = {}): { exec: MacExec; calls: string[] 
     "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate": ok("Firewall is enabled. (State = 1)\n"),
     "/usr/sbin/sysadminctl -screenLock status": ok("", "2026-10-17 20:07:50.653 sysadminctl[6993:1] screenLock delay is 5 seconds\n"),
     "/usr/bin/pmset -g": ok(" sleep                1\n displaysleep         10\n"),
+    "/usr/bin/pmset -g custom": ok(PMSET_CUSTOM(2, 10)),
     "/usr/bin/defaults -currentHost read com.apple.screensaver idleTime": ok("300\n"),
     "/usr/bin/defaults export /Library/Preferences/com.apple.loginwindow -": ok(plist({ GuestEnabled: false })),
     "/usr/bin/defaults export /Library/Preferences/com.apple.TimeMachine -": ok(tmPlist("Encrypted", "2026-10-16T23:16:25Z")),
@@ -80,7 +86,7 @@ test("each check fails on the setting it reads (outputs from a real Mac)", async
     "/usr/bin/csrutil status": ok("System Integrity Protection status: disabled.\n"),
     "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate": ok("Firewall is disabled. (State = 0)\n"),
     "/usr/sbin/sysadminctl -screenLock status": ok("", "x screenLock delay is 28800 seconds\n"),
-    "/usr/bin/pmset -g": ok(" displaysleep         30\n"),
+    "/usr/bin/pmset -g custom": ok(PMSET_CUSTOM(30, 30)),
     "/usr/bin/defaults -currentHost read com.apple.screensaver idleTime": { code: 1, stdout: "", stderr: "does not exist" },
     "/usr/bin/defaults export /Library/Preferences/com.apple.loginwindow -": ok(plist({}).replace("</dict>", "<key>autoLoginUser</key><string>anna</string></dict>")),
     "/usr/bin/defaults export /Library/Preferences/com.apple.TimeMachine -": ok(tmPlist("NotEncrypted", "2026-09-01T00:00:00Z")),
@@ -120,6 +126,32 @@ test("a newer macOS major alone is reported, not failed; unknown output is skipp
   assert.match(rs.os_updates_installed.detail, /not judged: macOS 27\.0\.1/);
   assert.equal(rs.disk_encryption.result, "skipped");
   assert.equal(rs.malware_protection.result, "skipped");
+});
+
+test("screen_lock judges every power source: a laptop on its charger fails when its battery display never sleeps", async () => {
+  const noSaver = { "/usr/bin/defaults -currentHost read com.apple.screensaver idleTime": { code: 1, stdout: "", stderr: "does not exist" } };
+  // Plain pmset -g on the charger shows only AC (10 min); the battery block says 0, never.
+  const plugged = byCheck(await runMacos(fake({ ...noSaver, "/usr/bin/pmset -g custom": ok(PMSET_CUSTOM(0, 10)) }).exec, O, NOW)).screen_lock;
+  assert.equal(plugged.result, "fail", plugged.detail);
+  assert.match(plugged.detail, /never locks on Battery Power/);
+  const longBattery = byCheck(await runMacos(fake({ ...noSaver, "/usr/bin/pmset -g custom": ok(PMSET_CUSTOM(20, 5)) }).exec, O, NOW)).screen_lock;
+  assert.equal(longBattery.result, "fail");
+  assert.match(longBattery.detail, /locks after 1205 s on Battery Power/);
+  // A desktop has only an AC block; a pmset that prints no block falls back to plain -g.
+  const desktop = byCheck(await runMacos(fake({ ...noSaver, "/usr/bin/pmset -g custom": ok("AC Power:\n displaysleep         10\n") }).exec, O, NOW)).screen_lock;
+  assert.equal(desktop.result, "pass", desktop.detail);
+  const fallback = byCheck(await runMacos(fake({ ...noSaver, "/usr/bin/pmset -g custom": { code: 1, stdout: "", stderr: "" } }).exec, O, NOW)).screen_lock;
+  assert.equal(fallback.result, "pass", fallback.detail);
+});
+
+test("automatic_updates: AutomaticCheckEnabled false is not judged on macOS 27, which has no switch for it; it still fails on 26", async () => {
+  const prefs = { "/usr/bin/defaults export /Library/Preferences/com.apple.SoftwareUpdate -": ok(plist({ AutomaticCheckEnabled: false, AutomaticDownload: true })) };
+  const on27 = byCheck(await runMacos(fake({ ...prefs, "/usr/bin/sw_vers -productVersion": ok("27.0.1\n") }).exec, O, NOW)).automatic_updates;
+  assert.equal(on27.result, "pass", on27.detail);
+  assert.match(on27.detail, /AutomaticCheckEnabled not judged on macOS 27/);
+  assert.equal(byCheck(await runMacos(fake(prefs).exec, O, NOW)).automatic_updates.result, "fail");
+  const dl27 = byCheck(await runMacos(fake({ "/usr/bin/defaults export /Library/Preferences/com.apple.SoftwareUpdate -": ok(plist({ AutomaticDownload: false })), "/usr/bin/sw_vers -productVersion": ok("27.0.1\n") }).exec, O, NOW)).automatic_updates;
+  assert.equal(dl27.result, "fail");
 });
 
 test("parsers", () => {

@@ -1,0 +1,68 @@
+# Exceptions to the runner image's vulnerability gate (.github/workflows/collector-release.yml, "Scan the image").
+# Stéphane, 2026-10-26: a dated exception list is acceptable for what no module floor or Go release can fix yet.
+# Each vulnerability entry names the advisory, the binary or package path it applies to, why it stays, and an expiry
+# no more than 30 days out (tests/test_engine_updates.py fails otherwise). After the expiry Trivy counts it again.
+# A secret entry is a match in a third-party file that is not a credential; it carries no expiry, because the file
+# does not change until its package does, and the path pins it to that package.
+# Format: https://trivy.dev/latest/docs/configuration/filtering/#trivyignoreyaml
+vulnerabilities:
+  - id: CVE-2026-33997
+    paths:
+      - "usr/local/bin/kubescape"
+    statement: >-
+      Moby's plugin-installation privilege check, fixed in Docker 29.3.1. Kubescape 4.0.15 imports
+      github.com/docker/docker v28.5.2+incompatible as a client library and installs no plugins; the fix exists only
+      under Docker's new module paths (no github.com/docker/docker v29.3.1 module), so no floor can reach it. Lift when
+      a Kubescape release moves off github.com/docker/docker.
+    expired_at: 2026-11-25
+  # Held by an exact pin in an engine's own requirements: collector/runner/apply_python_fixes.py raised each one, pip check
+  # failed, and it went back (build log of 2026-10-26). Lift when the engine releases with a newer pin.
+  - id: CVE-2026-71554
+    paths: ["usr/local/lib/python3.13/site-packages/h2-4.3.0.dist-info/METADATA"]
+    statement: >-
+      h2 request smuggling through duplicate Host headers, fixed in 4.4.1. Prowler 5.45.0 pins h2==4.3.0; in the runner
+      h2 is an HTTP/2 client library for the cloud APIs Prowler reads, and the image serves no HTTP.
+    expired_at: 2026-11-25
+  - id: CVE-2026-96748
+    paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
+    statement: >-
+      pymongo 4.15.1 (fixed in 4.18.1 or 4.18.2), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins. The
+      runner connects to no MongoDB server: Prowler's Huawei Cloud provider is not one the collector runs.
+    expired_at: 2026-11-25
+  - id: CVE-2026-96749
+    paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
+    statement: >-
+      pymongo 4.15.1 (fixed in 4.18.1 or 4.18.2), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins. The
+      runner connects to no MongoDB server: Prowler's Huawei Cloud provider is not one the collector runs.
+    expired_at: 2026-11-25
+  - id: CVE-2026-88029
+    paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
+    statement: >-
+      pymongo 4.15.1 (fixed in 4.18.1 or 4.18.2), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins. The
+      runner connects to no MongoDB server: Prowler's Huawei Cloud provider is not one the collector runs.
+    expired_at: 2026-11-25
+  - id: CVE-2026-96747
+    paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
+    statement: >-
+      pymongo 4.15.1 (fixed in 4.18.1 or 4.18.2), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins. The
+      runner connects to no MongoDB server: Prowler's Huawei Cloud provider is not one the collector runs.
+    expired_at: 2026-11-25
+  - id: CVE-2026-55244
+    paths: ["opt/checkov/lib/python3.13/site-packages/asteval-1.0.6.dist-info/METADATA"]
+    statement: >-
+      asteval sandbox escape, fixed in 1.0.9. Checkov pins asteval==1.0.6 through 3.3.30 (PyPI, 2026-10-26). Checkov
+      evaluates expressions from the customer's own infrastructure code, in a run the customer starts on their files.
+    expired_at: 2026-11-25
+  - id: GHSA-9w56-46f6-3qhx
+    paths: ["opt/checkov/lib/python3.13/site-packages/asteval-1.0.6.dist-info/METADATA"]
+    statement: >-
+      asteval sandbox escape, fixed in 1.0.9. Checkov pins asteval==1.0.6 through 3.3.30 (PyPI, 2026-10-26). Checkov
+      evaluates expressions from the customer's own infrastructure code, in a run the customer starts on their files.
+    expired_at: 2026-11-25
+secrets:
+  - id: jwt-token
+    paths:
+      - "/opt/cinc-auditor/embedded/lib/ruby/gems/*/gems/aws-sdk-core-*/lib/aws-sdk-ssooidc/client.rb"
+    statement: >-
+      Four example tokens in the AWS SDK for Ruby's documentation comments (the CreateTokenWithIAM examples, lines that
+      start with "#"), inside the gems Cinc Auditor ships. Not a credential; found by Trivy 0.75.0 on 2026-10-26.

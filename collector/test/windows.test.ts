@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  ADMINISTRATORS_SID, CMD, QUERIES, asList, cleanMessage, encode, lockAfter, parseReading, psArgs, runWindows, script, tokenSids, windows,
+  ADMINISTRATORS_SID, CMD, QUERIES, asList, buildSupported, cleanMessage, encode, lockAfter, parseReading, psArgs, runWindows, script, tokenSids, windows,
   type Query, type Run, type WinExec,
 } from "../src/sources/windows.ts";
 
@@ -53,6 +53,28 @@ function fake(over: Partial<Record<Query, Run>> = {}, who: Run = { code: 0, stdo
 }
 const byCheck = (rs: Awaited<ReturnType<typeof runWindows>>) => Object.fromEntries(rs.map((r) => [r.check.replace("windows.", ""), r]));
 const O = { lockSeconds: 900, signatureDays: 7, updateDays: 35, minBuild: 26200 };
+
+test("os_supported without --windows-min-build follows Microsoft's Home and Pro end-of-updates dates: 25H2 passes until 2027-10-12, then 26300 is the floor", () => {
+  const on = (d: string) => new Date(`${d}T12:00:00Z`);
+  assert.equal(buildSupported(26200, on("2027-10-12")).pass, true);
+  const after = buildSupported(26200, on("2027-10-13"));
+  assert.equal(after.pass, false, after.detail);
+  assert.match(after.detail, /25H2\): Home and Pro updates ended 2027-10-12; at least 26300 required on 2027-10-13/);
+  assert.equal(buildSupported(26300, on("2027-10-13")).pass, true);
+  assert.equal(buildSupported(28000, on("2028-03-15")).pass, false);   // 26H1 ends before 26H2
+  assert.equal(buildSupported(26300, on("2028-03-15")).pass, true);
+  assert.equal(buildSupported(26100, on("2026-10-26")).pass, false);   // 24H2 Home and Pro: ended
+  assert.equal(buildSupported(19045, on("2026-10-26")).pass, false);
+  assert.equal(buildSupported(29500, on("2030-01-01")).pass, true);    // newer than the page
+  assert.equal(buildSupported(26100, on("2026-10-26"), 26100).pass, true);   // the option still wins
+});
+
+test("os_supported: the source run with no --windows-min-build fails 25H2 after its end of updates", async () => {
+  const run = async (d: string) => byCheck(await windows.run({ opts: {}, env: {}, clients: { windows: fake().exec }, now: new Date(d), warn: () => {} }));
+  assert.equal((await run("2026-10-26T12:00:00Z")).os_supported.result, "pass");
+  const late = (await run("2027-11-01T12:00:00Z")).os_supported;
+  assert.equal(late.result, "fail", late.detail);
+});
 
 test("a well-kept PC (BitLocker and Secure Boot answered, as on an elevated run) passes every check, named by serial only", async () => {
   const rs = await runWindows(fake({}, { code: 0, stdout: WHO_USER, stderr: "" }).exec, O, NOW);

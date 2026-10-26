@@ -7,7 +7,7 @@
 // commit afe89e6e, 2026-10-14):
 //   GET /api/v1/fleet/hosts?page&per_page&order_key=id&populate_policies=true
 //       -> { hosts: [ { id, hardware_serial, platform, os_version, seen_time, disk_encryption_enabled,
-//                       mdm: { enrollment_status, name }, policies: [ { id, name, response } ] } ] }
+//                       mdm: { enrollment_status, name }, policies: [ { id, name, query, platform, response } ] } ] }
 //   `page` is zero-based; the list has no "next" marker, so a short page is the last one.
 //   `disk_encryption_enabled` is omitted when Fleet does not know (and for Linux hosts reporting an
 //   unencrypted root volume, which Fleet cannot confirm), so absence is "skipped", never "pass".
@@ -25,10 +25,7 @@
 // into a result. Policy names are quoted with any email address cut out.
 
 import type { Result, Source, SourceContext } from "../types.ts";
-import {
-  Emitter, arr, fetchRest, isObj, ok, realSleep, redact, str, withRetry,
-  type HttpResponse, type Obj, type RestApi, type Sleep,
-} from "./readonly_http.ts";
+import { Emitter, arr, fetchRest, isObj, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
 
 export const FLEET_ENV = { url: "FLEET_URL", token: "FLEET_API_TOKEN" } as const;
@@ -88,16 +85,53 @@ async function listHosts(api: RestApi, maxHosts: number): Promise<{ hosts: Obj[]
 
 interface Verdict { result: "pass" | "fail" | "skipped"; detail: string }
 
+/** Idle seconds a screen lock may wait: the default of the macos and windows sources (--macos-max-lock-seconds, --windows-max-lock-seconds). */
+export const LOCK_SECONDS = 900;
+/** The floor Fleet's library policy "Operating system up to date" (macOS) ships with. */
+export const FLEET_LIBRARY_MACOS_FLOOR = "14.1.1";
+
+// Each host policy carries its osquery SQL in `query` (Fleet REST API, "Get host", policies[].query). Two of Fleet's
+// library policies pass more than their name says, so a pass from one of them proves nothing on its own:
+//   "Screen lock enabled" for Windows (fleetdm.com/policies/screen-lock-enabled-windows, read 2026-10-26):
+//     "... InactivityTimeoutSecs' AND CAST(data as INTEGER) <= 1800;" -- 30 minutes, twice the 900 s the macos and
+//     windows sources allow, so a pass does not show the 900 s limit is met.
+//   "Operating system up to date" for macOS (fleetdm.com/policies/operating-system-up-to-date-mac-os, read
+//     2026-10-26): "SELECT 1 FROM os_version WHERE version >= '14.1.1';" -- a fixed floor from 2023. A floor below the
+//     platform's --fleet-min-os, or Fleet's shipped one when no --fleet-min-os is given, does not show currency.
+// A fail from either still fails: the host misses even the weaker bar.
+export function weakPass(check: P, p: Obj, minOs: Map<string, number[]>): string | undefined {
+  const q = String(p.query ?? "");
+  if (check === "screen_lock") {
+    const m = q.match(/InactivityTimeoutSecs[\s\S]*?(<=|<)\s*(\d+)/i);
+    const limit = m ? Number(m[2]) - (m[1] === "<" ? 1 : 0) : undefined;
+    if (limit !== undefined && limit > LOCK_SECONDS) return `its query passes at an InactivityTimeoutSecs up to ${limit} s, above the ${LOCK_SECONDS} s required`;
+  }
+  if (check === "os_up_to_date") {
+    const m = q.match(/os_version\s+WHERE\s+version\s*>=?\s*'(\d+(?:\.\d+)*)'/i);
+    if (m) {
+      const floor = m[1].split(".").map(Number);
+      const plat = String(p.platform ?? "").split(",")[0].trim().toLowerCase();
+      const min = minOs.get(plat) ?? minOs.get("*");
+      if (min && cmpVersion(floor, min) < 0) return `its query only asks for version ${m[1]}, below the --fleet-min-os floor ${showVersion(min)}`;
+      if (!min && m[1] === FLEET_LIBRARY_MACOS_FLOOR) return `its query is Fleet's library floor version >= '${FLEET_LIBRARY_MACOS_FLOOR}', never raised; raise it or give --fleet-min-os`;
+    }
+  }
+  return undefined;
+}
+
 /** The host's policies that count for a check, judged together: any fail fails; none answered is skipped. */
-function byPolicies(h: Obj, check: P, ids: Map<P, Set<string>>): Verdict | undefined {
+function byPolicies(h: Obj, check: P, ids: Map<P, Set<string>>, minOs: Map<string, number[]> = new Map()): Verdict | undefined {
   const want = ids.get(check);
   const mine = arr(h.policies).filter(isObj).filter((p) => (want ? want.has(String(p.id)) : POLICY_PATTERNS[check].test(String(p.name ?? ""))));
   if (!mine.length) return undefined;
-  const parts = mine.slice(0, 5).map((p) => `policy ${String(p.id)} ${label(p.name)}: ${p.response === "pass" || p.response === "fail" ? p.response : "no response yet"}`);
+  const weak = new Map(mine.map((p) => [p, p.response === "pass" ? weakPass(check, p, minOs) : undefined] as const));
+  const parts = mine.slice(0, 5).map((p) => `policy ${String(p.id)} ${label(p.name)}: ${p.response === "pass" || p.response === "fail" ? p.response : "no response yet"}${weak.get(p) ? ` (not counted: ${weak.get(p)})` : ""}`);
   const more = mine.length > 5 ? ` (+${mine.length - 5} more)` : "";
+  const strong = mine.filter((p) => p.response === "pass" && !weak.get(p));
   if (mine.some((p) => p.response === "fail")) return { result: "fail", detail: `${parts.join("; ")}${more}` };
-  if (mine.every((p) => p.response === "pass")) return { result: "pass", detail: `${parts.join("; ")}${more}` };
-  if (mine.some((p) => p.response === "pass")) return { result: "pass", detail: `${parts.join("; ")}${more}; the rest have not run on this host` };
+  if (strong.length === mine.length) return { result: "pass", detail: `${parts.join("; ")}${more}` };
+  if (strong.length) return { result: "pass", detail: `${parts.join("; ")}${more}; the rest have not run on this host or do not count` };
+  if (mine.some((p) => weak.get(p))) return { result: "skipped", detail: `${parts.join("; ")}${more}; no policy that counts has passed` };
   return { result: "skipped", detail: `${parts.join("; ")}${more}; no answer from the host yet` };
 }
 
@@ -108,6 +142,7 @@ export async function fleetChecks(api: RestApi, server: string, o: { seenDays: n
   const { hosts, truncated } = got;
   if (!hosts.length) { out.skipAll(FLEET_CHECKS, "Fleet lists no enrolled host; nothing to judge"); return out.results; }
   const cap = truncated ? `; only the first ${o.maxHosts} hosts read (--fleet-max-hosts)` : "";
+  const from = out.results.length;
 
   // A policy check with no matching policy on any host is one fleet-level "skipped", not one per host.
   const anyPolicy = new Set<P>(POLICY_CHECKS.filter((c) => hosts.some((h) => byPolicies(h, c, o.ids) !== undefined)));
@@ -137,7 +172,7 @@ export async function fleetChecks(api: RestApi, server: string, o: { seenDays: n
 
     // OS currency: the matching policies and, when given, the platform's version floor.
     if (anyPolicy.has("os_up_to_date") || o.minOs.size) {
-      const v = anyPolicy.has("os_up_to_date") ? byPolicies(h, "os_up_to_date", o.ids) : undefined;
+      const v = anyPolicy.has("os_up_to_date") ? byPolicies(h, "os_up_to_date", o.ids, o.minOs) : undefined;
       const floor = o.minOs.get(platform.toLowerCase()) ?? o.minOs.get("*");
       const have = versionIn(h.os_version);
       const verdicts: Verdict[] = v ? [v] : [];
@@ -163,6 +198,7 @@ export async function fleetChecks(api: RestApi, server: string, o: { seenDays: n
     if (age === undefined) out.add("last_seen", "skipped", `seen_time not reported${where}`, res);
     else out.add("last_seen", age <= o.seenDays ? "pass" : "fail", `last seen ${age} day(s) ago (${String(h.seen_time)}); at most ${o.seenDays} allowed (--fleet-seen-days)${where}`, res);
   }
+  stampRead(out.results, from, listRead(got));   // a capped list leaves devices unseen: format 3 says so
   return out.results;
 }
 

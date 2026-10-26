@@ -32,7 +32,7 @@
   {
    "id": "web.csp",
    "title": "An enforced Content-Security-Policy restricts scripts, without 'unsafe-inline' unless a nonce or hash is given",
-   "scope": "The headers of the declared URL; a policy set in a <meta> tag is not read.",
+   "scope": "The headers of the declared URL; a policy set in a <meta> tag is not read. A bare scheme (https:, http:, data:) or * in the script sources fails unless 'strict-dynamic' and a nonce or hash are given (CSP Level 3 §6 and §8.2, w3.org/TR/CSP3, read 2026-10-26).",
    "evidenceType": "Configuration"
   },
   {
@@ -67,8 +67,8 @@
   },
   {
    "id": "web.dmarc",
-   "title": "The mail domain publishes DMARC with p=quarantine or p=reject for all mail",
-   "scope": "_dmarc of the mail domain, then of its parents down to two labels (an approximation of RFC 7489's Organizational Domain without the Public Suffix List).",
+   "title": "The mail domain publishes DMARC with p=quarantine or p=reject for all mail, its subdomains included",
+   "scope": "_dmarc of the mail domain, then of its parents down to two labels (an approximation of the Organizational Domain without the Public Suffix List). RFC 9989 §4.7 (May 2026, obsoletes RFC 7489, read 2026-10-26): p, sp and np must each be quarantine or reject (sp and np default to p), a parent's record governs the domain by its sp, and t=y lowers each one level.",
    "evidenceType": "Configuration"
   },
   {

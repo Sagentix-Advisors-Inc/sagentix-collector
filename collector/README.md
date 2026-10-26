@@ -91,6 +91,10 @@ node src/cli.ts run --source cloudflare \
 
 Exit codes: 0 sent (or dry run); 1 error (unreadable key, network failure, a failed engine run); 2 usage; 3 nothing to send, because every check was skipped; 4 sos-app refused the push, with its message printed (401 bad signature or revoked key, 409 replay, 400 unknown check or stale `issuedAt`).
 
+### What each result says about its read (format 3)
+
+The body is format `sagentix-collect/3`: format 2 plus optional fields on each result that say how it was read. `method` is `config-read`, `log-sample` or `active-test`; `expected` and `observed` are the value the check wanted and the one it found; `itemsRead`, `pagesRead` and `complete` say how much of a paged list was read; `apiError` is `{status, message}` of the call that failed. A source sets `complete: false` on every result built from a list it stopped reading (Cloudflare stops at 40 pages, Entra ID and Google Workspace at 200, Okta at 100, the device sources at their `--*-max-*` caps). sos-app does not count a pass from such a list, or one beside a failed call, so raise the cap or narrow the scope until the run reads everything. Credentials are cut from `apiError`, `expected` and `observed` the same way as from `detail`.
+
 ### Config file
 
 Instead of a long command line, put the sources and their options in `collector.config.json` and run one command:
@@ -169,7 +173,7 @@ Each check reports one result per resource: a zone, an account, a certificate pa
 | `tls_1_3` | TLS 1.3 is on at the edge |
 | `always_use_https` | HTTP is redirected to HTTPS |
 | `automatic_https_rewrites` | Automatic HTTPS rewrites are on |
-| `ssl_mode` | Origin connections use Full (strict) |
+| `ssl_mode` | Origin connections use Full (strict) or Strict (SSL-Only Origin Pull) (`origin_pull`); both validate the origin certificate |
 | `hsts` | HSTS on, max-age ≥ 31536000 s, includeSubDomains |
 | `dnssec` | DNSSEC status is `active` |
 | `waf_managed_ruleset` | An enabled `execute` rule in `http_request_firewall_managed` |
@@ -179,21 +183,22 @@ Each check reports one result per resource: a zone, an account, a certificate pa
 | `browser_integrity_check` | Browser Integrity Check is on |
 | `waf_custom_rules` | An enabled custom rule that blocks or challenges |
 | `rate_limiting_rules` | An enabled rule in `http_ratelimit` |
-| `bot_protection` | Bot Fight Mode on, or Super Bot Fight Mode blocking or challenging definitely automated traffic |
+| `bot_protection` | Bot Fight Mode on, or Super Bot Fight Mode blocking or challenging definitely automated traffic. On a zone with a CNAME to `cfargotunnel.com`, Cloudflare asks that definitely automated traffic stay allowed: likely automated traffic blocked or challenged passes, else skipped |
 | `leaked_credential_checks` | Leaked credential detection is on |
-| `edge_certificates_valid` | Each certificate pack active, with > 30 days left (uploaded) or > 14 days (Cloudflare-managed) |
+| `edge_certificates_valid` | Each certificate pack active, with > 30 days left (uploaded), or for Cloudflare-managed packs > 14 days (3-month and 1-year), > 3 (1-month) or > 1 (2-week), against renewal windows of 30, 7 and 3 days |
 | `custom_hostname_min_tls` | Each custom hostname requires TLS 1.2 or higher |
-| `page_shield` | Client-side security (Page Shield) is enabled; Pro plan or higher |
-| `security_txt` | Cloudflare serves a security.txt with a contact |
+| `page_shield` | Client-side security (Page Shield) is enabled; script monitoring is on every plan, Free included |
+| `security_txt` | Cloudflare serves a security.txt with a contact and an `Expires` after the run (RFC 9116 §2.5.5: after it the file is stale) |
 | `super_admins_limited` | At most `--max-super-admins` members hold Super Administrator |
 | `account_tokens_expire` | Each active account-owned API token has an expiry |
 | `security_notifications` | An enabled notification policy for a DDoS, WAF anomaly, bot, BGP hijack, security insight or client-side security alert |
-| `access_apps_have_policies` | Each Access application has an allow policy that names who may enter, and no bypass for everyone |
+| `access_apps_have_policies` | Each Access application has an allow policy, or a Service Auth policy naming its service tokens or certificates, that names who may enter, and no bypass for everyone |
 | `access_mfa_required` | Each allow policy of an Access application requires MFA: an `auth_method: mfa` rule, or Access independent MFA set on the policy, the application or the organisation (policy over application over organisation) |
-| `access_session_duration` | Each Access application's session is 24 h or less (unset means Access's 24 h default) |
+| `access_session_duration` | Each Access application's session is 24 h or less for every allow policy: a policy's own session duration overrides the application's (unset means Access's 24 h default) |
 | `gateway_dns_filtering` | An enabled Gateway DNS rule with action `block`, and at least one DNS location or enrolled device sending queries to Gateway (without one, the rule filters nothing) |
 | `device_posture_rules` | At least one device posture rule |
 | `r2_public_access_off` | Each R2 bucket's r2.dev public access is off |
+| `gateway_antivirus` | Gateway anti-virus scans downloads (`settings.antivirus.enabled_download_phase`) and TLS decryption is on (`settings.tls_decrypt.enabled`), from `GET /accounts/{id}/gateway/configuration` (Zero Trust Read, no new scope) |
 
 The OPA policies test 8 of these (the six TLS checks, `dnssec` and `waf_managed_ruleset`) against the OpenTofu state. Their results carry the same check ids, with resource `tofu <resource address>`, so sos-app shows the deployed value and the declared value side by side.
 
@@ -211,7 +216,7 @@ None of the five adds an npm dependency. AWS requests are signed with SigV4 in `
 
 **Credentials:** `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN`, which `aws-actions/configure-aws-credentials` exports after assuming the role; or `AWS_ROLE_ARN` with `AWS_WEB_IDENTITY_TOKEN_FILE` (the collector calls `AssumeRoleWithWebIdentity`). Shared config profiles, SSO and the EC2/ECS metadata endpoints are not read. `--aws-role-arn` with `--aws-external-id` assumes a second role first, for the cross-account path.
 
-**Options:** `--aws-regions us-east-1,ca-central-1` (default `AWS_REGION`, else us-east-1; the first is the home region for CloudTrail and S3 Control), `--aws-key-max-age-days` (default 90).
+**Options:** `--aws-regions us-east-1,ca-central-1` (default `AWS_REGION`, else us-east-1; the first is the home region for CloudTrail and S3 Control), `--aws-key-max-age-days` (default 90), `--aws-inactive-days` (default 90, for `iam_users_inactive`).
 
 The client sends only actions named `Get*`, `List*` or `Describe*`, plus `iam:GenerateCredentialReport` (it makes IAM build the report the collector then reads) and the two STS calls that open the session; anything else throws before it is signed. One run covers the credentials' account.
 
@@ -222,7 +227,7 @@ node src/cli.ts run --source aws --aws-regions us-east-1,ca-central-1 \
 
 | Check (`aws.`…) | What passes |
 | --- | --- |
-| `root_mfa` | The root user has MFA enabled |
+| `root_mfa` | The root user has MFA enabled, or has no password, access key or signing certificate (`GetAccountSummary` reports all three as 0) |
 | `root_no_access_keys` | The root user has no access keys |
 | `iam_users_mfa` | Each IAM user with a console password has MFA |
 | `access_keys_rotated` | Each active IAM access key was rotated within 90 days |
@@ -243,6 +248,12 @@ node src/cli.ts run --source aws --aws-regions us-east-1,ca-central-1 \
 | `backup_plans_exist` | At least one AWS Backup plan exists in the region |
 | `vpc_flow_logs` | Each VPC has an active flow log |
 | `access_analyzer_enabled` | IAM Access Analyzer has an active analyzer in the region |
+| `iam_users_inactive` | No IAM user's console password and active keys have all gone unused for 90 days (credential report) |
+| `s3_bucket_not_public` | No bucket is public through its policy (`GetBucketPolicyStatus`) or ACL (`GetBucketAcl`), unless Block Public Access already restricts both |
+| `guardduty_malware_protection` | An enabled GuardDuty detector has `EBS_MALWARE_PROTECTION` on in the region |
+| `ssm_patch_compliance` | Each running EC2 instance is `COMPLIANT` in Patch Manager (`ListResourceComplianceSummaries`, ComplianceType Patch); no Patch summary fails |
+
+The four checks added on 2026-10-26 need no new permission: SecurityAudit (policy v94) grants `s3:GetBucket*`, `ec2:Describe*` and `ssm:ListResourceComplianceSummaries`. `iam_users_inactive`, `s3_bucket_not_public` and `ssm_patch_compliance` overlap Prowler checks on purpose: they serve a client whose role stays at SecurityAudit alone, without the runner image or Prowler's extra read policy.
 
 ### Azure
 
@@ -259,7 +270,7 @@ node src/cli.ts run --source azure --azure-subscription 00000000-0000-0000-0000-
 
 | Check (`azure.`…) | What passes |
 | --- | --- |
-| `defender_plans` | Each Microsoft Defender for Cloud plan is on (Standard tier) |
+| `defender_plans` | Each Defender for Cloud plan is on (Standard tier) where the subscription holds a resource type it protects (`/resources?$filter=resourceType eq '…'`); Arm always; a plan with nothing to protect is skipped |
 | `secure_score` | The Defender for Cloud secure score is readable and at or above the set threshold |
 | `activity_log_export` | The subscription's activity log is exported, Administrative events included |
 | `keyvault_recoverable` | Each key vault has soft delete and purge protection on |
@@ -271,12 +282,16 @@ node src/cli.ts run --source azure --azure-subscription 00000000-0000-0000-0000-
 | `policy_assignments` | At least one Azure Policy assignment applies to the subscription |
 | `disk_encryption` | Each managed disk is encrypted at rest (platform key, customer key, both, or Azure Disk Encryption) |
 | `backup_protected_items` | Each Recovery Services vault protects at least one item, and the subscription has a vault |
+| `sql_firewall_not_open` | No Azure SQL server-level firewall rule spans more than a /8, unless public network access is Disabled; Allow Azure services is reported |
+| `vm_patches_current` | Each running VM's last patch assessment (instance view `patchStatus`) succeeded within 7 days with 0 critical or security patches pending |
+
+The 2026-10-26 additions read `/resources` (filtered by type), `Microsoft.Sql/servers/{s}/firewallRules`, `Microsoft.Compute/virtualMachines` and `{vm}/instanceView`, all GETs that Reader grants; no role changes.
 
 ### GCP
 
-**Create:** apply `iac/gcp/evidence-role` (a service account with **roles/viewer**, **roles/iam.securityReviewer** and **roles/cloudasset.viewer**, and Workload Identity Federation for one GitHub repository). No check uses `roles/cloudasset.viewer` yet; it is granted so the identity matches the other clouds' inventory reach.
+**Create:** apply `iac/gcp/evidence-role` (a service account with **roles/viewer**, **roles/iam.securityReviewer**, **roles/cloudasset.viewer** and **roles/osconfig.vulnerabilityReportViewer** on the project, and Workload Identity Federation for one GitHub repository). No check uses `roles/cloudasset.viewer` yet; it is granted so the identity matches the other clouds' inventory reach. Set `organization_id` to add **roles/iam.securityReviewer on the organization**: read-only (Google's IAM roles reference, read 2026-10-26, lists only `list`, `getIamPolicy`, two `get`, `logging.queries.usePrivate` and `listTagBindings` permissions for it), and the only way `data_access_audit_logs` sees audit settings made on the organization or a folder. `roles/osconfig.vulnerabilityReportViewer` holds `osconfig.vulnerabilityReports.get`, `.list`, `resourcemanager.projects.get` and `.list`, nothing else (roles-permissions/osconfig, read 2026-10-26).
 
-**Credentials:** `GOOGLE_OAUTH_ACCESS_TOKEN`, which `google-github-actions/auth` produces with `token_format: access_token`. Every call is a GET except `POST …:getIamPolicy`, which is a read; the client refuses any other POST. IAM bindings are read for the audit config and bucket checks and never reported.
+**Credentials:** `GOOGLE_OAUTH_ACCESS_TOKEN`, which `google-github-actions/auth` produces with `token_format: access_token`. Every call is a GET except `POST …:getIamPolicy` and `POST v1/projects/{p}:getAncestry`, which are reads; the client refuses any other POST. IAM bindings are read for the audit config and bucket checks and never reported.
 
 **Options:** `--gcp-project <id>` (repeatable; required, or every check is skipped), `--gcp-org-constraints` (default `iam.disableServiceAccountKeyCreation,storage.publicAccessPrevention`), `--gcp-key-max-age-days` (default 90).
 
@@ -287,7 +302,7 @@ node src/cli.ts run --source gcp --gcp-project acme-prod \
 
 | Check (`gcp.`…) | What passes |
 | --- | --- |
-| `data_access_audit_logs` | Data Access audit logs (DATA_READ and DATA_WRITE) are on for allServices |
+| `data_access_audit_logs` | Data Access audit logs (DATA_READ and DATA_WRITE) are on for allServices, on the project or, joined, its folders and organization (skipped when an ancestor's policy is unreadable) |
 | `org_policy_enforced` | Each listed boolean organization policy constraint is enforced on the project |
 | `sa_keys_rotated` | No enabled user-managed service account key is older than the limit (default 90 days) |
 | `bucket_not_public` | No Cloud Storage bucket grants a role to allUsers or allAuthenticatedUsers |
@@ -296,7 +311,8 @@ node src/cli.ts run --source gcp --gcp-project acme-prod \
 | `firewall_no_open_admin_ports` | No enabled ingress firewall rule allows TCP 22 or 3389 from 0.0.0.0/0 or ::/0 |
 | `scc_api_enabled` | The Security Command Center API is enabled on the project |
 | `kms_rotation` | Each symmetric Cloud KMS key rotates automatically every 365 days or less |
-| `vpc_flow_logs` | Each private subnetwork has VPC flow logs on |
+| `vpc_flow_logs` | Each private subnetwork has VPC flow logs on, in its own `logConfig` or through a Network Management API configuration for it, its network or the organization |
+| `vm_os_vulnerabilities` | Each running Compute Engine VM has an OS Config vulnerability report under 7 days old whose `highestUpgradableCveSeverity` is below HIGH; no report fails |
 
 ### Jira
 
@@ -369,10 +385,10 @@ node src/cli.ts run --source entra --entra-stale-days 60 \
 | `ca_blocks_legacy_auth` | An enabled policy blocks client app types `exchangeActiveSync` and `other` for all users |
 | `security_defaults` | Security defaults on, or off with `ca_mfa_all_users` met |
 | `global_admins_limited` | At most `--entra-max-global-admins` principals hold Global Administrator |
-| `pim_no_permanent_admins` | At most `--entra-max-permanent-admins` permanent Global Administrator assignments (P2) |
+| `pim_no_permanent_admins` | At most `--entra-max-permanent-admins` permanent Global Administrator assignments (P2 or Entra ID Governance) |
 | `guest_invites_restricted` | `allowInvitesFrom` is `none` or `adminsAndGuestInviters`; the guest count goes in the detail |
-| `stale_accounts` | No enabled account without a sign-in for `--entra-stale-days` days (P1) |
-| `audit_log_available` | The directory audit log is readable and not empty |
+| `stale_accounts` | No enabled account without a successful sign-in (`lastSuccessfulSignInDateTime`; failed attempts do not count) for `--entra-stale-days` days (P1) |
+| `audit_log_available` | The directory audit log is readable and not empty; empty is skipped on Entra ID Free (seven days kept), a fail on P1 or P2 (30 days) |
 | `risk_policies` | An enabled policy acts on sign-in or user risk (P2) |
 | `users_mfa_covered` | Every enabled member account has `isMfaCapable` and is in scope of MFA: security defaults, or a resolved Conditional Access policy (P1) |
 
@@ -399,7 +415,7 @@ node src/cli.ts run --source okta --okta-max-super-admins 2 \
 | --- | --- |
 | `mfa_enroll_required` | Each active enrollment policy requires an authenticator besides the password (one result per policy) |
 | `phishing_resistant_authenticator` | WebAuthn, smart card or Okta Verify FastPass (`signed_nonce`) is active |
-| `global_session_requires_mfa` | Every active ALLOW rule of each global session policy has `requireFactor: true` |
+| `global_session_requires_mfa` | Every active ALLOW rule of each global session policy has `requireFactor: true`, or has `primaryFactor: PASSWORD_IDP_ANY_FACTOR` while every app sign-in policy requires 2FA |
 | `app_policies_require_2fa` | Every active ALLOW rule of each app sign-in policy has `factorMode: 2FA`; method chains are not judged |
 | `password_policy` | Each active password policy sets `minLength` ≥ `--okta-min-password-length` |
 | `account_lockout` | Each active password policy locks after 1 to 10 failed attempts |
@@ -407,7 +423,7 @@ node src/cli.ts run --source okta --okta-max-super-admins 2 \
 | `inactive_users` | No ACTIVE user without a sign-in for `--okta-stale-days` days |
 | `system_log_available` | The System Log is readable and not empty |
 
-A global session policy that leaves MFA to the app sign-in policies fails `global_session_requires_mfa` while passing `app_policies_require_2fa`; the assessor reads the two together.
+A global session policy that leaves MFA to the app sign-in policies (`primaryFactor: PASSWORD_IDP_ANY_FACTOR`, Okta's default) passes `global_session_requires_mfa` only when every app sign-in policy passes `app_policies_require_2fa`; a password-only session rule (`PASSWORD_IDP`) without `requireFactor` still fails.
 
 ### JumpCloud
 
@@ -504,7 +520,7 @@ node src/cli.ts run --source github --github-org acme \
 | --- | --- |
 | `org_requires_2fa` | `two_factor_requirement_enabled` is true |
 | `actions_token_read_only` | Default workflow permissions `read`, and workflows cannot approve pull requests |
-| `actions_allowed_restricted` | `allowed_actions` is `local_only` or `selected`, or Actions are off |
+| `actions_allowed_restricted` | `allowed_actions` is `local_only`, or `selected` with no allowed pattern made only of wildcards (`*`, `*/*`, `*/*@*`, read from `selected-actions`), or Actions are off |
 | `org_owners_limited` | At most `--github-max-owners` organization owners |
 | `outside_collaborators` | At most `--github-max-outside-collaborators` outside collaborators |
 | `audit_log_available` | The organization audit log is readable and not empty (Enterprise Cloud) |
@@ -549,8 +565,8 @@ Screen lock, OS currency, firewall and EDR come from the customer's own Fleet po
 | Check (`fleet.`…) | What passes |
 | --- | --- |
 | `disk_encryption` | `disk_encryption_enabled` is true (Fleet omits it when it does not know) |
-| `screen_lock` | Every matching policy answers pass on the host |
-| `os_up_to_date` | Matching policies pass, and `os_version` meets the `--fleet-min-os` floor when one is given |
+| `screen_lock` | Every matching policy answers pass on the host; a pass from a query allowing `InactivityTimeoutSecs` above 900 s (Fleet's library Windows policy allows 1800) does not count |
+| `os_up_to_date` | Matching policies pass, and `os_version` meets the `--fleet-min-os` floor when one is given; a pass from a `version >=` query below that floor, or at Fleet's unchanged library floor 14.1.1, does not count |
 | `firewall` | Every matching policy answers pass |
 | `edr_present` | Every matching policy answers pass |
 | `mdm_enrolled` | `mdm.enrollment_status` starts with "On" (any MDM Fleet detects); Linux hosts are skipped |
@@ -652,14 +668,14 @@ Every command, field and value was written on 2026-10-20 from Microsoft Learn, e
 
 Two checks need an administrator, and Microsoft says so: `Get-BitLockerVolume` reads `Win32_EncryptableVolume` ("You must have administrator privileges"), and `Confirm-SecureBootUEFI` "requires that Windows PowerShell be run in administrator mode". No documented read works without elevation. On a standard user's run both are `skipped` with that reason; running the collector once from PowerShell opened as administrator fills them. The daily scheduled run stays unelevated.
 
-**Options:** `--windows-max-lock-seconds` (default 900), `--windows-signature-days` (default 7), `--windows-update-days` (default 35), `--windows-min-build` (default 26200: Windows 11 25H2, the oldest version Microsoft still updated for Home and Pro on 2026-10-20; an Enterprise or Education firm on 24H2 sets 26100).
+**Options:** `--windows-max-lock-seconds` (default 900), `--windows-signature-days` (default 7), `--windows-update-days` (default 35), `--windows-min-build` (default: Microsoft's Home and Pro end-of-updates dates on the run date, from Windows 11 release information read 2026-10-26: 26200 (25H2) passes until 2027-10-12, then 26300 (26H2) is the floor; an Enterprise or Education firm on 24H2 sets 26100).
 
 | Check (`windows.`…) | What passes |
 | --- | --- |
 | `disk_encryption` | `Get-BitLockerVolume` on the system drive: `FullyEncrypted`, protection `On` (administrator only) |
 | `os_updates_installed` | The Windows Update Agent's `LastInstallationSuccessDate` and the newest `Get-HotFix` `InstalledOn` both within `--windows-update-days` |
 | `automatic_updates` | Policy `NoAutoUpdate` is not 1, `AUOptions` is not 1 or 2, `wuauserv` is not Disabled, Automatic Updates' `ServiceEnabled` is true |
-| `os_supported` | `Win32_OperatingSystem.BuildNumber` at or above `--windows-min-build` |
+| `os_supported` | `Win32_OperatingSystem.BuildNumber` at or above `--windows-min-build`, or by default a version Microsoft still updates for Home and Pro on the run date |
 | `malware_protection` | `Get-MpComputerStatus`: `AMRunningMode` Normal, antimalware service, antivirus and real-time protection on |
 | `malware_definitions_current` | Defender's `AntivirusSignatureLastUpdated` within `--windows-signature-days` |
 | `firewall` | `Get-NetFirewallProfile -PolicyStore ActiveStore`: Domain, Private and Public all enabled |
@@ -707,13 +723,13 @@ Each check was written against a page read on 2026-10-18: CCCS ITSP.40.062 v3 (J
 | `certificate_valid` | The chain verifies for the host name, with more than `--web-cert-min-days` days left |
 | `https_redirect` | `http://` answers 301, 302, 307 or 308 to `https://` on the same host, or port 80 refuses connections |
 | `hsts` | Strict-Transport-Security on the HTTPS answer with max-age ≥ 31536000 |
-| `csp` | An enforced Content-Security-Policy with script-src or default-src that allows neither `*` nor `'unsafe-inline'` without a nonce or hash; Report-Only alone fails |
+| `csp` | An enforced Content-Security-Policy with script-src or default-src that allows neither `*`, a bare scheme (`https:`, `http:`, `data:`) without `'strict-dynamic'` and a nonce or hash, nor `'unsafe-inline'` without a nonce or hash; Report-Only alone fails |
 | `content_type_options` | `X-Content-Type-Options: nosniff` |
 | `frame_protection` | CSP `frame-ancestors`, or X-Frame-Options DENY or SAMEORIGIN |
 | `referrer_policy` | A Referrer-Policy whose effective value is not `unsafe-url` or `no-referrer-when-downgrade` |
 | `no_version_banner` | No digit in Server; no X-Powered-By, X-AspNet-Version or X-AspNetMvc-Version |
 | `spf` | Exactly one `v=spf1` record, ending in `-all` or `~all` |
-| `dmarc` | `_dmarc` of the domain, or else of its parents down to two labels, has `p=quarantine` or `p=reject` and pct 100 |
+| `dmarc` | `_dmarc` of the domain, or else of its parents down to two labels, has `p`, `sp` and `np` each `quarantine` or `reject` (RFC 9989 §4.7; `sp` and `np` default to `p`, `t=y` lowers each a level), and pct 100; a parent's record governs the domain by its `sp` |
 | `dnssec` | A DS record exists for the domain (recommended) |
 | `caa` | A CAA record set at the domain or its nearest parent (recommended) |
 

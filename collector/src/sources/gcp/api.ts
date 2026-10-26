@@ -1,4 +1,4 @@
-// Read-only Google Cloud REST client. GET only, plus POST to `:getIamPolicy` (a read that Google
+// Read-only Google Cloud REST client. GET only, plus POST to `:getIamPolicy` and `:getAncestry` (reads that Google
 // exposes as POST); the fetch client refuses any other POST, so a bug here cannot change a project.
 // The bearer token comes from GOOGLE_OAUTH_ACCESS_TOKEN (google-github-actions/auth with
 // token_format: access_token). Tests pass a fake transport; nothing in tests touches the network.
@@ -6,6 +6,13 @@
 import { isObj, str, withRetry, httpWhy, type HttpReply } from "../shared-cloud.ts";
 
 export const GCP_TOKEN_ENV = "GOOGLE_OAUTH_ACCESS_TOKEN";
+
+/**
+ * The two reads Google exposes as POST: :getIamPolicy, and Resource Manager v1 projects.getAncestry ("Gets a list of
+ * ancestors in the resource hierarchy for the Project ... The caller must have read permissions for this Project",
+ * cloudresourcemanager v1 discovery document revision 20261018, read 2026-10-26).
+ */
+export const READ_POSTS = /:(getIamPolicy|getAncestry)$/;
 
 export interface GcpTransport {
   request(method: "GET" | "POST", url: string, body?: unknown): Promise<HttpReply>;
@@ -15,8 +22,8 @@ export interface GcpTransport {
 export function fetchGcpTransport(token: string, fetchFn: typeof fetch = fetch): GcpTransport {
   return {
     async request(method, url, body) {
-      if (method !== "GET" && !(method === "POST" && /:getIamPolicy$/.test(url.split("?")[0]))) {
-        throw new Error(`refused: the GCP client only sends GET, and POST to :getIamPolicy (${method} ${url.split("?")[0]})`);
+      if (method !== "GET" && !(method === "POST" && READ_POSTS.test(url.split("?")[0]))) {
+        throw new Error(`refused: the GCP client only sends GET, and POST to :getIamPolicy or :getAncestry (${method} ${url.split("?")[0]})`);
       }
       const res = await fetchFn(url, {
         method,

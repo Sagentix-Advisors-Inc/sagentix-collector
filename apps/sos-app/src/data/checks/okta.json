@@ -23,8 +23,8 @@
   },
   {
    "id": "okta.global_session_requires_mfa",
-   "title": "Every active ALLOW rule of each active global session policy requires a factor",
-   "scope": "One result per global session policy.",
+   "title": "Every active ALLOW rule of each active global session policy requires a factor, or hands the session to app sign-in policies that all require two",
+   "scope": "One result per global session policy. A rule without requireFactor whose primaryFactor is PASSWORD_IDP_ANY_FACTOR (any factor the app sign-in policy requires, Okta management API 2026.42.1, read 2026-10-26) passes when every active app sign-in policy requires 2FA, fails when one does not, and is skipped when they cannot all be judged.",
    "evidenceType": "Configuration"
   },
   {

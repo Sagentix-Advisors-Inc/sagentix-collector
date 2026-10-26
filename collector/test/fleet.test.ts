@@ -159,3 +159,33 @@ test("fleet: the real client sends GET with a Bearer token to FLEET_URL's /api/v
   assert.equal(typeof fleetFromEnv({ FLEET_URL: "http://fleet.example.com", FLEET_API_TOKEN: "x" }), "string");
   assert.equal(typeof fleetFromEnv({ FLEET_URL: "https://fleet.example.com" }), "string");
 });
+
+const setQuery = (id: number, query: string) => (h: Record<string, unknown>) => {
+  for (const p of h.policies as { id: number; query: string }[]) if (p.id === id) p.query = query;
+};
+
+test("fleet: Fleet's library Windows screen-lock policy (<= 1800 s) passing does not show the 900 s limit; its fail still fails", async () => {
+  const lib = "SELECT 1 FROM registry WHERE path = 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\InactivityTimeoutSecs' AND CAST(data as INTEGER) <= 1800;";
+  const win = (rs: Awaited<ReturnType<typeof runWith>>) => of(rs, "fleet.screen_lock").find((r) => r.resource.includes("PF3TEST0002"))!;
+  const loose = win(await runWith(C, fakeRest(BASE, withHost(1, setQuery(20, lib)))));
+  assert.equal(loose.result, "skipped", loose.detail);
+  assert.match(loose.detail, /up to 1800 s, above the 900 s/);
+  const tight = win(await runWith(C, fakeRest(BASE, withHost(1, setQuery(20, lib.replace("1800", "900"))))));
+  assert.equal(tight.result, "pass", tight.detail);
+  const failing = win(await runWith(C, fakeRest(BASE, withHost(1, (h) => { setQuery(20, lib)(h); setPolicy(20, "fail")(h); }))));
+  assert.equal(failing.result, "fail");
+});
+
+test("fleet: Fleet's library macOS OS policy (version >= '14.1.1') proves no currency; a floor below --fleet-min-os does not count", async () => {
+  const lib = "SELECT 1 FROM os_version WHERE version >= '14.1.1';";
+  const mac = (rs: Awaited<ReturnType<typeof runWith>>) => of(rs, "fleet.os_up_to_date").find((r) => r.resource.includes("C02TEST0001"))!;
+  const stale = mac(await runWith(C, fakeRest(BASE, withHost(0, setQuery(13, lib)))));
+  assert.equal(stale.result, "skipped", stale.detail);
+  assert.match(stale.detail, /never raised/);
+  const raised = mac(await runWith(C, fakeRest(BASE, withHost(0, setQuery(13, lib.replace("14.1.1", "15.2"))))));
+  assert.equal(raised.result, "pass", raised.detail);
+  // With a floor of 16.0 the policy's 15.2 bar does not count, and the host (15.2) fails the floor itself.
+  const below = mac(await runWith(C, fakeRest(BASE, withHost(0, setQuery(13, lib.replace("14.1.1", "15.2")))), { opts: { "fleet-min-os": ["darwin=16.0"] } }));
+  assert.equal(below.result, "fail", below.detail);
+  assert.match(below.detail, /below the --fleet-min-os floor 16\.0/);
+});

@@ -5,6 +5,7 @@
 //   GET /zones/{z}                                         Zone Read
 //   GET /zones/{z}/settings/{setting}                      Zone Settings Read
 //   GET /zones/{z}/dnssec                                  DNS Read
+//   GET /zones/{z}/dns_records                             DNS Read (only to find Cloudflare Tunnel routes for bot_protection)
 //   GET /zones/{z}/rulesets/phases/{phase}/entrypoint      Zone WAF Read (firewall_managed, firewall_custom, ratelimit)
 //   GET /zones/{z}/leaked-credential-checks                Zone WAF Read
 //   GET /zones/{z}/bot_management                          Bot Management Read
@@ -20,7 +21,7 @@
 // on or off, and the threat score it acted on "is always 0". The API still takes off ... under_attack, but no value
 // challenges visitors by IP reputation any more, so a pass on "medium" or a fail on "off" would show nothing.
 
-import type { Outcome, Result } from "../../types.ts";
+import type { Outcome, Read, Result } from "../../types.ts";
 import { arr, getAll, isObj, ok, resultOf, safeGet, str, why, type CfResponse, type CloudflareApi, type Obj } from "./api.ts";
 
 export const ZONE_CHECKS = [
@@ -35,6 +36,13 @@ export type ZoneCheck = (typeof ZONE_CHECKS)[number];
 export const CERT_MIN_DAYS_CUSTOM = 30;
 /** Cloudflare renews managed certificates itself, about 30 days before a 90-day certificate ends. */
 export const CERT_MIN_DAYS_MANAGED = 14;
+// Cloudflare's "Validity periods and renewal" (developers.cloudflare.com/ssl/reference/certificate-validity-periods/,
+// last updated 2026-10-15, read 2026-10-26): renewal attempts "start at the auto renewal period and continue up until
+// 24 hours before expiration"; that period is 30 days for 1-year and 3-month certificates, 7 days for 1-month and
+// 3 days for 2-week advanced certificates. A 14-day floor fails every healthy 2-week certificate and every 1-month
+// one in its last fortnight, so the floor follows the pack's validity_days: about halfway into the renewal window,
+// past which renewal has stalled rather than not yet run.
+export const CERT_MIN_DAYS_MANAGED_BY_VALIDITY: Record<number, number> = { 365: 14, 90: 14, 30: 3, 14: 1 };
 const CUSTOM_PACK_TYPES = new Set(["sni_custom", "mh_custom", "legacy_custom", "custom"]);
 
 const SETTINGS: [ZoneCheck, string][] = [
@@ -57,11 +65,11 @@ class Out {
   results: Result[] = [];
   readonly resource: string;
   constructor(resource: string) { this.resource = resource; }
-  add(check: ZoneCheck, result: Outcome, detail: string, resource = this.resource) {
-    this.results.push({ check: `cloudflare.${check}`, resource, result, detail });
+  add(check: ZoneCheck, result: Outcome, detail: string, resource = this.resource, read?: Read) {
+    this.results.push({ ...read, check: `cloudflare.${check}`, resource, result, detail });
   }
   skip(check: ZoneCheck, r: CfResponse, what: string, resource = this.resource) {
-    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource);
+    this.add(check, "skipped", `${what} not readable: ${why(r)}`, resource, { method: "config-read", apiError: { status: r.status, message: why(r) } });
   }
 }
 
@@ -72,13 +80,18 @@ export function zoneSkipped(resource: string, reason: string): Result[] {
 
 function judgeSetting(out: Out, check: ZoneCheck, id: string, value: unknown): void {
   const simple = (okValues: string[], want: string) =>
-    out.add(check, okValues.includes(String(value)) ? "pass" : "fail", `${id} is ${j(value)}; ${want}`);
+    out.add(check, okValues.includes(String(value)) ? "pass" : "fail", `${id} is ${j(value)}; ${want}`, out.resource,
+      { method: "config-read", expected: okValues.join(" or "), observed: String(value), complete: true });
   switch (check) {
     case "min_tls_version": return simple(["1.2", "1.3"], "1.2 or 1.3 required");
     case "tls_1_3": return simple(["on", "zrt"], "on required");
     case "always_use_https": return simple(["on"], "on required");
     case "automatic_https_rewrites": return simple(["on"], "on required");
-    case "ssl_mode": return simple(["strict"], "strict (Full (strict)) required");
+    // origin_pull is Strict (SSL-Only Origin Pull): "Regardless of whether the visitor-to-Cloudflare connection uses
+    // HTTP or HTTPS, Cloudflare always connects to the origin over HTTPS with certificate validation"
+    // (developers.cloudflare.com/ssl/origin-configuration/ssl-modes/, last updated 2026-04-16, read 2026-10-26),
+    // so it validates the origin as Full (strict) does.
+    case "ssl_mode": return simple(["strict", "origin_pull"], "strict (Full (strict)) or origin_pull (Strict (SSL-Only Origin Pull)) required");
     case "browser_integrity_check": return simple(["on"], "on required");
     case "hsts": {
       const h = isObj(value) && isObj(value.strict_transport_security) ? value.strict_transport_security : {};
@@ -163,6 +176,14 @@ export async function zoneChecks(api: CloudflareApi, zoneId: string, now: Date):
     else if (sbfm && CHALLENGE_OR_BLOCK.has(sbfm)) out.add("bot_protection", "pass", `Super Bot Fight Mode acts on definitely automated traffic: ${sbfm}`);
     else if (/enterprise/i.test(plan)) {
       out.add("bot_protection", "skipped", "Enterprise plan: Bot Management acts through rules on the bot score, which this check does not judge");
+    } else if (sbfm === "allow" && await usesTunnel(api, zp)) {
+      // Super Bot Fight Mode page (developers.cloudflare.com/bots/get-started/super-bot-fight-mode/, last updated
+      // 2026-08-03, read 2026-10-26): "If your organization also uses Cloudflare Tunnel, keep Definitely Automated set
+      // to Allow. Otherwise, Super Bot Fight Mode may block tunnel connections". Allow is then what Cloudflare asks
+      // for, so only likely automated traffic (Business and up) can still show protection.
+      const likely = str(b.sbfm_likely_automated);
+      if (likely && CHALLENGE_OR_BLOCK.has(likely)) out.add("bot_protection", "pass", `the zone routes to Cloudflare Tunnel, so definitely automated traffic stays allowed as Cloudflare asks; Super Bot Fight Mode acts on likely automated traffic: ${likely}`);
+      else out.add("bot_protection", "skipped", `the zone routes to Cloudflare Tunnel, where Cloudflare asks that definitely automated traffic stay allowed; sbfm_likely_automated is ${j(likely ?? null)}, so no bot protection this check can judge is on`);
     } else {
       out.add("bot_protection", "fail", `fight_mode is ${j(b.fight_mode)}, sbfm_definitely_automated is ${j(sbfm ?? null)}; Bot Fight Mode on, or Super Bot Fight Mode blocking or challenging definitely automated traffic, required`);
     }
@@ -194,9 +215,14 @@ export async function zoneChecks(api: CloudflareApi, zoneId: string, now: Date):
   else {
     const t = resultOf(st) as Obj;
     const contacts = arr(t.contact).filter((c) => typeof c === "string" && c);
-    const pass = t.enabled === true && contacts.length > 0;
+    // RFC 9116 §2.5.5: Expires "MUST always be present", and after it the file "is considered stale and should not be
+    // used"; Cloudflare's security.txt page marks Expires at as required (developers.cloudflare.com/security-center/
+    // infrastructure/security-file/, last updated 2026-08-03, read 2026-10-26). A file past its date passes nothing.
+    const exp = Date.parse(String(t.expires ?? ""));
+    const current = Number.isFinite(exp) && exp > now.getTime();
+    const pass = t.enabled === true && contacts.length > 0 && current;
     out.add("security_txt", pass ? "pass" : "fail",
-      `Cloudflare-served security.txt enabled is ${j(t.enabled)} with ${contacts.length} contact(s)${t.expires ? `, expires ${String(t.expires)}` : ""}; enabled with a contact required (a security.txt served by the origin is not visible here)`);
+      `Cloudflare-served security.txt enabled is ${j(t.enabled)} with ${contacts.length} contact(s), ${t.expires ? `expires ${String(t.expires)}${current ? "" : " (not after the run: the file is stale)"}` : "no expires"}; enabled with a contact and an expiry after the run required (a security.txt served by the origin is not visible here)`);
   }
 
   return { results: out.results, accountId, name };
@@ -211,7 +237,7 @@ async function certificatePacks(api: CloudflareApi, zoneId: string, out: Out, no
     const type = String(p.type ?? "unknown"), id = String(p.id ?? "?");
     const resource = `${out.resource} certificate pack ${type} ${id}`;
     const ends = arr(p.certificates).filter(isObj).map((c) => Date.parse(String(c.expires_on ?? ""))).filter(Number.isFinite);
-    const minDays = CUSTOM_PACK_TYPES.has(type) ? CERT_MIN_DAYS_CUSTOM : CERT_MIN_DAYS_MANAGED;
+    const minDays = CUSTOM_PACK_TYPES.has(type) ? CERT_MIN_DAYS_CUSTOM : CERT_MIN_DAYS_MANAGED_BY_VALIDITY[Number(p.validity_days)] ?? CERT_MIN_DAYS_MANAGED;
     if (p.status !== "active") {
       out.add("edge_certificates_valid", "fail", `pack status is ${j(p.status)}; active required`, resource);
     } else if (!ends.length) {
@@ -225,11 +251,19 @@ async function certificatePacks(api: CloudflareApi, zoneId: string, out: Out, no
   }
 }
 
+/** Does a CNAME of the zone point at a Cloudflare Tunnel (<uuid>.cfargotunnel.com)? An unreadable list counts as no. */
+async function usesTunnel(api: CloudflareApi, zp: string): Promise<boolean> {
+  const r = await safeGet(api, `${zp}/dns_records?type=CNAME&content.endswith=.cfargotunnel.com&per_page=1`);
+  return ok(r) && Array.isArray(resultOf(r)) && (resultOf(r) as unknown[]).length > 0;
+}
+
 async function customHostnames(api: CloudflareApi, zoneId: string, out: Out, zoneMinTls: unknown): Promise<void> {
   const hs = await getAll(api, `/zones/${enc(zoneId)}/custom_hostnames`, 50, 40);
   if ("error" in hs) return out.skip("custom_hostname_min_tls", hs.error, "custom hostnames (Cloudflare for SaaS)");
   const list = hs.items.filter(isObj);
   if (!list.length) return out.add("custom_hostname_min_tls", "skipped", "the zone has no custom hostnames");
+  // A list cut at 40 pages leaves hostnames unseen: every result from it says so (format 3, complete: false).
+  const read: Read = { method: "config-read", itemsRead: hs.items.length, pagesRead: hs.pages, complete: !hs.truncated };
   for (const h of list) {
     const set = isObj(h.ssl) && isObj(h.ssl.settings) ? h.ssl.settings.min_tls_version : undefined;
     const v = set ?? zoneMinTls;
@@ -237,7 +271,7 @@ async function customHostnames(api: CloudflareApi, zoneId: string, out: Out, zon
     out.add("custom_hostname_min_tls", v === undefined ? "skipped" : pass ? "pass" : "fail",
       v === undefined
         ? "no min_tls_version on the hostname and the zone's could not be read"
-        : `min_tls_version is ${j(v)}${set === undefined ? " (not set on the hostname; the zone's value applies)" : ""}; 1.2 or 1.3 required`,
-      `custom hostname ${String(h.hostname ?? h.id ?? "?")}`);
+        : `min_tls_version is ${j(v)}${set === undefined ? " (not set on the hostname; the zone's value applies)" : ""}; 1.2 or 1.3 required${hs.truncated ? "; the hostname list stopped at 40 pages" : ""}`,
+      `custom hostname ${String(h.hostname ?? h.id ?? "?")}`, { ...read, expected: "1.2 or 1.3", observed: v === undefined ? undefined : String(v) });
   }
 }

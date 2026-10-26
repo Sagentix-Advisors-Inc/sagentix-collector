@@ -2,13 +2,13 @@
  "source": "pagerduty",
  "title": "PagerDuty (REST API v2, read-only API key)",
  "readScopes": [
-  "A read-only REST API key (Integrations > API Access Keys, \"Read-only API Key\"); a scoped OAuth app needs incidents.read, services.read, escalation_policies.read, schedules.read and incident_workflows.read."
+  "A read-only REST API key (Integrations > API Access Keys, \"Read-only API Key\"); a scoped OAuth app needs incidents.read, services.read, escalation_policies.read, schedules.read, incident_workflows.read and incident_reviews.read."
  ],
  "checks": [
   {
    "id": "pagerduty.incident_reviews_linked",
    "title": "Resolved incidents of the last 90 days each carry a postmortem or retrospective link",
-   "scope": "Resolved high-urgency incidents (by default) on the chosen services; reviews kept outside PagerDuty count only through a note or custom field.",
+   "scope": "Resolved high-urgency incidents (by default) on the chosen services; a completed PagerDuty Post-Incident Review counts (GET /incidents/{id}/review, in PagerDuty's OpenAPI since 2026-10-21); reviews kept outside PagerDuty count only through a note or custom field. The older Postmortems reports, end of life 2026-10-31, are not read.",
    "evidenceType": "Audit Record"
   },
   {
