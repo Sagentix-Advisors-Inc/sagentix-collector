@@ -1,7 +1,8 @@
 # Collector release, BY HAND ONLY (Sagentix, 2026-10-15). Two jobs, each switched on separately:
 #
 #   npm      tests, builds the package (collector/scripts/stage-package.mjs), writes a CycloneDX SBOM, then
-#            `npm publish --provenance` through npm trusted publishing (OIDC; no npm token is stored).
+#            `npm stage publish --provenance` through npm trusted publishing (OIDC; no npm token is stored); the
+#            version goes live only when a maintainer approves it with 2FA (`npm stage approve`, collector/RELEASING.md).
 #   runner   builds collector/runner/Dockerfile for linux/amd64 and pushes it to GHCR with
 #            BuildKit's SLSA provenance (mode=max) and SBOM attached, plus a GitHub build attestation.
 #
@@ -109,7 +110,10 @@ jobs:
             echo "::error::npm provenance is refused for a private source repository. Publish from the public release repository (collector/RELEASING.md, step 1)."
             exit 1
           fi
-          npm publish --provenance --access public
+          # The trusted publisher's permission is "npm stage publish" (set 2026-10-27): a direct `npm publish` from
+          # here answers 403 "OIDC permission denied" (run 40439484580). npm 11.20.0 has `npm stage`.
+          npm stage publish --provenance --access public
+          echo "::notice::Staged on npm. A maintainer approves it with 2FA: npm stage list @sagentix-inc/evidence-collector, then npm stage approve <id> (collector/RELEASING.md, step 6)."
 
   runner:
     needs: security
