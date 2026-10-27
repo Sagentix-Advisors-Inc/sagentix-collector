@@ -1,6 +1,6 @@
 {
   "name": "@sagentix-inc/evidence-collector",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Customer-side evidence collector: reads systems read-only, runs checks, signs the results and pushes them outbound to sos-app.",
   "license": "Apache-2.0",
