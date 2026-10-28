@@ -41,6 +41,13 @@ vulnerabilities:
       pymongo 4.15.1 (fixed in 4.18.1 or 4.18.2), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins. The
       runner connects to no MongoDB server: Prowler's Huawei Cloud provider is not one the collector runs.
     expired_at: 2026-11-25
+  - id: CVE-2026-106435
+    paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
+    statement: >-
+      pymongo 4.15.1 (fixed in 4.18.3), pinned by huaweicloudsdkcore 3.1.204, which Prowler 5.45.0 pins; a denial of
+      service by an out-of-bounds read (image scan of 2026-10-28). The runner connects to no MongoDB server: Prowler's
+      Huawei Cloud provider is not one the collector runs.
+    expired_at: 2026-11-25
   - id: CVE-2026-96747
     paths: ["usr/local/lib/python3.13/site-packages/pymongo-4.15.1.dist-info/METADATA"]
     statement: >-
