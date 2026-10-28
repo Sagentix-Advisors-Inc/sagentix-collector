@@ -1,0 +1,45 @@
+{
+ "source": "endpoint_central",
+ "title": "ManageEngine Endpoint Central, cloud edition (Zoho self client, READ scopes only)",
+ "readScopes": [
+  "A Zoho self client (API console of the organization's data centre, e.g. api-console.zoho.com) whose refresh token was generated for the scopes DesktopCentralCloud.Inventory.READ and DesktopCentralCloud.PatchMgmt.READ and nothing else, by an Endpoint Central user whose role has Read Access to Inventory and Patch Management (the predefined Guest role does). The collector reads GET /dcapi/inventory/viewData/scanComputers, GET /dcapi/inventory/computers/{resourceID}/diskEncryptionStatus, GET /dcapi/inventory/computers/{resourceID}/firewall and GET /dcapi/patch/reports/systemHealth. ENDPOINT_CENTRAL_URL is https://endpointcentral.manageengine.<com|eu|in|com.au|cn|jp|ca|uk|sa>; ENDPOINT_CENTRAL_CLIENT_ID, ENDPOINT_CENTRAL_CLIENT_SECRET and ENDPOINT_CENTRAL_REFRESH_TOKEN hold the self client's credentials."
+ ],
+ "checks": [
+  {
+   "id": "endpoint_central.disk_encryption",
+   "title": "Every drive the agent reports on the computer is encrypted",
+   "scope": "Every computer with an installed agent, from diskEncryptionStatusDetails: any drive Not Encrypted fails, all Encrypted passes; a computer with no drive in either state is skipped. Removable drives the agent lists count too.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "endpoint_central.firewall",
+   "title": "The firewall is on: all three Windows Firewall profiles enabled, or a third-party firewall enabled",
+   "scope": "Every computer with an installed agent, from the firewall endpoint: domain, private and public profiles Enabled, or an external firewall with protectionStatus Enabled, passes; a computer with neither reported (Macs and Linux hosts, as far as the docs show) is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "endpoint_central.os_minimum",
+   "title": "Each computer runs an OS at or above the given minimum version",
+   "scope": "Every computer whose platform (os_platform 1 Windows, 2 Mac, 3 Linux) has a --endpoint-central-min-os floor, from os_version in the scan list; without the option the check is skipped once.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "endpoint_central.os_patches",
+   "title": "Each computer has no more missing OS patches than allowed",
+   "scope": "Every computer matched by name and domain to a row of the patch system health report: MissingOsPatches at most --endpoint-central-max-missing-os-patches (default 0). Third-party, driver and BIOS patches are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "endpoint_central.last_contact",
+   "title": "Each computer's agent has contacted the server within the last 14 days",
+   "scope": "Every computer in the scan list, from agent_last_contact_time; the window is --endpoint-central-contact-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "endpoint_central.agent_installed",
+   "title": "Each computer in scope has the Endpoint Central agent installed",
+   "scope": "Every computer in the scan list, from installation_status: 22 (installed) passes; 21, 23, 24 and 29 fail.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

@@ -246,6 +246,10 @@ USER 10001:10001
 ENV HOME=/home/sagentix NODE_ENV=production PYTHONDONTWRITEBYTECODE=1 \
     TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true \
     KS_SKIP_UPDATE_CHECK=true BC_SKIP_MAPPING=TRUE CKV_SKIP_PACKAGE_UPDATE_CHECK=true
+# The image has no .git: the run report and the check-in read the collector's commit from here (2026-10-28,
+# apps/sos-app/docs/COLLECTOR_CHANNEL.md). The release workflow passes the mirror commit it builds.
+ARG COLLECTOR_COMMIT=unknown
+ENV SAGENTIX_COLLECTOR_COMMIT=${COLLECTOR_COMMIT} SAGENTIX_RUNNER=docker
 RUN mkdir -p /home/sagentix/.scubagoggles \
     && printf 'scubagoggles:\n  opa_dir: /usr/local/bin\n  output_dir: ./\n  credentials: null\n' \
        > /home/sagentix/.scubagoggles/userdefaults.yaml

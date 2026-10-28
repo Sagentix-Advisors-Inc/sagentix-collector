@@ -157,6 +157,7 @@ jobs:
           context: .
           file: collector/runner/Dockerfile
           platforms: linux/amd64
+          build-args: COLLECTOR_COMMIT=${{ github.sha }}
           load: true
           tags: sagentix-collector-runner:scan
           cache-from: type=gha,scope=collector-runner
@@ -190,6 +191,7 @@ jobs:
           # amd64 only: on arm64, pip must compile Prowler 5.45.0's zstd dependency (no aarch64 wheel for
           # Python 3.13) and the slim base has no compiler (collector/runner/README.md, Build).
           platforms: linux/amd64
+          build-args: COLLECTOR_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=collector-runner
           push: ${{ inputs.push_image }}
           tags: ${{ steps.meta.outputs.tags }}

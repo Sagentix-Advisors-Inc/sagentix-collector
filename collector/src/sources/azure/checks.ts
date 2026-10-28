@@ -48,8 +48,10 @@ export interface AzureOptions { minSecureScore: number; now: Date }
 // Synapse dedicated SQL pools), SQL servers on machines, App Service, Storage (storage accounts), Key Vault, Containers
 // (Kubernetes clusters and registries), open-source relational databases (defender-for-databases-introduction:
 // PostgreSQL and MySQL Flexible Server), Cosmos DB and APIs (API Management). Each type name was confirmed on the
-// service's REST reference on 2026-10-26, except Microsoft.ContainerRegistry/registries and
-// Microsoft.DBforMySQL/flexibleServers [Unverified: the REST page did not load]. Arm (Defender for Resource Manager)
+// service's REST reference on 2026-10-26; Microsoft.ContainerRegistry/registries and Microsoft.DBforMySQL/flexibleServers,
+// whose reference pages did not load, on 2026-10-27 in Microsoft's REST specifications (github.com/Azure/azure-rest-api-specs
+// at 2455f14a8f: ContainerRegistry Registry stable 2025-11-01 and DBforMySQL FlexibleServers stable 2024-12-30 both list
+// /subscriptions/{subscriptionId}/providers/<that type>). Arm (Defender for Resource Manager)
 // watches the subscription's own management operations, so every subscription needs it. Any other plan (CloudPosture,
 // whose foundational tier is free, and plans added after this list) is reported and not judged.
 export const PLAN_TYPES: Record<string, string[]> = {

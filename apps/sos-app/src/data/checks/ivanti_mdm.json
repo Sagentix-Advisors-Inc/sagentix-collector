@@ -1,0 +1,51 @@
+{
+ "source": "ivanti_mdm",
+ "title": "Ivanti Neurons for MDM, formerly MobileIron Cloud (Customer Integration API, GET only, Device Read Only admin)",
+ "readScopes": [
+  "A dedicated Ivanti Neurons for MDM admin user (Users > Users) holding only the space-specific \"Device Read Only\" role for the device space read, whose user name and password go in IVANTI_MDM_USERNAME and IVANTI_MDM_PASSWORD; the tenant's admin portal address is IVANTI_MDM_URL. Calls: GET /api/v1/metadata/tenant, GET /api/v1/device and GET /api/v1/device/{id}. The API takes HTTP Basic authentication, which does not work when the admin portal requires a password and PIN."
+ ],
+ "checks": [
+  {
+   "id": "ivanti_mdm.device_compliant",
+   "title": "Each active device is compliant with its Ivanti policies",
+   "scope": "Every active device in the device space, one result per device, from complianceState in the device search. A device is only as compliant as the policies assigned to it.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.disk_encryption",
+   "title": "Each Mac has FileVault on, and each device reporting BitLocker is fully encrypted",
+   "scope": "Macs (platformType OSX) from osxFdeEnabled in Get Device Details; other devices from bitLockerEncryptionStatus where they report one (FULLY_ENCRYPTED passes, NOT_ENCRYPTED and PARTIALLY_ENCRYPTED fail, UNKNOWN is skipped). iOS and Android devices expose no encryption field and are not judged.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.os_minimum",
+   "title": "Each active device runs an OS at or above the given minimum for its platform",
+   "scope": "Every active device, from platformVersion against --ivanti-mdm-min-os keyed by platformType (osx or macos, ios, android); without that option the check is skipped once. Vendor support dates are not looked up.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.last_checkin",
+   "title": "Each active device has checked in within the last 14 days",
+   "scope": "Every active device, from lastCheckin (\"Last client checkin\"); the window is --ivanti-mdm-checkin-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.passcode_compliant",
+   "title": "Each iOS and Android device's passcode meets its Ivanti profiles",
+   "scope": "iOS and Android devices, from passcodeCompliantWithProfiles, else passcodeCompliant (iOS). It shows the passcode meets what the profiles demand, not the idle time before lock.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.firewall",
+   "title": "The macOS application firewall is on",
+   "scope": "Macs, from osxFirewallSettings.firewallEnabled in Get Device Details; skipped once when the space has no Mac.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ivanti_mdm.system_integrity",
+   "title": "System Integrity Protection is enabled on each Mac",
+   "scope": "Macs, from osxSystemIntegrityProtectionEnabled in Get Device Details; skipped once when the space has no Mac.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

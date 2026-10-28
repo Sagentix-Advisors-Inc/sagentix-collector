@@ -1,0 +1,45 @@
+{
+ "source": "workspace_one",
+ "title": "Omnissa Workspace ONE UEM, formerly VMware Workspace ONE (REST API, OAuth client with a read-only role)",
+ "readScopes": [
+  "A Workspace ONE UEM OAuth client (Groups & Settings > Configurations > OAuth Client Management) whose role holds only the REST permission \"REST API Devices Read\" (REST > Devices, \"Enables access to all READ only APIs in Devices collection\", Read Only). It reads GET /api/mdm/devices/search (MDM API V3) and GET /api/mdm/devices/{uuid}/security/encryption-status (MDM API V1). WS1_CLIENT_ID and WS1_CLIENT_SECRET; the REST API URL (Groups & Settings > All Settings > System > Advanced > API > REST API, e.g. https://as1234.awmdm.com) is WS1_API_URL and the regional token URL (https://na|emea|apac.uemauth.workspaceone.com/connect/token) is WS1_TOKEN_URL."
+ ],
+ "checks": [
+  {
+   "id": "workspace_one.disk_encryption",
+   "title": "Each device reports its storage as encrypted",
+   "scope": "Every device in service, one result per device, from encryption_status of GET /devices/{uuid}/security/encryption-status; a device with no answer is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "workspace_one.os_minimum",
+   "title": "Each device runs an OS at or above the given minimum version",
+   "scope": "Every device in service, from operating_system against --workspace-one-min-os for its device_type (macos, windows, ios, android, chromeos, linux or the enum value); without that option the check is skipped once. Vendor support dates are not looked up.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "workspace_one.last_seen",
+   "title": "Each device has reported to Workspace ONE UEM within the last 14 days",
+   "scope": "Every device in service, from last_seen (\"Time the device last reported any status\"); the window is --workspace-one-seen-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "workspace_one.enrolled",
+   "title": "Each device is enrolled",
+   "scope": "Every device listed, from enrollment_status: ENROLLED passes; DISCOVERED, REGISTERED, ENROLLMENT_IN_PROGRESS, PENDING_AGENT and APP_CATALOG_ONLY fail; retired, unenrolled and wiped devices are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "workspace_one.compliant",
+   "title": "Each device is compliant with its Workspace ONE UEM compliance policies",
+   "scope": "Every device in service, from compliance_status: COMPLIANT passes; NOT_COMPLIANT, BLOCKED and QUARANTINED fail; pending, not available and unknown states are skipped. A device is only as compliant as the policies assigned to it.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "workspace_one.compromised",
+   "title": "No device is reported compromised (jailbroken or rooted)",
+   "scope": "Every device in service, from compromised_status.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

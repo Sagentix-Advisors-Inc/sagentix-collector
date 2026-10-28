@@ -2,7 +2,7 @@
 
 The collector runs in the customer's own CI. It reads the customer's systems with read-only credentials, runs checks, signs what it saw with an Ed25519 key and pushes the result to sos-app at `POST /api/collect`. sos-app maps each check to NIST SP 800-53 Rev. 5 controls and FedRAMP 20x KSIs itself. The collector reads the check list in `apps/sos-app/src/data/checks/<source>.json`, so it sends only check ids sos-app knows.
 
-Version 0.2.1 has 31 sources and 2,776 checks in its catalogue (counted from `src/sources/index.ts` and the catalogues on 2026-10-27; 2,768 on 2026-10-20, after the Windows, JumpCloud, Iru and Defender for Endpoint sources). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 134 checks alone name 80 of the 610 SP 800-53 Rev. 5 controls and enhancements sos-app tracks (58 distinct base controls, counted 2026-10-20); policies cover 20 more, and the rest are procedures a person describes.
+Version 0.3.0 has 31 sources and 2,776 checks in its catalogue (counted from `src/sources/index.ts` and the catalogues on 2026-10-27, unchanged from 0.2.1; 2,768 on 2026-10-20, after the Windows, JumpCloud, Iru and Defender for Endpoint sources). Most of them come from engines the customer already runs (Prowler 824, DISA STIG profiles 1,347, ScubaGoggles and ScubaGear 267); the rest are the collector's own reads of Cloudflare, the clouds, identity providers, GitHub, device managers, the Mac it runs on and, since 2026-10-18, websites by URL. The first ten sources' 134 checks alone name 80 of the 610 SP 800-53 Rev. 5 controls and enhancements sos-app tracks (58 distinct base controls, counted 2026-10-20); policies cover 20 more, and the rest are procedures a person describes.
 
 ## Data flow
 
@@ -89,7 +89,28 @@ node src/cli.ts run --source cloudflare \
 - `--out <file>`: also write `{endpoint, keyId, publicKey, signature, body}` to a file. `body` is the exact string sent.
 - `--catalog <dir>`: the check catalogue (default `../apps/sos-app/src/data/checks`). A check id not in it is dropped with a warning, because sos-app would refuse the whole push.
 
-Exit codes: 0 sent (or dry run); 1 error (unreadable key, network failure, a failed engine run); 2 usage; 3 nothing to send, because every check was skipped; 4 sos-app refused the push, with its message printed (401 bad signature or revoked key, 409 replay, 400 unknown check or stale `issuedAt`).
+Exit codes: 0 sent (or dry run); 1 error (unreadable key, network failure, or a source that failed: its checks went as `skipped` and everything else was still pushed and reported); 2 usage; 3 nothing to send, because every check was skipped; 4 sos-app refused the push, with its message printed (401 bad signature or revoked key, 409 replay, 400 unknown check or stale `issuedAt`); 75 `agent` only, after it wrote a signed update (below). `run` never exits 75.
+
+### Run report, check-in and resident mode (0.3.0)
+
+Since 0.3.0 the collector keeps a channel to sos-app beside the push, defined in `apps/sos-app/docs/COLLECTOR_CHANNEL.md`. Every message is signed with the collector key, exactly as a push is, and every connection still starts on the client's side.
+
+**The run never stops.** Each source runs inside a guard. A source that throws gives one `skipped` result per check it declares, with the detail `collector error in <source>: <message>`, and the run goes on to the next source, the push and the report. The run then exits 1, so a scheduler still shows the failure.
+
+**Check-in.** Before any source reads, the run sends `POST /api/collect/checkin` (version, commit, runner, mode, operating system, Node version). sos-app answers `none`, `notify`, `approval-needed` or `update`. An `update` is taken only when its target verifies against a Sagentix release public key in `src/release_keys.ts` (Ed25519 over `sagentix-collector-release/1\n<version>\n<commit>\n<image or empty>\n<date>`) and names a 40-hex commit; then a server, Mac or Windows runner writes `sagentix-collector.ref` beside the config (line 1 the commit, line 2 the version), and a Docker runner writes `sagentix-collector.image` (the runner image with its `@sha256:` digest, only `ghcr.io/sagentix-advisors-inc/sagentix-collector-runner`). Both are mode 0600. The generated script reads the file on its next start; the current run goes on with the code it started with. A GitHub Actions runner never writes one (its workflow file pins the commit). A check-in that fails (network, or a 404 from an sos-app older than 0.3.0), a bad signature or a malformed target writes nothing and never stops the run; it is a warning in the log and the report. A dry run checks in when it has a key, and never writes either file.
+
+**Run report.** After the pushes, every run writes `sagentix-run-report.json` (mode 0600) beside the config, or in the working directory without one, and sends those exact bytes to `POST /api/collect/report`. It holds, per source, the time taken, the pass, fail and skipped counts, any error with its stack, and up to 50 warnings; the shape of every outbound call (method, host, path with ids replaced by `:id`, status, count, total time; never a query string, a header or a body); each push's status and run id; and every line the run wrote to stderr. Before anything is written, the values of environment variables named `*_TOKEN`, `*_SECRET`, `*_KEY`, `*_PASSWORD`, `*_KEY_JSON` and `SAGENTIX_COLLECTOR_KEY`, JSON Web Tokens, `Bearer`/`Basic` values, PEM blocks and AWS access key ids become `<secret>`, and email addresses become `<email>`. The report stays under 512 KiB (1,000 log lines of at most 500 characters; the log is trimmed first, then calls, then stacks, and a last log line says so). If the send fails, the report is kept as `sagentix-pending-report.json` and sent first by the next run with `"late": true`; a 400 or 413 answer drops it instead, since it would be refused again. A lost report never changes the exit code. A dry run writes the report and sends nothing.
+
+The runner in both messages comes from `SAGENTIX_RUNNER` (the generated files set it), else `github` under GitHub Actions, `mac` on macOS, `windows` on Windows, `docker` when `/.dockerenv` exists, else `server`. The commit is the collector checkout's own (`git rev-parse HEAD`, asked only when `src/cli.ts` is tracked by that repository), or `SAGENTIX_COLLECTOR_COMMIT` in the runner image, else `unknown`.
+
+**Resident mode.** `node src/cli.ts agent --config sagentix-collector.config.json` keeps one outbound WebSocket open to `wss://<sos-app>/api/collect/connect`, authenticated in the query string (`key`, `ts`, and `sig`, the base64url signature over `sagentix-connect/1\n<key id>\n<ts>`). It says `hello`, answers `ping` with `pong`, pings every 50 seconds, and reconnects after 1 second, doubling to 5 minutes. On `{"type":"run","id":…}` it starts the same `run --config <file>` as a child process (same Node, same flags), never two at once, and reports `started`, then `done` or `failed` with the exit code; on `{"type":"checkin"}` it checks in. It also checks in on every connect and every 6 hours. Nothing else is accepted: the channel cannot carry a command, a file or a configuration, and anything else received is logged and ignored. When a check-in writes a signed update, the agent exits 75 once no run is going (a run in progress finishes first): Docker's wrapper loop restarts the container on the new digest, and a LaunchAgent (`KeepAlive`) or systemd unit restarts the script, which checks out the ref on start. SIGINT or SIGTERM stops it with 0.
+
+| File beside the config | Written by | Read by |
+| --- | --- | --- |
+| `sagentix-run-report.json` | every run | you; the same bytes go to sos-app |
+| `sagentix-pending-report.json` | a run whose report send failed | the next run, which sends it first and removes it |
+| `sagentix-collector.ref` | a check-in with a signed update (server, Mac, Windows) | the generated script, on its next start |
+| `sagentix-collector.image` | a check-in with a signed update (Docker) | the Docker wrapper, on its next start |
 
 ### What each result says about its read (format 3)
 
@@ -542,7 +563,7 @@ The eight organization checks report once per organization (resource `github org
 
 ## Device sources
 
-Four sources read what laptops look like: `fleet` (the open-source Fleet server in front of fleetd and osquery), `intune`, `jamf` and `kandji` (Iru Endpoint Management, formerly Kandji). Sagentix approved this on 2026-10-15, with Fleet as the device agent and Intune and Jamf Pro as the second path for customers who already run one of them; `kandji` joined on 2026-10-20 for small Mac-based firms. They use the same GET-only client as the identity sources (`src/sources/readonly_http.ts`), and their shared helpers live in `src/sources/device_common.ts`. A fifth, `defender_endpoint` (2026-10-20), reads the EDR and antivirus side of the same laptops from Microsoft Defender for Endpoint.
+Four sources read what laptops look like: `fleet` (the open-source Fleet server in front of fleetd and osquery), `intune`, `jamf` and `kandji` (Iru Endpoint Management, formerly Kandji). Sagentix approved this on 2026-10-15, with Fleet as the device agent and Intune and Jamf Pro as the second path for customers who already run one of them; `kandji` joined on 2026-10-20 for small Mac-based firms. They use the same GET-only client as the identity sources (`src/sources/readonly_http.ts`), and their shared helpers live in `src/sources/device_common.ts`. A fifth, `defender_endpoint` (2026-10-20), reads the EDR and antivirus side of the same laptops from Microsoft Defender for Endpoint. Six more joined on 2026-10-28 for customers who already run another endpoint manager: `workspace_one` (Omnissa Workspace ONE UEM), `configmgr` (Microsoft Configuration Manager, read from a domain-joined Windows host as a service account, with no stored secret), `google_endpoints` (Google endpoint management, through the `google_workspace` service-account key), `ivanti_mdm` (Ivanti Neurons for MDM), `ninjaone` (NinjaOne) and `endpoint_central` (ManageEngine Endpoint Central, cloud edition only).
 
 Each device check reports once per device. A device is named by the vendor's id and its hardware serial (`fleet host 12 serial C02…`, `intune device <id> serial …`, `jamf computer 7 serial …`); Defender's machine entity has no serial, so its devices are `defender device <machine id>`. Hostnames, computer names, display names, user principal names, email addresses and usernames are never put in a result; the Intune device list asks Graph for seven fields with `$select`, and the Jamf call never requests the `USER_AND_LOCATION` section. When a device has not reported a value, the result is `skipped`. A 401 or 403 also gives `skipped` with the HTTP status in the detail, so an expired token shows as a collector error rather than a fleet of failing laptops.
 
@@ -660,6 +681,145 @@ Lists are read 10,000 rows at a time (the documented `$top` ceiling), following 
 
 Real-time protection has no check. No documented field of these APIs reports it (`avMode` is the antivirus mode, not the real-time setting), and the collector does not guess from undocumented columns. The antivirus checks report once per machine in the health export, which covers Windows, macOS and Linux (`osKind`).
 
+### Omnissa Workspace ONE UEM (`workspace_one`)
+
+Workspace ONE UEM is Omnissa's product since VMware sold its end-user computing business; the console and API hosts still use `awmdm.com`. Every endpoint, field and permission below was read on 2026-10-28 in the release 2607 OpenAPI documents of the Omnissa Developer Portal (`mdmv3.json`, `mdmv1.json`), in "Using UEM Functionality With a REST API" (docs.omnissa.com, page dated 2026-08-25) and in the portal's Bruno getting-started page; the header of `src/sources/workspace_one.ts` quotes them.
+
+**Create:** an admin role holding only the REST permission **REST API Devices Read** (REST > Devices, marked Read Only), then an OAuth client with that role under Groups & Settings > Configurations > OAuth Client Management. The secret is shown once. OAuth is supported "only in SaaS environments", so an on-premises console is not supported.
+
+**Env:** `WS1_API_URL` (https only, the REST API URL from Groups & Settings > All Settings > System > Advanced > API > REST API, e.g. `https://as1234.awmdm.com`), `WS1_TOKEN_URL` (one of `https://na.uemauth.workspaceone.com/connect/token` for the United States and Canada, `https://emea.uemauth.workspaceone.com/connect/token` for the United Kingdom and Germany, `https://apac.uemauth.workspaceone.com/connect/token` for India, Japan, Singapore, Australia and Hong Kong; any other host is refused), `WS1_CLIENT_ID`, `WS1_CLIENT_SECRET`.
+
+**Options:** `--workspace-one-min-os <platform>=<version>` (repeatable: `macos`, `windows`, `ios`, `android`, `chromeos`, `linux` or a `device_type` such as `APPLE_OS_X`; without it `os_minimum` is skipped), `--workspace-one-seen-days` (default 14), `--workspace-one-max-devices` (default 2000).
+
+The device list is `GET /api/mdm/devices/search` on MDM API V3 (`Accept: application/json;version=3`), 500 devices a page from page 0 until `total`. Encryption is one `GET /api/mdm/devices/{uuid}/security/encryption-status` call per device (MDM API V1); a 401 or 403 on it stops the calls and skips the check. No rate limit is stated on the pages read; a 429 is retried after its `Retry-After`. Devices that are retired, unenrolled, being wiped or blacklisted are skipped. Firewall and screen lock are left out: no firewall field is documented, and the only per-device passcode fields come from `GET /devices/{id}/security`, whose answer also carries `PersonalRecoveryKey`, `StaticRecoveryKey` and `UnlockPin`, so the collector never asks for it.
+
+| Check (`workspace_one.`…) | What passes |
+| --- | --- |
+| `disk_encryption` | `encryption_status` is true |
+| `os_minimum` | `operating_system` at or above `--workspace-one-min-os` for the device type |
+| `last_seen` | `last_seen` within `--workspace-one-seen-days` |
+| `enrolled` | `enrollment_status` is `ENROLLED`; `PENDING_AGENT`, `REGISTERED` and the other not-yet states fail |
+| `compliant` | `compliance_status` is `COMPLIANT`; `NOT_COMPLIANT`, `BLOCKED` and `QUARANTINED` fail; pending and unknown are skipped |
+| `compromised` | `compromised_status` is false |
+
+### Microsoft Configuration Manager (`configmgr`)
+
+Configuration Manager (ConfigMgr, once MECM and SCCM) is on premises, so this source reads the site's **administration service**, the SMS Provider's OData REST API at `https://<SMS Provider FQDN>/AdminService/wmi/<Class>`, from inside the network. Every route, class and property below was read on 2026-10-28 on learn.microsoft.com (administration service overview, set-up, usage and FAQ; the class references; role-based administration); the dates are in the header of `src/sources/configmgr.ts`.
+
+**Create:** a domain service account, added under Administration > Security > Administrative Users > Add User or Group with the built-in security role **Read-only Analyst** ("Grants permissions to view all Configuration Manager objects") and the All Systems collection. Microsoft's pages allow only domain users or groups there.
+
+**Runner:** Windows only, and it needs network reach. The administration service takes Windows authentication, which Node's `fetch` cannot send, so each GET is Windows PowerShell 5.1 `Invoke-WebRequest -Method Get -UseDefaultCredentials` (the call Microsoft's usage page documents, with the status code kept), run as the service account itself: a scheduled task on a domain-joined Windows host that reaches the SMS Provider on port 443. That host must trust the provider's certificate (the site's self-signed one by default, or a PKI certificate). No secret is stored. The cloud management gateway route is not supported: it needs a Microsoft Entra token for a user account, and no page documents an app-only token for it.
+
+**Env:** `CONFIGMGR_PROVIDER`, the SMS Provider's FQDN (e.g. `cm01.corp.example.com`). Requests go to that host under `/AdminService/` only, with redirects off.
+
+**Options:** `--configmgr-seen-days` (default 14), `--configmgr-signature-days` (default 7), `--configmgr-patch-days` (default 30), `--configmgr-max-devices` (default 10000).
+
+Four GETs: `SMS_CombinedDeviceResources`, `SMS_SoftwareUpdate?$filter=IsDeployed eq true`, `SMS_UpdateComplianceStatus?$filter=Status eq 2 or Status eq 0` and `SMS_G_System_CI_ComplianceState`. `@odata.nextLink` is followed when the service gives one; no page documents its paging or rate limits. Unknown and obsolete device records are not counted. Disk encryption, firewall, OS version and screen lock are left out: no documented server class carries them (BitLocker reports read hardware inventory classes the reference does not document, and the device classes give only a free-form OS string). A configuration baseline that tests them shows in `baselines_compliant`.
+
+| Check (`configmgr.`…) | What passes |
+| --- | --- |
+| `client_installed` | `IsClient` is true; a discovered device without a client fails and skips the rest |
+| `last_seen` | `LastActiveTime` (client health), else `LastPolicyRequest`, within `--configmgr-seen-days` |
+| `antimalware_enabled` | `EPEnabled` and `EPAntivirusEnabled` are true; skipped when Configuration Manager does not manage the antimalware |
+| `antimalware_signatures_current` | `EPAntivirusSignatureLastUpdateDateTime` within `--configmgr-signature-days` |
+| `updates_installed` | No deployed, unexpired update published (`DatePosted`) more than `--configmgr-patch-days` ago has `Status` 2 (required); `Status` 0 (unknown) gives skipped |
+| `baselines_compliant` | No configuration item is `ComplianceState` 2 (Non-Compliant) or 4 (Error), and one is 1 (Compliant) |
+
+A client that never ran an update scan has no row in `SMS_UpdateComplianceStatus` and passes `updates_installed`; read `last_seen` beside it. A device is named by its `ResourceID` and serial; `Name`, `UserName` and `UserDomainName` come back and never reach a result.
+
+### Google endpoint management (`google_endpoints`)
+
+The devices a Google Workspace or Cloud Identity customer manages: Windows, macOS, Linux and ChromeOS computers that report through Endpoint Verification, and Android and iOS phones. The source reads the Cloud Identity Devices API, `GET https://cloudidentity.googleapis.com/v1/devices`, with GET only. Every parameter, field and scope below was read on 2026-10-28 in the devices.list reference (last updated 2025-12-16), the cloudidentity v1 discovery document (revision 20261026), "Set up the Devices API" and Endpoint Verification's "Device attributes" page (both last updated 2026-10-26).
+
+**Create:** nothing new beyond `google_workspace`'s service account. Google says "Authenticating directly to the Devices API using a service account isn't supported", so it goes through domain-wide delegation: enable the Cloud Identity API in the service account's project, then in the Admin console (Security > Access and data control > API controls > Manage Domain Wide Delegation, as a super administrator) edit the client and add `https://www.googleapis.com/auth/cloud-identity.devices.readonly`. The token the collector asks for holds that scope only. `google_workspace`'s browser sign-in does not ask for it, so this source needs the service-account key.
+
+**Env:** the `google_workspace` names: `GOOGLE_SA_KEY_FILE`, `GOOGLE_ADMIN_EMAIL` (the admin the service account acts as) and `GOOGLE_CUSTOMER_ID` (default `my_customer`).
+
+**Options:** `--google-endpoints-min-os <deviceType>=<version>` (repeatable: `mac_os`, `windows`, `linux`, `chrome_os`, `android`, `ios`, or `macos`/`chromeos`; without it `os_minimum` is skipped), `--google-endpoints-sync-days` (default 14), `--google-endpoints-max-devices` (default 5000).
+
+The list asks for `view=USER_ASSIGNED_DEVICES` ("all devices with at least one user registered on the device") at the documented maximum of 100 a page, following `nextPageToken`. No Devices API quota page was found; a 429 or a 403 `rateLimitExceeded` is retried. Screen lock is left out: Endpoint Verification collects `is_secured_with_screenlock` for access levels, but the Devices API's Device resource has no such field. The Admin console privilege a delegated (non-super) admin needs for this call is not named on the pages read.
+
+| Check (`google_endpoints.`…) | What passes |
+| --- | --- |
+| `disk_encryption` | `encryptionState` is `ENCRYPTED`; `NOT_ENCRYPTED` fails; `UNSUPPORTED_BY_DEVICE` is skipped |
+| `firewall` | Endpoint Verification's `additionalSignals.is_os_native_firewall_enabled` is true; devices without Endpoint Verification are skipped |
+| `os_minimum` | `osVersion` at or above `--google-endpoints-min-os` for the `deviceType` |
+| `last_sync` | `lastSyncTime` within `--google-endpoints-sync-days` |
+| `compromised` | `compromisedState` is `UNCOMPROMISED` |
+
+A device is named by its id (from `name`, `devices/{id}`) and serial. Host names, other accounts on the device, MAC addresses, IMEI and browser profiles never reach a result.
+
+### Ivanti Neurons for MDM (formerly MobileIron Cloud)
+
+Ivanti renamed MobileIron Cloud to Ivanti Neurons for MDM; its API keeps the old names in places (the Basics page is still `MobileIron Cloud API Basics.htm`, and device spaces are `dmPartitionId`). Every endpoint, parameter and field below was read on 2026-10-28 in the Customer Integration API Guide (https://help.ivanti.com/mi/help/en_us/CLD/8x/api/default.htm, revision history last entry 2026-10-15), its OpenAPI file (`test.json`, version NA2) and the Administrator Guide 128; the pages are cited in the header of `src/sources/ivanti_mdm.ts`.
+
+**Create:** under Users → Users, **+Add** → **Single User**, a dedicated user with a password, then **Actions** → **Assign Roles** → only **Device Read Only** (space-specific) for the device space to read. The guide says the device search and Get Device Details need "Tenant Admin credentials", its name for the API role behind every tenant-level call, and names Device Read Only only for other device GETs; whether Device Read Only alone is accepted for these two is not stated. The collector sends GET only, so a role that falls short gives HTTP 403 and `skipped`, never a write. Basic authentication does not work when the admin portal requires a password and PIN; token-based (OIDC client) authentication is not supported yet, because its token request sends the client id and secret in a Basic header and `oauth.ts` sends them in the form body.
+
+**Env:** `IVANTI_MDM_URL` (the tenant's admin portal origin, https only), `IVANTI_MDM_USERNAME`, `IVANTI_MDM_PASSWORD`.
+
+**Options:** `--ivanti-mdm-space-id` (default: `defaultDmPartitionId` from `GET /api/v1/metadata/tenant`), `--ivanti-mdm-min-os <platformType>=<version>` (repeatable: `osx=15.0` or `macos=15.0`, `ios=18.0`, `android=14`; without it `os_minimum` is skipped), `--ivanti-mdm-checkin-days` (default 14), `--ivanti-mdm-max-devices` (default 5000).
+
+The device search, `GET /api/v1/device?dmPartitionId=…&rows=500`, is sorted by `id` and paged with `searchAfterValues[0]=<last id>`, the method the guide gives for large tenants; 500 rows is its documented ceiling, and paging stops at `totalCount`. Each Mac costs one `GET /api/v1/device/{id}` for FileVault, firewall and SIP; a 401 or 403 there stops those calls. No numeric rate limit is published; the guide tells integrations to retry 429 and 503, which the shared client does. Retired, wiped and pending devices (`registrationState` other than `ACTIVE`) are counted in the detail, not judged. A GDPR profile on the API user obfuscates serial numbers in the answers.
+
+| Check (`ivanti_mdm.`…) | What passes |
+| --- | --- |
+| `device_compliant` | `complianceState` is true |
+| `disk_encryption` | Mac: `osxFdeEnabled` is true; other devices reporting `bitLockerEncryptionStatus`: `FULLY_ENCRYPTED` (`UNKNOWN` is skipped); iOS and Android are not judged |
+| `os_minimum` | `platformVersion` at or above the `--ivanti-mdm-min-os` floor for its `platformType` |
+| `last_checkin` | `lastCheckin` within `--ivanti-mdm-checkin-days` |
+| `passcode_compliant` | iOS and Android: `passcodeCompliantWithProfiles` (else `passcodeCompliant`) is true |
+| `firewall` | Mac: `osxFirewallSettings.firewallEnabled` is true |
+| `system_integrity` | Mac: `osxSystemIntegrityProtectionEnabled` is true |
+
+Left out: the Windows firewall (`firewallStatus` has no documented meaning), pending OS updates (`availableOSUpdates` is an undescribed string list) and the idle time before lock (no field). The `platformType` a Windows 10 or 11 desktop reports is not in the documented enum, so BitLocker is read wherever a device reports `bitLockerEncryptionStatus`. A device is named by its Ivanti id and serial; names, email addresses, phone numbers, IMEI, location and IP addresses are never put in a result.
+
+### NinjaOne
+
+The collector reads the NinjaOne Public API v2 with an API Services (machine-to-machine) client app holding one scope, Monitoring, which NinjaOne's registration page describes as "read-only access to monitoring data and organization structure". Endpoints, fields and scopes were read on 2026-10-28 in the Public API reference (https://app.ninjarmm.com/apidocs-beta/, `NinjaRMM-API-v2.yaml` version 2.0.9-draft) and its articles on machine-to-machine apps and the client-credentials flow. The same reference answered that day on the five instances: `app`, `us2`, `eu`, `ca` and `oc` `.ninjarmm.com`.
+
+**Create:** under Configuration → Apps → API → Client App IDs, click **Add**, choose **API Services (machine-to-machine)**, tick only the **Monitoring** scope and keep only the **Client Credentials** grant type. **Management** and **Control** change devices and open remote access; the collector never asks for them. The token request is `POST /ws/oauth/token` with `scope=monitoring`, the only POST.
+
+**Env:** `NINJAONE_URL` (one of the five instances above, https only; any other host is refused), `NINJAONE_CLIENT_ID`, `NINJAONE_CLIENT_SECRET`.
+
+**Options:** `--ninjaone-min-os <platform>=<version>` (repeatable, platform `windows`, `macos` or `linux`, e.g. `windows=10.0.26100`; without it `os_minimum` is skipped once), `--ninjaone-contact-days` (default 14), `--ninjaone-max-pending-patches` (default 0), `--ninjaone-max-devices` (default 5000), `--ninjaone-include-servers`.
+
+The source calls `GET /v2/devices` (paged with `after`, the last node id) and four query reports, `computer-systems`, `volumes?include=bl`, `operating-systems` and `device-health`, so a fleet of any size costs a handful of calls. The reports page by a named server-side cursor; the spec calls the parameter only "Cursor name", so the collector passes back the last answer's `cursor.name` and stops at an empty page. Workstations are judged (`WINDOWS_WORKSTATION`, `MAC`, `LINUX_WORKSTATION`); servers only with `--ninjaone-include-servers`, network and cloud monitors never. The spec's global security block names `monitoring`, `management` and `control` and no operation used here overrides it, so that Monitoring alone answers rests on the registration page's wording; a 401 or 403 gives `skipped`. The spec does not state the unit of `lastContact`: below 1e11 it is read as epoch seconds, above as milliseconds. No endpoint reports the firewall, the screen lock or FileVault, so those checks do not exist.
+
+| Check (`ninjaone.`…) | What passes |
+| --- | --- |
+| `disk_encryption` | On a Windows device, the `C:` volume's `bitLockerStatus` has `conversionStatus` `FULLY_ENCRYPTED` and `protectionStatus` `PROTECTED`; Macs and Linux hosts are skipped |
+| `os_minimum` | Windows `10.0.<buildNumber>`, or the version in the OS name elsewhere, at or above `--ninjaone-min-os` |
+| `os_patches` | `failedOSPatchesCount` is 0 and `pendingOSPatchesCount` at most `--ninjaone-max-pending-patches` |
+| `last_contact` | `lastContact` within `--ninjaone-contact-days` |
+| `approved` | `approvalStatus` is `APPROVED`; `PENDING` or `STAGED` fails, `DECOMMISSIONED` is skipped |
+
+A device is `ninjaone device <id> serial <serial>`, the serial from the computer-systems report. Display, system, DNS and NetBIOS names, the assigned owner, `userData`, logged-on users and tags are never put in a result.
+
+### ManageEngine Endpoint Central (cloud)
+
+The collector reads the Endpoint Central cloud API with a Zoho self client whose refresh token was generated for two scopes, both with the operation READ: `DesktopCentralCloud.Inventory.READ` and `DesktopCentralCloud.PatchMgmt.READ`. Every endpoint, scope, `Accept` type, field and request limit below was read on 2026-10-28 in the cloud API guide (https://www.manageengine.com/products/desktop-central/help/api/cloud/), and role permissions in `help/access-management/user_role_and_permission.html`, same date.
+
+**Create:** first a user with the predefined **Guest** role, which has Read Access to Inventory and Patch Management; the token acts as the user who makes it, and a missing role answers 401 `UAC_UNAUTHORIZED`. Signed in as that user, open the **Self Client** in the Zoho API console of the organization's data centre, generate a code for exactly the two scopes above under **Generate Code**, and exchange it once at `POST {accounts}/oauth/v2/token` (`grant_type=authorization_code`) for a refresh token that does not expire. The collector trades it for a one-hour access token (`grant_type=refresh_token`), the only POST, with the parameters in the query string as the guide shows them.
+
+**Env:** `ENDPOINT_CENTRAL_URL` (https only, one of the nine data centres on the guide's "Multiple data centres" page: `https://endpointcentral.manageengine.<com|eu|in|com.au|cn|jp|ca|uk|sa>`), `ENDPOINT_CENTRAL_CLIENT_ID`, `ENDPOINT_CENTRAL_CLIENT_SECRET`, `ENDPOINT_CENTRAL_REFRESH_TOKEN`, and optionally `ENDPOINT_CENTRAL_ACCOUNTS_URL`. The accounts server defaults to `https://accounts.zoho.<same suffix>`, as that page lists; for Canada, Zoho's own `accounts.zoho.com/oauth/serverinfo` names `https://accounts.zohocloud.ca` instead, so set the variable if the default answers an error.
+
+**Options:** `--endpoint-central-min-os <platform>=<version>` (repeatable, platform `windows`, `macos` or `linux`; without it `os_minimum` is skipped once), `--endpoint-central-contact-days` (default 14), `--endpoint-central-max-missing-os-patches` (default 0), `--endpoint-central-max-computers` (default 500), `--endpoint-central-call-gap-ms` (default 600).
+
+The computer list is `GET /dcapi/inventory/viewData/scanComputers?toolID=2131` (Accept `application/InventoryMobileAPI.v1+json`), followed by `Links.next` until it is null. Each computer with an installed agent then costs two calls, `GET /dcapi/inventory/computers/{resourceID}/diskEncryptionStatus` and `/firewall`, each with its own documented `Accept` type. Those endpoints allow 120 calls a minute and lock the caller out for 5 minutes beyond that, so the calls are spaced 600 ms apart: 500 computers take about ten minutes. The patch report, `GET /dcapi/patch/reports/systemHealth` (50 calls a minute), has no resource id; a row is matched to a computer by name and domain, and a name two computers share is skipped rather than guessed. A 401 or 403 on a per-computer endpoint skips that check for the rest of the run and stops its calls.
+
+The on-premises edition is not supported. Its documented API (`/api/1.4/desktop/authentication`) signs in with a console user's password, and no page documents the `/dcapi` endpoints or a read-only API key for it. The screen lock has no check: no endpoint used reports it.
+
+| Check (`endpoint_central.`…) | What passes |
+| --- | --- |
+| `disk_encryption` | Every drive in `diskEncryptionStatusDetails` reports `Encrypted`; any `Not Encrypted` fails, removable drives included |
+| `firewall` | `domainProfileStatus`, `privateProfileStatus` and `publicProfileStatus` all `Enabled`, or a third-party firewall with `protectionStatus` `Enabled`; neither reported is skipped |
+| `os_minimum` | `os_version` at or above `--endpoint-central-min-os` for the computer's `os_platform` |
+| `os_patches` | `MissingOsPatches` at most `--endpoint-central-max-missing-os-patches`; third-party, driver and BIOS patches are not judged |
+| `last_contact` | `agent_last_contact_time` within `--endpoint-central-contact-days` |
+| `agent_installed` | `installation_status` 22 (installed); 21, 23, 24 and 29 fail |
+
+A computer is `endpoint_central computer <resource_id> serial <service tag>`. Computer names, the logged-on user, FQDN, IP and MAC addresses, and the patch report's owner fields are never put in a result.
+
 ### This Windows PC (`windows`)
 
 For a firm with no device management, which for a small Canadian defence supplier usually means Windows laptops without Intune. The source reads the Windows 10 or 11 PC the collector runs on, through Windows PowerShell 5.1 (`powershell.exe -NoProfile -NonInteractive -EncodedCommand`) and `whoami.exe`. It is the Windows counterpart of `macos`: no credential, no network call, nothing written to the PC, and it runs as the signed-in user. Off Windows, every check is skipped.
@@ -737,7 +897,8 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 
 ## Layout
 
-- `src/cli.ts`: `keygen`, `run` and `config-schema`; exit codes.
+- `src/cli.ts`: `keygen`, `run`, `agent` and `config-schema`; exit codes; the guard around each source.
+- `src/channel.ts`, `src/report.ts`, `src/agent.ts`, `src/release_keys.ts`: the check-in and signed updates, the run report and its scrubbing, resident mode, and the release public keys; tests in `test/channel.test.ts`.
 - `src/config.ts` and `collector.config.schema.json`: the config file and its schema (a test holds the two equal).
 - `src/sources/web.ts`: websites by URL, with proof of control; tests in `test/web.test.ts` over a fake network.
 - `src/payload.ts`: the v2 body, catalogue vetting, the 5,000-result limit.
@@ -745,7 +906,7 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 - `src/sources/index.ts`: the list of sources. A new source is a file in `src/sources/` that exports `{ name, options, emits, describe, run }`, plus one line in this list, plus its catalogue JSON in sos-app.
 - `src/sources/cloudflare.ts` and `src/sources/cloudflare/`: the API client (GET only), zone and account checks, and the OPA sub-source.
 - `src/sources/entra.ts`, `okta.ts`, `jumpcloud.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources (JumpCloud also reads devices, with `device_common.ts`); `readonly_http.ts` (GET-only client, retry, pagination, redaction) serves all five and `oauth.ts` (token requests) serves Entra ID and Google; `google_oauth.ts` and `src/google_login.ts` are Google's browser sign-in and its token file (`test/google_oauth.test.ts`). Their tests are `test/{entra,okta,jumpcloud,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
-- `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`, `kandji.ts`, `defender_endpoint.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf,kandji,defender_endpoint}.test.ts`.
+- `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`, `kandji.ts`, `defender_endpoint.ts`, `workspace_one.ts`, `configmgr.ts`, `google_endpoints.ts`, `ivanti_mdm.ts`, `ninjaone.ts`, `endpoint_central.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf,kandji,defender_endpoint,workspace_one,configmgr,google_endpoints,ivanti_mdm,ninjaone,endpoint_central}.test.ts`.
 - `src/sources/macos.ts` and `windows.ts`: the Mac or Windows PC the collector runs on, read with the operating system's own tools through an injectable command runner; also listed through `device_sources.ts`, tested in `test/{macos,windows}.test.ts` with fake runners.
 - `src/v1/`: the v1 FedRAMP push behind `--fedramp-target`.
 - `src/sources/prowler.ts` and `runner/`: Prowler as an engine (`--source prowler`) and the container that runs it; see `runner/README.md`. More than 5,000 results (or 4 MB) go out as several signed pushes, each with its own nonce.

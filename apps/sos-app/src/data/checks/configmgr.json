@@ -1,0 +1,45 @@
+{
+ "source": "configmgr",
+ "title": "Microsoft Configuration Manager (administration service REST API, Windows authentication, Read-only Analyst)",
+ "readScopes": [
+  "A domain service account added as a Configuration Manager administrative user (Administration > Security > Administrative Users > Add User or Group) with the built-in security role Read-only Analyst (\"Grants permissions to view all Configuration Manager objects\"). It reads, with GET only, https://<SMS Provider>/AdminService/wmi/ SMS_CombinedDeviceResources, SMS_SoftwareUpdate, SMS_UpdateComplianceStatus and SMS_G_System_CI_ComplianceState. The collector runs as that account on a domain-joined Windows host that reaches the SMS Provider on port 443 and trusts its certificate; CONFIGMGR_PROVIDER is the SMS Provider's FQDN. No secret is stored."
+ ],
+ "checks": [
+  {
+   "id": "configmgr.client_installed",
+   "title": "Each discovered device runs the Configuration Manager client",
+   "scope": "Every device in SMS_CombinedDeviceResources except unknown and obsolete records, from IsClient; a device without a client skips every other check.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "configmgr.last_seen",
+   "title": "Each client has been active within the last 14 days",
+   "scope": "Every client, from LastActiveTime (client health), else LastPolicyRequest; the window is --configmgr-seen-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "configmgr.antimalware_enabled",
+   "title": "Endpoint Protection antimalware and antivirus are on",
+   "scope": "Every client whose antimalware Configuration Manager manages, from EPEnabled and EPAntivirusEnabled; a client with EPEnabled empty is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "configmgr.antimalware_signatures_current",
+   "title": "Antivirus signatures updated within the last 7 days",
+   "scope": "Every client with Endpoint Protection status, from EPAntivirusSignatureLastUpdateDateTime; the window is --configmgr-signature-days.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "configmgr.updates_installed",
+   "title": "No deployed software update published more than 30 days ago is still required",
+   "scope": "Every client, from SMS_UpdateComplianceStatus rows with Status 2 (required) for updates where IsDeployed is true and IsExpired is false, published (DatePosted) more than --configmgr-patch-days ago. Rows with Status 0 (detection unknown) make the result skipped. A client that never reported an update scan has no row and passes; read last_seen beside it. Updates that are not deployed are not judged.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "configmgr.baselines_compliant",
+   "title": "No configuration baseline item on the client is non-compliant or in error",
+   "scope": "Every client, from SMS_G_System_CI_ComplianceState: ComplianceState 2 (Non-Compliant) or 4 (Error) fails, 1 (Compliant) passes; a client with no known state is skipped. It shows only what the deployed baselines test.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

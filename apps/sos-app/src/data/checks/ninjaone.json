@@ -1,0 +1,39 @@
+{
+ "source": "ninjaone",
+ "title": "NinjaOne (Public API v2, API Services client with the Monitoring scope only)",
+ "readScopes": [
+  "A NinjaOne API Services (machine-to-machine) client app (Configuration > Apps > API > Client App IDs > Add) with the single scope Monitoring (\"grants read-only access to monitoring data and organization structure\") and the Client Credentials grant type. The collector asks /ws/oauth/token for scope=monitoring and reads GET /v2/devices and GET /v2/queries/computer-systems, /volumes (include=bl), /operating-systems and /device-health. The instance URL (https://app, us2, eu, ca or oc .ninjarmm.com) is NINJAONE_URL; the client id and secret are NINJAONE_CLIENT_ID and NINJAONE_CLIENT_SECRET."
+ ],
+ "checks": [
+  {
+   "id": "ninjaone.disk_encryption",
+   "title": "Each Windows workstation's C: volume is fully BitLocker-encrypted and protected",
+   "scope": "Every Windows device, from the volumes report with include=bl: C: bitLockerStatus conversionStatus FULLY_ENCRYPTED and protectionStatus PROTECTED passes; other states fail; UNKNOWN, no C: volume, Macs and Linux hosts are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ninjaone.os_minimum",
+   "title": "Each device runs an OS at or above the given minimum version",
+   "scope": "Every device whose platform has a --ninjaone-min-os floor, from the operating-systems report (Windows as 10.0.<buildNumber>, others from the version in the OS name); without the option the check is skipped once.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ninjaone.os_patches",
+   "title": "Each device has no failed OS patch and no more pending OS patches than allowed",
+   "scope": "Every device, from the device-health report: failedOSPatchesCount 0 and pendingOSPatchesCount at most --ninjaone-max-pending-patches (default 0). A device with no health row is skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ninjaone.last_contact",
+   "title": "Each device has contacted NinjaOne within the last 14 days",
+   "scope": "Every device, from lastContact in List devices; the window is --ninjaone-contact-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "ninjaone.approved",
+   "title": "Each device is approved for management in NinjaOne",
+   "scope": "Every device, from approvalStatus: APPROVED passes, PENDING or STAGED fails, DECOMMISSIONED is skipped.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

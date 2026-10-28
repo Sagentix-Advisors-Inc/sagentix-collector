@@ -38,11 +38,13 @@ export function entraClientAssertion(pem: string, tenant: string, clientId: stri
   );
 }
 
-/** The signed assertion a Google service account exchanges for an access token as `subject`. */
-export function googleAssertion(key: { client_email: string; private_key: string; token_uri?: string }, subject: string, scopes: string[], nowSec: number): string {
+/** The signed assertion a Google service account exchanges for an access token: as `subject` (domain-wide delegation),
+ *  or as itself when `subject` is undefined. Google: `sub` is "the email address of the user for which the application
+ *  is requesting delegated access" (developers.google.com/identity/protocols/oauth2/service-account, read 2026-10-28). */
+export function googleAssertion(key: { client_email: string; private_key: string; token_uri?: string }, subject: string | undefined, scopes: string[], nowSec: number): string {
   return jwt(
     { alg: "RS256", typ: "JWT" },
-    { iss: key.client_email, sub: subject, scope: scopes.join(" "), aud: key.token_uri ?? "https://oauth2.googleapis.com/token", iat: nowSec, exp: nowSec + 3600 },
+    { iss: key.client_email, ...(subject ? { sub: subject } : {}), scope: scopes.join(" "), aud: key.token_uri ?? "https://oauth2.googleapis.com/token", iat: nowSec, exp: nowSec + 3600 },
     key.private_key, false,
   );
 }

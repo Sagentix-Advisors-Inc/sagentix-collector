@@ -266,3 +266,49 @@ test("the fetch client sends the bearer token and refuses any POST but :getIamPo
   await assert.rejects(t.request("POST", `https://cloudresourcemanager.googleapis.com/v1/projects/${P}:setIamPolicy`, {}), /refused/);
   assert.equal(seen.length, 3);
 });
+
+// A server or a container signs as the read-only service account itself (GCP_SA_KEY_FILE, 2026-10-28): no `sub`,
+// scope cloud-platform, only to Google's token endpoint, the token renewed per hour and never in the results.
+test("gcp: GCP_SA_KEY_FILE mints an hour's token as the service account itself", async () => {
+  const { generateKeyPairSync } = await import("node:crypto");
+  const { mkdtempSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { gcpKeyToken, fetchGcpTransport } = await import("../src/sources/gcp/api.ts");
+  const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const dir = mkdtempSync(join(tmpdir(), "gcp-key-"));
+  const file = join(dir, "key.json");
+  writeFileSync(file, JSON.stringify({ client_email: "reader@acme-prod.iam.gserviceaccount.com", private_key: privateKey.export({ type: "pkcs8", format: "pem" }), token_uri: "https://oauth2.googleapis.com/token" }));
+  const seen: { url: string; body: string }[] = [];
+  const fetchFn = (async (url: string | URL, init?: RequestInit) => {
+    seen.push({ url: String(url), body: String(init?.body ?? "") });
+    if (String(url).startsWith("https://oauth2.googleapis.com/token")) return new Response(JSON.stringify({ access_token: "ya29.test", expires_in: 3600 }), { status: 200 });
+    return new Response("{}", { status: 200 });
+  }) as typeof fetch;
+  const tok = gcpKeyToken({ GCP_SA_KEY_FILE: file }, fetchFn);
+  assert.equal(typeof tok, "function");
+  assert.equal(await (tok as () => Promise<string>)(), "ya29.test");
+  assert.equal(await (tok as () => Promise<string>)(), "ya29.test");
+  assert.equal(seen.length, 1, "the token is cached until it ends");
+  const form = new URLSearchParams(seen[0].body);
+  assert.equal(form.get("grant_type"), "urn:ietf:params:oauth:grant-type:jwt-bearer");
+  const claims = JSON.parse(Buffer.from(form.get("assertion")!.split(".")[1], "base64url").toString());
+  assert.equal(claims.iss, "reader@acme-prod.iam.gserviceaccount.com");
+  assert.equal(claims.sub, undefined);
+  assert.equal(claims.scope, "https://www.googleapis.com/auth/cloud-platform");
+  // The transport carries it as a bearer token and still refuses a write.
+  const t = fetchGcpTransport(tok as () => Promise<string>, fetchFn);
+  await t.request("GET", "https://cloudresourcemanager.googleapis.com/v3/projects/acme-prod");
+  await assert.rejects(() => t.request("POST", "https://compute.googleapis.com/compute/v1/projects/acme-prod/global/firewalls"), /refused/);
+  // The older token_uri in Google's key example goes to the current endpoint, with that as the assertion's aud.
+  writeFileSync(file, JSON.stringify({ client_email: "reader@acme-prod.iam.gserviceaccount.com", private_key: privateKey.export({ type: "pkcs8", format: "pem" }), token_uri: "https://accounts.google.com/o/oauth2/token" }));
+  seen.length = 0;
+  await (gcpKeyToken({ GCP_SA_KEY_FILE: file }, fetchFn) as () => Promise<string>)();
+  assert.ok(seen[0].url.startsWith("https://oauth2.googleapis.com/token"));
+  assert.equal(JSON.parse(Buffer.from(new URLSearchParams(seen[0].body).get("assertion")!.split(".")[1], "base64url").toString()).aud, "https://oauth2.googleapis.com/token");
+  // A key file that names another token endpoint, a missing file, nothing set.
+  writeFileSync(file, JSON.stringify({ client_email: "x@y", private_key: "k", token_uri: "https://evil.example/token" }));
+  assert.match(String(gcpKeyToken({ GCP_SA_KEY_FILE: file }, fetchFn)), /outside googleapis\.com/);
+  assert.match(String(gcpKeyToken({ GCP_SA_KEY_FILE: join(dir, "missing.json") }, fetchFn)), /not a readable service account key/);
+  assert.equal(gcpKeyToken({}, fetchFn), undefined);
+});

@@ -1,0 +1,39 @@
+{
+ "source": "google_endpoints",
+ "title": "Google endpoint management (Cloud Identity Devices API, read-only scope through domain-wide delegation)",
+ "readScopes": [
+  "OAuth scope https://www.googleapis.com/auth/cloud-identity.devices.readonly, added to the google_workspace service account's domain-wide delegation, acting as GOOGLE_ADMIN_EMAIL. It reads GET https://cloudidentity.googleapis.com/v1/devices (devices.list, view USER_ASSIGNED_DEVICES). Google documents that a service account cannot call the Devices API directly; domain-wide delegation is required."
+ ],
+ "checks": [
+  {
+   "id": "google_endpoints.disk_encryption",
+   "title": "Each device reports its storage as encrypted",
+   "scope": "Every listed device, one result per device, from encryptionState: ENCRYPTED passes, NOT_ENCRYPTED fails, UNSUPPORTED_BY_DEVICE and unspecified are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_endpoints.firewall",
+   "title": "The operating system's built-in firewall is on",
+   "scope": "Every device that reports through Endpoint Verification, from additionalSignals.is_os_native_firewall_enabled; other devices are skipped.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_endpoints.os_minimum",
+   "title": "Each device runs an OS at or above the given minimum version",
+   "scope": "Every listed device, from osVersion against --google-endpoints-min-os for its deviceType (mac_os, windows, linux, chrome_os, android, ios); without that option the check is skipped once.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_endpoints.last_sync",
+   "title": "Each device has synced with Google within the last 14 days",
+   "scope": "Every listed device, from lastSyncTime; the window is --google-endpoints-sync-days.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "google_endpoints.compromised",
+   "title": "No device is reported compromised",
+   "scope": "Every listed device, from compromisedState: UNCOMPROMISED passes, COMPROMISED fails, unspecified is skipped.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

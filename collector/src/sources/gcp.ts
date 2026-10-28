@@ -1,9 +1,9 @@
 // Google Cloud: per-project checks over Google's REST APIs with a read-only service account's access
-// token (GOOGLE_OAUTH_ACCESS_TOKEN). Every call is a GET, except POST :getIamPolicy and :getAncestry, which read.
+// token (GOOGLE_OAUTH_ACCESS_TOKEN, or minted from the key file in GCP_SA_KEY_FILE; see gcp/api.ts). Every call is a GET, except POST :getIamPolicy and :getAncestry, which read.
 
 import type { Source } from "../types.ts";
 import { Results, allSkipped, list, scrub } from "./shared-cloud.ts";
-import { GCP_TOKEN_ENV, Gcp, fetchGcpTransport, type GcpTransport } from "./gcp/api.ts";
+import { GCP_KEY_ENV, GCP_TOKEN_ENV, Gcp, fetchGcpTransport, gcpKeyToken, type GcpTransport } from "./gcp/api.ts";
 import { DEFAULT_KEY_MAX_AGE_DAYS, DEFAULT_ORG_CONSTRAINTS, GCP_CHECKS, projectChecks, type GcpCheck } from "./gcp/project.ts";
 
 export const gcp: Source = {
@@ -21,9 +21,11 @@ export const gcp: Source = {
   async run(ctx) {
     const projects = list(ctx.opts["gcp-project"]);
     const token = ctx.env[GCP_TOKEN_ENV];
-    const t = ctx.clients.gcp !== undefined ? (ctx.clients.gcp as GcpTransport | null) : token ? fetchGcpTransport(token) : null;
+    const keyed = token ? undefined : gcpKeyToken(ctx.env);
+    const t = ctx.clients.gcp !== undefined ? (ctx.clients.gcp as GcpTransport | null)
+      : token ? fetchGcpTransport(token) : typeof keyed === "function" ? fetchGcpTransport(keyed) : null;
     if (!projects.length) return allSkipped("gcp", GCP_CHECKS, "project (none listed)", "no --gcp-project given");
-    if (!t) return projects.flatMap((p) => allSkipped("gcp", GCP_CHECKS, `project ${p}`, `${GCP_TOKEN_ENV} is not set`));
+    if (!t) return projects.flatMap((p) => allSkipped("gcp", GCP_CHECKS, `project ${p}`, typeof keyed === "string" ? keyed : `${GCP_TOKEN_ENV} or ${GCP_KEY_ENV} is not set`));
     const constraints = list(ctx.opts["gcp-org-constraints"]);
     const maxAge = Number(ctx.opts["gcp-key-max-age-days"] ?? DEFAULT_KEY_MAX_AGE_DAYS);
     const api = new Gcp(t);

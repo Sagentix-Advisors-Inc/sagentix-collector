@@ -1,5 +1,7 @@
 // Fakes shared by the tests. Nothing here touches the network.
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { CloudflareApi, CfResponse } from "../src/sources/cloudflare/api.ts";
 import type { OpaRunner } from "../src/sources/cloudflare/opa.ts";
 import type { Deps } from "../src/cli.ts";
@@ -88,15 +90,23 @@ export function cannedOpa(checks: unknown[], seen: string[][] = []): OpaRunner {
   };
 }
 
-export interface Captured { deps: Deps; stdout: string[]; stderr: string[]; posts: { url: string; init: RequestInit }[] }
+/** `posts` are the evidence pushes; `channel` the check-ins and run reports (a fake sos-app that is up to date). */
+export interface Captured { deps: Deps; stdout: string[]; stderr: string[]; posts: { url: string; init: RequestInit }[]; channel: { url: string; init: RequestInit }[]; dir: string }
 
 export function capture(over: Partial<Deps> = {}, reply: { status: number; body: unknown } = { status: 201, body: { runId: "r1", checks: 1 } }): Captured {
-  const stdout: string[] = [], stderr: string[] = [], posts: Captured["posts"] = [];
+  const stdout: string[] = [], stderr: string[] = [], posts: Captured["posts"] = [], channel: Captured["channel"] = [];
+  const dir = mkdtempSync(join(tmpdir(), "collector-run-"));
   const deps: Deps = {
     fetch: (async (url: string | URL | Request, init?: RequestInit) => {
       posts.push({ url: String(url), init: init ?? {} });
       return new Response(JSON.stringify(reply.body), { status: reply.status, headers: { "content-type": "application/json" } });
     }) as typeof fetch,
+    channel: (async (url: string | URL | Request, init?: RequestInit) => {
+      channel.push({ url: String(url), init: init ?? {} });
+      const checkin = String(url).endsWith("/api/collect/checkin");
+      return new Response(JSON.stringify(checkin ? { action: "none", target: null, reason: "up to date" } : { id: "rep-1", signatures: 0 }), { status: checkin ? 200 : 201 });
+    }) as typeof fetch,
+    cwd: dir,
     clients: { cloudflare: fakeCloudflare(), opa: missingOpa },
     sources: SOURCES,
     env: {},
@@ -105,5 +115,5 @@ export function capture(over: Partial<Deps> = {}, reply: { status: number; body:
     err: (s) => stderr.push(s),
     ...over,
   };
-  return { deps, stdout, stderr, posts };
+  return { deps, stdout, stderr, posts, channel, dir };
 }
