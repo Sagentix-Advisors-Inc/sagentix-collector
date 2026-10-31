@@ -1,6 +1,6 @@
 {
  "source": "prowler",
- "title": "Prowler 5.45.0: Okta (runs in the customer's CI with read-only credentials)",
+ "title": "Prowler 5.47.0: Okta (runs in the customer's CI with read-only credentials)",
  "readScopes": [
   "okta.policies.read",
   "okta.brands.read",
@@ -16,7 +16,7 @@
  ],
  "engine": {
   "name": "Prowler",
-  "version": "5.45.0",
+  "version": "5.47.0",
   "licence": "Apache-2.0",
   "url": "https://github.com/prowler-cloud/prowler"
  },

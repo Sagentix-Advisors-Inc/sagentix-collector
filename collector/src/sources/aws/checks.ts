@@ -374,9 +374,12 @@ async function accessAnalyzer(aws: Aws, out: Out, rr: string, region: string) {
     next = str(r.o.nextToken) || undefined;
     if (!next) break;
   }
+  // Only ACCOUNT and ORGANIZATION analyzers report external access; the *_UNUSED_ACCESS and *_INTERNAL_ACCESS types
+  // analyze something else (AWS IAM Access Analyzer API Reference, AnalyzerSummary "type", read 2026-10-31).
   const active = all.filter((a) => a.status === "ACTIVE");
-  out.add("access_analyzer_enabled", rr, active.length ? "pass" : "fail",
-    `${all.length} analyzer(s), ${active.length} ACTIVE${active.length ? ` (types ${[...new Set(active.map((a) => String(a.type)))].join(", ")})` : ""}; one active analyzer required`);
+  const external = active.filter((a) => a.type === "ACCOUNT" || a.type === "ORGANIZATION");
+  out.add("access_analyzer_enabled", rr, external.length ? "pass" : "fail",
+    `${all.length} analyzer(s), ${active.length} ACTIVE${active.length ? ` (types ${[...new Set(active.map((a) => String(a.type)))].join(", ")})` : ""}; one active external-access analyzer (ACCOUNT or ORGANIZATION) required`);
 }
 
 // ── Storage and encryption ──────────────────────────────────────────────────────────────────────

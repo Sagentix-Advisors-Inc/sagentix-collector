@@ -5,7 +5,7 @@ The collector runs these programs as separate processes, or reads their output. 
 ## Prowler
 
 - Project: https://github.com/prowler-cloud/prowler
-- Version: 5.45.0 (git tag `5.45.0`, commit bffc8844c1c9a3666e37a2ada4ee05f62e1446b0; PyPI `prowler==5.45.0`)
+- Version: 5.47.0 (git tag `5.47.0`, commit 555a4cc469907e26ef007eb79af2b6cb4bddd6c6; PyPI `prowler==5.47.0`)
 - Licence: Apache License 2.0
 - Copyright: Copyright @ 2024 Toni de la Fuente (as stated in Prowler's LICENSE file)
 - Used for: the `prowler` source (`src/sources/prowler.ts`) runs the `prowler` command or reads its OCSF output. `apps/sos-app/src/data/checks/prowler_<provider>.json` holds Prowler check ids, check titles (`CheckTitle`), severities and the FedRAMP 20x KSI and NIST SP 800-53 mappings, all read from that release by `apps/sos-app/scripts/build_prowler_catalog.py`.
@@ -13,7 +13,7 @@ The collector runs these programs as separate processes, or reads their output. 
 - Texts copied: `apps/sos-app/src/data/guidance/prowler_remediation_<provider>.json` holds, for each check in that provider's catalogue, Prowler's own `Risk` and `Remediation` texts (`Recommendation.Text` and `Url`, and `Code.CLI`, `Terraform`, `NativeIaC`, `Other`) from the same release, written by the same script. They are Prowler's work under the Apache License 2.0, shipped unmodified with this attribution and a `notice` line in each file; empty fields become null and each field is cut at 4,000 characters. sos-app shows them in its per-control guides.
 - Prowler ships no NOTICE file at this tag.
 
-The licence text, as distributed with Prowler 5.45.0:
+The licence text, as distributed with Prowler 5.47.0:
 
 ```text
                                 Apache License
@@ -264,13 +264,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## Trivy
 
 - Project: https://github.com/aquasecurity/trivy
-- Version: 0.75.0 (git tag `v0.75.0`, commit 591e9799316a602e703f0b484f6c6d7b234ec8f3)
+- Version: 0.76.0 (git tag `v0.76.0`, commit 531360e5d2a88e732373f1614ba99a38738538b8)
 - Licence: Apache License 2.0
 - Copyright: Copyright 2019-2020 Aqua Security Software Ltd. (as stated in Trivy's NOTICE file; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`)
 - Used for: the runner image bundles `trivy` so a job can write the JSON report (`--format json`) that the `trivy` source (`src/sources/trivy.ts`) reads. `apps/sos-app/src/data/checks/trivy.json` names the checks.
-- Built from source: the runner image fetches the tag `v0.75.0` (commit 591e9799316a602e703f0b484f6c6d7b234ec8f3) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
+- Built from source: the runner image fetches the tag `v0.76.0` (commit 531360e5d2a88e732373f1614ba99a38738538b8) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v0.75.0` differs only in its appendix template. Trivy ships this NOTICE file at the tag, reproduced as distributed:
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v0.76.0` differs only in its appendix template. Trivy ships this NOTICE file at the tag, reproduced as distributed:
 
 ```text
 Trivy
@@ -329,14 +329,14 @@ The licence terms (sections 1 to 9 and the end of terms) are identical, word for
 ## Open Policy Agent (OPA)
 
 - Project: https://github.com/open-policy-agent/opa
-- Version: 1.21.1 (git tag `v1.21.1`, commit 2a109e54103370d2ef288782ef3cb4c8a37902b2)
+- Version: 1.21.2 (git tag `v1.21.2`, commit 3f7474e6b3c631821d8aac25ca444f7e75a56483)
 - Licence: Apache License 2.0
 - Copyright: none stated; the LICENSE appendix keeps the template line `Copyright {yyyy} {name of copyright owner}`
 - Used for: ScubaGoggles evaluates its Rego baselines with the bundled `opa`, and the `cloudflare` source (`src/sources/cloudflare/opa.ts`) runs `opa eval` over `iac/policy/cloudflare` when given `--tofu-state`.
-- Built from source: the runner image fetches the tag `v1.21.1` (commit 2a109e54103370d2ef288782ef3cb4c8a37902b2) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
+- Built from source: the runner image fetches the tag `v1.21.2` (commit 3f7474e6b3c631821d8aac25ca444f7e75a56483) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 - OPA ships no NOTICE file at this tag.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v1.21.1` differs only in its appendix template.
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v1.21.2` differs only in its appendix template.
 
 ## ScubaGoggles
 
@@ -549,14 +549,14 @@ For further information, please contact The MITRE Corporation, Contracts Managem
 ## Kubescape
 
 - Project: https://github.com/kubescape/kubescape (CNCF)
-- Version: 4.0.15 (git tag `v4.0.15`, commit 16cfe102f11551a6455fe9bf8e37d7083da90484)
+- Version: 4.0.16 (git tag `v4.0.16`, commit d0ea07bcd9d7ab1640dcd6527d0e68a34f10da0e)
 - Licence: Apache License 2.0
 - Copyright: none stated; the LICENSE appendix keeps the template line `Copyright [yyyy] [name of copyright owner]`
 - Used for: the runner image bundles `kubescape` so a job can write the JSON report (`--format json`) that the `kubescape` source (`src/sources/kubescape.ts`) reads. It runs offline from `/opt/kubescape/artifacts` (the regolibrary files below), with its version check off (`KS_SKIP_UPDATE_CHECK=true`).
-- Built from source: the runner image fetches the tag `v4.0.15` (commit 16cfe102f11551a6455fe9bf8e37d7083da90484) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
+- Built from source: the runner image fetches the tag `v4.0.16` (commit d0ea07bcd9d7ab1640dcd6527d0e68a34f10da0e) and compiles it with Go 1.27.3 (see Go below), raising modules to the floors in `collector/runner/go-module-fixes.txt`. Changes: none to the project's own source; `go.mod` and `go.sum` move only where a floor applies.
 - Kubescape ships no NOTICE file at this tag.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v4.0.15` differs only in leading white space and its appendix template.
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `v4.0.16` differs only in leading white space and its appendix template.
 
 ## Kubescape regolibrary
 
@@ -573,12 +573,12 @@ The licence terms (sections 1 to 9 and the end of terms) are identical, word for
 ## Checkov
 
 - Project: https://github.com/bridgecrewio/checkov
-- Version: 3.3.27 (git tag `3.3.27`, commit 22ba0d2077cd3a09fc1547ae80be9ffe4e471e6c; PyPI `checkov==3.3.27`)
+- Version: 3.3.29 (git tag `3.3.29`, commit e40023ab262c7c8b7b0a8f0975072b42d1b601f9; PyPI `checkov==3.3.29`)
 - Licence: Apache License 2.0
 - Copyright: Copyright 2019 Palo Alto Networks (as stated in Checkov's LICENSE appendix)
 - Used for: the runner image installs Checkov in `/opt/checkov` so a job can write the JSON report (`-o json`) that the `checkov` source (`src/sources/checkov.ts`) reads, with `BC_SKIP_MAPPING=TRUE` and `CKV_SKIP_PACKAGE_UPDATE_CHECK=true` so it fetches neither Prisma Cloud's mapping nor PyPI's latest version. `apps/sos-app/src/data/checks/checkov.json` names 55 Checkov check ids, each checked to exist at that tag by `apps/sos-app/scripts/build_checkov_catalog.py`; its titles and its control mapping are Sagentix's own words, not Checkov's.
-- Downloaded from: https://files.pythonhosted.org/packages/26/ec/0042c3eecc84f394867554efdb25425b0b84f690997de512924850009c71/checkov-3.3.27-py3-none-any.whl (SHA-256 f162b1fee91e204cc5891baa7e3dc1775fe9843dd11a0809986b9bce806528a2, the digest PyPI lists for that file). Its Python dependencies come from PyPI at install time, unpinned, as Prowler's do.
+- Downloaded from: https://files.pythonhosted.org/packages/63/4a/26ecbf2abac34993b7dba06379c6b8a03f078323856a917ed47370610a67/checkov-3.3.29-py3-none-any.whl (SHA-256 9a8b3918788faf8e18b181d826d284744b22b9d99c53cf1b67a2e84f0596796f, the digest PyPI lists for that file). Its Python dependencies come from PyPI at install time, unpinned, as Prowler's do.
 - Changes: none
 - Checkov ships no NOTICE file at this tag.
 
-The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `3.3.27` differs only in leading white space and its appendix, which carries the copyright line above.
+The licence terms (sections 1 to 9 and the end of terms) are identical, word for word, to the Apache License 2.0 text reproduced under Prowler above; the file at `3.3.29` differs only in leading white space and its appendix, which carries the copyright line above.

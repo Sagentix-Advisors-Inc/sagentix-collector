@@ -12,7 +12,7 @@
 ARG NODE_IMAGE=node:24-bookworm-slim
 ARG PYTHON_IMAGE=python:3.13-slim-bookworm
 ARG FETCH_IMAGE=debian:bookworm-slim
-ARG PROWLER_VERSION=5.45.0
+ARG PROWLER_VERSION=5.47.0
 
 # Go and the engines built from source (Stéphane, 2026-10-26: "build those tools yourself with a current go version -
 # and of course find a way to keep everything up to date - less tools the better and less weaknesses the better").
@@ -25,22 +25,22 @@ ARG PROWLER_VERSION=5.45.0
 ARG GO_VERSION=1.27.3
 ARG GO_SHA256_AMD64=65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
 ARG GO_SHA256_ARM64=a06e99309dbcbdca1a8ccd2282c3ee146e55930886e26b4f1193269587165f49
-# https://github.com/aquasecurity/trivy/releases/tag/v0.75.0
-ARG TRIVY_VERSION=0.75.0
-ARG TRIVY_COMMIT=591e9799316a602e703f0b484f6c6d7b234ec8f3
+# https://github.com/aquasecurity/trivy/releases/tag/v0.76.0
+ARG TRIVY_VERSION=0.76.0
+ARG TRIVY_COMMIT=531360e5d2a88e732373f1614ba99a38738538b8
 # https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1
 ARG GITLEAKS_VERSION=8.30.1
 ARG GITLEAKS_COMMIT=83d9cd684c87d95d656c1458ef04895a7f1cbd8e
 # https://github.com/ossf/scorecard/releases/tag/v5.6.0
 ARG SCORECARD_VERSION=5.6.0
 ARG SCORECARD_COMMIT=61e84743356275f6ffca23b1b2f2cb945e19eb96
-# https://github.com/open-policy-agent/opa/releases/tag/v1.21.1
+# https://github.com/open-policy-agent/opa/releases/tag/v1.21.2
 # ScubaGoggles 1.0.1 asks for OPA v1.18.2 or later (docs/installation/OPA.md at tag v1.0.1).
-ARG OPA_VERSION=1.21.1
-ARG OPA_COMMIT=2a109e54103370d2ef288782ef3cb4c8a37902b2
-# https://github.com/kubescape/kubescape/releases/tag/v4.0.15
-ARG KUBESCAPE_VERSION=4.0.15
-ARG KUBESCAPE_COMMIT=16cfe102f11551a6455fe9bf8e37d7083da90484
+ARG OPA_VERSION=1.21.2
+ARG OPA_COMMIT=3f7474e6b3c631821d8aac25ca444f7e75a56483
+# https://github.com/kubescape/kubescape/releases/tag/v4.0.16
+ARG KUBESCAPE_VERSION=4.0.16
+ARG KUBESCAPE_COMMIT=d0ea07bcd9d7ab1640dcd6527d0e68a34f10da0e
 # ScubaGoggles from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/scubagoggles/1.0.1/json
 ARG SCUBAGOGGLES_VERSION=1.0.1
 ARG SCUBAGOGGLES_WHEEL_URL=https://files.pythonhosted.org/packages/6e/23/9cacc45e30c1253e235f372468505330aaef16c0cc5d1559b0d34e5606c2/scubagoggles-1.0.1-py3-none-any.whl
@@ -53,10 +53,10 @@ ARG REGOLIBRARY_MITRE_SHA256=66ede046cacd778b80b1afd6432288b7cb5ba44f10b6dd39f99
 ARG REGOLIBRARY_ATTACK_TRACKS_SHA256=80f3db3161aee990a8bab7fa0261576123fb7acf9654c595e7a47bdab339a6bb
 ARG REGOLIBRARY_CONFIG_INPUTS_SHA256=6b78fae941db97d00780898da40581168303985e6dae0c74799f2c0a6ff5a8b6
 ARG REGOLIBRARY_EXCEPTIONS_SHA256=d0b662af82db3fd6b2d8a242e1c7a46f47941ac7c298c2525481f817d928ddc3
-# Checkov from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/checkov/3.3.27/json
-ARG CHECKOV_VERSION=3.3.27
-ARG CHECKOV_WHEEL_URL=https://files.pythonhosted.org/packages/26/ec/0042c3eecc84f394867554efdb25425b0b84f690997de512924850009c71/checkov-3.3.27-py3-none-any.whl
-ARG CHECKOV_WHEEL_SHA256=f162b1fee91e204cc5891baa7e3dc1775fe9843dd11a0809986b9bce806528a2
+# Checkov from PyPI; the SHA-256 is the wheel digest in https://pypi.org/pypi/checkov/3.3.29/json
+ARG CHECKOV_VERSION=3.3.29
+ARG CHECKOV_WHEEL_URL=https://files.pythonhosted.org/packages/63/4a/26ecbf2abac34993b7dba06379c6b8a03f078323856a917ed47370610a67/checkov-3.3.29-py3-none-any.whl
+ARG CHECKOV_WHEEL_SHA256=9a8b3918788faf8e18b181d826d284744b22b9d99c53cf1b67a2e84f0596796f
 # Cinc Auditor (Apache-2.0 community build of Chef InSpec; never Chef's EULA binary), Debian 12 package. Each SHA-256
 # is the one Cinc's omnitruck lists: https://omnitruck.cinc.sh/stable/cinc-auditor/metadata?p=debian&pv=12&m=x86_64&v=7.2.1
 # (and m=aarch64), matched on 2026-10-15 against the downloaded package.

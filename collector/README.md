@@ -68,7 +68,7 @@ Either apply `iac/cloudflare/evidence-role` in your own account (it creates an a
 | Account | Zero Trust Read | Gateway rules, device posture rules |
 | Account | Workers R2 Storage Read | r2.dev public access per bucket |
 
-The names are Cloudflare's API names, matched per endpoint against `x-api-token-group` in Cloudflare's OpenAPI document (github.com/cloudflare/api-schemas). Two are not fully confirmed. Zero Trust Read: the OpenAPI names no group for `GET /accounts/{id}/gateway/rules` or `/devices/posture`. Account API Tokens Read: the OpenAPI names it, but the permissions reference page does not list it. If a group is missing, its checks come back `skipped`, never `pass`.
+The names are Cloudflare's API names, matched per endpoint against `x-api-token-group` in Cloudflare's OpenAPI document (github.com/cloudflare/api-schemas). Two are not fully confirmed. Zero Trust Read: the OpenAPI names no group for `GET /accounts/{id}/gateway/rules` or `/devices/posture`. Account API Tokens Read: the permissions reference page does not list it, but the API reference page for `GET /accounts/{id}/tokens` names it under Accepted Permissions (read 2026-10-29), as the OpenAPI does. If a group is missing, its checks come back `skipped`, never `pass`.
 
 Store the token as the CI secret `CLOUDFLARE_API_TOKEN_READONLY`.
 

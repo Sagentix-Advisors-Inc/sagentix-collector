@@ -27,7 +27,7 @@ export const PROWLER_PROVIDERS = ["aws", "azure", "gcp", "kubernetes", "m365", "
 export type ProwlerProvider = (typeof PROWLER_PROVIDERS)[number];
 
 /** The version the catalogues were built from (apps/sos-app/scripts/build_prowler_catalog.py). */
-export const PROWLER_VERSION = "5.45.0";
+export const PROWLER_VERSION = "5.47.0";
 
 /** Options that make Prowler write, fix or send, or that change the output the collector reads. */
 export const REFUSED_ARGS = [

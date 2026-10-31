@@ -167,8 +167,8 @@ jobs:
       # On a failure, the JSON report is an artifact: collector/runner/go_fixes.py turns it into module floors.
       - name: Scan the image
         env:
-          TRIVY_VERSION: "0.75.0"
-          TRIVY_SHA256: "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f"
+          TRIVY_VERSION: "0.76.0"
+          TRIVY_SHA256: "e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7"
         run: |
           f="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
           curl -fsSL -o "$RUNNER_TEMP/$f" "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/$f"

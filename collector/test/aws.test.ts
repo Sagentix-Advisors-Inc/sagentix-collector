@@ -161,6 +161,16 @@ test("security group rules: protocol -1 and ::/0 count as open; egress is ignore
   assert.equal(of(await run(fakeAws()), "sg_no_open_admin_ports")[0].result, "pass");
 });
 
+test("access analyzer: only an ACCOUNT or ORGANIZATION analyzer shows external access", async () => {
+  const one = async (type: string) => of(await run(fakeAws({ "access-analyzer GET /analyzer": json({ analyzers: [{ name: "a", status: "ACTIVE", type }] }) })), "access_analyzer_enabled")[0];
+  for (const t of ["ACCOUNT", "ORGANIZATION"]) assert.equal((await one(t)).result, "pass", t);
+  for (const t of ["ACCOUNT_UNUSED_ACCESS", "ORGANIZATION_UNUSED_ACCESS", "ACCOUNT_INTERNAL_ACCESS", "ORGANIZATION_INTERNAL_ACCESS"]) {
+    const r = await one(t);
+    assert.equal(r.result, "fail", t);
+    assert.match(r.detail, /external-access/);
+  }
+});
+
 test("AccessDenied on every call gives skipped, never pass", async () => {
   const denied: AwsTransport = {
     async send(req) {

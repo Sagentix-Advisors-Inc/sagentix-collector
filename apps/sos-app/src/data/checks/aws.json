@@ -127,8 +127,8 @@
   },
   {
    "id": "aws.access_analyzer_enabled",
-   "title": "IAM Access Analyzer has an active analyzer in the region",
-   "scope": "Each region given; the analyzer's findings are not read.",
+   "title": "IAM Access Analyzer has an active external-access analyzer in the region",
+   "scope": "Each region given; an ACTIVE analyzer of type ACCOUNT or ORGANIZATION (external access) passes, an unused-access or internal-access analyzer alone does not; the analyzer's findings are not read.",
    "evidenceType": "Configuration"
   },
   {

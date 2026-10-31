@@ -1,6 +1,6 @@
 # Collector runner image (Prowler and the bundled engines)
 
-The runner is one container image: Node 24 runs the collector, Python 3.13 runs Prowler 5.45.0 (Apache-2.0), ScubaGoggles 1.0.1 and Checkov 3.3.27, Cinc Auditor 7.2.1 runs five MITRE DISA STIG profiles, five more engines, built from source with Go, sit in `/usr/local/bin` (see [Bundled engines](#bundled-engines)), and a non-root user (uid 10001) runs all of them. It holds no secret. The cloud credentials and the collector's signing key reach it as environment variables when it starts, and the collector sends one thing out: the signed push to sos-app's `POST /api/collect`. The engines reach only what they scan and their own vulnerability databases.
+The runner is one container image: Node 24 runs the collector, Python 3.13 runs Prowler 5.47.0 (Apache-2.0), ScubaGoggles 1.0.1 and Checkov 3.3.29, Cinc Auditor 7.2.1 runs five MITRE DISA STIG profiles, five more engines, built from source with Go, sit in `/usr/local/bin` (see [Bundled engines](#bundled-engines)), and a non-root user (uid 10001) runs all of them. It holds no secret. The cloud credentials and the collector's signing key reach it as environment variables when it starts, and the collector sends one thing out: the signed push to sos-app's `POST /api/collect`. The engines reach only what they scan and their own vulnerability databases.
 
 ## The `prowler` source
 
@@ -82,17 +82,17 @@ Grype and Syft left because Trivy does both of their jobs here: `trivy image|fs 
 
 | Engine | Version (tag) | Licence | In the image | Collector reads it with |
 | --- | --- | --- | --- | --- |
-| Trivy | 0.75.0 (`v0.75.0`, built from source) | Apache-2.0 | `trivy image\ | fs\ | config --format json --output /out/trivy.json <target>`; the SBOM with `--format cyclonedx --output /out/sbom.json` | `--source trivy --trivy-report /out/trivy.json`; `--source syft --sbom-file /out/sbom.json` |
+| Trivy | 0.76.0 (`v0.76.0`, built from source) | Apache-2.0 | `trivy image\ | fs\ | config --format json --output /out/trivy.json <target>`; the SBOM with `--format cyclonedx --output /out/sbom.json` | `--source trivy --trivy-report /out/trivy.json`; `--source syft --sbom-file /out/sbom.json` |
 | Gitleaks | 8.30.1 (`v8.30.1`, built from source) | MIT | `gitleaks git --report-format json --report-path /out/gitleaks.json <repo>` | `--source gitleaks --gitleaks-report /out/gitleaks.json` |
 | OpenSSF Scorecard | 5.6.0 (`v5.6.0`, built from source) | Apache-2.0 | `scorecard --repo=<repo> --format=json > /out/scorecard.json` | `--source scorecard --scorecard-result /out/scorecard.json` |
 | ScubaGoggles | 1.0.1 (PyPI; tag `v1.0.1`) | CC0 1.0 | `scubagoggles gws --credentials <file> -o /out/scuba` | `--source scubagoggles --scubagoggles-results /out/scuba` |
-| OPA | 1.21.1 (`v1.21.1`, built from source) | Apache-2.0 | evaluates ScubaGoggles' Rego, and the `cloudflare` source's `--tofu-state` policies | no source of its own |
+| OPA | 1.21.2 (`v1.21.2`, built from source) | Apache-2.0 | evaluates ScubaGoggles' Rego, and the `cloudflare` source's `--tofu-state` policies | no source of its own |
 | Cinc Auditor | 7.2.1 (Debian 12 package; InSpec tag `v7.2.1`) | Apache-2.0 | runs the STIG profiles; `/opt/cinc-auditor` | `--source stig --stig-profile <p> --stig-target ssh://…` (the collector runs it) |
 | MITRE STIG profiles | five tags, see `THIRD_PARTY_NOTICES.md` | Apache-2.0 with MITRE's notice | `/opt/sagentix/stig/<profile>.tar.gz` | as above, or `--source stig --cinc-report <file>` |
-| Kubescape | 4.0.15 (`v4.0.15`, built from source) | Apache-2.0 | `kubescape scan framework nsa,mitre [<dir>] --use-artifacts-from /opt/kubescape/artifacts --format json --output /out/kubescape.json` | `--source kubescape --kubescape-report /out/kubescape.json` |
+| Kubescape | 4.0.16 (`v4.0.16`, built from source) | Apache-2.0 | `kubescape scan framework nsa,mitre [<dir>] --use-artifacts-from /opt/kubescape/artifacts --format json --output /out/kubescape.json` | `--source kubescape --kubescape-report /out/kubescape.json` |
 | Kubescape regolibrary | 2.0.38 (`v2.0.38`) | Apache-2.0 | the NSA and MITRE frameworks in `/opt/kubescape/artifacts` | no source of its own |
 | Go | 1.27.3 (go.dev; tag `go1.27.3`) | BSD-3-Clause | compiles the five Go engines; not in the image | none |
-| Checkov | 3.3.27 (PyPI; tag `3.3.27`) | Apache-2.0 | `checkov -d <dir> -o json > /out/checkov.json`, or `checkov -f plan.json -o json` | `--source checkov --checkov-report /out/checkov.json` |
+| Checkov | 3.3.29 (PyPI; tag `3.3.29`) | Apache-2.0 | `checkov -d <dir> -o json > /out/checkov.json`, or `checkov -f plan.json -o json` | `--source checkov --checkov-report /out/checkov.json` |
 
 Trivy fetches its vulnerability database into `~/.cache` on first use; a database baked into the image would go stale within a day. Scorecard reads the GitHub API and wants `GITHUB_AUTH_TOKEN`. ScubaGoggles finds OPA through `~/.scubagoggles/userdefaults.yaml` (`opa_dir: /usr/local/bin`), so `scubagoggles setup` and `getopa` never download it, though each `gws` run still asks PyPI whether a newer ScubaGoggles exists and only logs the answer. The image sets `TRIVY_SKIP_VERSION_CHECK=true` and `TRIVY_DISABLE_TELEMETRY=true` (since 0.74.0 Trivy sends anonymous usage data to Aqua unless told not to). ScubaGoggles lives in its own virtual environment, `/opt/scubagoggles`, so its Google client libraries cannot shift Prowler's; Checkov has its own too, `/opt/checkov`. Kubescape's version check posts the scan context to `version-check.ks-services.co`, so the image sets `KS_SKIP_UPDATE_CHECK=true`, and Kubescape reads its NSA and MITRE frameworks from `/opt/kubescape/artifacts` when given `--use-artifacts-from`; without that flag it downloads the latest regolibrary release at scan time. Checkov runs with `BC_SKIP_MAPPING=TRUE` and `CKV_SKIP_PACKAGE_UPDATE_CHECK=true`, so it fetches neither Prisma Cloud's mapping nor PyPI's version list.
 
