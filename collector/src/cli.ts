@@ -17,8 +17,8 @@
 // Exit codes: 0 sent (or dry run), 1 error (bad key, network, a source that failed), 2 usage, 3 nothing to send,
 // 4 sos-app refused the push (its message is printed); `agent` only: 75 a signed update was written, restart me.
 
-import { readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { DEFAULT_CATALOG_DIR, loadCatalog } from "./catalog.ts";
@@ -33,7 +33,8 @@ import { CLASSES, type FedClass } from "./v1/rules.ts";
 import { EXIT_UPDATE, checkin, detectRunner, modeOf, type Channel } from "./channel.ts";
 import { RunRecorder, buildReport, deliverReport } from "./report.ts";
 import { agent } from "./agent.ts";
-import { VAULT_FILE, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
+import { VAULT_FILE, Vault, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
+import { applyRefs } from "./refs.ts";
 import { credentialsIn, settingsOf, vaultBridge } from "./deliveries.ts";
 
 export const COLLECT_PATH = "/api/collect";
@@ -225,13 +226,18 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   if (configPath && keyId) {
     try {
       const creds = credentialsIn(resolve(configPath));
-      const r = runEnv(dir, deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner }), deps.env,
-                       (name) => settingsOf(creds, name));
-      ({ env, cleanup } = r);
-      vaultSecrets = r.secrets;
-      if (r.used.length) deps.err(`vault: ${r.used.length} value(s) from ${VAULT_FILE}`);
-      for (const w of r.warnings) deps.err(`warning: vault: ${w}`);
-      if (r.warnings.length) rec.note("vault", r.warnings);
+      const holder = deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner });
+      const r = runEnv(dir, holder, deps.env, (name) => settingsOf(creds, name));
+      // Connectors read from the client's own vault (src/refs.ts) take all their names from there, after the local vault.
+      const refs = existsSync(join(dir, VAULT_FILE)) ? new Vault(dir, holder).refs() : {};
+      const f = Object.keys(refs).length ? await applyRefs(dir, refs, creds, r.env, deps.channel ?? deps.fetch) : null;
+      env = f?.env ?? r.env;
+      cleanup = () => { r.cleanup(); f?.cleanup(); };
+      vaultSecrets = [...r.secrets, ...(f?.secrets ?? [])];
+      const used = r.used.length + (f?.used.length ?? 0), warnings = [...r.warnings, ...(f?.warnings ?? [])];
+      if (used) deps.err(`vault: ${used} value(s) from ${VAULT_FILE}${f ? " and your own vault" : ""}`);
+      for (const w of warnings) deps.err(`warning: vault: ${w}`);
+      if (warnings.length) rec.note("vault", warnings);
     } catch (e) {
       const w = `the vault could not be opened: ${String((e as Error)?.message ?? e)}`;
       deps.err(w);

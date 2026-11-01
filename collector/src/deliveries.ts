@@ -6,6 +6,8 @@
 //   remove      the vault's value for such a name
 //   import-env  move such names' values from sagentix-collector.env into the vault, then drop those lines
 //   test        run one connector of the config dry (resident mode only), and report its counts
+//   set-ref     read one connector from the client's own vault (src/refs.ts): a reference, never a value
+//   remove-ref  read that connector from this vault again
 //
 // A delivery for a name the config does not list, or with another kind, is refused and reported, never applied: what
 // sos-app says cannot widen what this collector reads. No delivery can name a file, a command or a source option.
@@ -15,6 +17,7 @@ import { closeSync, existsSync, fstatSync, openSync, readFileSync, readSync } fr
 import { dirname, isAbsolute, join } from "node:path";
 import { signedPost, writePrivate, type Channel } from "./channel.ts";
 import { scrubText } from "./report.ts";
+import { refProblem, type Ref } from "./refs.ts";
 import { KINDS, MAX_VALUE, NAME, Vault, canonicalBind, type KeyHolder, type Kind, type Protection, type SealedValue } from "./vault.ts";
 
 export const ACK_PATH = "/api/collect/vault/ack";
@@ -26,7 +29,8 @@ const ID = /^[A-Za-z0-9-]{1,64}$/;
 export interface Credential { sources: string[]; secrets?: string[]; files?: string[]; settings?: string[]; optional?: Record<string, string>;
                               instead?: Record<string, string>; signIn?: boolean }
 
-export interface Delivery { id: string; op: "set" | "remove" | "import-env" | "test"; name?: string; kind?: Kind; sealed?: SealedValue; value?: string; connector?: string }
+export interface Delivery { id: string; op: "set" | "remove" | "import-env" | "test" | "set-ref" | "remove-ref"; name?: string; kind?: Kind; sealed?: SealedValue;
+                           value?: string; connector?: string; ref?: unknown }
 export interface DeliveryResult { id: string; ok: boolean; error?: string; moved?: string[]; leftFiles?: string[];
                                   test?: { exit: number | null; passed: number; failed: number; skipped: number; errors: string[]; timedOut?: boolean } }
 
@@ -35,6 +39,8 @@ export interface VaultSummary {
   entries: { name: string; kind: Kind; setAt: string; bind?: Record<string, string>; value?: string }[];
   /** Names the config lists that sagentix-collector.env still holds in clear. */
   envFile: string[];
+  /** Connectors read from the client's own vault: the reference only (src/refs.ts). */
+  refs: Record<string, { provider: string; id: string; setAt: string }>;
   credentials: Record<string, Credential>;
 }
 
@@ -107,13 +113,15 @@ export function vaultBridge(o: { configPath: string; keyId: string; holder: KeyH
   function summary(): VaultSummary {
     const c = creds(), known = knownNames(c);
     let sealKey: string | null = null, entries: VaultSummary["entries"] = [], error: string | null = null, protection: Protection | null = null;
+    let refs: VaultSummary["refs"] = {};
     try {
       protection = v().protection;
       // A setting's value goes along (a URL, a tenant id), so sos-app shows it and the browser binds a secret to it.
       entries = v().list().map((e) => e.kind === "setting" ? { ...e, value: v().get(e.name) } : e);
+      refs = v().refs();
       sealKey = Object.keys(c).length ? v().sealPublicKey() : null;
     } catch (e) { error = String((e as Error)?.message ?? e).slice(0, 300); }
-    return { sealKey, protection, error, entries, envFile: [...new Set(envLines(known).map((l) => l.name))], credentials: c };
+    return { sealKey, protection, error, entries, refs, envFile: [...new Set(envLines(known).map((l) => l.name))], credentials: c };
   }
 
   function importEnv(known: Map<string, Kind>): Pick<DeliveryResult, "moved" | "leftFiles" | "error"> {
@@ -167,6 +175,15 @@ export function vaultBridge(o: { configPath: string; keyId: string; holder: KeyH
           }
           v().set(name, value, { kind, now: o.now(), ...(kind !== "setting" ? { bind: d.sealed!.bind ?? {} } : {}) });
           o.log(`vault: ${name} set`);
+          out.push({ id: d.id, ok: true });
+        } else if (d.op === "set-ref" || d.op === "remove-ref") {
+          const id = String(d.connector ?? "");
+          if (!c[id]) { refuse(`${id.slice(0, 40)} is not a connector of this collector`); continue; }
+          if (d.op === "remove-ref") { v().removeRef(id); o.log(`vault: ${id} reads its own settings again`); out.push({ id: d.id, ok: true }); continue; }
+          const problem = refProblem(d.ref);
+          if (problem) { refuse(`${id}: ${problem}`); continue; }
+          v().setRef(id, d.ref as Ref, o.now());
+          o.log(`vault: ${id} reads from your own vault (${(d.ref as Ref).provider})`);
           out.push({ id: d.id, ok: true });
         } else if (d.op === "import-env") {
           const r = importEnv(known);

@@ -46,7 +46,9 @@ export const KINDS: readonly Kind[] = ["secret", "file", "setting"];
 interface Entry { iv: string; tag: string; data: string; setAt: string; kind: Kind; bind?: Record<string, string> }
 interface Sealed { iv: string; tag: string; data: string }
 /** `seal`: the collector's X25519 private key (PKCS #8), itself sealed with the vault key; its public half goes to sos-app. */
-interface VaultDoc { format: "sagentix-vault/1"; entries: Record<string, Entry>; seal?: Sealed & { publicKey: string } }
+/** `refs`: connectors read from the client's own vault (src/refs.ts), a reference each, never a value. */
+interface VaultDoc { format: "sagentix-vault/1"; entries: Record<string, Entry>; seal?: Sealed & { publicKey: string };
+                     refs?: Record<string, { provider: string; id: string; setAt: string }> }
 
 export const SEAL_FORMAT = "sagentix-seal/1";
 /** What sos-app relays for one value: an ephemeral X25519 public key, a nonce, and the AES-256-GCM ciphertext with its tag. */
@@ -266,6 +268,23 @@ export class Vault {
     dc.setAuthTag(all.subarray(all.length - 16));
     try { return Buffer.concat([dc.update(all.subarray(0, all.length - 16)), dc.final()]).toString("utf8"); }
     catch { throw new Error(`the sealed value for ${v.name} does not open with this collector's key`); }
+  }
+
+  /** The connectors read from the client's own vault. */
+  refs(): Record<string, { provider: string; id: string; setAt: string }> { return { ...(this.doc().refs ?? {}) }; }
+
+  setRef(connector: string, ref: { provider: string; id: string }, now: Date): void {
+    const d = this.doc();
+    d.refs = { ...(d.refs ?? {}), [connector]: { provider: ref.provider, id: ref.id, setAt: now.toISOString() } };
+    this.write(d);
+  }
+
+  removeRef(connector: string): boolean {
+    const d = this.doc();
+    if (!d.refs?.[connector]) return false;
+    delete d.refs[connector];
+    this.write(d);
+    return true;
   }
 
   /** Every entry with its value, for a run's environment. */
