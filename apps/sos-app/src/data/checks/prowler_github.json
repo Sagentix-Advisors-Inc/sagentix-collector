@@ -16,5 +16,195 @@
   "url": "https://github.com/prowler-cloud/prowler"
  },
  "provider": "github",
- "checks": []
+ "checks": [
+  {
+   "id": "prowler.github.githubactions_workflow_security_scan",
+   "title": "GitHub Actions workflows have no security issues detected by zizmor",
+   "scope": "Prowler 5.47.0 check githubactions_workflow_security_scan (GitHub githubactions, resource type GitHubActionsWorkflow): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.organization_actions_pull_request_approval_disabled",
+   "title": "Organization prevents GitHub Actions from approving pull requests",
+   "scope": "Prowler 5.47.0 check organization_actions_pull_request_approval_disabled (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.organization_default_repository_permission_strict",
+   "title": "Organization base repository permission is read or none",
+   "scope": "Prowler 5.47.0 check organization_default_repository_permission_strict (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.organization_default_workflow_permissions_read_only",
+   "title": "Organization grants workflows a read-only default GITHUB_TOKEN",
+   "scope": "Prowler 5.47.0 check organization_default_workflow_permissions_read_only (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.organization_members_mfa_required",
+   "title": "Organization requires members to have two-factor authentication enabled",
+   "scope": "Prowler 5.47.0 check organization_members_mfa_required (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.github.organization_repository_creation_limited",
+   "title": "Organization repository creation is limited to trusted members",
+   "scope": "Prowler 5.47.0 check organization_repository_creation_limited (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.organization_repository_deletion_limited",
+   "title": "Organization repository deletion and transfer is restricted to owners",
+   "scope": "Prowler 5.47.0 check organization_repository_deletion_limited (GitHub organization, resource type GitHubOrganization): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.organization_verified_badge",
+   "title": "Organization has a verified badge",
+   "scope": "Prowler 5.47.0 check organization_verified_badge (GitHub organization, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_branch_delete_on_merge_enabled",
+   "title": "Repository deletes branches after pull request merge",
+   "scope": "Prowler 5.47.0 check repository_branch_delete_on_merge_enabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_deletion_disabled",
+   "title": "Repository denies default branch deletion",
+   "scope": "Prowler 5.47.0 check repository_default_branch_deletion_disabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_disallows_force_push",
+   "title": "Repository default branch denies force pushes",
+   "scope": "Prowler 5.47.0 check repository_default_branch_disallows_force_push (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_dismisses_stale_reviews",
+   "title": "Repository default branch dismisses stale pull request approvals",
+   "scope": "Prowler 5.47.0 check repository_default_branch_dismisses_stale_reviews (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_protection_applies_to_admins",
+   "title": "Repository default branch protection applies to administrators",
+   "scope": "Prowler 5.47.0 check repository_default_branch_protection_applies_to_admins (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_protection_enabled",
+   "title": "Repository enforces branch protection on the default branch",
+   "scope": "Prowler 5.47.0 check repository_default_branch_protection_enabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_requires_codeowners_review",
+   "title": "Repository default branch requires code owner approval for changes to owned code",
+   "scope": "Prowler 5.47.0 check repository_default_branch_requires_codeowners_review (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_requires_conversation_resolution",
+   "title": "Repository default branch requires conversation resolution before merging",
+   "scope": "Prowler 5.47.0 check repository_default_branch_requires_conversation_resolution (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_requires_linear_history",
+   "title": "Repository default branch requires linear history",
+   "scope": "Prowler 5.47.0 check repository_default_branch_requires_linear_history (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_requires_multiple_approvals",
+   "title": "Repository default branch requires at least 2 approvals for code changes",
+   "scope": "Prowler 5.47.0 check repository_default_branch_requires_multiple_approvals (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_requires_signed_commits",
+   "title": "Repository default branch requires signed commits",
+   "scope": "Prowler 5.47.0 check repository_default_branch_requires_signed_commits (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_branch_status_checks_required",
+   "title": "Repository default branch requires status checks",
+   "scope": "Prowler 5.47.0 check repository_default_branch_status_checks_required (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_default_workflow_permissions_read_only",
+   "title": "Repository grants workflows a read-only default GITHUB_TOKEN",
+   "scope": "Prowler 5.47.0 check repository_default_workflow_permissions_read_only (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_dependency_scanning_enabled",
+   "title": "Repository has package vulnerability scanning (Dependabot alerts) enabled",
+   "scope": "Prowler 5.47.0 check repository_dependency_scanning_enabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_has_codeowners_file",
+   "title": "Repository has a CODEOWNERS file",
+   "scope": "Prowler 5.47.0 check repository_has_codeowners_file (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_immutable_releases_enabled",
+   "title": "Repository has immutable releases enabled",
+   "scope": "Prowler 5.47.0 check repository_immutable_releases_enabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.github.repository_inactive_not_archived",
+   "title": "Repository is archived or active within the configured inactivity threshold",
+   "scope": "Prowler 5.47.0 check repository_inactive_not_archived (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.github.repository_public_has_securitymd_file",
+   "title": "Public repository has a SECURITY.md file",
+   "scope": "Prowler 5.47.0 check repository_public_has_securitymd_file (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.github.repository_secret_scanning_enabled",
+   "title": "Repository has secret scanning enabled to detect sensitive data",
+   "scope": "Prowler 5.47.0 check repository_secret_scanning_enabled (GitHub repository, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
 }

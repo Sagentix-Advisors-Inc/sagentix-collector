@@ -202,6 +202,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.apiserver_strong_ciphers_only",
+   "title": "API Server pod uses only strong cryptographic TLS cipher suites",
+   "scope": "Prowler 5.47.0 check apiserver_strong_ciphers_only (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.kubernetes.apiserver_tls_config",
    "title": "API server pod has --tls-cert-file and --tls-private-key-file configured",
    "scope": "Prowler 5.47.0 check apiserver_tls_config (Kubernetes apiserver, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -221,6 +228,13 @@
    "scope": "Prowler 5.47.0 check controllermanager_disable_profiling (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.controllermanager_garbage_collection",
+   "title": "Controller Manager pod does not use the default --terminated-pod-gc-threshold value",
+   "scope": "Prowler 5.47.0 check controllermanager_garbage_collection (Kubernetes controllermanager, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.kubernetes.controllermanager_root_ca_file_set",
@@ -258,6 +272,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.kubernetes.core_cpu_requests_set",
+   "title": "Pod containers have CPU requests set",
+   "scope": "Prowler 5.47.0 check core_cpu_requests_set (Kubernetes core, resource type KubernetesPod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.kubernetes.core_image_tag_fixed",
    "title": "Container images use fixed tags",
    "scope": "Prowler 5.47.0 check core_image_tag_fixed (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -275,6 +296,13 @@
    "id": "prowler.kubernetes.core_memory_limits_set",
    "title": "Container memory limits are configured",
    "scope": "Prowler 5.47.0 check core_memory_limits_set (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_memory_requests_set",
+   "title": "Container memory requests are configured",
+   "scope": "Prowler 5.47.0 check core_memory_requests_set (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -314,9 +342,23 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.core_minimize_hostIPC_containers",
+   "title": "Pod does not use the host IPC namespace",
+   "scope": "Prowler 5.47.0 check core_minimize_hostIPC_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.kubernetes.core_minimize_hostNetwork_containers",
    "title": "Pod does not use hostNetwork",
    "scope": "Prowler 5.47.0 check core_minimize_hostNetwork_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.core_minimize_hostPID_containers",
+   "title": "Pod does not use the host PID namespace",
+   "scope": "Prowler 5.47.0 check core_minimize_hostPID_containers (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -349,6 +391,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.core_no_secrets_envs",
+   "title": "Pod does not contain secret environment variables",
+   "scope": "Prowler 5.47.0 check core_no_secrets_envs (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.kubernetes.core_readiness_probe_configured",
    "title": "Regular pod containers have readiness probes configured",
    "scope": "Prowler 5.47.0 check core_readiness_probe_configured (Kubernetes core, resource type KubernetesPod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -361,6 +410,13 @@
    "scope": "Prowler 5.47.0 check core_readonly_root_filesystem_enabled (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.core_seccomp_profile_docker_default",
+   "title": "Pod has the docker/default (RuntimeDefault) seccomp profile at pod level or for all containers",
+   "scope": "Prowler 5.47.0 check core_seccomp_profile_docker_default (Kubernetes core, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.kubernetes.etcd_client_cert_auth",
@@ -405,6 +461,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.etcd_unique_ca",
+   "title": "Etcd pod uses a unique Certificate Authority distinct from the Kubernetes API server CA",
+   "scope": "Prowler 5.47.0 check etcd_unique_ca (Kubernetes etcd, resource type Pod): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.kubernetes.kubelet_authorization_mode",
    "title": "Kubelet --authorization-mode is not set to AlwaysAllow",
    "scope": "Prowler 5.47.0 check kubelet_authorization_mode (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -419,9 +482,58 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.kubelet_conf_file_ownership",
+   "title": "Node kubelet.conf file ownership is set to root:root",
+   "scope": "Prowler 5.47.0 check kubelet_conf_file_ownership (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_conf_file_permissions",
+   "title": "Node kubelet.conf file permissions are set to 600 or more restrictive",
+   "scope": "Prowler 5.47.0 check kubelet_conf_file_permissions (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_config_yaml_ownership",
+   "title": "Node kubelet config.yaml file ownership is root:root",
+   "scope": "Prowler 5.47.0 check kubelet_config_yaml_ownership (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_config_yaml_permissions",
+   "title": "Kubelet config.yaml file permissions on the node are set to 600 or more restrictive",
+   "scope": "Prowler 5.47.0 check kubelet_config_yaml_permissions (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_disable_anonymous_auth",
+   "title": "Kubelet anonymous authentication is disabled",
+   "scope": "Prowler 5.47.0 check kubelet_disable_anonymous_auth (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.kubernetes.kubelet_disable_read_only_port",
    "title": "Kubelet read-only port is disabled (set to 0)",
    "scope": "Prowler 5.47.0 check kubelet_disable_read_only_port (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_event_record_qps",
+   "title": "Kubelet eventRecordQPS is set to a positive value",
+   "scope": "Prowler 5.47.0 check kubelet_event_record_qps (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_manage_iptables",
+   "title": "Kubelet configuration has makeIPTablesUtilChains set to true",
+   "scope": "Prowler 5.47.0 check kubelet_manage_iptables (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -433,9 +545,30 @@
    "severity": "high"
   },
   {
+   "id": "prowler.kubernetes.kubelet_service_file_ownership_root",
+   "title": "Kubelet service file on the node is owned by root:root",
+   "scope": "Prowler 5.47.0 check kubelet_service_file_ownership_root (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_service_file_permissions",
+   "title": "Node kubelet service file permissions are set to 600 or more restrictive",
+   "scope": "Prowler 5.47.0 check kubelet_service_file_permissions (Kubernetes kubelet, resource type Node): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.kubernetes.kubelet_streaming_connection_timeout",
    "title": "Kubelet streaming connection idle timeout is not set to 0",
    "scope": "Prowler 5.47.0 check kubelet_streaming_connection_timeout (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.kubernetes.kubelet_strong_ciphers_only",
+   "title": "Kubelet uses only strong TLS cipher suites",
+   "scope": "Prowler 5.47.0 check kubelet_strong_ciphers_only (Kubernetes kubelet, resource type ConfigMap): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },

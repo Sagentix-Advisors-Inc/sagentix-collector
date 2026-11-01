@@ -17,5 +17,209 @@
   "url": "https://github.com/prowler-cloud/prowler"
  },
  "provider": "cloudflare",
- "checks": []
+ "checks": [
+  {
+   "id": "prowler.cloudflare.dns_record_cname_target_valid",
+   "title": "DNS records pointing to hostnames have valid targets without takeover risk",
+   "scope": "Prowler 5.47.0 check dns_record_cname_target_valid (Cloudflare dns, resource type DNSRecord): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.dns_record_no_internal_ip",
+   "title": "DNS records do not expose internal IP addresses",
+   "scope": "Prowler 5.47.0 check dns_record_no_internal_ip (Cloudflare dns, resource type DNSRecord): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.dns_record_no_wildcard",
+   "title": "DNS records do not use wildcard entries",
+   "scope": "Prowler 5.47.0 check dns_record_no_wildcard (Cloudflare dns, resource type DNSRecord): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.dns_record_proxied",
+   "title": "Cloudflare proxy is enabled for applicable DNS records",
+   "scope": "Prowler 5.47.0 check dns_record_proxied (Cloudflare dns, resource type DNSRecord): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_always_online_disabled",
+   "title": "Always Online is disabled",
+   "scope": "Prowler 5.47.0 check zone_always_online_disabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_automatic_https_rewrites_enabled",
+   "title": "Automatic HTTPS Rewrites is enabled",
+   "scope": "Prowler 5.47.0 check zone_automatic_https_rewrites_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_bot_fight_mode_enabled",
+   "title": "Bot Fight Mode is enabled",
+   "scope": "Prowler 5.47.0 check zone_bot_fight_mode_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_browser_integrity_check_enabled",
+   "title": "Cloudflare Zone Browser Integrity Check Is Enabled",
+   "scope": "Prowler 5.47.0 check zone_browser_integrity_check_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_challenge_passage_configured",
+   "title": "Cloudflare Zone Challenge Passage Is Configured Between 15 and 45 Minutes",
+   "scope": "Prowler 5.47.0 check zone_challenge_passage_configured (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_development_mode_disabled",
+   "title": "Development mode is disabled for production zones",
+   "scope": "Prowler 5.47.0 check zone_development_mode_disabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_dnssec_enabled",
+   "title": "DNSSEC is enabled",
+   "scope": "Prowler 5.47.0 check zone_dnssec_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_email_obfuscation_enabled",
+   "title": "Email Obfuscation is enabled",
+   "scope": "Prowler 5.47.0 check zone_email_obfuscation_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_firewall_blocking_rules_configured",
+   "title": "Cloudflare Zone Firewall Rules Use Blocking Actions to Protect Against Threats",
+   "scope": "Prowler 5.47.0 check zone_firewall_blocking_rules_configured (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_hotlink_protection_enabled",
+   "title": "Hotlink Protection is enabled",
+   "scope": "Prowler 5.47.0 check zone_hotlink_protection_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_hsts_enabled",
+   "title": "HSTS is enabled with recommended max-age and includes subdomains",
+   "scope": "Prowler 5.47.0 check zone_hsts_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_https_redirect_enabled",
+   "title": "Always Use HTTPS is enabled",
+   "scope": "Prowler 5.47.0 check zone_https_redirect_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_ip_geolocation_enabled",
+   "title": "IP Geolocation is enabled",
+   "scope": "Prowler 5.47.0 check zone_ip_geolocation_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_min_tls_version_secure",
+   "title": "Minimum TLS version is set to 1.2 or higher",
+   "scope": "Prowler 5.47.0 check zone_min_tls_version_secure (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_rate_limiting_enabled",
+   "title": "Rate limiting is configured for the zone",
+   "scope": "Prowler 5.47.0 check zone_rate_limiting_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_record_caa_exists",
+   "title": "CAA record exists with issue or issuewild tag",
+   "scope": "Prowler 5.47.0 check zone_record_caa_exists (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_record_dkim_exists",
+   "title": "DKIM record exists with valid public key",
+   "scope": "Prowler 5.47.0 check zone_record_dkim_exists (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_record_dmarc_exists",
+   "title": "DMARC record exists with enforcement policy (p=reject or p=quarantine)",
+   "scope": "Prowler 5.47.0 check zone_record_dmarc_exists (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_record_spf_exists",
+   "title": "SPF record exists with strict policy (-all)",
+   "scope": "Prowler 5.47.0 check zone_record_spf_exists (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_security_under_attack_disabled",
+   "title": "Under Attack Mode is disabled during normal operations",
+   "scope": "Prowler 5.47.0 check zone_security_under_attack_disabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.cloudflare.zone_ssl_strict",
+   "title": "SSL/TLS encryption mode is set to Full (Strict)",
+   "scope": "Prowler 5.47.0 check zone_ssl_strict (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_tls_1_3_enabled",
+   "title": "TLS 1.3 is enabled",
+   "scope": "Prowler 5.47.0 check zone_tls_1_3_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.cloudflare.zone_universal_ssl_enabled",
+   "title": "Universal SSL is enabled",
+   "scope": "Prowler 5.47.0 check zone_universal_ssl_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_waf_enabled",
+   "title": "WAF is enabled",
+   "scope": "Prowler 5.47.0 check zone_waf_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.cloudflare.zone_waf_owasp_ruleset_enabled",
+   "title": "Cloudflare Zone OWASP Managed WAF Rulesets Are Enabled",
+   "scope": "Prowler 5.47.0 check zone_waf_owasp_ruleset_enabled (Cloudflare zone, resource type Zone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  }
+ ]
 }

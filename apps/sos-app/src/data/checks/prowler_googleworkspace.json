@@ -16,5 +16,461 @@
   "url": "https://github.com/prowler-cloud/prowler"
  },
  "provider": "googleworkspace",
- "checks": []
+ "checks": [
+  {
+   "id": "prowler.googleworkspace.additionalservices_external_groups_disabled",
+   "title": "Access to external Google Groups is off for everyone",
+   "scope": "Prowler 5.47.0 check additionalservices_external_groups_disabled (Google Workspace additionalservices, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.calendar_external_invitations_warning",
+   "title": "External invitation warnings are enabled for Google Calendar",
+   "scope": "Prowler 5.47.0 check calendar_external_invitations_warning (Google Workspace calendar, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.calendar_external_sharing_primary_calendar",
+   "title": "External sharing for primary calendars is restricted to free/busy only",
+   "scope": "Prowler 5.47.0 check calendar_external_sharing_primary_calendar (Google Workspace calendar, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.calendar_external_sharing_secondary_calendar",
+   "title": "External sharing for secondary calendars is restricted to free/busy only",
+   "scope": "Prowler 5.47.0 check calendar_external_sharing_secondary_calendar (Google Workspace calendar, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_apps_installation_disabled",
+   "title": "Chat apps installation is disabled for users",
+   "scope": "Prowler 5.47.0 check chat_apps_installation_disabled (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_external_file_sharing_disabled",
+   "title": "External file sharing in Chat is set to no files",
+   "scope": "Prowler 5.47.0 check chat_external_file_sharing_disabled (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_external_messaging_restricted",
+   "title": "External Chat messaging is restricted to allowed domains",
+   "scope": "Prowler 5.47.0 check chat_external_messaging_restricted (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_external_spaces_restricted",
+   "title": "External spaces in Chat are restricted to allowed domains",
+   "scope": "Prowler 5.47.0 check chat_external_spaces_restricted (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_incoming_webhooks_disabled",
+   "title": "Incoming webhooks in Chat are disabled for users",
+   "scope": "Prowler 5.47.0 check chat_incoming_webhooks_disabled (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.chat_internal_file_sharing_disabled",
+   "title": "Internal file sharing in Chat is set to no files",
+   "scope": "Prowler 5.47.0 check chat_internal_file_sharing_disabled (Google Workspace chat, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.googleworkspace.directory_super_admin_count",
+   "title": "Domain has 2-4 super administrators",
+   "scope": "Prowler 5.47.0 check directory_super_admin_count (Google Workspace directory, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.directory_super_admin_only_admin_roles",
+   "title": "All super admin accounts are used only for super admin activities",
+   "scope": "Prowler 5.47.0 check directory_super_admin_only_admin_roles (Google Workspace directory, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_access_checker_recipients_only",
+   "title": "Drive Access Checker is configured to recipients only",
+   "scope": "Prowler 5.47.0 check drive_access_checker_recipients_only (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_desktop_access_disabled",
+   "title": "Google Drive for desktop is disabled",
+   "scope": "Prowler 5.47.0 check drive_desktop_access_disabled (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_external_sharing_warn_users",
+   "title": "Users are warned when sharing files outside the domain",
+   "scope": "Prowler 5.47.0 check drive_external_sharing_warn_users (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_internal_users_distribute_content",
+   "title": "Only internal users can distribute content outside the organization",
+   "scope": "Prowler 5.47.0 check drive_internal_users_distribute_content (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_publishing_files_disabled",
+   "title": "Publishing Drive files to the web is disabled",
+   "scope": "Prowler 5.47.0 check drive_publishing_files_disabled (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_shared_drive_creation_allowed",
+   "title": "Users are allowed to create new shared drives",
+   "scope": "Prowler 5.47.0 check drive_shared_drive_creation_allowed (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_shared_drive_disable_download_print_copy",
+   "title": "Viewers and commenters cannot download, print, or copy shared drive files",
+   "scope": "Prowler 5.47.0 check drive_shared_drive_disable_download_print_copy (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_shared_drive_managers_cannot_override",
+   "title": "Shared drive managers cannot override shared drive settings",
+   "scope": "Prowler 5.47.0 check drive_shared_drive_managers_cannot_override (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_shared_drive_members_only_access",
+   "title": "Shared drive file access is restricted to members only",
+   "scope": "Prowler 5.47.0 check drive_shared_drive_members_only_access (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_sharing_allowlisted_domains",
+   "title": "Document sharing is restricted to allowlisted domains",
+   "scope": "Prowler 5.47.0 check drive_sharing_allowlisted_domains (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.drive_warn_sharing_with_allowlisted_domains",
+   "title": "Users are warned when sharing files with allowlisted domains",
+   "scope": "Prowler 5.47.0 check drive_warn_sharing_with_allowlisted_domains (Google Workspace drive, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_anomalous_attachment_protection_enabled",
+   "title": "Protection against anomalous attachment types in emails is enabled",
+   "scope": "Prowler 5.47.0 check gmail_anomalous_attachment_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_auto_forwarding_disabled",
+   "title": "Automatic forwarding options are disabled",
+   "scope": "Prowler 5.47.0 check gmail_auto_forwarding_disabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_comprehensive_mail_storage_enabled",
+   "title": "Comprehensive mail storage is enabled",
+   "scope": "Prowler 5.47.0 check gmail_comprehensive_mail_storage_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_domain_spoofing_protection_enabled",
+   "title": "Protection against domain spoofing based on similar domain names is enabled",
+   "scope": "Prowler 5.47.0 check gmail_domain_spoofing_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_employee_name_spoofing_protection_enabled",
+   "title": "Protection against spoofing of employee names is enabled",
+   "scope": "Prowler 5.47.0 check gmail_employee_name_spoofing_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_encrypted_attachment_protection_enabled",
+   "title": "Protection against encrypted attachments from untrusted senders is enabled",
+   "scope": "Prowler 5.47.0 check gmail_encrypted_attachment_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_enhanced_pre_delivery_scanning_enabled",
+   "title": "Enhanced pre-delivery message scanning is enabled",
+   "scope": "Prowler 5.47.0 check gmail_enhanced_pre_delivery_scanning_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_external_image_scanning_enabled",
+   "title": "Scanning of linked images for malicious content is enabled",
+   "scope": "Prowler 5.47.0 check gmail_external_image_scanning_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_groups_spoofing_protection_enabled",
+   "title": "Groups are protected from inbound emails spoofing your domain",
+   "scope": "Prowler 5.47.0 check gmail_groups_spoofing_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_inbound_domain_spoofing_protection_enabled",
+   "title": "Protection against inbound emails spoofing your domain is enabled",
+   "scope": "Prowler 5.47.0 check gmail_inbound_domain_spoofing_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_mail_delegation_disabled",
+   "title": "Mail delegation is disabled for users",
+   "scope": "Prowler 5.47.0 check gmail_mail_delegation_disabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_per_user_outbound_gateway_disabled",
+   "title": "Per-user outbound gateways are disabled",
+   "scope": "Prowler 5.47.0 check gmail_per_user_outbound_gateway_disabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_pop_imap_access_disabled",
+   "title": "POP and IMAP access is disabled for all users",
+   "scope": "Prowler 5.47.0 check gmail_pop_imap_access_disabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_script_attachment_protection_enabled",
+   "title": "Protection against attachments with scripts from untrusted senders is enabled",
+   "scope": "Prowler 5.47.0 check gmail_script_attachment_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_shortener_scanning_enabled",
+   "title": "Identification of links behind shortened URLs is enabled",
+   "scope": "Prowler 5.47.0 check gmail_shortener_scanning_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_unauthenticated_email_protection_enabled",
+   "title": "Protection against any unauthenticated emails is enabled",
+   "scope": "Prowler 5.47.0 check gmail_unauthenticated_email_protection_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.gmail_untrusted_link_warnings_enabled",
+   "title": "Warning prompt for clicks on untrusted domain links is enabled",
+   "scope": "Prowler 5.47.0 check gmail_untrusted_link_warnings_enabled (Google Workspace gmail, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.groups_creation_restricted",
+   "title": "Group creation is restricted to admins with no external members or incoming email",
+   "scope": "Prowler 5.47.0 check groups_creation_restricted (Google Workspace groups, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.groups_external_access_restricted",
+   "title": "Accessing groups from outside the organization is set to private",
+   "scope": "Prowler 5.47.0 check groups_external_access_restricted (Google Workspace groups, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.groups_view_conversations_restricted",
+   "title": "Default permission to view conversations is set to all group members",
+   "scope": "Prowler 5.47.0 check groups_view_conversations_restricted (Google Workspace groups, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.marketplace_apps_access_restricted",
+   "title": "Users access to Google Workspace Marketplace apps is restricted",
+   "scope": "Prowler 5.47.0 check marketplace_apps_access_restricted (Google Workspace marketplace, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_admin_privilege_granted_alert_configured",
+   "title": "User granted Admin privilege alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_admin_privilege_granted_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_gmail_employee_spoofing_alert_configured",
+   "title": "Gmail potential employee spoofing alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_gmail_employee_spoofing_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_government_backed_attacks_alert_configured",
+   "title": "Government-backed attacks alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_government_backed_attacks_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_leaked_password_alert_configured",
+   "title": "Leaked password alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_leaked_password_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_password_changed_alert_configured",
+   "title": "User's password changed alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_password_changed_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_suspicious_activity_suspension_alert_configured",
+   "title": "User suspended due to suspicious activity alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_suspicious_activity_suspension_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_suspicious_login_alert_configured",
+   "title": "Suspicious login alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_suspicious_login_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.googleworkspace.rules_suspicious_programmatic_login_alert_configured",
+   "title": "Suspicious programmatic login alert rule is configured",
+   "scope": "Prowler 5.47.0 check rules_suspicious_programmatic_login_alert_configured (Google Workspace rules, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.googleworkspace.security_2sv_enforced",
+   "title": "2-Step Verification is enforced for all users",
+   "scope": "Prowler 5.47.0 check security_2sv_enforced (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.security_2sv_hardware_keys_admins",
+   "title": "Hardware security keys are required for 2-Step Verification",
+   "scope": "Prowler 5.47.0 check security_2sv_hardware_keys_admins (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.security_advanced_protection_configured",
+   "title": "Advanced Protection Program is configured",
+   "scope": "Prowler 5.47.0 check security_advanced_protection_configured (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.security_app_access_restricted",
+   "title": "Application access to Google services is restricted",
+   "scope": "Prowler 5.47.0 check security_app_access_restricted (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.security_dlp_drive_rules_configured",
+   "title": "DLP policies for Google Drive are configured",
+   "scope": "Prowler 5.47.0 check security_dlp_drive_rules_configured (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_internal_apps_trusted",
+   "title": "Internal apps can access Google Workspace APIs",
+   "scope": "Prowler 5.47.0 check security_internal_apps_trusted (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_less_secure_apps_disabled",
+   "title": "Less secure app access is disabled",
+   "scope": "Prowler 5.47.0 check security_less_secure_apps_disabled (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_login_challenges_configured",
+   "title": "Login challenges are configured correctly",
+   "scope": "Prowler 5.47.0 check security_login_challenges_configured (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_password_policy_strong",
+   "title": "Password policy is configured for enhanced security",
+   "scope": "Prowler 5.47.0 check security_password_policy_strong (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_session_duration_limited",
+   "title": "Google session control is configured to 12 hours or less",
+   "scope": "Prowler 5.47.0 check security_session_duration_limited (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.security_super_admin_recovery_disabled",
+   "title": "Super Admin account recovery is disabled",
+   "scope": "Prowler 5.47.0 check security_super_admin_recovery_disabled (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.googleworkspace.security_user_recovery_enabled",
+   "title": "User account recovery is enabled",
+   "scope": "Prowler 5.47.0 check security_user_recovery_enabled (Google Workspace security, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.googleworkspace.sites_service_disabled",
+   "title": "Service status for Google Sites is set to off",
+   "scope": "Prowler 5.47.0 check sites_service_disabled (Google Workspace sites, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  }
+ ]
 }

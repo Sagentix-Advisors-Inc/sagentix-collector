@@ -15,6 +15,13 @@
  "provider": "gcp",
  "checks": [
   {
+   "id": "prowler.gcp.apikeys_api_restricted_with_gemini_api",
+   "title": "API key is restricted to specific Google APIs when the Gemini (Generative Language) API is enabled",
+   "scope": "Prowler 5.47.0 check apikeys_api_restricted_with_gemini_api (Google Cloud apikeys, resource type apikeys.googleapis.com/Key): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.gcp.apikeys_api_restrictions_configured",
    "title": "API key is restricted to specific Google APIs",
    "scope": "Prowler 5.47.0 check apikeys_api_restrictions_configured (Google Cloud apikeys, resource type apikeys.googleapis.com/Key): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -106,6 +113,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.gcp.cloudsql_instance_mysql_local_infile_flag",
+   "title": "Cloud SQL MySQL instance has the local_infile database flag set to off",
+   "scope": "Prowler 5.47.0 check cloudsql_instance_mysql_local_infile_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.gcp.cloudsql_instance_mysql_skip_show_database_flag",
+   "title": "Cloud SQL MySQL instance has skip_show_database flag set to on",
+   "scope": "Prowler 5.47.0 check cloudsql_instance_mysql_skip_show_database_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.gcp.cloudsql_instance_postgres_enable_pgaudit_flag",
    "title": "Cloud SQL PostgreSQL instance has 'cloudsql.enable_pgaudit' flag set to 'on'",
    "scope": "Prowler 5.47.0 check cloudsql_instance_postgres_enable_pgaudit_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -183,6 +204,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.gcp.cloudsql_instance_sqlserver_contained_database_authentication_flag",
+   "title": "Cloud SQL for SQL Server instance has 'contained database authentication' flag set to off",
+   "scope": "Prowler 5.47.0 check cloudsql_instance_sqlserver_contained_database_authentication_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.gcp.cloudsql_instance_sqlserver_cross_db_ownership_chaining_flag",
    "title": "Cloud SQL SQL Server instance has 'cross db ownership chaining' flag set to off",
    "scope": "Prowler 5.47.0 check cloudsql_instance_sqlserver_cross_db_ownership_chaining_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -211,6 +239,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.gcp.cloudsql_instance_sqlserver_user_connections_flag",
+   "title": "Cloud SQL SQL Server instance has the 'user connections' database flag set to 0",
+   "scope": "Prowler 5.47.0 check cloudsql_instance_sqlserver_user_connections_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.cloudsql_instance_sqlserver_user_options_flag",
+   "title": "Cloud SQL for SQL Server instance does not have the 'user options' flag configured",
+   "scope": "Prowler 5.47.0 check cloudsql_instance_sqlserver_user_options_flag (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.gcp.cloudsql_instance_ssl_connections",
    "title": "Cloud SQL database instance requires SSL for all incoming connections",
    "scope": "Prowler 5.47.0 check cloudsql_instance_ssl_connections (Google Cloud cloudsql, resource type sqladmin.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -223,6 +265,13 @@
    "scope": "Prowler 5.47.0 check cloudstorage_audit_logs_enabled (Google Cloud cloudstorage, resource type cloudresourcemanager.googleapis.com/Project): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.cloudstorage_bucket_lifecycle_management_enabled",
+   "title": "Cloud Storage bucket has lifecycle management enabled with at least one valid rule",
+   "scope": "Prowler 5.47.0 check cloudstorage_bucket_lifecycle_management_enabled (Google Cloud cloudstorage, resource type storage.googleapis.com/Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.gcp.cloudstorage_bucket_log_retention_policy_lock",
@@ -337,6 +386,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.gcp.compute_instance_deletion_protection_enabled",
+   "title": "VM instance has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check compute_instance_deletion_protection_enabled (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.compute_instance_disk_auto_delete_disabled",
+   "title": "VM instance attached disks have auto-delete disabled",
+   "scope": "Prowler 5.47.0 check compute_instance_disk_auto_delete_disabled (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.gcp.compute_instance_encryption_with_csek_enabled",
    "title": "VM instance has all disks encrypted with Customer-Supplied Encryption Keys (CSEK)",
    "scope": "Prowler 5.47.0 check compute_instance_encryption_with_csek_enabled (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -393,6 +456,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.gcp.compute_instance_serial_ports_in_use",
+   "title": "VM instance has 'Enable Connecting to Serial Ports' disabled",
+   "scope": "Prowler 5.47.0 check compute_instance_serial_ports_in_use (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.gcp.compute_instance_shielded_vm_enabled",
    "title": "Compute instance has vTPM and Integrity Monitoring enabled",
    "scope": "Prowler 5.47.0 check compute_instance_shielded_vm_enabled (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -403,6 +473,13 @@
    "id": "prowler.gcp.compute_instance_single_network_interface",
    "title": "VM instance has a single network interface",
    "scope": "Prowler 5.47.0 check compute_instance_single_network_interface (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.compute_instance_suspended_without_persistent_disks",
+   "title": "Suspended VM instance does not have persistent disks attached",
+   "scope": "Prowler 5.47.0 check compute_instance_suspended_without_persistent_disks (Google Cloud compute, resource type compute.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -426,6 +503,41 @@
    "scope": "Prowler 5.47.0 check compute_network_dns_logging_enabled (Google Cloud compute, resource type compute.googleapis.com/Network): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.compute_network_not_legacy",
+   "title": "VPC network is not legacy",
+   "scope": "Prowler 5.47.0 check compute_network_not_legacy (Google Cloud compute, resource type compute.googleapis.com/Network): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.compute_project_os_login_2fa_enabled",
+   "title": "GCP project has OS Login with 2FA enabled",
+   "scope": "Prowler 5.47.0 check compute_project_os_login_2fa_enabled (Google Cloud compute, resource type compute.googleapis.com/Project): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.gcp.compute_project_os_login_enabled",
+   "title": "Project has OS Login enabled",
+   "scope": "Prowler 5.47.0 check compute_project_os_login_enabled (Google Cloud compute, resource type compute.googleapis.com/Project): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.gcp.compute_public_address_shodan",
+   "title": "Public IP address is not listed in Shodan",
+   "scope": "Prowler 5.47.0 check compute_public_address_shodan (Google Cloud compute, resource type compute.googleapis.com/Address): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.compute_snapshot_not_outdated",
+   "title": "Compute Engine disk snapshot is not outdated",
+   "scope": "Prowler 5.47.0 check compute_snapshot_not_outdated (Google Cloud compute, resource type compute.googleapis.com/Snapshot): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.gcp.compute_subnet_flow_logs_enabled",
@@ -470,6 +582,27 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.gcp.gemini_api_disabled",
+   "title": "Gemini (Generative Language) API is disabled",
+   "scope": "Prowler 5.47.0 check gemini_api_disabled (Google Cloud gemini, resource type serviceusage.googleapis.com/Service): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.gke_cluster_no_default_service_account",
+   "title": "GKE cluster does not use the Compute Engine default service account",
+   "scope": "Prowler 5.47.0 check gke_cluster_no_default_service_account (Google Cloud gke, resource type container.googleapis.com/Cluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.iam_account_access_approval_enabled",
+   "title": "Project has Access Approval enabled",
+   "scope": "Prowler 5.47.0 check iam_account_access_approval_enabled (Google Cloud iam, resource type accessapproval.googleapis.com/AccessApprovalSettings): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.gcp.iam_audit_logs_enabled",
    "title": "GCP project has Cloud Audit Logs enabled",
    "scope": "Prowler 5.47.0 check iam_audit_logs_enabled (Google Cloud iam, resource type cloudresourcemanager.googleapis.com/Project): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -487,6 +620,13 @@
    "id": "prowler.gcp.iam_no_service_roles_at_project_level",
    "title": "Project has no IAM users assigned the Service Account User or Service Account Token Creator roles at project level",
    "scope": "Prowler 5.47.0 check iam_no_service_roles_at_project_level (Google Cloud iam, resource type cloudresourcemanager.googleapis.com/Project): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.iam_organization_essential_contacts_configured",
+   "title": "Organization has Essential Contacts configured",
+   "scope": "Prowler 5.47.0 check iam_organization_essential_contacts_configured (Google Cloud iam, resource type cloudresourcemanager.googleapis.com/Organization): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -648,6 +788,41 @@
    "id": "prowler.gcp.secretmanager_secret_rotation_enabled",
    "title": "Secret Manager secret is rotated every 90 days or less",
    "scope": "Prowler 5.47.0 check secretmanager_secret_rotation_enabled (Google Cloud secretmanager, resource type secretmanager.googleapis.com/Secret): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.vertexai_workbench_instance_auto_upgrade_enabled",
+   "title": "Vertex AI Workbench instance has automatic upgrades scheduled",
+   "scope": "Prowler 5.47.0 check vertexai_workbench_instance_auto_upgrade_enabled (Google Cloud vertexai, resource type notebooks.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.gcp.vertexai_workbench_instance_file_download_disabled",
+   "title": "Vertex AI Workbench instance has file downloads disabled",
+   "scope": "Prowler 5.47.0 check vertexai_workbench_instance_file_download_disabled (Google Cloud vertexai, resource type notebooks.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.vertexai_workbench_instance_public_ip_disabled",
+   "title": "Vertex AI Workbench instance does not have a public IP address",
+   "scope": "Prowler 5.47.0 check vertexai_workbench_instance_public_ip_disabled (Google Cloud vertexai, resource type notebooks.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.gcp.vertexai_workbench_instance_root_access_disabled",
+   "title": "Vertex AI Workbench instance has root access disabled",
+   "scope": "Prowler 5.47.0 check vertexai_workbench_instance_root_access_disabled (Google Cloud vertexai, resource type notebooks.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.gcp.vertexai_workbench_instance_terminal_access_disabled",
+   "title": "Vertex AI Workbench instance has terminal access disabled",
+   "scope": "Prowler 5.47.0 check vertexai_workbench_instance_terminal_access_disabled (Google Cloud vertexai, resource type notebooks.googleapis.com/Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   }

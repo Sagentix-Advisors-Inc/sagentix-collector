@@ -21,5 +21,209 @@
   "url": "https://github.com/prowler-cloud/prowler"
  },
  "provider": "okta",
- "checks": []
+ "checks": [
+  {
+   "id": "prowler.okta.apitoken_not_super_admin",
+   "title": "Okta API tokens are not owned by Super Admin users",
+   "scope": "Prowler 5.47.0 check apitoken_not_super_admin (Okta apitoken, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.apitoken_restricted_to_network_zone",
+   "title": "Okta API tokens are restricted to known Network Zones",
+   "scope": "Prowler 5.47.0 check apitoken_restricted_to_network_zone (Okta apitoken, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.application_admin_console_mfa_required",
+   "title": "Okta Admin Console authentication policy enforces multifactor authentication",
+   "scope": "Prowler 5.47.0 check application_admin_console_mfa_required (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.okta.application_admin_console_phishing_resistant_authentication",
+   "title": "Okta Admin Console authentication policy enforces phishing-resistant factors",
+   "scope": "Prowler 5.47.0 check application_admin_console_phishing_resistant_authentication (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.application_admin_console_session_idle_timeout_15min",
+   "title": "Okta Admin Console app session idle timeout is 15 minutes or less",
+   "scope": "Prowler 5.47.0 check application_admin_console_session_idle_timeout_15min (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.application_authentication_policy_network_zone_enforced",
+   "title": "Okta application authentication policies enforce Network Zones",
+   "scope": "Prowler 5.47.0 check application_authentication_policy_network_zone_enforced (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.application_dashboard_mfa_required",
+   "title": "Okta Dashboard authentication policy enforces multifactor authentication",
+   "scope": "Prowler 5.47.0 check application_dashboard_mfa_required (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.okta.application_dashboard_phishing_resistant_authentication",
+   "title": "Okta Dashboard authentication policy enforces phishing-resistant factors",
+   "scope": "Prowler 5.47.0 check application_dashboard_phishing_resistant_authentication (Okta application, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.authenticator_okta_verify_fips_compliant",
+   "title": "Okta Verify authenticator is active and restricts enrollment to FIPS-compliant devices",
+   "scope": "Prowler 5.47.0 check authenticator_okta_verify_fips_compliant (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_common_password_check",
+   "title": "Every active Okta Password Policy rejects common passwords",
+   "scope": "Prowler 5.47.0 check authenticator_password_common_password_check (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_complexity_lowercase",
+   "title": "Every active Okta Password Policy requires at least one lowercase character",
+   "scope": "Prowler 5.47.0 check authenticator_password_complexity_lowercase (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_complexity_number",
+   "title": "Every active Okta Password Policy requires at least one numeric character",
+   "scope": "Prowler 5.47.0 check authenticator_password_complexity_number (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_complexity_symbol",
+   "title": "Every active Okta Password Policy requires at least one symbol character",
+   "scope": "Prowler 5.47.0 check authenticator_password_complexity_symbol (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_complexity_uppercase",
+   "title": "Every active Okta Password Policy requires at least one uppercase character",
+   "scope": "Prowler 5.47.0 check authenticator_password_complexity_uppercase (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_history_5",
+   "title": "Every active Okta Password Policy remembers at least 5 previous passwords",
+   "scope": "Prowler 5.47.0 check authenticator_password_history_5 (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_lockout_threshold_3",
+   "title": "Every active Okta Password Policy locks accounts after 3 or fewer failed attempts",
+   "scope": "Prowler 5.47.0 check authenticator_password_lockout_threshold_3 (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_maximum_age_60d",
+   "title": "Every active Okta Password Policy enforces a maximum password age of 60 days or less",
+   "scope": "Prowler 5.47.0 check authenticator_password_maximum_age_60d (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_minimum_age_24h",
+   "title": "Every active Okta Password Policy enforces a minimum password age of 24 hours",
+   "scope": "Prowler 5.47.0 check authenticator_password_minimum_age_24h (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.okta.authenticator_password_minimum_length_15",
+   "title": "Every active Okta Password Policy enforces a minimum length of 15 characters",
+   "scope": "Prowler 5.47.0 check authenticator_password_minimum_length_15 (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.authenticator_smart_card_active",
+   "title": "Okta Smart Card IdP authenticator is configured and active",
+   "scope": "Prowler 5.47.0 check authenticator_smart_card_active (Okta authenticator, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.idp_smart_card_dod_approved_ca",
+   "title": "Okta Smart Card (X509) Identity Provider uses a DOD-approved certificate authority",
+   "scope": "Prowler 5.47.0 check idp_smart_card_dod_approved_ca (Okta idp, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.network_zone_block_anonymized_proxies",
+   "title": "Okta uses active Network Zone blocklists for anonymized proxy sources",
+   "scope": "Prowler 5.47.0 check network_zone_block_anonymized_proxies (Okta network, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.signon_dod_warning_banner_configured",
+   "title": "Okta sign-in page displays the Standard Mandatory DOD Notice and Consent Banner",
+   "scope": "Prowler 5.47.0 check signon_dod_warning_banner_configured (Okta signon, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "informational"
+  },
+  {
+   "id": "prowler.okta.signon_global_session_cookies_not_persistent",
+   "title": "Default Global Session Policy has a Priority 1 non-default rule disabling persistent global session cookies",
+   "scope": "Prowler 5.47.0 check signon_global_session_cookies_not_persistent (Okta signon, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.signon_global_session_idle_timeout_15min",
+   "title": "Default Global Session Policy has a Priority 1 non-default rule enforcing 15-minute idle timeout",
+   "scope": "Prowler 5.47.0 check signon_global_session_idle_timeout_15min (Okta signon, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.signon_global_session_lifetime_18h",
+   "title": "Default Global Session Policy has a Priority 1 non-default rule limiting session lifetime to 18 hours",
+   "scope": "Prowler 5.47.0 check signon_global_session_lifetime_18h (Okta signon, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.signon_global_session_policy_network_zone_enforced",
+   "title": "Default Global Session Policy applies a Network Zone condition aligned with the Access Control Policy",
+   "scope": "Prowler 5.47.0 check signon_global_session_policy_network_zone_enforced (Okta signon, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.okta.systemlog_streaming_enabled",
+   "title": "Okta off-loads audit records to a central log server via Log Streaming",
+   "scope": "Prowler 5.47.0 check systemlog_streaming_enabled (Okta systemlog, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.okta.user_inactivity_automation_35d_enabled",
+   "title": "Okta automation suspends or deactivates users after 35 days of inactivity",
+   "scope": "Prowler 5.47.0 check user_inactivity_automation_35d_enabled (Okta user, resource type NotDefined): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  }
+ ]
 }

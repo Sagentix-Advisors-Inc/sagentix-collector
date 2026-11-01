@@ -2,26 +2,36 @@
 // metadata), unknown checks dropped, the subprocess path with a fake `prowler`, and push splitting.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EXIT, main } from "../src/cli.ts";
-import { loadCatalog } from "../src/catalog.ts";
+import { DEFAULT_CATALOG_DIR, loadCatalog } from "../src/catalog.ts";
 import { generateKeyPair } from "../src/keys.ts";
 import { MAX_RESULTS, splitResults } from "../src/payload.ts";
-import { REFUSED_ARGS, authArgs, parseOcsf, prowler, splitArgs } from "../src/sources/prowler.ts";
+import { REFUSED_ARGS, authArgs, parseOcsf, prowler, prowlerEnv, splitArgs } from "../src/sources/prowler.ts";
 import type { Result, Source } from "../src/types.ts";
 import { capture } from "./helpers.ts";
 
 const FIXTURE = fileURLToPath(new URL("./fixtures/prowler/prowler_aws.ocsf.json", import.meta.url));
 const catalog = loadCatalog();
 const known = new Set([...catalog.values()].filter((c) => c.source === "prowler").map((c) => c.id));
+// Since 2026-11-01 every Prowler check is catalogued, so the drop path is tested on a trimmed copy: two AWS checks of
+// the fixture and the whole GitHub catalogue taken out.
+const DROPPED = ["prowler.aws.account_maintain_current_contact_details", "prowler.aws.iam_avoid_root_usage"];
+const trimmed = new Set([...known].filter((id) => !DROPPED.includes(id)));
+const TRIM = mkdtempSync(join(tmpdir(), "collector-prowler-catalog-"));
+for (const f of readdirSync(DEFAULT_CATALOG_DIR).filter((f) => f.endsWith(".json") && f !== "prowler_github.json")) {
+  const doc = JSON.parse(readFileSync(join(DEFAULT_CATALOG_DIR, f), "utf8"));
+  if (f === "prowler_aws.json") doc.checks = doc.checks.filter((c: { id: string }) => !DROPPED.includes(c.id));
+  writeFileSync(join(TRIM, f), JSON.stringify(doc));
+}
 const dir = mkdtempSync(join(tmpdir(), "collector-prowler-"));
 const { privatePem, publicKey } = generateKeyPair();
 const keyPath = join(dir, "key.pem");
 writeFileSync(keyPath, privatePem, { mode: 0o600 });
-const dry = ["run", "--endpoint", "https://sos.example.test", "--source", "prowler", "--prowler-provider", "aws", "--dry-run"];
+const dry = ["run", "--endpoint", "https://sos.example.test", "--source", "prowler", "--prowler-provider", "aws", "--dry-run", "--catalog", TRIM];
 const push = ["run", "--endpoint", "https://sos.example.test", "--key-id", "k-1", "--key", keyPath];
 
 async function verify(sigB64: string, body: Uint8Array<ArrayBuffer>) {
@@ -40,7 +50,7 @@ test("every Prowler catalogue shares the source prowler and the source emits exa
 // ── OCSF → results ────────────────────────────────────────────────────────────────────────────────
 
 test("OCSF findings map to results: PASS, FAIL, muted and MANUAL; unknown checks are dropped and counted", () => {
-  const { results, summary } = parseOcsf(readFileSync(FIXTURE, "utf8"), "aws", known);
+  const { results, summary } = parseOcsf(readFileSync(FIXTURE, "utf8"), "aws", trimmed);
   const by = new Map(results.map((r) => [`${r.check}|${r.resource}`, r]));
   assert.equal(summary.findings, 9);
   // account_maintain_current_contact_details (MANUAL) and iam_avoid_root_usage are not in the catalogue.
@@ -85,9 +95,14 @@ test("a file that is not an OCSF array is an error, not an empty push", () => {
 test("argument helpers: quoting, auth flags from env", () => {
   assert.deepEqual(splitArgs(`--region us-east-1 ca-central-1 --mutelist-file "my list.yaml"`), ["--region", "us-east-1", "ca-central-1", "--mutelist-file", "my list.yaml"]);
   assert.deepEqual(authArgs("azure", { AZURE_CLIENT_SECRET: "s" }), ["--sp-env-auth"]);
-  assert.deepEqual(authArgs("m365", {}), ["--az-cli-auth"]);
+  assert.deepEqual(authArgs("m365", {}), ["--az-cli-auth", "--init-modules"]);
+  assert.deepEqual(authArgs("m365", { M365_CERTIFICATE_CONTENT: "pfx" }), ["--certificate-auth", "--init-modules"]);
+  assert.equal(prowlerEnv("okta", { OKTA_DOMAIN: "acme.okta.com" }).OKTA_ORG_DOMAIN, "acme.okta.com");
   assert.deepEqual(authArgs("kubernetes", { KUBECONFIG: "/k" }), ["--kubeconfig-file", "/k"]);
   assert.deepEqual(authArgs("aws", { AWS_ACCESS_KEY_ID: "x" }), []);
+  assert.deepEqual(authArgs("aws", { SAGENTIX_PROWLER_AWS_REGIONS: "ca-central-1 us-east-1" }), ["--region", "ca-central-1", "us-east-1"]);
+  assert.deepEqual(authArgs("azure", { SAGENTIX_PROWLER_AZURE_SUBSCRIPTIONS: "s1" }), ["--az-cli-auth", "--subscription-ids", "s1"]);
+  assert.deepEqual(authArgs("gcp", { SAGENTIX_PROWLER_GCP_PROJECTS: "p1 p2" }), ["--project-ids", "p1", "p2"]);
 });
 
 // ── Through the CLI ───────────────────────────────────────────────────────────────────────────────
@@ -127,6 +142,36 @@ test("the subprocess path runs prowler read-only into a temp directory and reads
   assert.equal(JSON.parse(c.stdout.join("\n")).payload.results.length, 7);
 });
 
+test("several providers run in one source; one that fails leaves the others' results and says so (2026-11-01)", async () => {
+  // A stand-in that fails for github (no token) and writes the AWS fixture otherwise, noting the token Prowler would read.
+  const bin = join(dir, "prowler-two.mjs"), seen = join(dir, "seen.json");
+  writeFileSync(bin, `#!/usr/bin/env node
+import { copyFileSync, writeFileSync } from "node:fs";
+const a = process.argv.slice(2);
+writeFileSync(${JSON.stringify(seen)}, JSON.stringify({ provider: a[0], pat: process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? null }));
+if (a[0] === "github") { process.stderr.write("github: bad credentials\\n"); process.exit(1); }
+copyFileSync(${JSON.stringify(FIXTURE)}, a[a.indexOf("--output-directory") + 1] + "/" + a[a.indexOf("--output-filename") + 1] + ".ocsf.json");
+`);
+  chmodSync(bin, 0o755);
+  const c = capture({ env: { PATH: process.env.PATH, GITHUB_TOKEN: "github_pat_example" } });
+  const args = ["run", "--endpoint", "https://sos.example.test", "--source", "prowler", "--prowler-provider", "aws,github", "--dry-run", "--catalog", TRIM, "--prowler-bin", bin];
+  assert.equal(await main(args, c.deps), EXIT.ok, c.stderr.join("\n"));
+  assert.equal(JSON.parse(c.stdout.join("\n")).payload.results.length, 7);
+  assert.match(c.stderr.join("\n"), /prowler: github did not run \(.*github exited 1: github: bad credentials\); its controls keep their other ways/);
+  assert.deepEqual(JSON.parse(readFileSync(seen, "utf8")), { provider: "github", pat: "github_pat_example" });   // the collector's token, under Prowler's name
+});
+
+test("the collector's credential names are copied to Prowler's, never over one already set", () => {
+  assert.equal(prowlerEnv("github", { GITHUB_TOKEN: "a" }).GITHUB_PERSONAL_ACCESS_TOKEN, "a");
+  assert.equal(prowlerEnv("github", { GITHUB_TOKEN: "a", GITHUB_PERSONAL_ACCESS_TOKEN: "b" }).GITHUB_PERSONAL_ACCESS_TOKEN, "b");
+  assert.equal(prowlerEnv("cloudflare", { CLOUDFLARE_API_TOKEN_READONLY: "c" }).CLOUDFLARE_API_TOKEN, "c");
+  assert.deepEqual(Object.fromEntries(Object.entries(prowlerEnv("googleworkspace", { GOOGLE_SA_KEY_FILE: "k.json", GOOGLE_ADMIN_EMAIL: "it@x.ca" })).filter(([k]) => k.startsWith("GOOGLEWORKSPACE_"))),
+    { GOOGLEWORKSPACE_CREDENTIALS_FILE: "k.json", GOOGLEWORKSPACE_DELEGATED_USER: "it@x.ca" });
+  const m = prowlerEnv("m365", { ENTRA_TENANT_ID: "t", ENTRA_CLIENT_ID: "i", ENTRA_CLIENT_SECRET: "s" });
+  assert.deepEqual([m.AZURE_TENANT_ID, m.AZURE_CLIENT_ID, m.AZURE_CLIENT_SECRET], ["t", "i", "s"]);
+  assert.equal(prowlerEnv("aws", { GITHUB_TOKEN: "a" }).GITHUB_PERSONAL_ACCESS_TOKEN, undefined);
+});
+
 test("a failing prowler run is an error (exit 1), and send/fix/output options are refused", async () => {
   const bad = fakeProwler(2);
   let c = capture({ env: { PATH: process.env.PATH } });
@@ -145,7 +190,7 @@ test("a failing prowler run is an error (exit 1), and send/fix/output options ar
 
 test("a provider with no mapped checks warns that every finding will be dropped", async () => {
   const c = capture();
-  assert.equal(await main(["run", "--endpoint", "https://sos.example.test", "--source", "prowler", "--prowler-provider", "github", "--prowler-output", FIXTURE, "--dry-run"], c.deps), EXIT.ok);
+  assert.equal(await main(["run", "--endpoint", "https://sos.example.test", "--source", "prowler", "--prowler-provider", "github", "--prowler-output", FIXTURE, "--dry-run", "--catalog", TRIM], c.deps), EXIT.ok);
   assert.match(c.stderr.join("\n"), /lists no github check/);
 });
 

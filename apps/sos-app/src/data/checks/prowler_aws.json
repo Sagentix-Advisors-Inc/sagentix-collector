@@ -29,11 +29,60 @@
    "severity": "low"
   },
   {
+   "id": "prowler.aws.account_maintain_current_contact_details",
+   "title": "AWS account contact information is current",
+   "scope": "Prowler 5.47.0 check account_maintain_current_contact_details (AWS account, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.account_maintain_different_contact_details_to_security_billing_and_operations",
+   "title": "AWS account has distinct Security, Billing, and Operations contact details, different from each other and from the root contact",
+   "scope": "Prowler 5.47.0 check account_maintain_different_contact_details_to_security_billing_and_operations (AWS account, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.account_security_contact_information_is_registered",
+   "title": "AWS account has security alternate contact registered",
+   "scope": "Prowler 5.47.0 check account_security_contact_information_is_registered (AWS account, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.account_security_questions_are_registered_in_the_aws_account",
+   "title": "[DEPRECATED] AWS root user has security challenge questions configured",
+   "scope": "Prowler 5.47.0 check account_security_questions_are_registered_in_the_aws_account (AWS account, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.acm_certificates_expiration_check",
    "title": "ACM certificate expires in more than the configured threshold of days",
    "scope": "Prowler 5.47.0 check acm_certificates_expiration_check (AWS acm, resource type AwsCertificateManagerCertificate): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.acm_certificates_transparency_logs_enabled",
+   "title": "ACM certificate is imported or has Certificate Transparency logging enabled",
+   "scope": "Prowler 5.47.0 check acm_certificates_transparency_logs_enabled (AWS acm, resource type AwsCertificateManagerCertificate): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.acm_certificates_with_secure_key_algorithms",
+   "title": "ACM certificate uses a secure key algorithm",
+   "scope": "Prowler 5.47.0 check acm_certificates_with_secure_key_algorithms (AWS acm, resource type AwsCertificateManagerCertificate): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.acmpca_certificate_authority_pqc_key_algorithm",
+   "title": "AWS Private CA certificate authorities use a post-quantum (ML-DSA) key algorithm",
+   "scope": "Prowler 5.47.0 check acmpca_certificate_authority_pqc_key_algorithm (AWS acmpca, resource type AwsAcmPcaCertificateAuthority): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.amplify_app_no_secrets_in_environment",
@@ -92,6 +141,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.apigateway_restapi_public_with_authorizer",
+   "title": "API Gateway REST API with a public endpoint has an authorizer configured",
+   "scope": "Prowler 5.47.0 check apigateway_restapi_public_with_authorizer (AWS apigateway, resource type AwsApiGatewayRestApi): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.apigateway_restapi_tracing_enabled",
+   "title": "API Gateway REST API stage has X-Ray tracing enabled",
+   "scope": "Prowler 5.47.0 check apigateway_restapi_tracing_enabled (AWS apigateway, resource type AwsApiGatewayStage): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.apigateway_restapi_waf_acl_attached",
    "title": "API Gateway stage has a WAF Web ACL attached",
    "scope": "Prowler 5.47.0 check apigateway_restapi_waf_acl_attached (AWS apigateway, resource type AwsApiGatewayStage): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -120,6 +183,27 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.appstream_fleet_maximum_session_duration",
+   "title": "AppStream fleet maximum user session duration is less than 10 hours",
+   "scope": "Prowler 5.47.0 check appstream_fleet_maximum_session_duration (AWS appstream, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.appstream_fleet_session_disconnect_timeout",
+   "title": "AppStream fleet session disconnect timeout is 5 minutes or less",
+   "scope": "Prowler 5.47.0 check appstream_fleet_session_disconnect_timeout (AWS appstream, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.appstream_fleet_session_idle_disconnect_timeout",
+   "title": "AppStream fleet session idle disconnect timeout is 10 minutes or less",
+   "scope": "Prowler 5.47.0 check appstream_fleet_session_idle_disconnect_timeout (AWS appstream, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.appsync_field_level_logging_enabled",
    "title": "AWS AppSync API has field-level logging set to ALL or ERROR",
    "scope": "Prowler 5.47.0 check appsync_field_level_logging_enabled (AWS appsync, resource type AwsAppSyncGraphQLApi): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -141,11 +225,25 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.athena_workgroup_enforce_configuration",
+   "title": "Athena workgroup enforces workgroup configuration and cannot be overridden by client-side settings",
+   "scope": "Prowler 5.47.0 check athena_workgroup_enforce_configuration (AWS athena, resource type AwsAthenaWorkGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.athena_workgroup_logging_enabled",
    "title": "Amazon Athena workgroup has CloudWatch logging enabled",
    "scope": "Prowler 5.47.0 check athena_workgroup_logging_enabled (AWS athena, resource type AwsAthenaWorkGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.autoscaling_find_secrets_ec2_launch_configuration",
+   "title": "[DEPRECATED] EC2 Auto Scaling launch configuration user data contains no secrets",
+   "scope": "Prowler 5.47.0 check autoscaling_find_secrets_ec2_launch_configuration (AWS autoscaling, resource type AwsAutoScalingLaunchConfiguration): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
   },
   {
    "id": "prowler.aws.autoscaling_group_capacity_rebalance_enabled",
@@ -165,6 +263,13 @@
    "id": "prowler.aws.autoscaling_group_launch_configuration_no_public_ip",
    "title": "Auto Scaling group associated launch configuration does not assign a public IP address",
    "scope": "Prowler 5.47.0 check autoscaling_group_launch_configuration_no_public_ip (AWS autoscaling, resource type AwsAutoScalingAutoScalingGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.autoscaling_group_launch_configuration_requires_imdsv2",
+   "title": "Auto Scaling group enforces IMDSv2 or disables the instance metadata service",
+   "scope": "Prowler 5.47.0 check autoscaling_group_launch_configuration_requires_imdsv2 (AWS autoscaling, resource type AwsAutoScalingAutoScalingGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -197,11 +302,25 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.awslambda_function_inside_vpc",
+   "title": "Lambda function is deployed inside a VPC",
+   "scope": "Prowler 5.47.0 check awslambda_function_inside_vpc (AWS awslambda, resource type AwsLambdaFunction): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.awslambda_function_invoke_api_operations_cloudtrail_logging_enabled",
    "title": "Lambda function Invoke API calls are recorded by CloudTrail",
    "scope": "Prowler 5.47.0 check awslambda_function_invoke_api_operations_cloudtrail_logging_enabled (AWS awslambda, resource type AwsLambdaFunction): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
+  },
+  {
+   "id": "prowler.aws.awslambda_function_no_dead_letter_queue",
+   "title": "Lambda function has a Dead Letter Queue configured",
+   "scope": "Prowler 5.47.0 check awslambda_function_no_dead_letter_queue (AWS awslambda, resource type AwsLambdaFunction): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.awslambda_function_no_secrets_in_code",
@@ -223,6 +342,13 @@
    "scope": "Prowler 5.47.0 check awslambda_function_not_publicly_accessible (AWS awslambda, resource type AwsLambdaFunction): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.awslambda_function_url_cors_policy",
+   "title": "Lambda function URL CORS does not allow wildcard origins (*)",
+   "scope": "Prowler 5.47.0 check awslambda_function_url_cors_policy (AWS awslambda, resource type AwsLambdaFunction): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.awslambda_function_url_public",
@@ -302,6 +428,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.bedrock_agent_guardrail_enabled",
+   "title": "Amazon Bedrock agent uses a guardrail to protect agent sessions",
+   "scope": "Prowler 5.47.0 check bedrock_agent_guardrail_enabled (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.bedrock_agent_role_least_privilege",
    "title": "Amazon Bedrock agent execution role follows least privilege",
    "scope": "Prowler 5.47.0 check bedrock_agent_role_least_privilege (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -344,6 +477,41 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.bedrock_guardrail_contextual_grounding_filter_enabled",
+   "title": "Bedrock guardrail blocks ungrounded and irrelevant model responses",
+   "scope": "Prowler 5.47.0 check bedrock_guardrail_contextual_grounding_filter_enabled (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.bedrock_guardrail_prompt_attack_filter_enabled",
+   "title": "Amazon Bedrock guardrail has prompt attack filter strength set to HIGH",
+   "scope": "Prowler 5.47.0 check bedrock_guardrail_prompt_attack_filter_enabled (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.bedrock_guardrail_sensitive_information_filter_enabled",
+   "title": "Amazon Bedrock guardrail blocks or masks sensitive information",
+   "scope": "Prowler 5.47.0 check bedrock_guardrail_sensitive_information_filter_enabled (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.bedrock_guardrail_sensitive_information_filter_enforced",
+   "title": "Amazon Bedrock guardrail sensitive information filter acts on the output path",
+   "scope": "Prowler 5.47.0 check bedrock_guardrail_sensitive_information_filter_enforced (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.bedrock_guardrails_configured",
+   "title": "Bedrock has at least one guardrail configured in the audited region",
+   "scope": "Prowler 5.47.0 check bedrock_guardrails_configured (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.bedrock_knowledge_base_encrypted_with_cmk",
    "title": "Bedrock knowledge base data source is encrypted with a customer-managed KMS key",
    "scope": "Prowler 5.47.0 check bedrock_knowledge_base_encrypted_with_cmk (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -358,11 +526,46 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.bedrock_model_invocation_logging_text_data_enabled",
+   "title": "Bedrock model invocation logging delivers prompt and response text.",
+   "scope": "Prowler 5.47.0 check bedrock_model_invocation_logging_text_data_enabled (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.bedrock_model_invocation_logs_encryption_enabled",
+   "title": "Amazon Bedrock model invocation logs are encrypted in the S3 bucket and KMS-encrypted in the CloudWatch log group",
+   "scope": "Prowler 5.47.0 check bedrock_model_invocation_logs_encryption_enabled (AWS bedrock, resource type AwsS3Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.bedrock_prompt_encrypted_with_cmk",
    "title": "Amazon Bedrock prompt is encrypted at rest with a customer-managed KMS key",
    "scope": "Prowler 5.47.0 check bedrock_prompt_encrypted_with_cmk (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.bedrock_prompt_management_exists",
+   "title": "Amazon Bedrock Prompt Management prompts exist in the region",
+   "scope": "Prowler 5.47.0 check bedrock_prompt_management_exists (AWS bedrock, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.bedrock_vpc_endpoints_configured",
+   "title": "VPC endpoints ensure private connectivity for all Bedrock APIs",
+   "scope": "Prowler 5.47.0 check bedrock_vpc_endpoints_configured (AWS bedrock, resource type AwsEc2VpcEndpointService): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudformation_stack_cdktoolkit_bootstrap_version",
+   "title": "CDKToolkit CloudFormation stack has Bootstrap version 21 or higher",
+   "scope": "Prowler 5.47.0 check cloudformation_stack_cdktoolkit_bootstrap_version (AWS cloudformation, resource type AwsCloudFormationStack): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.aws.cloudformation_stack_outputs_find_secrets",
@@ -372,9 +575,37 @@
    "severity": "critical"
   },
   {
+   "id": "prowler.aws.cloudformation_stacks_termination_protection_enabled",
+   "title": "CloudFormation stack has termination protection enabled",
+   "scope": "Prowler 5.47.0 check cloudformation_stacks_termination_protection_enabled (AWS cloudformation, resource type AwsCloudFormationStack): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudfront_distributions_custom_ssl_certificate",
+   "title": "CloudFront distribution uses a custom SSL/TLS certificate",
+   "scope": "Prowler 5.47.0 check cloudfront_distributions_custom_ssl_certificate (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudfront_distributions_default_root_object",
+   "title": "CloudFront distribution has a default root object configured",
+   "scope": "Prowler 5.47.0 check cloudfront_distributions_default_root_object (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.cloudfront_distributions_field_level_encryption_enabled",
    "title": "CloudFront distribution has Field Level Encryption enabled",
    "scope": "Prowler 5.47.0 check cloudfront_distributions_field_level_encryption_enabled (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.cloudfront_distributions_geo_restrictions_enabled",
+   "title": "CloudFront distribution has Geo restrictions enabled",
+   "scope": "Prowler 5.47.0 check cloudfront_distributions_geo_restrictions_enabled (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
   },
@@ -384,6 +615,13 @@
    "scope": "Prowler 5.47.0 check cloudfront_distributions_https_enabled (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudfront_distributions_https_sni_enabled",
+   "title": "CloudFront distribution serves HTTPS requests using SNI",
+   "scope": "Prowler 5.47.0 check cloudfront_distributions_https_sni_enabled (AWS cloudfront, resource type AwsCloudFrontDistribution): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.cloudfront_distributions_logging_enabled",
@@ -463,6 +701,13 @@
    "severity": "low"
   },
   {
+   "id": "prowler.aws.cloudtrail_insights_exist",
+   "title": "CloudTrail trail has Insights enabled",
+   "scope": "Prowler 5.47.0 check cloudtrail_insights_exist (AWS cloudtrail, resource type AwsCloudTrailTrail): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.cloudtrail_kms_encryption_enabled",
    "title": "CloudTrail trail logs are encrypted at rest with a KMS key",
    "scope": "Prowler 5.47.0 check cloudtrail_kms_encryption_enabled (AWS cloudtrail, resource type AwsCloudTrailTrail): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -519,6 +764,41 @@
    "severity": "low"
   },
   {
+   "id": "prowler.aws.cloudtrail_threat_detection_enumeration",
+   "title": "CloudTrail logs show no potential enumeration activity",
+   "scope": "Prowler 5.47.0 check cloudtrail_threat_detection_enumeration (AWS cloudtrail, resource type AwsCloudTrailTrail): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.cloudtrail_threat_detection_llm_jacking",
+   "title": "No potential LLM jacking activity detected in CloudTrail",
+   "scope": "Prowler 5.47.0 check cloudtrail_threat_detection_llm_jacking (AWS cloudtrail, resource type AwsCloudTrailTrail): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.cloudtrail_threat_detection_privilege_escalation",
+   "title": "No potential privilege escalation activity detected in CloudTrail",
+   "scope": "Prowler 5.47.0 check cloudtrail_threat_detection_privilege_escalation (AWS cloudtrail, resource type AwsCloudTrailTrail): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.cloudwatch_alarm_actions_alarm_state_configured",
+   "title": "CloudWatch metric alarm has actions configured for the ALARM state",
+   "scope": "Prowler 5.47.0 check cloudwatch_alarm_actions_alarm_state_configured (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.cloudwatch_alarm_actions_enabled",
+   "title": "CloudWatch metric alarm has actions enabled",
+   "scope": "Prowler 5.47.0 check cloudwatch_alarm_actions_enabled (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.cloudwatch_changes_to_network_acls_alarm_configured",
    "title": "CloudWatch log metric filter and alarm exist for Network ACL (NACL) change events",
    "scope": "Prowler 5.47.0 check cloudwatch_changes_to_network_acls_alarm_configured (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -550,6 +830,13 @@
    "id": "prowler.aws.cloudwatch_cross_account_sharing_disabled",
    "title": "CloudWatch does not allow cross-account sharing",
    "scope": "Prowler 5.47.0 check cloudwatch_cross_account_sharing_disabled (AWS cloudwatch, resource type AwsIamRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudwatch_log_group_agentcore_data_protection_policy_enabled",
+   "title": "Bedrock AgentCore log groups have a CloudWatch Logs data protection policy activated",
+   "scope": "Prowler 5.47.0 check cloudwatch_log_group_agentcore_data_protection_policy_enabled (AWS cloudwatch, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -596,6 +883,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.cloudwatch_log_metric_filter_authentication_failures",
+   "title": "Account has a CloudWatch Logs metric filter and alarm for AWS Management Console authentication failures",
+   "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_authentication_failures (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.cloudwatch_log_metric_filter_aws_organizations_changes",
    "title": "CloudWatch Logs metric filter and alarm exist for AWS Organizations changes",
    "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_aws_organizations_changes (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -624,9 +918,30 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.cloudwatch_log_metric_filter_root_usage",
+   "title": "Account has a CloudWatch Logs metric filter and alarm for root account usage",
+   "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_root_usage (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.cloudwatch_log_metric_filter_security_group_changes",
    "title": "CloudWatch Logs metric filter and alarm exist for security group changes",
    "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_security_group_changes (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudwatch_log_metric_filter_sign_in_without_mfa",
+   "title": "CloudWatch log metric filter and alarm exist for Management Console sign-in without MFA",
+   "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_sign_in_without_mfa (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cloudwatch_log_metric_filter_unauthorized_api_calls",
+   "title": "CloudWatch Logs metric filter and alarm exist for unauthorized API calls",
+   "scope": "Prowler 5.47.0 check cloudwatch_log_metric_filter_unauthorized_api_calls (AWS cloudwatch, resource type AwsCloudWatchAlarm): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -659,6 +974,20 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.codebuild_project_older_90_days",
+   "title": "CodeBuild project has been invoked in the last 90 days",
+   "scope": "Prowler 5.47.0 check codebuild_project_older_90_days (AWS codebuild, resource type AwsCodeBuildProject): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.codebuild_project_s3_logs_encrypted",
+   "title": "CodeBuild project S3 logs are encrypted at rest",
+   "scope": "Prowler 5.47.0 check codebuild_project_s3_logs_encrypted (AWS codebuild, resource type AwsCodeBuildProject): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.codebuild_project_source_repo_url_no_sensitive_credentials",
    "title": "CodeBuild project source repository URLs do not contain sensitive credentials",
    "scope": "Prowler 5.47.0 check codebuild_project_source_repo_url_no_sensitive_credentials (AWS codebuild, resource type AwsCodeBuildProject): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -680,6 +1009,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.codebuild_project_webhook_filters_use_anchored_patterns",
+   "title": "CodeBuild project webhook filters use anchored regex patterns",
+   "scope": "Prowler 5.47.0 check codebuild_project_webhook_filters_use_anchored_patterns (AWS codebuild, resource type AwsCodeBuildProject): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.codebuild_report_group_export_encrypted",
    "title": "CodeBuild report group exports to S3 are encrypted at rest",
    "scope": "Prowler 5.47.0 check codebuild_report_group_export_encrypted (AWS codebuild, resource type AwsCodeBuildProject): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -692,6 +1028,27 @@
    "scope": "Prowler 5.47.0 check codecommit_repository_no_secrets (AWS codecommit, resource type AwsCodeCommitRepository): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.codepipeline_project_repo_private",
+   "title": "CodePipeline pipeline should use private repository source with authenticated connection",
+   "scope": "Prowler 5.47.0 check codepipeline_project_repo_private (AWS codepipeline, resource type AwsCodePipelinePipeline): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_identity_pool_guest_access_disabled",
+   "title": "Cognito identity pool has guest access disabled",
+   "scope": "Prowler 5.47.0 check cognito_identity_pool_guest_access_disabled (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_account_recovery_sms_not_preferred",
+   "title": "Cognito user pool does not prefer SMS for account recovery",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_account_recovery_sms_not_preferred (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.cognito_user_pool_advanced_security_enabled",
@@ -711,6 +1068,34 @@
    "id": "prowler.aws.cognito_user_pool_blocks_potential_malicious_sign_in_attempts",
    "title": "Amazon Cognito user pool blocks all potential malicious sign-in attempts",
    "scope": "Prowler 5.47.0 check cognito_user_pool_blocks_potential_malicious_sign_in_attempts (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_client_prevent_user_existence_errors",
+   "title": "Amazon Cognito user pool client has Prevent User Existence Errors enabled",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_client_prevent_user_existence_errors (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_client_token_revocation_enabled",
+   "title": "Amazon Cognito user pool client has token revocation enabled",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_client_token_revocation_enabled (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_deletion_protection_enabled",
+   "title": "Cognito user pool has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_deletion_protection_enabled (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_mfa_enabled",
+   "title": "Amazon Cognito user pool requires Multi-Factor Authentication (MFA)",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_mfa_enabled (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -750,6 +1135,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.cognito_user_pool_self_registration_disabled",
+   "title": "Amazon Cognito user pool has self registration disabled",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_self_registration_disabled (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.cognito_user_pool_temporary_password_expiration",
+   "title": "Cognito user pool has temporary password expiration set to 7 days or less",
+   "scope": "Prowler 5.47.0 check cognito_user_pool_temporary_password_expiration (AWS cognito, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.cognito_user_pool_waf_acl_attached",
    "title": "Amazon Cognito user pool is associated with a WAF Web ACL",
    "scope": "Prowler 5.47.0 check cognito_user_pool_waf_acl_attached (AWS cognito, resource type AwsWafv2WebAcl): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -767,6 +1166,13 @@
    "id": "prowler.aws.config_recorder_all_regions_enabled",
    "title": "AWS Config recorder is enabled and not in failure state or disabled",
    "scope": "Prowler 5.47.0 check config_recorder_all_regions_enabled (AWS config, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.config_recorder_using_aws_service_role",
+   "title": "AWS Config recorder uses the AWSServiceRoleForConfig service-linked role",
+   "scope": "Prowler 5.47.0 check config_recorder_using_aws_service_role (AWS config, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -806,6 +1212,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.directoryservice_directory_monitor_notifications",
+   "title": "Directory Service directory has SNS notifications enabled",
+   "scope": "Prowler 5.47.0 check directoryservice_directory_monitor_notifications (AWS directoryservice, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.directoryservice_directory_snapshots_limit",
+   "title": "Directory Service directory has adequate remaining manual snapshot quota",
+   "scope": "Prowler 5.47.0 check directoryservice_directory_snapshots_limit (AWS directoryservice, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.directoryservice_ldap_certificate_expiration",
    "title": "Directory Service LDAP certificate expires in more than 90 days",
    "scope": "Prowler 5.47.0 check directoryservice_ldap_certificate_expiration (AWS directoryservice, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -813,9 +1233,30 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.directoryservice_radius_server_security_protocol",
+   "title": "Directory Service directory RADIUS server uses MS-CHAPv2",
+   "scope": "Prowler 5.47.0 check directoryservice_radius_server_security_protocol (AWS directoryservice, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.directoryservice_supported_mfa_radius_enabled",
+   "title": "AWS Directory Service directory has RADIUS-based MFA enabled",
+   "scope": "Prowler 5.47.0 check directoryservice_supported_mfa_radius_enabled (AWS directoryservice, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.dlm_ebs_snapshot_lifecycle_policy_exists",
    "title": "Region with EBS snapshots has at least one EBS snapshot lifecycle policy defined",
    "scope": "Prowler 5.47.0 check dlm_ebs_snapshot_lifecycle_policy_exists (AWS dlm, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.dms_endpoint_mongodb_authentication_enabled",
+   "title": "DMS MongoDB endpoint has an authentication mechanism enabled",
+   "scope": "Prowler 5.47.0 check dms_endpoint_mongodb_authentication_enabled (AWS dms, resource type AwsDmsEndpoint): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -839,6 +1280,13 @@
    "scope": "Prowler 5.47.0 check dms_endpoint_ssl_enabled (AWS dms, resource type AwsDmsEndpoint): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.dms_instance_minor_version_upgrade_enabled",
+   "title": "DMS replication instance has auto minor version upgrade enabled",
+   "scope": "Prowler 5.47.0 check dms_instance_minor_version_upgrade_enabled (AWS dms, resource type AwsDmsReplicationInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.dms_instance_multi_az_enabled",
@@ -879,6 +1327,13 @@
    "id": "prowler.aws.documentdb_cluster_cloudwatch_log_export",
    "title": "DocumentDB cluster exports audit and profiler logs to CloudWatch Logs",
    "scope": "Prowler 5.47.0 check documentdb_cluster_cloudwatch_log_export (AWS documentdb, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.documentdb_cluster_deletion_protection",
+   "title": "DocumentDB cluster has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check documentdb_cluster_deletion_protection (AWS documentdb, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -1079,9 +1534,30 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.ec2_elastic_ip_shodan",
+   "title": "EC2 Elastic IP address is not listed in Shodan",
+   "scope": "Prowler 5.47.0 check ec2_elastic_ip_shodan (AWS ec2, resource type AwsEc2Eip): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.ec2_elastic_ip_unassigned",
    "title": "Elastic IP is associated with an instance or network interface",
    "scope": "Prowler 5.47.0 check ec2_elastic_ip_unassigned (AWS ec2, resource type AwsEc2Eip): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_account_imdsv2_enabled",
+   "title": "IMDSv2 is required by default for EC2 instances at the account level",
+   "scope": "Prowler 5.47.0 check ec2_instance_account_imdsv2_enabled (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_detailed_monitoring_enabled",
+   "title": "EC2 instance has detailed monitoring enabled",
+   "scope": "Prowler 5.47.0 check ec2_instance_detailed_monitoring_enabled (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
   },
@@ -1114,6 +1590,132 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.ec2_instance_paravirtual_type",
+   "title": "EC2 instance virtualization type is HVM",
+   "scope": "Prowler 5.47.0 check ec2_instance_paravirtual_type (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_cassandra_exposed_to_internet",
+   "title": "EC2 instance does not have Cassandra ports (TCP 7000, 7001, 7199, 9042, 9160) open to the Internet",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_cassandra_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_cifs_exposed_to_internet",
+   "title": "EC2 instance does not allow Internet ingress to TCP ports 139 or 445 (CIFS)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_cifs_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_elasticsearch_kibana_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to Elasticsearch and Kibana ports (TCP 9200, 9300, 5601)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_elasticsearch_kibana_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_ftp_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 20 or 21 (FTP)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_ftp_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_kafka_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 9092 (Kafka)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_kafka_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_kerberos_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 88, 464, 749, or 750 (Kerberos)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_kerberos_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_ldap_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 389 or 636 (LDAP/LDAPS)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_ldap_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_memcached_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 11211 (Memcached)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_memcached_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_mongodb_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 27017 or 27018 (MongoDB)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_mongodb_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_mysql_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 3306 (MySQL)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_mysql_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_oracle_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 1521, 2483, or 2484 (Oracle)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_oracle_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_postgresql_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 5432 (PostgreSQL)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_postgresql_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_rdp_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 3389 (RDP)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_rdp_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_redis_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 6379 (Redis)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_redis_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_sqlserver_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP ports 1433 or 1434 (SQL Server)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_sqlserver_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_ssh_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 22 (SSH)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_ssh_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ec2_instance_port_telnet_exposed_to_internet",
+   "title": "EC2 instance does not allow ingress from the Internet to TCP port 23 (Telnet)",
+   "scope": "Prowler 5.47.0 check ec2_instance_port_telnet_exposed_to_internet (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
    "id": "prowler.aws.ec2_instance_profile_attached",
    "title": "EC2 instance is associated with an IAM instance profile role",
    "scope": "Prowler 5.47.0 check ec2_instance_profile_attached (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1135,6 +1737,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.ec2_instance_stopped_older_than_specific_days",
+   "title": "EC2 instance has not been stopped longer than the configured maximum days",
+   "scope": "Prowler 5.47.0 check ec2_instance_stopped_older_than_specific_days (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.ec2_instance_uses_single_eni",
    "title": "EC2 instance has no more than one Elastic Network Interface (ENI) attached",
    "scope": "Prowler 5.47.0 check ec2_instance_uses_single_eni (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1147,6 +1756,13 @@
    "scope": "Prowler 5.47.0 check ec2_instance_with_outdated_ami (AWS ec2, resource type AwsEc2Instance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ec2_launch_template_imdsv2_required",
+   "title": "EC2 launch template has IMDSv2 enabled and required or instance metadata service disabled",
+   "scope": "Prowler 5.47.0 check ec2_launch_template_imdsv2_required (AWS ec2, resource type AwsEc2LaunchTemplate): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.aws.ec2_launch_template_no_public_ip",
@@ -1182,6 +1798,13 @@
    "scope": "Prowler 5.47.0 check ec2_networkacl_allow_ingress_tcp_port_3389 (AWS ec2, resource type AwsEc2NetworkAcl): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ec2_networkacl_unused",
+   "title": "Non-default network ACL is associated with a subnet",
+   "scope": "Prowler 5.47.0 check ec2_networkacl_unused (AWS ec2, resource type AwsEc2NetworkAcl): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_all_ports",
@@ -1226,6 +1849,83 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_cassandra_7199_9160_8888",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Cassandra TCP ports 7199, 9160, or 8888",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_cassandra_7199_9160_8888 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_ftp_20_21",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to FTP ports 20 or 21",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_ftp_20_21 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_kafka_9092",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to TCP port 9092 (Kafka)",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_kafka_9092 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_memcached_11211",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Memcached TCP port 11211",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_memcached_11211 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mongodb_27017_27018",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to MongoDB TCP ports 27017 and 27018",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mongodb_27017_27018 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mysql_3306",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to MySQL port 3306",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_mysql_3306 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_oracle_1521_2483",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Oracle TCP ports 1521 or 2483",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_oracle_1521_2483 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_postgres_5432",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Postgres TCP port 5432",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_postgres_5432 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_redis_6379",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Redis TCP port 6379",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_redis_6379 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_sql_server_1433_1434",
+   "title": "Security group does not allow ingress from 0.0.0.0/0 or ::/0 to Microsoft SQL Server ports 1433 and 1434",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_sql_server_1433_1434 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23",
+   "title": "Security group does not allow ingress from the Internet to TCP port 23 (Telnet)",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_ingress_from_internet_to_tcp_port_telnet_23 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.ec2_securitygroup_allow_wide_open_public_ipv4",
    "title": "Security group has no ingress or egress rules with public IPv4 CIDR ranges from /1 to /23",
    "scope": "Prowler 5.47.0 check ec2_securitygroup_allow_wide_open_public_ipv4 (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1236,6 +1936,34 @@
    "id": "prowler.aws.ec2_securitygroup_default_restrict_traffic",
    "title": "VPC default security group has no inbound or outbound rules",
    "scope": "Prowler 5.47.0 check ec2_securitygroup_default_restrict_traffic (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_from_launch_wizard",
+   "title": "Security group not created using the EC2 Launch Wizard",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_from_launch_wizard (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_not_used",
+   "title": "Non-default EC2 security group is in use",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_not_used (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.ec2_securitygroup_with_many_ingress_egress_rules",
+   "title": "Security group has 50 or fewer inbound rules and 50 or fewer outbound rules",
+   "scope": "Prowler 5.47.0 check ec2_securitygroup_with_many_ingress_egress_rules (AWS ec2, resource type AwsEc2SecurityGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ec2_transitgateway_auto_accept_vpc_attachments",
+   "title": "Amazon EC2 Transit Gateway does not automatically accept shared VPC attachments",
+   "scope": "Prowler 5.47.0 check ec2_transitgateway_auto_accept_vpc_attachments (AWS ec2, resource type AwsEc2TransitGateway): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -1254,11 +1982,25 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.ecr_repositories_lifecycle_policy_enabled",
+   "title": "ECR repository has a lifecycle policy configured",
+   "scope": "Prowler 5.47.0 check ecr_repositories_lifecycle_policy_enabled (AWS ecr, resource type AwsEcrRepository): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.ecr_repositories_not_publicly_accessible",
    "title": "ECR repository is not publicly accessible",
    "scope": "Prowler 5.47.0 check ecr_repositories_not_publicly_accessible (AWS ecr, resource type AwsEcrRepository): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.ecr_repositories_scan_images_on_push_enabled",
+   "title": "[DEPRECATED] ECR repository has image scanning on push enabled",
+   "scope": "Prowler 5.47.0 check ecr_repositories_scan_images_on_push_enabled (AWS ecr, resource type AwsEcrRepository): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.ecr_repositories_scan_vulnerabilities_in_latest_image",
@@ -1322,6 +2064,13 @@
    "scope": "Prowler 5.47.0 check ecs_task_definitions_host_networking_mode_users (AWS ecs, resource type AwsEcsTaskDefinition): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.ecs_task_definitions_logging_block_mode",
+   "title": "ECS task definition has container logging in non-blocking mode",
+   "scope": "Prowler 5.47.0 check ecs_task_definitions_logging_block_mode (AWS ecs, resource type AwsEcsTaskDefinition): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.ecs_task_definitions_logging_enabled",
@@ -1401,6 +2150,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.eks_cluster_deletion_protection_enabled",
+   "title": "EKS cluster has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check eks_cluster_deletion_protection_enabled (AWS eks, resource type AwsEksCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.eks_cluster_kms_cmk_encryption_in_secrets_enabled",
    "title": "EKS cluster has Kubernetes secrets encryption enabled",
    "scope": "Prowler 5.47.0 check eks_cluster_kms_cmk_encryption_in_secrets_enabled (AWS eks, resource type AwsEksCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1457,6 +2213,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.elasticache_redis_cluster_auto_minor_version_upgrades",
+   "title": "ElastiCache Redis cache cluster has automatic minor version upgrades enabled",
+   "scope": "Prowler 5.47.0 check elasticache_redis_cluster_auto_minor_version_upgrades (AWS elasticache, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.elasticache_redis_cluster_automatic_failover_enabled",
    "title": "ElastiCache Redis cluster has automatic failover enabled",
    "scope": "Prowler 5.47.0 check elasticache_redis_cluster_automatic_failover_enabled (AWS elasticache, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1506,6 +2269,20 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.elasticbeanstalk_environment_enhanced_health_reporting",
+   "title": "Elastic Beanstalk environment has enhanced health reporting enabled",
+   "scope": "Prowler 5.47.0 check elasticbeanstalk_environment_enhanced_health_reporting (AWS elasticbeanstalk, resource type AwsElasticBeanstalkEnvironment): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.elasticbeanstalk_environment_managed_updates_enabled",
+   "title": "Elastic Beanstalk environment has managed platform updates enabled",
+   "scope": "Prowler 5.47.0 check elasticbeanstalk_environment_managed_updates_enabled (AWS elasticbeanstalk, resource type AwsElasticBeanstalkEnvironment): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.elasticbeanstalk_environment_no_secrets_in_configuration",
    "title": "Elastic Beanstalk environment configuration has no hardcoded secrets",
    "scope": "Prowler 5.47.0 check elasticbeanstalk_environment_no_secrets_in_configuration (AWS elasticbeanstalk, resource type AwsElasticBeanstalkEnvironment): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1518,6 +2295,13 @@
    "scope": "Prowler 5.47.0 check elasticbeanstalk_environment_php_platform_updated (AWS elasticbeanstalk, resource type AwsElasticBeanstalkEnvironment): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.elb_connection_draining_enabled",
+   "title": "Classic Load Balancer has connection draining enabled",
+   "scope": "Prowler 5.47.0 check elb_connection_draining_enabled (AWS elb, resource type AwsElbLoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.elb_cross_zone_load_balancing_enabled",
@@ -1569,6 +2353,20 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.elb_ssl_listeners_use_acm_certificate",
+   "title": "Classic Load Balancer HTTPS/SSL listeners use ACM-issued certificates",
+   "scope": "Prowler 5.47.0 check elb_ssl_listeners_use_acm_certificate (AWS elb, resource type AwsElbLoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.elbv2_alb_drop_invalid_header_fields_enabled",
+   "title": "Application Load Balancer should be configured to drop invalid HTTP header fields",
+   "scope": "Prowler 5.47.0 check elbv2_alb_drop_invalid_header_fields_enabled (AWS elbv2, resource type AwsElbv2LoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.elbv2_cross_zone_load_balancing_enabled",
    "title": "ELBv2 Network or Gateway Load Balancer has cross-zone load balancing enabled",
    "scope": "Prowler 5.47.0 check elbv2_cross_zone_load_balancing_enabled (AWS elbv2, resource type AwsElbv2LoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1611,11 +2409,25 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.elbv2_listener_fips_tls_enabled",
+   "title": "ELBv2 HTTPS/TLS listeners use a FIPS TLS security policy",
+   "scope": "Prowler 5.47.0 check elbv2_listener_fips_tls_enabled (AWS elbv2, resource type AwsElbv2LoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.elbv2_listener_pqc_tls_enabled",
    "title": "ELBv2 HTTPS/TLS listeners use a post-quantum TLS security policy",
    "scope": "Prowler 5.47.0 check elbv2_listener_pqc_tls_enabled (AWS elbv2, resource type AwsElbv2LoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
+  },
+  {
+   "id": "prowler.aws.elbv2_listeners_underneath",
+   "title": "ELBv2 load balancer has at least one listener",
+   "scope": "Prowler 5.47.0 check elbv2_listeners_underneath (AWS elbv2, resource type AwsElbv2LoadBalancer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.elbv2_logging_enabled",
@@ -1688,6 +2500,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.eventbridge_schema_registry_cross_account_access",
+   "title": "AWS EventBridge schema registry does not allow cross-account access",
+   "scope": "Prowler 5.47.0 check eventbridge_schema_registry_cross_account_access (AWS eventbridge, resource type AwsEventSchemasRegistry): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.firehose_stream_encrypted_at_rest",
    "title": "Kinesis Data Firehose delivery stream is encrypted at rest",
    "scope": "Prowler 5.47.0 check firehose_stream_encrypted_at_rest (AWS firehose, resource type AwsKinesisStream): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1700,6 +2519,20 @@
    "scope": "Prowler 5.47.0 check fms_policy_compliant (AWS fms, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.fsx_file_system_copy_tags_to_backups_enabled",
+   "title": "FSx file system has copy tags to backups enabled",
+   "scope": "Prowler 5.47.0 check fsx_file_system_copy_tags_to_backups_enabled (AWS fsx, resource type AwsFSxFileSystem): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.fsx_file_system_copy_tags_to_volumes_enabled",
+   "title": "FSx file system has copy tags to volumes enabled",
+   "scope": "Prowler 5.47.0 check fsx_file_system_copy_tags_to_volumes_enabled (AWS fsx, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.fsx_windows_file_system_multi_az_enabled",
@@ -1719,6 +2552,13 @@
    "id": "prowler.aws.glue_catalog_connection_no_secrets",
    "title": "Glue Data Catalog connection has no secrets in connection properties",
    "scope": "Prowler 5.47.0 check glue_catalog_connection_no_secrets (AWS glue, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.glue_data_catalogs_connection_passwords_encryption_enabled",
+   "title": "Glue data catalog connection password is encrypted with a KMS key",
+   "scope": "Prowler 5.47.0 check glue_data_catalogs_connection_passwords_encryption_enabled (AWS glue, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -1744,6 +2584,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.glue_development_endpoints_cloudwatch_logs_encryption_enabled",
+   "title": "Glue development endpoint has CloudWatch Logs encryption enabled",
+   "scope": "Prowler 5.47.0 check glue_development_endpoints_cloudwatch_logs_encryption_enabled (AWS glue, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.glue_development_endpoints_job_bookmark_encryption_enabled",
    "title": "Glue development endpoint has Job Bookmark encryption enabled",
    "scope": "Prowler 5.47.0 check glue_development_endpoints_job_bookmark_encryption_enabled (AWS glue, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1763,6 +2610,13 @@
    "scope": "Prowler 5.47.0 check glue_etl_jobs_amazon_s3_encryption_enabled (AWS glue, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.glue_etl_jobs_cloudwatch_logs_encryption_enabled",
+   "title": "Glue ETL job has CloudWatch Logs encryption enabled",
+   "scope": "Prowler 5.47.0 check glue_etl_jobs_cloudwatch_logs_encryption_enabled (AWS glue, resource type AwsGlueJob): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.glue_etl_jobs_job_bookmark_encryption_enabled",
@@ -1793,9 +2647,58 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.guardduty_ai_protection_enabled",
+   "title": "GuardDuty detector has AI Protection enabled",
+   "scope": "Prowler 5.47.0 check guardduty_ai_protection_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_centrally_managed",
+   "title": "GuardDuty detector is managed by an administrator account or is the administrator with member accounts",
+   "scope": "Prowler 5.47.0 check guardduty_centrally_managed (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.guardduty_delegated_admin_enabled_all_regions",
+   "title": "GuardDuty has delegated admin configured and is enabled in all regions with organization auto-enable",
+   "scope": "Prowler 5.47.0 check guardduty_delegated_admin_enabled_all_regions (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_ec2_malware_protection_enabled",
+   "title": "GuardDuty detector has Malware Protection for EC2 enabled",
+   "scope": "Prowler 5.47.0 check guardduty_ec2_malware_protection_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_eks_audit_log_enabled",
+   "title": "GuardDuty detector has EKS Audit Log Monitoring enabled",
+   "scope": "Prowler 5.47.0 check guardduty_eks_audit_log_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_eks_runtime_monitoring_enabled",
+   "title": "GuardDuty detector has EKS Runtime Monitoring enabled",
+   "scope": "Prowler 5.47.0 check guardduty_eks_runtime_monitoring_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.guardduty_is_enabled",
    "title": "GuardDuty detector is enabled and not suspended",
    "scope": "Prowler 5.47.0 check guardduty_is_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_lambda_protection_enabled",
+   "title": "GuardDuty detector has Lambda Protection enabled",
+   "scope": "Prowler 5.47.0 check guardduty_lambda_protection_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -1807,11 +2710,53 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.guardduty_rds_protection_enabled",
+   "title": "GuardDuty detector has RDS Protection enabled",
+   "scope": "Prowler 5.47.0 check guardduty_rds_protection_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_runtime_monitoring_enabled",
+   "title": "GuardDuty detector has Runtime Monitoring enabled",
+   "scope": "Prowler 5.47.0 check guardduty_runtime_monitoring_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.guardduty_s3_protection_enabled",
+   "title": "GuardDuty detector has S3 Protection enabled",
+   "scope": "Prowler 5.47.0 check guardduty_s3_protection_enabled (AWS guardduty, resource type AwsGuardDutyDetector): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.iam_administrator_access_with_mfa",
+   "title": "IAM group members granted AdministratorAccess have MFA enabled",
+   "scope": "Prowler 5.47.0 check iam_administrator_access_with_mfa (AWS iam, resource type AwsIamGroup): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.iam_avoid_root_usage",
+   "title": "AWS account root user has not been used in the last day",
+   "scope": "Prowler 5.47.0 check iam_avoid_root_usage (AWS iam, resource type AwsIamUser): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.iam_aws_attached_policy_no_administrative_privileges",
    "title": "Attached AWS-managed IAM policy does not allow '*:*' administrative privileges",
    "scope": "Prowler 5.47.0 check iam_aws_attached_policy_no_administrative_privileges (AWS iam, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.iam_check_saml_providers_sts",
+   "title": "IAM SAML provider exists in the account",
+   "scope": "Prowler 5.47.0 check iam_check_saml_providers_sts (AWS iam, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.iam_customer_attached_policy_no_administrative_privileges",
@@ -1856,6 +2801,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.iam_inline_policy_no_full_access_to_kms",
+   "title": "Inline IAM policy does not allow kms:* privileges",
+   "scope": "Prowler 5.47.0 check iam_inline_policy_no_full_access_to_kms (AWS iam, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.iam_inline_policy_no_wildcard_marketplace_subscribe",
    "title": "Inline IAM policy does not allow 'aws-marketplace:Subscribe' on all resources",
    "scope": "Prowler 5.47.0 check iam_inline_policy_no_wildcard_marketplace_subscribe (AWS iam, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -1882,6 +2834,13 @@
    "scope": "Prowler 5.47.0 check iam_no_root_access_key (AWS iam, resource type AwsIamAccessKey): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.iam_password_policy_expires_passwords_within_90_days_or_less",
+   "title": "IAM account password policy enforces password expiration within 90 days or less",
+   "scope": "Prowler 5.47.0 check iam_password_policy_expires_passwords_within_90_days_or_less (AWS iam, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.iam_password_policy_lowercase",
@@ -1996,6 +2955,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.iam_role_cross_account_readonlyaccess_policy",
+   "title": "IAM role does not grant ReadOnlyAccess to external AWS accounts",
+   "scope": "Prowler 5.47.0 check iam_role_cross_account_readonlyaccess_policy (AWS iam, resource type AwsIamRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.iam_role_cross_service_confused_deputy_prevention",
    "title": "IAM service role prevents cross-service confused deputy attack",
    "scope": "Prowler 5.47.0 check iam_role_cross_service_confused_deputy_prevention (AWS iam, resource type AwsIamRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2036,6 +3002,20 @@
    "scope": "Prowler 5.47.0 check iam_rotate_access_key_90_days (AWS iam, resource type AwsIamUser): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.iam_securityaudit_role_created",
+   "title": "At least one IAM role has the SecurityAudit AWS managed policy attached",
+   "scope": "Prowler 5.47.0 check iam_securityaudit_role_created (AWS iam, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.iam_support_role_created",
+   "title": "At least one IAM role has the AWSSupportAccess managed policy attached",
+   "scope": "Prowler 5.47.0 check iam_support_role_created (AWS iam, resource type AwsIamRole): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.iam_user_access_not_stale_to_bedrock",
@@ -2115,6 +3095,41 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.inspector2_active_findings_kev_within_due_date",
+   "title": "Inspector2 has no active findings for CISA Known Exploited Vulnerabilities past their remediation due date",
+   "scope": "Prowler 5.47.0 check inspector2_active_findings_kev_within_due_date (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.inspector2_active_findings_no_known_exploited_vulnerabilities",
+   "title": "Inspector2 has no active findings for CISA Known Exploited Vulnerabilities",
+   "scope": "Prowler 5.47.0 check inspector2_active_findings_no_known_exploited_vulnerabilities (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.inspector2_active_findings_within_max_age",
+   "title": "Inspector2 has no active findings older than the configured maximum age",
+   "scope": "Prowler 5.47.0 check inspector2_active_findings_within_max_age (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.inspector2_coverage_recently_scanned",
+   "title": "Inspector2 covered resource was scanned within the configured number of days",
+   "scope": "Prowler 5.47.0 check inspector2_coverage_recently_scanned (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.inspector2_coverage_scan_status_active",
+   "title": "Inspector2 covered resource is actively scanned",
+   "scope": "Prowler 5.47.0 check inspector2_coverage_scan_status_active (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.inspector2_is_enabled",
    "title": "Inspector2 is enabled for Amazon EC2 instances, ECR container images, Lambda functions, and Lambda code",
    "scope": "Prowler 5.47.0 check inspector2_is_enabled (AWS inspector2, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2125,6 +3140,13 @@
    "id": "prowler.aws.kafka_cluster_encryption_at_rest_uses_cmk",
    "title": "Kafka cluster has encryption at rest enabled with a customer managed key (CMK) or is serverless",
    "scope": "Prowler 5.47.0 check kafka_cluster_encryption_at_rest_uses_cmk (AWS kafka, resource type AwsMskCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.kafka_cluster_enhanced_monitoring_enabled",
+   "title": "Amazon MSK cluster has enhanced monitoring enabled",
+   "scope": "Prowler 5.47.0 check kafka_cluster_enhanced_monitoring_enabled (AWS kafka, resource type AwsMskCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -2171,11 +3193,39 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.kinesis_stream_data_retention_period",
+   "title": "Kinesis stream retains data for at least the required minimum hours",
+   "scope": "Prowler 5.47.0 check kinesis_stream_data_retention_period (AWS kinesis, resource type AwsKinesisStream): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.kinesis_stream_encrypted_at_rest",
    "title": "Kinesis stream is encrypted at rest with KMS",
    "scope": "Prowler 5.47.0 check kinesis_stream_encrypted_at_rest (AWS kinesis, resource type AwsKinesisStream): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.kms_cmk_are_used",
+   "title": "KMS customer managed key is enabled or scheduled for deletion",
+   "scope": "Prowler 5.47.0 check kms_cmk_are_used (AWS kms, resource type AwsKmsKey): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.kms_cmk_not_deleted_unintentionally",
+   "title": "AWS KMS customer managed key is not scheduled for deletion",
+   "scope": "Prowler 5.47.0 check kms_cmk_not_deleted_unintentionally (AWS kms, resource type AwsKmsKey): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.kms_cmk_not_multi_region",
+   "title": "AWS KMS customer managed key is single-Region",
+   "scope": "Prowler 5.47.0 check kms_cmk_not_multi_region (AWS kms, resource type AwsKmsKey): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.kms_cmk_rotation_enabled",
@@ -2248,6 +3298,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.lightsail_instance_php_blueprint_updated",
+   "title": "Lightsail instance created from a PHP blueprint runs a fixed PHP release",
+   "scope": "Prowler 5.47.0 check lightsail_instance_php_blueprint_updated (AWS lightsail, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.lightsail_instance_public",
    "title": "Lightsail instance has no publicly accessible ports",
    "scope": "Prowler 5.47.0 check lightsail_instance_public (AWS lightsail, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2262,6 +3319,27 @@
    "severity": "low"
   },
   {
+   "id": "prowler.aws.macie_automated_sensitive_data_discovery_enabled",
+   "title": "Macie automated sensitive data discovery is enabled",
+   "scope": "Prowler 5.47.0 check macie_automated_sensitive_data_discovery_enabled (AWS macie, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.macie_is_enabled",
+   "title": "Amazon Macie is enabled",
+   "scope": "Prowler 5.47.0 check macie_is_enabled (AWS macie, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.memorydb_cluster_auto_minor_version_upgrades",
+   "title": "MemoryDB cluster has automatic minor version upgrades enabled",
+   "scope": "Prowler 5.47.0 check memorydb_cluster_auto_minor_version_upgrades (AWS memorydb, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.memorydb_cluster_in_transit_encryption_enabled",
    "title": "MemoryDB cluster has in-transit encryption enabled",
    "scope": "Prowler 5.47.0 check memorydb_cluster_in_transit_encryption_enabled (AWS memorydb, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2272,6 +3350,13 @@
    "id": "prowler.aws.mq_broker_active_deployment_mode",
    "title": "Apache ActiveMQ broker is configured in active/standby Multi-AZ deployment mode",
    "scope": "Prowler 5.47.0 check mq_broker_active_deployment_mode (AWS mq, resource type AwsAmazonMQBroker): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.mq_broker_auto_minor_version_upgrades",
+   "title": "Amazon MQ broker has automated minor version upgrades enabled",
+   "scope": "Prowler 5.47.0 check mq_broker_auto_minor_version_upgrades (AWS mq, resource type AwsAmazonMQBroker): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
   },
@@ -2300,6 +3385,20 @@
    "id": "prowler.aws.neptune_cluster_backup_enabled",
    "title": "Neptune cluster has automated backups enabled with retention period equal to or greater than the configured minimum",
    "scope": "Prowler 5.47.0 check neptune_cluster_backup_enabled (AWS neptune, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.neptune_cluster_copy_tags_to_snapshots",
+   "title": "Neptune DB cluster is configured to copy tags to snapshots.",
+   "scope": "Prowler 5.47.0 check neptune_cluster_copy_tags_to_snapshots (AWS neptune, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.neptune_cluster_deletion_protection",
+   "title": "Neptune cluster has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check neptune_cluster_deletion_protection (AWS neptune, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -2349,6 +3448,13 @@
    "id": "prowler.aws.neptune_cluster_uses_public_subnet",
    "title": "Neptune cluster is not using public subnets",
    "scope": "Prowler 5.47.0 check neptune_cluster_uses_public_subnet (AWS neptune, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.networkfirewall_deletion_protection",
+   "title": "Network Firewall has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check networkfirewall_deletion_protection (AWS networkfirewall, resource type AwsNetworkFirewallFirewall): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -2444,6 +3550,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.opensearch_service_domains_internal_user_database_enabled",
+   "title": "Amazon OpenSearch Service domain has internal user database disabled",
+   "scope": "Prowler 5.47.0 check opensearch_service_domains_internal_user_database_enabled (AWS opensearch, resource type AwsOpenSearchServiceDomain): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.opensearch_service_domains_node_to_node_encryption_enabled",
    "title": "Amazon OpenSearch Service domain has node-to-node encryption enabled",
    "scope": "Prowler 5.47.0 check opensearch_service_domains_node_to_node_encryption_enabled (AWS opensearch, resource type AwsOpenSearchServiceDomain): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2465,11 +3578,32 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.opensearch_service_domains_use_cognito_authentication_for_kibana",
+   "title": "Amazon OpenSearch Service domain has either Amazon Cognito or SAML authentication enabled for Kibana",
+   "scope": "Prowler 5.47.0 check opensearch_service_domains_use_cognito_authentication_for_kibana (AWS opensearch, resource type AwsOpenSearchServiceDomain): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.organizations_account_part_of_organizations",
+   "title": "AWS account is a member of an active AWS Organization",
+   "scope": "Prowler 5.47.0 check organizations_account_part_of_organizations (AWS organizations, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.organizations_delegated_administrators",
    "title": "AWS Organization has only trusted delegated administrators",
    "scope": "Prowler 5.47.0 check organizations_delegated_administrators (AWS organizations, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.organizations_opt_out_ai_services_policy",
+   "title": "AWS Organization has opted out of all AI services and child accounts cannot override the policy",
+   "scope": "Prowler 5.47.0 check organizations_opt_out_ai_services_policy (AWS organizations, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.organizations_scp_check_deny_regions",
@@ -2479,11 +3613,46 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.organizations_tags_policies_enabled_and_attached",
+   "title": "AWS Organization has tag policies enabled and attached",
+   "scope": "Prowler 5.47.0 check organizations_tags_policies_enabled_and_attached (AWS organizations, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.rds_cluster_backtrack_enabled",
    "title": "RDS Aurora MySQL cluster has Backtrack enabled",
    "scope": "Prowler 5.47.0 check rds_cluster_backtrack_enabled (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "low"
+  },
+  {
+   "id": "prowler.aws.rds_cluster_copy_tags_to_snapshots",
+   "title": "RDS DB cluster has copy tags to snapshots enabled",
+   "scope": "Prowler 5.47.0 check rds_cluster_copy_tags_to_snapshots (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.rds_cluster_critical_event_subscription",
+   "title": "RDS cluster event subscription is enabled for maintenance and failure categories",
+   "scope": "Prowler 5.47.0 check rds_cluster_critical_event_subscription (AWS rds, resource type AwsRdsEventSubscription): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_cluster_default_admin",
+   "title": "RDS cluster master username is not admin or postgres",
+   "scope": "Prowler 5.47.0 check rds_cluster_default_admin (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_cluster_deletion_protection",
+   "title": "RDS cluster has deletion protection enabled",
+   "scope": "Prowler 5.47.0 check rds_cluster_deletion_protection (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.rds_cluster_iam_authentication_enabled",
@@ -2500,11 +3669,25 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.rds_cluster_minor_version_upgrade_enabled",
+   "title": "RDS cluster has automatic minor version upgrades enabled",
+   "scope": "Prowler 5.47.0 check rds_cluster_minor_version_upgrade_enabled (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.rds_cluster_multi_az",
    "title": "RDS cluster has Multi-AZ enabled",
    "scope": "Prowler 5.47.0 check rds_cluster_multi_az (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_cluster_non_default_port",
+   "title": "RDS cluster uses a non-default port for its database engine",
+   "scope": "Prowler 5.47.0 check rds_cluster_non_default_port (AWS rds, resource type AwsRdsDbCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.rds_cluster_protected_by_backup_plan",
@@ -2535,6 +3718,27 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.rds_instance_copy_tags_to_snapshots",
+   "title": "RDS DB instance has copy tags to snapshots enabled",
+   "scope": "Prowler 5.47.0 check rds_instance_copy_tags_to_snapshots (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.rds_instance_critical_event_subscription",
+   "title": "RDS instance event subscription is enabled for maintenance, configuration change, and failure categories",
+   "scope": "Prowler 5.47.0 check rds_instance_critical_event_subscription (AWS rds, resource type AwsRdsEventSubscription): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_instance_default_admin",
+   "title": "RDS instance does not use the default master username (admin or postgres)",
+   "scope": "Prowler 5.47.0 check rds_instance_default_admin (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.rds_instance_deletion_protection",
    "title": "RDS instance has deletion protection enabled",
    "scope": "Prowler 5.47.0 check rds_instance_deletion_protection (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2556,6 +3760,27 @@
    "severity": "low"
   },
   {
+   "id": "prowler.aws.rds_instance_event_subscription_parameter_groups",
+   "title": "RDS DB parameter group event subscription is enabled and subscribes to configuration change events or all categories",
+   "scope": "Prowler 5.47.0 check rds_instance_event_subscription_parameter_groups (AWS rds, resource type AwsRdsEventSubscription): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.rds_instance_event_subscription_security_groups",
+   "title": "RDS event subscription for DB security groups is enabled for configuration change and failure events",
+   "scope": "Prowler 5.47.0 check rds_instance_event_subscription_security_groups (AWS rds, resource type AwsRdsEventSubscription): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_instance_extended_support",
+   "title": "RDS instance is not enrolled in RDS Extended Support",
+   "scope": "Prowler 5.47.0 check rds_instance_extended_support (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.rds_instance_iam_authentication_enabled",
    "title": "RDS instance has IAM database authentication enabled",
    "scope": "Prowler 5.47.0 check rds_instance_iam_authentication_enabled (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2563,9 +3788,23 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.rds_instance_inside_vpc",
+   "title": "RDS instance is deployed in a VPC",
+   "scope": "Prowler 5.47.0 check rds_instance_inside_vpc (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.rds_instance_integration_cloudwatch_logs",
    "title": "RDS instance exports logs to CloudWatch Logs",
    "scope": "Prowler 5.47.0 check rds_instance_integration_cloudwatch_logs (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.rds_instance_minor_version_upgrade_enabled",
+   "title": "RDS instance has minor version upgrade enabled",
+   "scope": "Prowler 5.47.0 check rds_instance_minor_version_upgrade_enabled (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -2582,6 +3821,13 @@
    "scope": "Prowler 5.47.0 check rds_instance_no_public_access (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "critical"
+  },
+  {
+   "id": "prowler.aws.rds_instance_non_default_port",
+   "title": "RDS instance uses a non-default port for its engine",
+   "scope": "Prowler 5.47.0 check rds_instance_non_default_port (AWS rds, resource type AwsRdsDbInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.rds_instance_protected_by_backup_plan",
@@ -2647,6 +3893,13 @@
    "severity": "critical"
   },
   {
+   "id": "prowler.aws.redshift_cluster_enhanced_vpc_routing",
+   "title": "Redshift cluster has Enhanced VPC Routing enabled",
+   "scope": "Prowler 5.47.0 check redshift_cluster_enhanced_vpc_routing (AWS redshift, resource type AwsRedshiftCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.redshift_cluster_in_transit_encryption_enabled",
    "title": "Redshift cluster is encrypted in transit",
    "scope": "Prowler 5.47.0 check redshift_cluster_in_transit_encryption_enabled (AWS redshift, resource type AwsRedshiftCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2657,6 +3910,20 @@
    "id": "prowler.aws.redshift_cluster_multi_az_enabled",
    "title": "Redshift cluster has Multi-AZ enabled",
    "scope": "Prowler 5.47.0 check redshift_cluster_multi_az_enabled (AWS redshift, resource type AwsRedshiftCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.redshift_cluster_non_default_database_name",
+   "title": "Redshift cluster does not use the default database name dev",
+   "scope": "Prowler 5.47.0 check redshift_cluster_non_default_database_name (AWS redshift, resource type AwsRedshiftCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.redshift_cluster_non_default_username",
+   "title": "Amazon Redshift cluster does not use the default admin username",
+   "scope": "Prowler 5.47.0 check redshift_cluster_non_default_username (AWS redshift, resource type AwsRedshiftCluster): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
   },
@@ -2682,9 +3949,30 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.rolesanywhere_trust_anchor_pqc_pki",
+   "title": "IAM Roles Anywhere trust anchors are backed by a post-quantum (ML-DSA) PKI",
+   "scope": "Prowler 5.47.0 check rolesanywhere_trust_anchor_pqc_pki (AWS rolesanywhere, resource type AwsRolesAnywhereTrustAnchor): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.route53_dangling_ip_subdomain_takeover",
    "title": "Route53 record does not point to a dangling AWS resource",
    "scope": "Prowler 5.47.0 check route53_dangling_ip_subdomain_takeover (AWS route53, resource type AwsRoute53HostedZone): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.route53_domains_privacy_protection_enabled",
+   "title": "Route 53 domain has admin contact privacy protection enabled",
+   "scope": "Prowler 5.47.0 check route53_domains_privacy_protection_enabled (AWS route53, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.route53_domains_transferlock_enabled",
+   "title": "Route 53 domain has Transfer Lock enabled",
+   "scope": "Prowler 5.47.0 check route53_domains_transferlock_enabled (AWS route53, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -2738,6 +4026,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.s3_bucket_event_notifications_enabled",
+   "title": "S3 bucket has event notifications enabled",
+   "scope": "Prowler 5.47.0 check s3_bucket_event_notifications_enabled (AWS s3, resource type AwsS3Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.s3_bucket_kms_encryption",
    "title": "S3 bucket has server-side encryption with AWS KMS",
    "scope": "Prowler 5.47.0 check s3_bucket_kms_encryption (AWS s3, resource type AwsS3Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2750,6 +4045,13 @@
    "scope": "Prowler 5.47.0 check s3_bucket_level_public_access_block (AWS s3, resource type AwsS3Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.s3_bucket_lifecycle_enabled",
+   "title": "S3 bucket has a lifecycle configuration enabled",
+   "scope": "Prowler 5.47.0 check s3_bucket_lifecycle_enabled (AWS s3, resource type AwsS3Bucket): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
   },
   {
    "id": "prowler.aws.s3_bucket_no_mfa_delete",
@@ -2836,6 +4138,20 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.sagemaker_clarify_exists",
+   "title": "Amazon SageMaker Clarify processing jobs exist in the region",
+   "scope": "Prowler 5.47.0 check sagemaker_clarify_exists (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.sagemaker_domain_sso_configured",
+   "title": "SageMaker domains use SSO authentication instead of IAM mode",
+   "scope": "Prowler 5.47.0 check sagemaker_domain_sso_configured (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.sagemaker_endpoint_config_kms_encryption_enabled",
    "title": "SageMaker endpoint configuration is encrypted with a KMS key",
    "scope": "Prowler 5.47.0 check sagemaker_endpoint_config_kms_encryption_enabled (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -2850,11 +4166,32 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.sagemaker_models_monitor_enabled",
+   "title": "Amazon SageMaker has a monitoring schedule scheduled",
+   "scope": "Prowler 5.47.0 check sagemaker_models_monitor_enabled (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.sagemaker_models_network_isolation_enabled",
    "title": "Amazon SageMaker model has network isolation enabled",
    "scope": "Prowler 5.47.0 check sagemaker_models_network_isolation_enabled (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.sagemaker_models_registry_in_use",
+   "title": "Amazon SageMaker Model Registry should have at least one approved model package",
+   "scope": "Prowler 5.47.0 check sagemaker_models_registry_in_use (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.sagemaker_models_vpc_settings_configured",
+   "title": "Amazon SageMaker model has VPC settings enabled",
+   "scope": "Prowler 5.47.0 check sagemaker_models_vpc_settings_configured (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.sagemaker_notebook_instance_encryption_enabled",
@@ -2876,6 +4213,13 @@
    "scope": "Prowler 5.47.0 check sagemaker_notebook_instance_root_access_disabled (AWS sagemaker, resource type AwsSageMakerNotebookInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.sagemaker_notebook_instance_vpc_settings_configured",
+   "title": "Amazon SageMaker notebook instance has VPC settings configured",
+   "scope": "Prowler 5.47.0 check sagemaker_notebook_instance_vpc_settings_configured (AWS sagemaker, resource type AwsSageMakerNotebookInstance): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.aws.sagemaker_notebook_instance_without_direct_internet_access_configured",
@@ -2902,6 +4246,13 @@
    "id": "prowler.aws.sagemaker_training_jobs_volume_and_output_encryption_enabled",
    "title": "Amazon SageMaker training job volume has KMS encryption enabled",
    "scope": "Prowler 5.47.0 check sagemaker_training_jobs_volume_and_output_encryption_enabled (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.sagemaker_training_jobs_vpc_settings_configured",
+   "title": "Amazon SageMaker training job has VPC configuration enabled",
+   "scope": "Prowler 5.47.0 check sagemaker_training_jobs_vpc_settings_configured (AWS sagemaker, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -2941,9 +4292,23 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.securityhub_delegated_admin_enabled_all_regions",
+   "title": "Security Hub has delegated admin configured and is enabled in all regions with organization auto-enable",
+   "scope": "Prowler 5.47.0 check securityhub_delegated_admin_enabled_all_regions (AWS securityhub, resource type AwsSecurityHubHub): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
    "id": "prowler.aws.securityhub_enabled",
    "title": "Security Hub is enabled with standards or integrations configured",
    "scope": "Prowler 5.47.0 check securityhub_enabled (AWS securityhub, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.servicecatalog_portfolio_shared_within_organization_only",
+   "title": "Service Catalog portfolio is shared only within the AWS Organization",
+   "scope": "Prowler 5.47.0 check servicecatalog_portfolio_shared_within_organization_only (AWS servicecatalog, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   },
@@ -2953,6 +4318,13 @@
    "scope": "Prowler 5.47.0 check ses_identity_dkim_enabled (AWS ses, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "medium"
+  },
+  {
+   "id": "prowler.aws.ses_identity_not_publicly_accessible",
+   "title": "SES identity resource policy does not allow public access",
+   "scope": "Prowler 5.47.0 check ses_identity_not_publicly_accessible (AWS ses, resource type AwsIamPolicy): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
   },
   {
    "id": "prowler.aws.shield_advanced_protection_in_associated_elastic_ips",
@@ -3053,6 +4425,13 @@
    "severity": "high"
   },
   {
+   "id": "prowler.aws.ssmincidents_enabled_with_plans",
+   "title": "SSM Incidents replication set is ACTIVE and has at least one response plan",
+   "scope": "Prowler 5.47.0 check ssmincidents_enabled_with_plans (AWS ssmincidents, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.stepfunctions_statemachine_encrypted_with_cmk",
    "title": "Step Functions state machine is encrypted at rest with a customer-managed KMS key",
    "scope": "Prowler 5.47.0 check stepfunctions_statemachine_encrypted_with_cmk (AWS stepfunctions, resource type AwsStepFunctionStateMachine): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -3088,6 +4467,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.transfer_server_fips_security_policy_enabled",
+   "title": "AWS Transfer Family server uses a FIPS security policy",
+   "scope": "Prowler 5.47.0 check transfer_server_fips_security_policy_enabled (AWS transfer, resource type AwsTransferServer): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
    "id": "prowler.aws.transfer_server_in_transit_encryption_enabled",
    "title": "Transfer Family server has encryption in transit enabled",
    "scope": "Prowler 5.47.0 check transfer_server_in_transit_encryption_enabled (AWS transfer, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -3109,11 +4495,32 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.trustedadvisor_premium_support_plan_subscribed",
+   "title": "AWS account is subscribed to an AWS Premium Support plan",
+   "scope": "Prowler 5.47.0 check trustedadvisor_premium_support_plan_subscribed (AWS trustedadvisor, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "low"
+  },
+  {
+   "id": "prowler.aws.vpc_different_regions",
+   "title": "VPCs are present in more than one region",
+   "scope": "Prowler 5.47.0 check vpc_different_regions (AWS vpc, resource type AwsEc2Vpc): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.vpc_endpoint_connections_trust_boundaries",
    "title": "VPC endpoint policy allows access only from trusted AWS accounts",
    "scope": "Prowler 5.47.0 check vpc_endpoint_connections_trust_boundaries (AWS vpc, resource type AwsEc2VpcEndpointService): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
+  },
+  {
+   "id": "prowler.aws.vpc_endpoint_for_ec2_enabled",
+   "title": "VPC has an Amazon EC2 VPC endpoint",
+   "scope": "Prowler 5.47.0 check vpc_endpoint_for_ec2_enabled (AWS vpc, resource type AwsEc2VpcEndpointService): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
   },
   {
    "id": "prowler.aws.vpc_endpoint_multi_az_enabled",
@@ -3242,6 +4649,13 @@
    "severity": "medium"
   },
   {
+   "id": "prowler.aws.wafv2_webacl_rule_logging_enabled",
+   "title": "AWS WAFv2 Web ACL has Amazon CloudWatch metrics enabled for all rules and rule groups",
+   "scope": "Prowler 5.47.0 check wafv2_webacl_rule_logging_enabled (AWS wafv2, resource type AwsWafv2WebAcl): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "medium"
+  },
+  {
    "id": "prowler.aws.wafv2_webacl_with_rules",
    "title": "AWS WAFv2 Web ACL has at least one rule or rule group attached",
    "scope": "Prowler 5.47.0 check wafv2_webacl_with_rules (AWS wafv2, resource type AwsWafv2WebAcl): one result per resource Prowler evaluates; shows one setting, not the whole control.",
@@ -3259,6 +4673,13 @@
    "id": "prowler.aws.workspaces_volume_encryption_enabled",
    "title": "Amazon WorkSpaces workspace root and user volumes are encrypted",
    "scope": "Prowler 5.47.0 check workspaces_volume_encryption_enabled (AWS workspaces, resource type AwsEc2Volume): one result per resource Prowler evaluates; shows one setting, not the whole control.",
+   "evidenceType": "Configuration",
+   "severity": "high"
+  },
+  {
+   "id": "prowler.aws.workspaces_vpc_2private_1public_subnets_nat",
+   "title": "Workspace is in a private subnet and its VPC has at least 1 public subnet, 2 private subnets, and a NAT Gateway",
+   "scope": "Prowler 5.47.0 check workspaces_vpc_2private_1public_subnets_nat (AWS workspaces, resource type Other): one result per resource Prowler evaluates; shows one setting, not the whole control.",
    "evidenceType": "Configuration",
    "severity": "high"
   }

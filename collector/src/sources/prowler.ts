@@ -38,6 +38,7 @@ export const REFUSED_ARGS = [
 
 /** Environment variables whose values never leave the machine, even if Prowler echoes them in a detail. */
 const SECRET_ENVS = [
+  "GITHUB_TOKEN", "CLOUDFLARE_API_TOKEN_READONLY", "ENTRA_CLIENT_SECRET", "M365_CERTIFICATE_CONTENT",
   "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AZURE_CLIENT_SECRET", "GITHUB_PERSONAL_ACCESS_TOKEN", "GITHUB_OAUTH_APP_TOKEN",
   "GITHUB_APP_KEY", "OKTA_PRIVATE_KEY", "CLOUDFLARE_API_TOKEN", "CLOUDFLARE_API_KEY", "GOOGLEWORKSPACE_CREDENTIALS_CONTENT",
 ];
@@ -51,7 +52,13 @@ function catalogIds(dir: string = DEFAULT_CATALOG_DIR): string[] {
   }
 }
 
-const one = (v: OptionValue): string | undefined => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+const one = (v: OptionValue): string | undefined => {
+  const x = Array.isArray(v) ? v[0] : v;
+  return typeof x === "string" && x.trim() ? x.trim() : undefined;
+};
+/** --prowler-provider aws,azure or repeated, in order, without repeats. */
+const providersOf = (v: OptionValue): string[] =>
+  [...new Set((Array.isArray(v) ? v : typeof v === "string" ? [v] : []).flatMap((x) => String(x).split(",")).map((x) => x.trim()).filter(Boolean))];
 
 /** Splits --prowler-args like a shell would for plain words and '…' or "…" quoting (no expansion). */
 export function splitArgs(s: string): string[] {
@@ -64,11 +71,21 @@ export function splitArgs(s: string): string[] {
 
 /** The provider's authentication flag, chosen from what the environment holds. Everything else Prowler reads from env itself. */
 export function authArgs(provider: ProwlerProvider, env: NodeJS.ProcessEnv): string[] {
+  // The generated workflow names what the collector's own source reads, so Prowler reads the same scope
+  // (Prowler 5.47.0: aws --region, azure --subscription-ids, gcp --project-ids).
+  const scope = (name: string, flag: string) => { const v = (env[name] ?? "").split(/\s+/).filter(Boolean); return v.length ? [flag, ...v] : []; };
   switch (provider) {
-    case "azure":
+    case "aws": return scope("SAGENTIX_PROWLER_AWS_REGIONS", "--region");
+    case "gcp": return scope("SAGENTIX_PROWLER_GCP_PROJECTS", "--project-ids");
     case "m365":
+      // A certificate signs in every Microsoft 365 service, Exchange and Teams included; a secret covers Graph only.
+      // --init-modules installs the PowerShell modules those services need (an ephemeral runner has none).
+      if (env.M365_CERTIFICATE_CONTENT) return ["--certificate-auth", "--init-modules"];
+      return [...(env.AZURE_CLIENT_SECRET ? ["--sp-env-auth"] : ["--az-cli-auth"]), "--init-modules"];
+    case "azure":
       // A client secret in env: service principal; otherwise the session `azure/login` (OIDC) left for the az CLI.
-      return env.AZURE_CLIENT_SECRET ? ["--sp-env-auth"] : ["--az-cli-auth"];
+      return [...(env.AZURE_CLIENT_SECRET ? ["--sp-env-auth"] : ["--az-cli-auth"]),
+        ...(provider === "azure" ? scope("SAGENTIX_PROWLER_AZURE_SUBSCRIPTIONS", "--subscription-ids") : [])];
     case "kubernetes":
       return env.KUBECONFIG ? ["--kubeconfig-file", env.KUBECONFIG] : [];
     default:
@@ -76,6 +93,24 @@ export function authArgs(provider: ProwlerProvider, env: NodeJS.ProcessEnv): str
       // credentials (GOOGLE_APPLICATION_CREDENTIALS); github, okta, cloudflare, googleworkspace: their own env names.
       return [];
   }
+}
+
+/**
+ * Prowler reads its own variable names; the collector's native sources read theirs. So the same read-only credential
+ * the client already stored serves both ways (2026-11-01: each control collected at least two ways): the collector's
+ * name is copied to Prowler's when Prowler's is unset. Names from prowler/providers/<provider> in Prowler 5.47.0.
+ */
+export function prowlerEnv(provider: ProwlerProvider, env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const alias: Record<string, Record<string, string>> = {
+    github: { GITHUB_PERSONAL_ACCESS_TOKEN: "GITHUB_TOKEN" },
+    cloudflare: { CLOUDFLARE_API_TOKEN: "CLOUDFLARE_API_TOKEN_READONLY" },
+    googleworkspace: { GOOGLEWORKSPACE_CREDENTIALS_FILE: "GOOGLE_SA_KEY_FILE", GOOGLEWORKSPACE_DELEGATED_USER: "GOOGLE_ADMIN_EMAIL" },
+    m365: { AZURE_TENANT_ID: "ENTRA_TENANT_ID", AZURE_CLIENT_ID: "ENTRA_CLIENT_ID", AZURE_CLIENT_SECRET: "ENTRA_CLIENT_SECRET" },
+    okta: { OKTA_ORG_DOMAIN: "OKTA_DOMAIN" },
+  };
+  const out = { ...env };
+  for (const [theirs, ours] of Object.entries(alias[provider] ?? {})) if (!out[theirs] && env[ours]) out[theirs] = env[ours];
+  return out;
 }
 
 // ── OCSF → results ──────────────────────────────────────────────────────────────────────────────────
@@ -183,38 +218,53 @@ export async function runProwler(provider: ProwlerProvider, o: { bin: string; ex
 export const prowler: Source = {
   name: "prowler",
   options: {
-    "prowler-provider": { type: "string", help: `Prowler provider to run: ${PROWLER_PROVIDERS.join(", ")}` },
+    "prowler-provider": { type: "string", multiple: true, help: `Prowler providers to run, comma-separated: ${PROWLER_PROVIDERS.join(", ")} (one failing never stops the others)` },
     "prowler-bin": { type: "string", help: "the prowler executable (default prowler on PATH)" },
     "prowler-args": { type: "string", help: "extra Prowler options, written --prowler-args=\"--region us-east-1 ca-central-1\" (never output, send or fix options)" },
     "prowler-output": { type: "string", help: "read this json-ocsf file instead of running Prowler" },
   },
   emits: catalogIds(),
   describe(opts) {
-    const p = one(opts["prowler-provider"]) ?? "(no provider)";
+    const p = providersOf(opts["prowler-provider"]).join(", ") || "(no provider)";
     return one(opts["prowler-output"]) ? `Prowler ${p} findings from a json-ocsf file` : `Prowler ${PROWLER_VERSION} ${p} scan`;
   },
   async run(ctx) {
-    const provider = one(ctx.opts["prowler-provider"]) as ProwlerProvider | undefined;
-    if (!provider || !(PROWLER_PROVIDERS as readonly string[]).includes(provider)) {
-      throw new Error(`--prowler-provider is required: one of ${PROWLER_PROVIDERS.join(", ")}.`);
-    }
-    const known = new Set(catalogIds(one(ctx.opts.catalog) ?? DEFAULT_CATALOG_DIR));
-    if (![...known].some((id) => id.startsWith(`prowler.${provider}.`))) {
-      ctx.warn(`prowler: sos-app's catalogue lists no ${provider} check (Prowler maps none to a KSI or SP 800-53 control); every finding will be dropped.`);
+    const providers = providersOf(ctx.opts["prowler-provider"]);
+    const bad = providers.filter((p) => !(PROWLER_PROVIDERS as readonly string[]).includes(p));
+    if (!providers.length || bad.length) {
+      throw new Error(`--prowler-provider is required: one or more of ${PROWLER_PROVIDERS.join(", ")}${bad.length ? ` (not: ${bad.join(", ")})` : ""}.`);
     }
     const file = one(ctx.opts["prowler-output"]);
-    let text: string;
-    if (file) {
-      try { text = readFileSync(file, "utf8"); } catch (e) { throw new Error(`cannot read --prowler-output ${file}: ${(e as NodeJS.ErrnoException).code ?? String(e)}`); }
-    } else {
-      const spawner = (ctx.clients.prowler as ProwlerSpawner | undefined) ?? spawnProwler;
-      const extra = one(ctx.opts["prowler-args"]) ? splitArgs(one(ctx.opts["prowler-args"])!) : [];
-      text = await runProwler(provider, { bin: one(ctx.opts["prowler-bin"]) ?? "prowler", extra, env: ctx.env, spawner });
+    if (file && providers.length > 1) throw new Error("--prowler-output reads one provider's file; name one --prowler-provider with it.");
+    const known = new Set(catalogIds(one(ctx.opts.catalog) ?? DEFAULT_CATALOG_DIR));
+    const results: Result[] = [];
+    const failures: Error[] = [];
+    for (const provider of providers as ProwlerProvider[]) {
+      if (![...known].some((id) => id.startsWith(`prowler.${provider}.`))) {
+        ctx.warn(`prowler: sos-app's catalogue lists no ${provider} check; every finding will be dropped.`);
+      }
+      let text: string;
+      try {
+        if (file) {
+          try { text = readFileSync(file, "utf8"); } catch (e) { throw new Error(`cannot read --prowler-output ${file}: ${(e as NodeJS.ErrnoException).code ?? String(e)}`); }
+        } else {
+          const spawner = (ctx.clients.prowler as ProwlerSpawner | undefined) ?? spawnProwler;
+          const extra = one(ctx.opts["prowler-args"]) ? splitArgs(one(ctx.opts["prowler-args"])!) : [];
+          text = await runProwler(provider, { bin: one(ctx.opts["prowler-bin"]) ?? "prowler", extra, env: prowlerEnv(provider, ctx.env), spawner });
+        }
+      } catch (e) {
+        // A second way that fails leaves the control to its other ways: say so and go on with the next provider.
+        failures.push(e as Error);
+        if (providers.length > 1) ctx.warn(`prowler: ${provider} did not run (${(e as Error).message}); its controls keep their other ways.`);
+        continue;
+      }
+      const { results: r, summary } = parseOcsf(text, provider, known);
+      results.push(...r);
+      ctx.warn(`prowler: ${summary.findings} findings; ${summary.kept} results (${summary.merged} merged into the same check and resource, ` +
+        `${summary.muted} muted and ${summary.manual} manual sent as skipped); ${summary.dropped} findings dropped from ${summary.droppedChecks.length} checks not in the catalogue` +
+        (summary.droppedChecks.length ? `: ${summary.droppedChecks.slice(0, 20).join(", ")}${summary.droppedChecks.length > 20 ? ", …" : ""}` : ""));
     }
-    const { results, summary } = parseOcsf(text, provider, known);
-    ctx.warn(`prowler: ${summary.findings} findings; ${summary.kept} results (${summary.merged} merged into the same check and resource, ` +
-      `${summary.muted} muted and ${summary.manual} manual sent as skipped); ${summary.dropped} findings dropped from ${summary.droppedChecks.length} checks not in the catalogue` +
-      (summary.droppedChecks.length ? `: ${summary.droppedChecks.slice(0, 20).join(", ")}${summary.droppedChecks.length > 20 ? ", …" : ""}` : ""));
+    if (failures.length === providers.length) throw failures[0];
     return scrub(results, SECRET_ENVS.map((n) => ctx.env[n]));
   },
 };
