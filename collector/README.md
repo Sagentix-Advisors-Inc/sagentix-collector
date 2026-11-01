@@ -143,6 +143,27 @@ Top-level keys are `endpoint` (required), `keyId`, `keyFile`, `out`, `dryRun` an
 
 The file holds no secret. The private key comes from the `keyFile` path or from `SAGENTIX_COLLECTOR_KEY`, and each source reads its credentials from the environment as before; a value that looks like a PEM block or a well-known token prefix (`ghp_`, `github_pat_`, `AKIA`, `xoxb-` …) is refused. Paths are relative to the directory the command runs in. Options given on the command line override the file's, and `--source` on the command line adds to the file's sources.
 
+### Vault: connector secrets set from sos-app (0.3.3)
+
+Since 0.3.3 an owner or admin sets each connector's secrets and settings on sos-app's Connect screen (Your collectors,
+Connectors). A secret is encrypted in their browser for this collector only (X25519, HKDF-SHA256, AES-256-GCM): sos-app
+keeps and relays bytes it cannot open, and the collector opens them into `sagentix-collector.vault` beside the config
+(mode 0600, each value sealed on its own). Each run reads the vault into its environment; a variable already set wins.
+The collector takes a value only for a name its config's `credentials` lists, and a secret only while its connector's
+settings are the ones it was entered with. Design: `apps/sos-app/docs/COLLECTOR_VAULT.md` in the Sagentix repository.
+
+The vault's key is kept in the strongest place the computer has: a systemd credential, a Docker secret, the macOS
+Keychain, Windows DPAPI, or else `sagentix-collector.vault.key` (mode 0600). With a plain key file, seal it:
+
+- **systemd** (Linux, the collector run as a system service; the generated agent unit is a user unit, so this means
+  installing it under `/etc/systemd/system` instead): `sudo systemd-creds encrypt --name=sagentix-vault-key sagentix-collector.vault.key /etc/credstore.encrypted/sagentix-vault-key`,
+  add `LoadCredentialEncrypted=sagentix-vault-key` to the collector's unit, restart it, then delete `sagentix-collector.vault.key`.
+- **Docker**: create a Docker secret named `sagentix-vault-key` from the key file and give it to the container
+  (`/run/secrets/sagentix-vault-key`), then delete `sagentix-collector.vault.key`.
+
+Values written earlier to `sagentix-collector.env` by the setup scripts keep working; the Connect screen offers to move
+them into the vault, after which the collector removes those lines.
+
 ### The older v1 push
 
 `--fedramp-target <id> [--class A|B|C|D]` sends the v1 format (`sagentix-fedramp-collect/1`) to `/api/fedramp/collect` instead. It carries the original 11 checks grouped into five KSIs with a Security Decision Record, validated locally against FedRAMP's schema. New installs should use the default v2 push; v1 stays for targets already wired to it.

@@ -2,7 +2,8 @@
 // collector is (version, commit, runner), the signed POST every message uses, and the check-in that may name a
 // signed update. Every connection goes out; nothing here listens, and nothing the server answers can make the
 // collector run a command or change a configuration. The most it can do is have `sagentix-collector.ref` (or
-// `.image`) written beside the config, which the generated script reads on its next start.
+// `.image`) written beside the config, which the generated script reads on its next start, and deliver values to
+// the vault for the names the config already lists (src/deliveries.ts: a secret only sealed for this collector).
 
 import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, writeFileSync } from "node:fs";
@@ -13,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { signBody } from "./keys.ts";
 import { COLLECTOR_VERSION } from "./payload.ts";
 import { RELEASE_PUBLIC_KEYS } from "./release_keys.ts";
+import { ack, type Bridge, type VaultSummary } from "./deliveries.ts";
 
 export const CHECKIN_PATH = "/api/collect/checkin";
 export const REPORT_PATH = "/api/collect/report";
@@ -155,12 +157,15 @@ export interface CheckinOutcome {
  * from an sos-app older than this collector or a malformed answer is a warning. `write: false` (a dry run) reads the
  * answer and writes nothing.
  */
-export async function checkin(c: Channel, o: { write: boolean; keys?: readonly string[]; log: (s: string) => void }): Promise<CheckinOutcome> {
+export async function checkin(c: Channel, o: { write: boolean; keys?: readonly string[]; log: (s: string) => void; vault?: Bridge }): Promise<CheckinOutcome> {
   const warnings: string[] = [];
   const warn = (s: string) => { warnings.push(s); o.log(`warning: check-in: ${s}`); };
+  // The vault's names, kinds, dates and sealing key (section 8): never a value.
+  let vault: VaultSummary | undefined;
+  try { vault = o.vault?.summary(); } catch (e) { warn(`the vault summary failed: ${String((e as Error)?.message ?? e)}`); }
   const body = new TextEncoder().encode(JSON.stringify({
     format: "sagentix-checkin/1", issuedAt: c.now().toISOString(), collector: collectorInfo(c.env),
-    runner: c.runner, mode: c.mode, os: osInfo(), node: process.version,
+    runner: c.runner, mode: c.mode, os: osInfo(), node: process.version, ...(vault ? { vault } : {}),
   }));
   let res: { status: number; text: string };
   try { res = await signedPost(c, CHECKIN_PATH, body); } catch (e) { warn(`POST ${CHECKIN_PATH} failed: ${String((e as Error)?.message ?? e)}; the run goes on`); return { action: "failed", warnings }; }
@@ -168,8 +173,15 @@ export async function checkin(c: Channel, o: { write: boolean; keys?: readonly s
     warn(`HTTP ${res.status}${res.status === 404 ? " (this sos-app does not take check-ins yet)" : ""}; the run goes on`);
     return { action: "failed", warnings };
   }
-  let a: { action?: unknown; target?: unknown; reason?: unknown };
+  let a: { action?: unknown; target?: unknown; reason?: unknown; deliveries?: unknown };
   try { a = JSON.parse(res.text); } catch { warn("the answer is not JSON"); return { action: "failed", warnings }; }
+  // Values sent to the vault from sos-app (section 8), whatever the update answer. A dry run applies nothing.
+  if (o.vault && o.write && Array.isArray(a.deliveries) && a.deliveries.length) {
+    try {
+      const results = await o.vault.apply(a.deliveries, { agent: c.mode === "agent" });
+      if (results.length) await ack(c, results, o.vault.summary(), o.log);
+    } catch (e) { warn(`the deliveries failed: ${String((e as Error)?.message ?? e)}`); }
+  }
   const reason = typeof a.reason === "string" ? a.reason.slice(0, 500) : "";
   switch (a.action) {
     case "none": return { action: "none", warnings };

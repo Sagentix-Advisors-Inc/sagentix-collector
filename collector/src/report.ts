@@ -205,7 +205,8 @@ export class RunRecorder {
 
 // ── Building, trimming, sending ───────────────────────────────────────────────────────────────────
 
-export function buildReport(rec: RunRecorder, o: { now: Date; exitCode: number; runner: Runner; mode: Mode; env: NodeJS.ProcessEnv }): RunReport {
+/** `secrets`: values to cut whatever their variable is called (the vault's secrets and files). */
+export function buildReport(rec: RunRecorder, o: { now: Date; exitCode: number; runner: Runner; mode: Mode; env: NodeJS.ProcessEnv; secrets?: readonly string[] }): RunReport {
   const report: RunReport = {
     format: REPORT_FORMAT,
     issuedAt: o.now.toISOString(),
@@ -222,7 +223,8 @@ export function buildReport(rec: RunRecorder, o: { now: Date; exitCode: number; 
     log: rec.log.slice(0, MAX_LOG_LINES).map((l) => l.slice(0, MAX_LINE)),
   };
   if (rec.log.length > MAX_LOG_LINES) report.log[MAX_LOG_LINES - 1] = `(log cut: ${rec.log.length} lines, the first ${MAX_LOG_LINES - 1} kept)`;
-  return trimReport(scrubDeep(report, envSecrets(o.env)));
+  const secrets = [...new Set([...envSecrets(o.env), ...(o.secrets ?? []).filter((v) => v.length >= 6)])].sort((a, b) => b.length - a.length);
+  return trimReport(scrubDeep(report, secrets));
 }
 
 const bytes = (r: RunReport) => Buffer.byteLength(JSON.stringify(r, null, 2));

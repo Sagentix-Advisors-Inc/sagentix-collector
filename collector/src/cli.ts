@@ -33,9 +33,13 @@ import { CLASSES, type FedClass } from "./v1/rules.ts";
 import { EXIT_UPDATE, checkin, detectRunner, modeOf, type Channel } from "./channel.ts";
 import { RunRecorder, buildReport, deliverReport } from "./report.ts";
 import { agent } from "./agent.ts";
+import { VAULT_FILE, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
+import { credentialsIn, settingsOf, vaultBridge } from "./deliveries.ts";
 
 export const COLLECT_PATH = "/api/collect";
 export const KEY_ENV = "SAGENTIX_COLLECTOR_KEY";
+/** Set by the agent on a connector test asked from sos-app (a dry run of one connector). */
+export const TEST_ENV = "SAGENTIX_CONNECTOR_TEST";
 /** `update` (75) is the agent's only: it wrote a signed update and exits so it is restarted on it. */
 export const EXIT = { ok: 0, error: 1, usage: 2, nothing: 3, refused: 4, update: EXIT_UPDATE } as const;
 
@@ -50,6 +54,8 @@ export interface Deps {
   clients: Clients;
   sources: readonly Source[];
   env: NodeJS.ProcessEnv;
+  /** Where the vault key is (src/vault.ts); default the strongest place this computer offers. Tests give their own. */
+  vaultKey?: (dir: string, keyId: string) => KeyHolder;
   now: () => Date;
   out: (s: string) => void;
   err: (s: string) => void;
@@ -203,16 +209,45 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   const channel: Channel | undefined = pem && keyId
     ? { origin: new URL(url).origin, keyId, pem, fetch: deps.channel ?? deps.fetch, dir, runner, mode, env: deps.env, now: deps.now }
     : undefined;
-  if (channel) rec.note("checkin", (await checkin(channel, { write: !dry, log: deps.err })).warnings);
+  // A connector test asked from sos-app runs that connector dry: no check-in, and no run report, so the last real run's
+  // report beside the config stays what sos-app shows.
+  const connectorTest = dry && deps.env[TEST_ENV] === "1";
+  if (connectorTest) { /* neither */ }
+  else if (channel) {
+    const vault = configPath && keyId ? vaultBridge({ configPath: resolve(configPath), keyId, now: deps.now, log: deps.err,
+      holder: deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner }) }) : undefined;
+    rec.note("checkin", (await checkin(channel, { write: !dry, log: deps.err, vault })).warnings);
+  }
   else deps.err("check-in skipped: a dry run without a key cannot sign one.");
+  // The connectors' secrets and settings, set in sos-app and sealed for this collector (src/vault.ts), when the run has a config and a key id.
+  // A vault that cannot be opened is a warning: the sources that need its values fail on their own, the run goes on.
+  let env = deps.env, cleanup = () => {}, vaultSecrets: string[] = [];
+  if (configPath && keyId) {
+    try {
+      const creds = credentialsIn(resolve(configPath));
+      const r = runEnv(dir, deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner }), deps.env,
+                       (name) => settingsOf(creds, name));
+      ({ env, cleanup } = r);
+      vaultSecrets = r.secrets;
+      if (r.used.length) deps.err(`vault: ${r.used.length} value(s) from ${VAULT_FILE}`);
+      for (const w of r.warnings) deps.err(`warning: vault: ${w}`);
+      if (r.warnings.length) rec.note("vault", r.warnings);
+    } catch (e) {
+      const w = `the vault could not be opened: ${String((e as Error)?.message ?? e)}`;
+      deps.err(w);
+      rec.note("vault", [w]);
+    }
+  }
   let code: number;
   try {
     code = await collect();
   } catch (e) {
     deps.err(`collector error: ${String((e as Error)?.message ?? e)}`);
     code = EXIT.error;
-  }
-  await deliverReport(buildReport(rec, { now: deps.now(), exitCode: code, runner, mode, env: deps.env }), { dry, channel, dir, log: deps.err });
+  } finally { cleanup(); }
+  // The report is scrubbed of every value in the run's environment, the vault's included.
+  if (connectorTest) return code;
+  await deliverReport(buildReport(rec, { now: deps.now(), exitCode: code, runner, mode, env, secrets: vaultSecrets }), { dry, channel, dir, log: deps.err });
   return code;
 
   async function collect(): Promise<number> {
@@ -222,7 +257,7 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     const raw: Result[] = [];
     const failed: string[] = [];
     for (const s of chosen) {
-      const { value, error, report } = await rec.source(s.name, () => s.run({ opts: values, env: deps.env, clients: deps.clients, now, warn: deps.err }));
+      const { value, error, report } = await rec.source(s.name, () => s.run({ opts: values, env, clients: deps.clients, now, warn: deps.err }));
       let got: Result[];
       if (error !== undefined || !Array.isArray(value)) {
         const message = error !== undefined ? String((error as Error)?.message ?? error) : "the source returned no list of results";

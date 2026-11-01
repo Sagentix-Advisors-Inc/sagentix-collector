@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { CONNECT_PATH, EXIT_UPDATE, MODE_ENV, checkin, collectorInfo, detectRunner, type Channel } from "./channel.ts";
 import { loadConfig } from "./config.ts";
+import { vaultBridge, type TestOutcome } from "./deliveries.ts";
+import { keyHolderFor } from "./vault.ts";
 import { signBody } from "./keys.ts";
 import type { Deps } from "./cli.ts";
 
@@ -135,6 +137,37 @@ export interface AgentIo {
   clearInterval(t: unknown): void;
 }
 
+export const TEST_TIMEOUT_MS = 5 * 60_000;
+
+/** A connector test asked from sos-app: this file's own cli.ts, `run --dry-run` of its sources, no check-in, no report. */
+export function testRun(configPath: string, env: NodeJS.ProcessEnv, sources: string[]): Promise<TestOutcome> {
+  return new Promise((done) => {
+    const child = spawn(process.execPath, [...process.execArgv, CLI_PATH, "run", "--config", configPath, "--dry-run", ...sources.flatMap((x) => ["--source", x])],
+                        { cwd: dirname(configPath), env: { ...env, SAGENTIX_CONNECTOR_TEST: "1" }, stdio: ["ignore", "pipe", "pipe"] });
+    let out = "", err = "", timedOut = false;
+    child.stdout.on("data", (d) => { if (out.length < 32 * 1024 * 1024) out += d; });
+    child.stderr.on("data", (d) => { if (err.length < 256 * 1024) err += d; });
+    const timer = setTimeout(() => { timedOut = true; child.kill("SIGTERM"); }, TEST_TIMEOUT_MS);
+    child.once("error", (e) => { clearTimeout(timer); done({ exit: null, passed: 0, failed: 0, skipped: 0, errors: [String(e.message)] }); });
+    child.once("exit", (code) => {
+      clearTimeout(timer);
+      done({ ...summaryOf(out), exit: code, errors: err.split(/\r?\n/).filter((l) => /^error in source |^collector error|vault/.test(l)), ...(timedOut ? { timedOut } : {}) });
+    });
+  });
+}
+
+/** The pass, fail and skipped counts a dry run prints (one push, or several). */
+export function summaryOf(stdout: string): { passed: number; failed: number; skipped: number } {
+  const z = { passed: 0, failed: 0, skipped: 0 };
+  try {
+    const j = JSON.parse(stdout) as { summary?: typeof z; pushes?: { summary?: typeof z }[] };
+    for (const sm of j.summary ? [j.summary] : (j.pushes ?? []).map((x) => x.summary)) {
+      z.passed += sm?.passed ?? 0; z.failed += sm?.failed ?? 0; z.skipped += sm?.skipped ?? 0;
+    }
+  } catch { /* nothing printed: the errors say why */ }
+  return z;
+}
+
 /** What a run started from sos-app executes (exported for the tests). */
 export function runCommand(configPath: string, exists: (p: string) => boolean, platform = process.platform): [string, string[]] {
   const dir = dirname(resolve(configPath));
@@ -193,9 +226,12 @@ export async function agent(argv: string[], deps: Deps, io: AgentIo = realAgentI
   // A signed update written by a check-in ends the agent with 75 once no run is going: Docker's wrapper loop restarts
   // the container on the new digest, a service manager restarts the script, which checks out the ref on start.
   let restartPending = false;
+  const dir = dirname(configPath);
+  const vault = vaultBridge({ configPath, keyId, now: deps.now, log, test: (sources) => testRun(configPath, deps.env, sources),
+                              holder: deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner: detectRunner(deps.env) }) });
   const doCheckin = async () => {
     try {
-      const out = await checkin(channel, { write: true, log });
+      const out = await checkin(channel, { write: true, log, vault });
       if (out.wrote && !restartPending) {
         restartPending = true;
         log(`agent: exiting with ${EXIT_UPDATE} to restart on the update${session.running ? ` once run ${session.running} ends` : ""}`);

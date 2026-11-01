@@ -31,6 +31,24 @@ export const CONFIG_SCHEMA = {
     out: { type: "string", minLength: 1, description: "Also write the signed payload to this file." },
     dryRun: { type: "boolean", description: "Print the payload and send nothing." },
     catalog: { type: "string", minLength: 1, description: "The check catalogue directory." },
+    credentials: {
+      type: "object",
+      description: "Per connector, the names of what it reads (sos-app writes them; sos-app sends a sealed value only for a name listed here). Names only, never a value.",
+      additionalProperties: {
+        type: "object",
+        additionalProperties: false,
+        required: ["sources"],
+        properties: {
+          sources: { type: "array", items: { type: "string" } },
+          secrets: { type: "array", items: { type: "string", pattern: "^[A-Z][A-Z0-9_]{0,99}$" } },
+          files: { type: "array", items: { type: "string", pattern: "^[A-Z][A-Z0-9_]{0,99}$" } },
+          settings: { type: "array", items: { type: "string", pattern: "^[A-Z][A-Z0-9_]{0,99}$" } },
+          optional: { type: "object", additionalProperties: { type: "string" } },
+          instead: { type: "object", additionalProperties: { type: "string" } },
+          signIn: { type: "boolean" },
+        },
+      },
+    },
     sources: {
       type: "object",
       minProperties: 1,
