@@ -1,0 +1,21 @@
+{
+ "source": "stripe",
+ "title": "Stripe (REST API, restricted key with Webhook Endpoints: Read)",
+ "readScopes": [
+  "A restricted API key (rk_live_...) whose only permission is Webhook Endpoints: Read (Dashboard > Developers > API keys > Create restricted key). A secret key (sk_...) is refused."
+ ],
+ "checks": [
+  {
+   "id": "stripe.webhooks_https",
+   "title": "Every enabled Stripe webhook endpoint receives events over HTTPS",
+   "scope": "The enabled webhook endpoints of the account (or sandbox) the restricted key belongs to; whether the receiver checks the Stripe-Signature header is not visible.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "stripe.webhook_events_scoped",
+   "title": "No enabled Stripe webhook endpoint subscribes to every event",
+   "scope": "enabled_events of each enabled endpoint; '*' (all events, per Stripe's API reference) fails. Which events an endpoint truly needs is not judged.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

@@ -15,13 +15,17 @@ import { prowler } from "./prowler.ts";
 import { ENGINE_SOURCES } from "./engines.ts";
 import { DEVICE_SOURCES } from "./device_sources.ts";
 import { web } from "./web.ts";
+import { vercel } from "./vercel.ts";
+import { stripe } from "./stripe.ts";
+import { resend } from "./resend.ts";
 
 export const SOURCES: readonly Source[] = [
   cloudflare,
   entra, okta, jumpcloud, googleWorkspace, github,
-  aws, azure, gcp, jira, lms,
+  aws, azure, gcp, vercel, jira, lms,
   prowler,
   ...ENGINE_SOURCES,
   ...DEVICE_SOURCES,
   web,
+  stripe, resend,
 ];

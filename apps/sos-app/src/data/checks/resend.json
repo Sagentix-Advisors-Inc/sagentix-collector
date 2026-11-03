@@ -1,0 +1,27 @@
+{
+ "source": "resend",
+ "title": "Resend (REST API, full_access key used for GET only)",
+ "readScopes": [
+  "A Resend API key with full_access (Resend has no read-only permission; a sending_access key cannot list domains or keys). The collector sends GET requests only, to https://api.resend.com."
+ ],
+ "checks": [
+  {
+   "id": "resend.sending_domains_authenticated",
+   "title": "Every Resend sending domain is verified, with its SPF and DKIM records verified",
+   "scope": "Domains whose sending capability is not disabled; the domain status and the status Resend reports for each SPF and DKIM record.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "resend.api_keys_rotated",
+   "title": "Every Resend API key was created within the allowed age (365 days by default)",
+   "scope": "Every API key of the team, by created_at; --resend-key-max-age-days sets the age.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "resend.api_keys_in_use",
+   "title": "Every Resend API key was used in the last 90 days",
+   "scope": "Every API key of the team, by last_used_at; a key never used fails. --resend-inactive-days sets the window.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}

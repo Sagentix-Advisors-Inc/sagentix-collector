@@ -394,6 +394,33 @@ node src/cli.ts run --source lms --training-csv lms-export.csv --roster-csv rost
 | --- | --- |
 | `security_awareness_current` | Everyone on the roster completed security awareness training within 12 months |
 | `role_based_training_current` | People in privileged roles completed role-based training within 12 months |
+
+### Stripe
+
+**Create:** in the Stripe Dashboard (live mode), Developers > API keys > **Create restricted key**, with every permission left at **None** except **Webhook Endpoints: Read**. A secret key (`sk_live_…`, `sk_test_…`) is refused before any request: it can do anything in the account and cannot be narrowed (docs.stripe.com/keys, read 2026-11-02).
+
+**Credentials:** `STRIPE_API_KEY` (`rk_live_…`; an `rk_test_…` sandbox key works and marks each resource "(sandbox)"). The collector calls one endpoint, `GET /v1/webhook_endpoints`, paging with `starting_after`, and sends endpoint ids and URL hosts only, never a path or a signing secret.
+
+Stripe's API does not show team members, their two-step authentication, the API key inventory, key access policies or Radar rules. Those stay manual evidence.
+
+| Check (`stripe.`…) | What passes |
+| --- | --- |
+| `webhooks_https` | Every enabled webhook endpoint receives events over HTTPS |
+| `webhook_events_scoped` | No enabled webhook endpoint subscribes to every event (`*`) |
+
+### Resend
+
+**Create:** in Resend, API Keys > **Create API key** with **Full access**. Resend has no read-only permission, and a **Sending access** key cannot list domains or keys (resend.com/docs/api-reference/api-keys/create-api-key, read 2026-11-02). The collector only sends `GET` to `https://api.resend.com`; give the key a name of its own, keep it in a secrets store, and expire it if the machine that holds it is lost.
+
+**Credentials:** `RESEND_API_KEY` (`re_…`). The collector calls `GET /domains`, `GET /domains/{id}` and `GET /api-keys`, with a User-Agent header as Resend requires, and sends domain names and key ids only: never a key's name or value, nor a DNS record's value.
+
+**Options:** `--resend-key-max-age-days` (default 365), `--resend-inactive-days` (default 90). A domain's TLS mode is not returned by `GET /domains/{id}`, so it is not judged; DMARC is a DNS record Resend does not manage (the `web` source's `--web-mail-domain` reads it).
+
+| Check (`resend.`…) | What passes |
+| --- | --- |
+| `sending_domains_authenticated` | Each sending domain is verified, with every SPF and DKIM record verified |
+| `api_keys_rotated` | Every API key was created within the allowed age |
+| `api_keys_in_use` | Every API key was used in the last 90 days; a key never used fails |
 | `training_records_complete` | Every person on the roster has a training record |
 
 ## Identity and code sources

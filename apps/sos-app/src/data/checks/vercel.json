@@ -1,0 +1,51 @@
+{
+ "source": "vercel",
+ "title": "Vercel (team-scoped access token; the collector sends GET only)",
+ "readScopes": [
+  "Team-scoped access token (Scope: the team, All Projects), created by a team member whose role can read team settings, members and project settings; Vercel tokens have no read-only setting"
+ ],
+ "checks": [
+  {
+   "id": "vercel.team_saml_enforced",
+   "title": "Team sign-in is enforced through SAML single sign-on",
+   "scope": "Members of the Vercel team; the factors the identity provider asks for are not visible here.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "vercel.team_owners_limited",
+   "title": "At most --vercel-max-owners members are team owners",
+   "scope": "Team-level roles; project-level roles are not counted.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "vercel.activity_log_available",
+   "title": "The team activity log is readable and not empty",
+   "scope": "Vercel's activity events for the team; retention and export are not judged.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "vercel.deployment_protection",
+   "title": "Deployment Protection covers preview deployments",
+   "scope": "Each project's Vercel Authentication or Password Protection scope; production custom domains may stay public by design.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "vercel.git_fork_protection",
+   "title": "Pull requests from forks need a team member's authorization before they deploy",
+   "scope": "Projects connected to a Git repository.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "vercel.no_plain_secret_envs",
+   "title": "No credential is stored as a plain environment variable",
+   "scope": "Variable names and types only; a credential with an innocent name is not found.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "vercel.firewall_enabled",
+   "title": "The Vercel Firewall is on for the project",
+   "scope": "Each project's firewall switch; the rules it runs are not judged.",
+   "evidenceType": "Configuration"
+  }
+ ]
+}
