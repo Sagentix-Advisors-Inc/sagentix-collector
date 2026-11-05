@@ -37,7 +37,7 @@
   {
    "id": "entra.security_defaults",
    "title": "Security defaults are on, or off because Conditional Access requires MFA for everyone",
-   "scope": "Tenant-wide baseline; per-application exceptions are not visible here.",
+   "scope": "Tenant-wide baseline: MFA for all users and admins, legacy authentication and device code flow blocked (learn.microsoft.com/entra/fundamentals/security-defaults, updated 2026-10-16, read 2026-11-03); per-application exceptions are not visible here.",
    "evidenceType": "Configuration"
   },
   {

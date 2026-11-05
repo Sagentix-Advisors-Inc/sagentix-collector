@@ -218,3 +218,37 @@ test("github: base permission and public repositories are judged from GET /orgs/
     assert.match(of(member, id)[0].detail, /shows the full organization to its owners only/);
   }
 });
+
+test("github: a repository of another owner is checked too, with that owner's token; no token reaches a result (2026-11-05)", async () => {
+  const seen: { url: string; auth: string }[] = [];
+  const fetchFn = (async (url: string, init: RequestInit) => {
+    const auth = (init.headers as Record<string, string>).authorization;
+    seen.push({ url, auth });
+    return new Response(JSON.stringify({ message: `not here ${auth}` }), { status: 404 });
+  }) as unknown as typeof fetch;
+  const env = { GITHUB_TOKEN: "github_pat_ORG_0123456789", GITHUB_TOKEN_STEPHANE_RABY1: "github_pat_USER_0123456789" };
+  const api = githubFromEnv(env, fetchFn);
+  assert.ok(typeof api !== "string");
+  const rs = await runWith(C, api, { env, opts: { "github-org": "acme", "github-also-repo": ["stephane-raby1/site"] } });
+  const user = seen.filter((s) => s.url.includes("/repos/stephane-raby1/"));
+  assert.ok(user.length > 0, "the other owner's repository is read");
+  for (const s of user) assert.equal(s.auth, "Bearer github_pat_USER_0123456789");
+  for (const s of seen.filter((x) => x.url.includes("/acme"))) assert.equal(s.auth, "Bearer github_pat_ORG_0123456789");
+  // A next-page link is a full URL; it keeps its owner's token.
+  await api.get(`${GITHUB_BASE}/repos/stephane-raby1/site/dependabot/alerts?page=2`);
+  assert.equal(seen.at(-1)!.auth, "Bearer github_pat_USER_0123456789");
+  assert.ok(of(rs, "github.codeowners").some((r) => r.resource.includes("stephane-raby1/site")));
+  const text = JSON.stringify(rs);
+  assert.ok(!text.includes("github_pat_ORG_0123456789") && !text.includes("github_pat_USER_0123456789"));
+});
+
+test("github: only api.github.com's own path picks a per-owner token; a look-alike host keeps the main one (CodeQL)", async () => {
+  const seen: string[] = [];
+  const fetchFn = (async (_u: string, init: RequestInit) => { seen.push((init.headers as Record<string, string>).authorization); return new Response("[]", { status: 200 }); }) as unknown as typeof fetch;
+  const api = githubFromEnv({ GITHUB_TOKEN: "github_pat_ORG_0123456789", GITHUB_TOKEN_BOB: "github_pat_BOB_0123456789" }, fetchFn);
+  assert.ok(typeof api !== "string");
+  await api.get("/repos/bob/x").catch(() => {});
+  await api.get("https://api.github.com.evil.example/repos/bob/x").catch(() => {});
+  assert.equal(seen[0], "Bearer github_pat_BOB_0123456789");
+  assert.ok(!seen.slice(1).includes("Bearer github_pat_BOB_0123456789"), "a look-alike host never gets the per-owner token");
+});

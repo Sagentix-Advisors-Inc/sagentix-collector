@@ -1,5 +1,6 @@
 // GitHub organization and its repositories over the REST API (GET only), with a fine-grained personal
-// access token or a GitHub App installation token in GITHUB_TOKEN.
+// access token or a GitHub App installation token in GITHUB_TOKEN. Repositories of another owner
+// (--github-also-repo) use GITHUB_TOKEN_<OWNER> when it is set (2026-11-05).
 //
 // Endpoint → fine-grained permission, read (docs.github.com/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens,
 // read 2026-10-20, no updated date shown; each endpoint below is listed there under the permission named):
@@ -36,6 +37,7 @@ import {
 } from "./readonly_http.ts";
 
 export const GITHUB_BASE = "https://api.github.com";
+const GITHUB_ORIGIN = new URL(GITHUB_BASE).origin;
 export const GITHUB_TOKEN_ENV = "GITHUB_TOKEN";
 export const DEFAULTS = { maxOwners: 3, maxOutsideCollaborators: 0, alertDays: 30, maxRepos: 200 };
 export const CODEOWNERS_PATHS = [".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS"];
@@ -54,13 +56,40 @@ type C = (typeof ORG_CHECKS)[number] | (typeof REPO_CHECKS)[number];
 const arrayBody = (b: unknown) => (Array.isArray(b) ? b : undefined);
 const list = (api: RestApi, path: string, maxPages = 50) => getAll(api, path, arrayBody, (r) => linkNext(r.headers), maxPages);
 
+/** The variable holding a token for one owner's repositories: GITHUB_TOKEN_<OWNER>, upper case, other characters "_".
+ *  A fine-grained token belongs to one owner (an organization or a user), so repositories of a second owner, named with
+ *  --github-also-repo, need a token of their own (Sagentix, 2026-11-05: the organization plus three personal repositories). */
+export const ownerTokenEnv = (owner: string) => `${GITHUB_TOKEN_ENV}_${owner.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+
+/** Every GitHub token in the environment, to scrub from results. */
+export const githubSecrets = (env: NodeJS.ProcessEnv) =>
+  Object.entries(env).filter(([k]) => k === GITHUB_TOKEN_ENV || k.startsWith(`${GITHUB_TOKEN_ENV}_`)).map(([, v]) => v);
+
 export function githubFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fetch): RestApi | string {
   const token = env[GITHUB_TOKEN_ENV];
   if (!token) return `${GITHUB_TOKEN_ENV} is not set`;
-  return fetchRest({ base: GITHUB_BASE, fetchFn, headers: async () => ({ authorization: `Bearer ${token}`, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28" }) });
+  const client = (t: string) => fetchRest({ base: GITHUB_BASE, fetchFn, headers: async () => ({ authorization: `Bearer ${t}`, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28" }) });
+  const main = client(token), byOwner = new Map<string, RestApi>();
+  // A request about /repos/{owner}/… or /orgs/{owner}/… goes out with that owner's token when one is set, else GITHUB_TOKEN.
+  return {
+    get(url: string) {
+      // A next-page link arrives as a full URL (Link header), a first call as a path. Parsed, never prefix-matched
+      // (CodeQL js/incomplete-url-substring-sanitization): only api.github.com's own path picks a per-owner token.
+      let path = url;
+      try {
+        const u = new URL(url, GITHUB_BASE);
+        path = u.origin === GITHUB_ORIGIN ? u.pathname : "";
+      } catch { path = ""; }
+      const owner = /^\/(?:repos|orgs|users)\/([^/?#]+)/.exec(path)?.[1];
+      const own = owner ? env[ownerTokenEnv(decodeURIComponent(owner))] : undefined;
+      if (!owner || !own) return main.get(url);
+      if (!byOwner.has(owner)) byOwner.set(owner, client(own));
+      return byOwner.get(owner)!.get(url);
+    },
+  };
 }
 
-export interface GithubOptions { org: string; repos: string[]; maxRepos: number; maxOwners: number; maxOutsideCollaborators: number; alertDays: number }
+export interface GithubOptions { org: string; repos: string[]; also?: string[]; maxRepos: number; maxOwners: number; maxOutsideCollaborators: number; alertDays: number }
 
 async function orgChecks(api: RestApi, o: GithubOptions, out: Emitter<C>): Promise<void> {
   const org = enc(o.org);
@@ -293,13 +322,15 @@ export async function githubChecks(api: RestApi, o: GithubOptions, now: Date, wa
     const r = await list(api, `/orgs/${enc(o.org)}/repos?type=all&per_page=100`, Math.ceil(o.maxRepos / 100) + 1);
     if ("error" in r) {
       for (const c of REPO_CHECKS) out.skip(c, r.error, "the organization's repositories", `repo ${o.org}/(list)`);
-      return out.results;
+      if (!o.also?.length) return out.results;
     }
-    const live = r.items.filter(isObj).filter((x) => x.archived !== true && x.disabled !== true).map((x) => String(x.full_name));
+    const live = "error" in r ? [] : r.items.filter(isObj).filter((x) => x.archived !== true && x.disabled !== true).map((x) => String(x.full_name));
     if (live.length > o.maxRepos) warn(`github: ${live.length} repositories; checking the first ${o.maxRepos} (--github-max-repos, or name them with --github-repo)`);
     repos = live.slice(0, o.maxRepos);
-    if (!repos.length) for (const c of REPO_CHECKS) out.add(c, "skipped", "the organization has no active repository the token can see", `repo ${o.org}/(none)`);
+    if (!repos.length && !("error" in r)) for (const c of REPO_CHECKS) out.add(c, "skipped", "the organization has no active repository the token can see", `repo ${o.org}/(none)`);
   }
+  // Repositories of another owner, checked in addition to the organization's (--github-also-repo owner/name).
+  for (const extra of o.also ?? []) if (extra.includes("/") && !repos.includes(extra)) repos.push(extra);
   for (const full of repos) await repoChecks(api, full, o, now, out);
   return out.results;
 }
@@ -311,6 +342,7 @@ export const github: Source = {
   options: {
     "github-org": { type: "string", help: "GitHub organization to check (required for this source)" },
     "github-repo": { type: "string", multiple: true, help: "repository name or owner/name; default: every active repository of the organization" },
+    "github-also-repo": { type: "string", multiple: true, help: "owner/name of a repository outside the organization, checked as well; its token comes from GITHUB_TOKEN_<OWNER> when set" },
     "github-max-repos": { type: "string", help: `repositories checked when none is named (default ${DEFAULTS.maxRepos})` },
     "github-max-owners": { type: "string", help: `organization owners allowed (default ${DEFAULTS.maxOwners})` },
     "github-max-outside-collaborators": { type: "string", help: `outside collaborators allowed (default ${DEFAULTS.maxOutsideCollaborators})` },
@@ -320,7 +352,8 @@ export const github: Source = {
   describe(opts) {
     const org = typeof opts["github-org"] === "string" ? opts["github-org"] : "(no --github-org)";
     const r = listOpt(opts["github-repo"]);
-    return `organization ${org} / ${r.length ? `repos ${r.join(",")}` : "every active repository"}`;
+    const also = listOpt(opts["github-also-repo"]);
+    return `organization ${org} / ${r.length ? `repos ${r.join(",")}` : "every active repository"}${also.length ? ` + ${also.join(",")}` : ""}`;
   },
   async run(ctx: SourceContext) {
     const org = typeof ctx.opts["github-org"] === "string" ? ctx.opts["github-org"] : "";
@@ -335,12 +368,12 @@ export const github: Source = {
     }
     const api = withRetry(built, (ctx.clients.sleep as Sleep | undefined) ?? realSleep);
     const o: GithubOptions = {
-      org, repos: listOpt(ctx.opts["github-repo"]),
+      org, repos: listOpt(ctx.opts["github-repo"]), also: listOpt(ctx.opts["github-also-repo"]),
       maxRepos: intOpt(ctx.opts["github-max-repos"], DEFAULTS.maxRepos),
       maxOwners: intOpt(ctx.opts["github-max-owners"], DEFAULTS.maxOwners),
       maxOutsideCollaborators: intOpt(ctx.opts["github-max-outside-collaborators"], DEFAULTS.maxOutsideCollaborators),
       alertDays: intOpt(ctx.opts["github-alert-days"], DEFAULTS.alertDays),
     };
-    return redact(await githubChecks(api, o, ctx.now, ctx.warn), [ctx.env[GITHUB_TOKEN_ENV]]);
+    return redact(await githubChecks(api, o, ctx.now, ctx.warn), githubSecrets(ctx.env));
   },
 };
