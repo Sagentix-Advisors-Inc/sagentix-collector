@@ -168,6 +168,28 @@ them into the vault, after which the collector removes those lines.
 
 `--fedramp-target <id> [--class A|B|C|D]` sends the v1 format (`sagentix-fedramp-collect/1`) to `/api/fedramp/collect` instead. It carries the original 11 checks grouped into five KSIs with a Security Decision Record, validated locally against FedRAMP's schema. New installs should use the default v2 push; v1 stays for targets already wired to it.
 
+## Policies from where you keep them (`collector policies`)
+
+Point the collector at the folder that holds your policies and it sends each one to sos-app, which matches it to its NIST SP 800-53 control family and files it as that family's draft policy, for an owner or admin to read and approve. Add a `policies` block to the config file:
+
+```json
+"policies": { "dir": "/path/to/policies", "keyId": "<documents key id>", "organization": "<organization id>", "keyFile": "documents.pem" }
+```
+
+then run `node src/cli.ts policies --config sagentix-collector.config.json` after `run` (the generated runner scripts do). `dir` may be a list. The collector reads the PDF, Word (`.docx`) and text (`.txt`, `.md`) files at the top of each folder; hidden files, Word lock files and sub-folders (an archive folder, say) are left out, and a policy kept in several formats under one name is sent once: the PDF, else the Word file, else the text. Nothing is moved or deleted.
+
+The key is a **documents** key, not the collector key: make it with `collector keygen --out documents.pem` and register it in sos-app with the purpose "documents". A documents key opens only the document door, and a collector key cannot open it, so a key kept in CI never files documents. `keyFile` may be left out when `SAGENTIX_DOCUMENTS_KEY` holds the PEM.
+
+sos-app decides the family from the file name or the document's title ("Access Control Policy" is AC; a few common titles such as "Business Continuity" are aliases), else from the control ids the text cites when one family clearly leads. Each file gets one line back:
+
+| Outcome | Meaning |
+| --- | --- |
+| `filed` | the family's next draft version, waiting for approval |
+| `duplicate` | the same bytes were filed before; nothing new |
+| `evidence` | matched only by its control citations: filed as policy evidence on the family's first control, never as the family's policy |
+| `unmatched` | no family could be told; name it in the title |
+| `taken` | the family already holds a policy from another file; a new version must keep that file name |
+
 ## Run on a schedule from GitHub Actions
 
 ```yaml

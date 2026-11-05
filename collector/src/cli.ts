@@ -10,6 +10,7 @@
 //   collector agent --config collector.config.json   stays connected (outbound WebSocket); runs when sos-app asks
 //   collector config-schema                  prints the JSON schema of the config file
 //   collector google-login --client <client JSON> [--token <file>]   one-time Google Workspace sign-in
+//   collector policies --config collector.config.json   pushes the policy folders for sos-app to match (src/policies.ts)
 //   collector run --endpoint <url> --key-id <id> [--key <pem> | env SAGENTIX_COLLECTOR_KEY]
 //                 --source cloudflare[,...] [source options] [--catalog <dir>] [--dry-run] [--out <file>]
 //                 [--fedramp-target <id> [--class A|B|C|D]]
@@ -18,7 +19,7 @@
 // 4 sos-app refused the push (its message is printed); `agent` only: 75 a signed update was written, restart me.
 
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { DEFAULT_CATALOG_DIR, loadCatalog } from "./catalog.ts";
@@ -36,6 +37,7 @@ import { agent } from "./agent.ts";
 import { VAULT_FILE, Vault, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
 import { applyRefs } from "./refs.ts";
 import { credentialsIn, settingsOf, vaultBridge } from "./deliveries.ts";
+import { DOCUMENTS_KEY_ENV, pushPolicies, type PoliciesConfig, type PolicyOutcome } from "./policies.ts";
 
 export const COLLECT_PATH = "/api/collect";
 export const KEY_ENV = "SAGENTIX_COLLECTOR_KEY";
@@ -359,6 +361,31 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   }
 }
 
+/** `collector policies --config <file>`: push each file of the config's policy folders for sos-app to match (src/policies.ts). */
+export async function policiesCommand(argv: string[], deps: Deps): Promise<number> {
+  let config: string | undefined;
+  try { ({ values: { config } } = parseArgs({ args: argv, options: { config: { type: "string" } }, strict: true }) as { values: { config?: string } }); }
+  catch (e) { deps.err((e as Error).message); return EXIT.usage; }
+  if (!config) { deps.err("usage: collector policies --config <collector.config.json>"); return EXIT.usage; }
+  const c = loadConfig(config, deps.sources);
+  if ("problems" in c) { deps.err(`${config} is not a valid collector config:\n  ${c.problems.join("\n  ")}`); return EXIT.usage; }
+  const doc = JSON.parse(readFileSync(config, "utf8").replace(/^\uFEFF/, "")) as { endpoint: string; policies?: PoliciesConfig };
+  const p = doc.policies;
+  if (!p) { deps.err(`${config} has no "policies" block (dir, keyId, organization): nothing to push.`); return EXIT.nothing; }
+  const base = dirname(config);
+  const dirs = (Array.isArray(p.dir) ? p.dir : [p.dir]).map((d) => (isAbsolute(d) ? d : join(base, d)));
+  const pem = p.keyFile ? readFileSync(isAbsolute(p.keyFile) ? p.keyFile : join(base, p.keyFile), "utf8") : deps.env[DOCUMENTS_KEY_ENV];
+  if (!pem) { deps.err(`No documents key: give policies.keyFile, or set ${DOCUMENTS_KEY_ENV}.`); return EXIT.usage; }
+  let out: PolicyOutcome[];
+  try { out = await pushPolicies({ endpoint: doc.endpoint, organization: p.organization, keyId: p.keyId, pem, dirs, fetch: deps.fetch, now: deps.now }); }
+  catch (e) { deps.err(`policies: ${(e as Error).message}`); return EXIT.error; }
+  for (const r of out) deps.out(`${r.outcome.padEnd(9)} ${r.file}: ${r.detail}`);
+  const count = (k: PolicyOutcome["outcome"]) => out.filter((r) => r.outcome === k).length;
+  deps.err(`policies: ${out.length} file(s); ${count("filed")} filed as drafts, ${count("duplicate")} unchanged, ${count("evidence")} as evidence, ${count("unmatched") + count("taken")} not matched, ${count("refused")} refused.`);
+  if (!out.length) return EXIT.nothing;
+  return count("refused") === out.length ? EXIT.refused : EXIT.ok;
+}
+
 export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<number> {
   const [cmd, ...rest] = argv;
   try {
@@ -367,6 +394,7 @@ export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<
     if (cmd === "agent") return await agent(rest, deps);
     if (cmd === "config-schema") { deps.out(JSON.stringify(CONFIG_SCHEMA, null, 2)); return EXIT.ok; }
     if (cmd === "google-login") return await googleLogin(rest, deps);
+    if (cmd === "policies") return await policiesCommand(rest, deps);
   } catch (e) {
     deps.err(String((e as Error).message ?? e));
     return EXIT.error;

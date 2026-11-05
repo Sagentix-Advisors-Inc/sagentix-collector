@@ -31,6 +31,18 @@ export const CONFIG_SCHEMA = {
     out: { type: "string", minLength: 1, description: "Also write the signed payload to this file." },
     dryRun: { type: "boolean", description: "Print the payload and send nothing." },
     catalog: { type: "string", minLength: 1, description: "The check catalogue directory." },
+    policies: {
+      type: "object",
+      additionalProperties: false,
+      required: ["dir", "keyId", "organization"],
+      description: "Where the organization keeps its policies; `collector policies` pushes each file there for sos-app to match to its control family (2026-11-05).",
+      properties: {
+        dir: { anyOf: [{ type: "string", minLength: 1 }, { type: "array", minItems: 1, items: { type: "string", minLength: 1 } }], description: "A folder (or several) of policy files: PDF, Word or text." },
+        keyId: { type: "string", minLength: 1, maxLength: 100, description: "The id of a 'documents' key registered in sos-app (not the collector key)." },
+        organization: { type: "string", minLength: 1, maxLength: 100, description: "The organization id the documents key belongs to (sos-app shows it with the key)." },
+        keyFile: { type: "string", minLength: 1, description: "Path to that key's Ed25519 private key (PEM). Omit to read SAGENTIX_DOCUMENTS_KEY." },
+      },
+    },
     credentials: {
       type: "object",
       description: "Per connector, the names of what it reads (sos-app writes them; sos-app sends a sealed value only for a name listed here). Names only, never a value.",
