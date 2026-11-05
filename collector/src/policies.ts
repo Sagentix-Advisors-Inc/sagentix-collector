@@ -10,7 +10,7 @@
 // Signed with a 'documents' key, never the collector key, so a collector key in CI never files documents. Files are only
 // read; sending the same bytes again files nothing (sos-app answers "duplicate"). Nothing is deleted or moved.
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { constants as fsConstants, copyFileSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
 import { signBody } from "./keys.ts";
 
@@ -86,4 +86,55 @@ export async function pushPolicies(o: { endpoint: string; organization: string; 
     else results.push({ file: f.name, status: res.status, outcome: "refused", detail: String(j.error ?? text).slice(0, 300) });
   }
   return results;
+}
+
+export const PULL_PATH = "/api/collect/policies/approved";
+export const APPROVED_DIR = "approved";
+export interface ApprovedPolicy { family: string; title: string; version: number; origin: string; filename: string | null; sha256: string; approvedAt: string; body?: string }
+
+/** The organization's approved policies, read with the documents key (sos-app src/routes/documents.ts pullApprovedPolicies). */
+export async function pullApproved(o: { endpoint: string; organization: string; keyId: string; pem: string; fetch: typeof fetch; now: () => Date }): Promise<ApprovedPolicy[]> {
+  const m = new TextEncoder().encode(JSON.stringify({ format: "sagentix-policies-pull/1", issuedAt: o.now().toISOString(), organization: o.organization }));
+  const res = await o.fetch(new URL(PULL_PATH, o.endpoint).toString(), { method: "POST", headers: { "x-sagentix-key-id": o.keyId,
+    "x-sagentix-signature": signBody(o.pem, m), "x-sagentix-document": b64url(m) } });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`sos-app answered HTTP ${res.status} for the approved policies: ${text.slice(0, 200)}`);
+  return (JSON.parse(text) as { policies: ApprovedPolicy[] }).policies;
+}
+
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/** Writes each approved version into <first folder>/approved/ (Stéphane, 2026-11-05: an approved policy must never be
+ *  overwritten by the next push, and the folder should hold the text in force). A version made in sos-app is written as
+ *  Markdown; an approved uploaded file is copied from the folder when the folder holds those exact bytes. Each name
+ *  carries its version (…v3.md), so nothing is ever overwritten; earlier approved copies stay as history. The push never
+ *  reads sub-folders, so these copies are never sent back. */
+export function writeApproved(dirs: string[], approved: ApprovedPolicy[]): { file: string; outcome: "written" | "present" | "missing"; detail: string }[] {
+  const out: { file: string; outcome: "written" | "present" | "missing"; detail: string }[] = [];
+  if (!dirs.length) return out;
+  const target = join(dirs[0], APPROVED_DIR);
+  const local = allPolicyFiles(dirs).map((f) => ({ ...f, sha: createHash("sha256").update(readFileSync(f.path)).digest("hex") }));
+  for (const p of approved) {
+    const fromFile = p.origin === "uploaded" ? local.find((f) => f.sha === p.sha256) : undefined;
+    const stem = fromFile ? basename(fromFile.name, extname(fromFile.name)) : p.filename ? basename(p.filename, extname(p.filename)) : `${p.family}-${slug(p.title)}`;
+    const name = `${stem}.v${p.version}${fromFile ? extname(fromFile.name).toLowerCase() : ".md"}`;
+    const dest = join(target, name);
+    // One exclusive create each (flag "wx", COPYFILE_EXCL), never a check then a write (CodeQL js/file-system-race):
+    // a file already there is the answer "present", and nothing is ever overwritten.
+    const present = (e: unknown) => (e as NodeJS.ErrnoException)?.code === "EEXIST";
+    if (p.body !== undefined) {
+      mkdirSync(target, { recursive: true });
+      try {
+        writeFileSync(dest, `<!-- ${p.title}, version ${p.version}, approved ${p.approvedAt} in Sagentix Comply. This is the text in force: edit a copy of it in the folder above. -->\n\n${p.body}`, { flag: "wx" });
+        out.push({ file: name, outcome: "written", detail: `${p.family.toUpperCase()} version ${p.version}, the text approved in sos-app` });
+      } catch (e) { if (!present(e)) throw e; out.push({ file: name, outcome: "present", detail: `${p.family.toUpperCase()} version ${p.version}, already here` }); }
+    } else if (fromFile) {
+      mkdirSync(target, { recursive: true });
+      try {
+        copyFileSync(fromFile.path, dest, fsConstants.COPYFILE_EXCL);
+        out.push({ file: name, outcome: "written", detail: `${p.family.toUpperCase()} version ${p.version}, your approved file` });
+      } catch (e) { if (!present(e)) throw e; out.push({ file: name, outcome: "present", detail: `${p.family.toUpperCase()} version ${p.version}, already here` }); }
+    } else out.push({ file: name, outcome: "missing", detail: `${p.family.toUpperCase()} version ${p.version} is an uploaded file this folder no longer holds (SHA-256 ${p.sha256.slice(0, 12)}…)` });
+  }
+  return out;
 }

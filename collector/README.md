@@ -180,6 +180,8 @@ then run `node src/cli.ts policies --config sagentix-collector.config.json` afte
 
 The key is a **documents** key, not the collector key: make it with `collector keygen --out documents.pem` and register it in sos-app with the purpose "documents". A documents key opens only the document door, and a collector key cannot open it, so a key kept in CI never files documents. `keyFile` may be left out when `SAGENTIX_DOCUMENTS_KEY` holds the PEM.
 
+After the push, the same command reads the organization's **approved** policies back and writes them into an `approved/` sub-folder of the first folder, one file per approved version (`approved/POL-06_access-control-policy.v3.md`). A version approved in sos-app (an editable copy, a NIST update) arrives as its text; an approved uploaded file is copied from the folder. Names carry the version, so nothing is overwritten, and the push never reads sub-folders, so these copies are never sent back. Edit from the newest copy in `approved/`: a folder file still built on an older text than the version approved in sos-app is filed as a draft and flagged on that draft, and the approved version stays in force until a person approves the new one. Sending an unchanged file again files nothing.
+
 sos-app decides the family from the file name or the document's title ("Access Control Policy" is AC; a few common titles such as "Business Continuity" are aliases), else from the control ids the text cites when one family clearly leads. Each file gets one line back:
 
 | Outcome | Meaning |

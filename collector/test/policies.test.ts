@@ -69,3 +69,21 @@ test("policies: the command reads the config's policies block and reports a coun
   writeFileSync(cfg, JSON.stringify({ endpoint: "https://comply.example", sources: { macos: {} } }));
   assert.equal(await policiesCommand(["--config", cfg], deps as never), 3);
 });
+
+test("policies: the approved versions come back into approved/, versioned, never overwriting, never pushed again (2026-11-05)", async () => {
+  const { writeApproved } = await import("../src/policies.ts");
+  const d = folder();
+  const approved = [
+    { family: "ac", title: "Access Control Policy", version: 3, origin: "tailored", filename: null, sha256: "x".repeat(64), approvedAt: "2026-11-05T15:00:00Z", body: "# Access Control Policy\n\nReviewed every quarter." },
+    { family: "ir", title: "Incident Response Policy", version: 1, origin: "uploaded", filename: "POL-06_access-control-policy.pdf",
+      sha256: (await import("node:crypto")).createHash("sha256").update("%PDF-1.4 Access Control Policy").digest("hex"), approvedAt: "2026-11-05T15:00:00Z" },
+    { family: "pe", title: "Physical and Environmental Protection Policy", version: 2, origin: "uploaded", filename: "gone.pdf", sha256: "0".repeat(64), approvedAt: "2026-11-05T15:00:00Z" },
+  ];
+  const first = writeApproved([d], approved);
+  assert.deepEqual(first.map((w) => [w.file, w.outcome]), [
+    ["ac-access-control-policy.v3.md", "written"], ["POL-06_access-control-policy.v1.pdf", "written"], ["gone.v2.md", "missing"]]);
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(join(d, "approved", "ac-access-control-policy.v3.md"), "utf8"), /version 3, approved .* in Sagentix Comply[\s\S]*Reviewed every quarter/);
+  assert.deepEqual(writeApproved([d], approved).map((w) => w.outcome), ["present", "present", "missing"], "a second run writes nothing");
+  assert.deepEqual(policyFiles([d]).map((f) => f.name), ["POL-04_code-of-conduct.md", "POL-06_access-control-policy.pdf"], "approved/ is never pushed");
+});

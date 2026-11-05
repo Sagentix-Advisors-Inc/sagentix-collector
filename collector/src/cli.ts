@@ -37,7 +37,7 @@ import { agent } from "./agent.ts";
 import { VAULT_FILE, Vault, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
 import { applyRefs } from "./refs.ts";
 import { credentialsIn, settingsOf, vaultBridge } from "./deliveries.ts";
-import { DOCUMENTS_KEY_ENV, pushPolicies, type PoliciesConfig, type PolicyOutcome } from "./policies.ts";
+import { APPROVED_DIR, DOCUMENTS_KEY_ENV, pullApproved, pushPolicies, writeApproved, type PoliciesConfig, type PolicyOutcome } from "./policies.ts";
 
 export const COLLECT_PATH = "/api/collect";
 export const KEY_ENV = "SAGENTIX_COLLECTOR_KEY";
@@ -380,6 +380,11 @@ export async function policiesCommand(argv: string[], deps: Deps): Promise<numbe
   try { out = await pushPolicies({ endpoint: doc.endpoint, organization: p.organization, keyId: p.keyId, pem, dirs, fetch: deps.fetch, now: deps.now }); }
   catch (e) { deps.err(`policies: ${(e as Error).message}`); return EXIT.error; }
   for (const r of out) deps.out(`${r.outcome.padEnd(9)} ${r.file}: ${r.detail}`);
+  // Then the approved versions back into <folder>/approved/, so the next edit starts from the text in force (2026-11-05).
+  try {
+    const approved = await pullApproved({ endpoint: doc.endpoint, organization: p.organization, keyId: p.keyId, pem, fetch: deps.fetch, now: deps.now });
+    for (const w of writeApproved(dirs, approved)) if (w.outcome !== "present") deps.out(`${(w.outcome === "written" ? "approved" : "missing").padEnd(9)} ${APPROVED_DIR}/${w.file}: ${w.detail}`);
+  } catch (e) { deps.err(`policies: the approved copies were not written: ${(e as Error).message}`); }
   const count = (k: PolicyOutcome["outcome"]) => out.filter((r) => r.outcome === k).length;
   deps.err(`policies: ${out.length} file(s); ${count("filed")} filed as drafts, ${count("duplicate")} unchanged, ${count("evidence")} as evidence, ${count("unmatched") + count("taken")} not matched, ${count("refused")} refused.`);
   if (!out.length) return EXIT.nothing;
