@@ -52,6 +52,23 @@
 //   caa                   a CAA record set at the domain or the nearest parent that has one (RFC 8659 §3 climbs the
 //                         tree toward the root). Recommended.
 //
+//   consent_banner        the declared page loads a known consent-management platform (web_privacy.ts CMPS: each vendor's
+//                         script host from its own installation guide, read 2026-11-07). A page loading no script from
+//                         another site is skipped (nothing for a banner to govern); one GET cannot see a banner a tag
+//                         manager loads later, so a miss says so. NIST SP 800-53 Rev. 5 PT-4 (consent).
+//   privacy_notice_*      the privacy notice at --web-privacy-url (written 2026-11-07 against NIST SP 800-53 Rev. 5 PT-5,
+//                         PIPEDA Schedule 1 Principles 4.5 and 4.8, and the Office of the Privacy Commissioner of Canada's
+//                         Guidelines for obtaining meaningful consent; web_privacy.ts lists the topics):
+//                         published  HTTP 200, HTML, and its title or first heading names privacy or personal information
+//                         dated      a "last updated" / "effective" / "dernière mise à jour" date, not in the future and
+//                                    at most --web-privacy-max-age-days old (default 365: a yearly review)
+//                         topics     what is collected, purposes, disclosure, retention, access and correction, contact,
+//                                    and consent or withdrawal, each found in English or French
+//   privacy_request_channel  a privacy mailbox (privacy@, dpo@, …), a request form or a request portal linked from the
+//                         notice (NIST SP 800-53 Rev. 5 SI-18(4), PIPEDA Principle 4.9 Individual Access).
+// Page bodies (the declared page for consent_banner, the notice for the others) are read only where the host's
+// robots.txt (RFC 9309) allows this collector's User-Agent, at most 2 MB each; robots.txt is read once per host.
+//
 // The mail domain is --web-mail-domain, or else the last two labels of each URL's host. That default is wrong for
 // a host under a two-label public suffix (example.gc.ca gives gc.ca), so give --web-mail-domain there.
 // Results carry host names, header values, protocol versions and dates: never page content, cookies or a person.
@@ -62,18 +79,20 @@ import tls from "node:tls";
 import type { Result, Source, SourceContext } from "../types.ts";
 import { COLLECTOR_VERSION } from "../payload.ts";
 import { Emitter } from "./readonly_http.ts";
+import { MAX_PAGE_BYTES, judgeConsent, judgeRequestChannel, looksLikeNotice, noticeDate, noticeTopics, pageText, robotsAllows, TOPICS } from "./web_privacy.ts";
 
 export const WEB_URL_CHECKS = ["tls_min_version", "certificate_valid", "https_redirect", "hsts", "csp", "content_type_options",
-  "frame_protection", "referrer_policy", "no_version_banner"] as const;
+  "frame_protection", "referrer_policy", "no_version_banner", "consent_banner"] as const;
 export const WEB_DOMAIN_CHECKS = ["spf", "dmarc", "dnssec", "caa"] as const;
-export const WEB_CHECKS = [...WEB_URL_CHECKS, ...WEB_DOMAIN_CHECKS] as const;
+export const WEB_PRIVACY_CHECKS = ["privacy_notice_published", "privacy_notice_dated", "privacy_notice_topics", "privacy_request_channel"] as const;
+export const WEB_CHECKS = [...WEB_URL_CHECKS, ...WEB_DOMAIN_CHECKS, ...WEB_PRIVACY_CHECKS] as const;
 type C = (typeof WEB_CHECKS)[number];
 
 export const USER_AGENT = `sagentix-evidence-collector/${COLLECTOR_VERSION} (+https://github.com/Sagentix-Advisors-Inc/sagentix-collector)`;
 export const PROOF_PREFIX = "_sagentix-collector";
 export const PROOF_TXT = "sagentix-collector-verification";
 export const PROOF_PATH = "/.well-known/sagentix-collector.txt";
-export const DEFAULTS = { delayMs: 1000, timeoutMs: 15_000, certMinDays: 14, hstsMinAge: 31_536_000 } as const;
+export const DEFAULTS = { delayMs: 1000, timeoutMs: 15_000, certMinDays: 14, hstsMinAge: 31_536_000, privacyMaxAgeDays: 365 } as const;
 const TOKEN = /^[A-Za-z0-9_-]{32,128}$/;
 const DAY = 86_400_000;
 
@@ -285,7 +304,19 @@ export function judgeDmarc(record: string | undefined, at: string, domain: strin
 const LOCAL_TLS = /NO_PROTOCOLS_AVAILABLE|NO_CIPHERS_AVAILABLE|NO_SUITABLE/i;
 const NETWORK = /^(timeout|ENOTFOUND|EAI_AGAIN|EHOSTUNREACH|ENETUNREACH|ECONNREFUSED|ETIMEDOUT)$/;
 
-interface Ctx { client: WebClient; delayMs: number; timeoutMs: number; last: Map<string, number> }
+interface Ctx { client: WebClient; delayMs: number; timeoutMs: number; last: Map<string, number>; robots: Map<string, string | null> }
+
+/** May this collector read the page body at `u`? robots.txt is fetched once per host. */
+async function robotsOk(c: Ctx, u: URL): Promise<boolean> {
+  if (!c.robots.has(u.hostname)) {
+    const r = await get(c, `https://${u.hostname}/robots.txt`, 512 * 1024);
+    // RFC 9309 §2.3.1.3: an unavailable file (4xx) means no rule applies; §2.3.1.4: an unreachable one (5xx, network
+    // error) means complete disallow. A redirect is not followed, so it counts as unavailable.
+    c.robots.set(u.hostname, "error" in r || r.status >= 500 ? null : r.status === 200 ? r.body : "");
+  }
+  const rules = c.robots.get(u.hostname);
+  return typeof rules === "string" && robotsAllows(rules, USER_AGENT, u.pathname + u.search);
+}
 
 /** Waits so that requests to one host are at least delayMs apart. */
 async function pace(c: Ctx, host: string) {
@@ -366,9 +397,10 @@ async function urlChecks(c: Ctx, out: Emitter<C>, u: URL, prefix: string, certMi
     add("https_redirect", ok, ok ? `HTTP ${r80.status} to ${to!.origin}` : `http://${host} answered ${r80.status}${loc ? ` to ${loc.slice(0, 120)}` : " without a redirect"}; a redirect to https://${host} is required`);
   }
 
-  const r = await get(c, u.href);
+  const bodyOk = await robotsOk(c, u);
+  const r = await get(c, u.href, bodyOk ? MAX_PAGE_BYTES : 0);
   if ("error" in r) {
-    for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner"] as const) add(k, "skipped", `${u.href} could not be read (${r.error})`);
+    for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner", "consent_banner"] as const) add(k, "skipped", `${u.href} could not be read (${r.error})`);
     return;
   }
   // A bot challenge answered instead of the site: its headers are Cloudflare's, not the site's, so none is judged.
@@ -378,6 +410,7 @@ async function urlChecks(c: Ctx, out: Emitter<C>, u: URL, prefix: string, certMi
   if (headerValue(r.headers, "cf-mitigated")?.trim().toLowerCase() === "challenge") {
     for (const k of ["hsts", "csp", "content_type_options", "frame_protection", "referrer_policy", "no_version_banner"] as const)
       add(k, "skipped", `${u.href} answered a Cloudflare challenge page (HTTP ${r.status}, cf-mitigated: challenge), not the site; let the collector's address skip bot checks for this host to judge its headers`);
+    add("consent_banner", "skipped", `${u.href} answered a Cloudflare challenge page, not the site`);
     return;
   }
   const h = r.headers, note = r.status >= 300 && r.status < 400 ? ` (headers of the ${r.status} answer; the redirect was not followed)` : "";
@@ -395,6 +428,43 @@ async function urlChecks(c: Ctx, out: Emitter<C>, u: URL, prefix: string, certMi
   add("referrer_policy", rp.pass, rp.detail + note);
   const b = judgeBanner(h);
   add("no_version_banner", b.pass, b.detail + note);
+  if (!bodyOk) add("consent_banner", "skipped", `robots.txt on ${host} does not let this collector read ${u.pathname}, or could not be read`);
+  else if (r.status !== 200) add("consent_banner", "skipped", `${u.href} answered ${r.status}; the page itself is needed`);
+  else { const k = judgeConsent(r.body, u); add("consent_banner", k.result === "skipped" ? "skipped" : k.result === "pass", k.detail); }
+}
+
+async function privacyChecks(c: Ctx, out: Emitter<C>, u: URL, prefix: string, maxAgeDays: number, now: Date) {
+  const res = `url ${u.href}`.slice(0, 300);
+  const add = (check: C, result: "pass" | "fail" | "skipped", detail: string) => out.add(check, result, prefix + detail, res);
+  const rest = (detail: string) => { for (const k of WEB_PRIVACY_CHECKS.slice(1)) add(k, "skipped", detail); };
+  if (!(await robotsOk(c, u))) { for (const k of WEB_PRIVACY_CHECKS) add(k, "skipped", `robots.txt on ${u.hostname} does not let this collector read ${u.pathname}, or could not be read`); return; }
+  const r = await get(c, u.href, MAX_PAGE_BYTES);
+  if ("error" in r) { add("privacy_notice_published", "fail", `${u.href} could not be read (${r.error}); a reachable notice is required`); return rest("the notice could not be read"); }
+  if (headerValue(r.headers, "cf-mitigated")?.trim().toLowerCase() === "challenge") {
+    for (const k of WEB_PRIVACY_CHECKS) add(k, "skipped", `${u.href} answered a Cloudflare challenge page, not the notice`);
+    return;
+  }
+  const type = headerValue(r.headers, "content-type") ?? "";
+  if (r.status !== 200 || !/html/i.test(type)) {
+    add("privacy_notice_published", "fail", `${u.href} answered ${r.status}${type ? ` (${type.slice(0, 40)})` : ""}${r.status >= 300 && r.status < 400 ? ", a redirect (not followed): declare the final address" : ""}; HTTP 200 with an HTML page required`);
+    return rest("the notice could not be read");
+  }
+  const text = pageText(r.body);
+  const named = looksLikeNotice(r.body);
+  add("privacy_notice_published", named ? "pass" : "fail", named ? `HTTP 200, HTML, ${text.length} characters of text; the title or first heading names privacy or personal information`
+    : "HTTP 200, but neither the title nor the first heading names privacy or personal information; declare the notice's own address");
+  const d = noticeDate(text);
+  if (!d) add("privacy_notice_dated", "fail", `no "last updated", "effective" or "dernière mise à jour" date found on the notice; a dated notice is required`);
+  else {
+    const age = Math.floor((now.getTime() - Date.parse(d.date)) / DAY);
+    add("privacy_notice_dated", age >= -1 && age <= maxAgeDays ? "pass" : "fail", `"${d.label}" ${d.date}: ${age < -1 ? "in the future" : `${age} day(s) old`}; at most ${maxAgeDays} allowed`);
+  }
+  const t = noticeTopics(text);
+  const names = (ids: string[]) => ids.map((id) => TOPICS.find((x) => x.id === id)!.en).join("; ");
+  add("privacy_notice_topics", t.missing.length ? "fail" : "pass",
+    `${t.found.length} of ${TOPICS.length} topics found${t.missing.length ? `; missing: ${names(t.missing)}` : ""} (phrases in English or French; a person confirms the wording)`);
+  const ch = judgeRequestChannel(r.body, u);
+  add("privacy_request_channel", ch.pass ? "pass" : "fail", ch.detail);
 }
 
 async function dsRecord(c: Ctx, domain: string): Promise<{ result: "pass" | "fail" | "skipped"; detail: string }> {
@@ -444,19 +514,26 @@ async function domainChecks(c: Ctx, out: Emitter<C>, domain: string, prefix: str
   else put("caa", "pass", `${caa.length} CAA record(s) at ${from}: ${caa.filter((x) => /issue/.test(x)).map((x) => x.replace(/^\d+\s+/, "")).join(", ").slice(0, 400)}`);
 }
 
-export async function runWeb(o: { urls: URL[]; proofs: Map<string, string>; mailDomains: string[]; skipProof: boolean; delayMs: number; timeoutMs: number; certMinDays: number },
+export async function runWeb(o: { urls: URL[]; proofs: Map<string, string>; mailDomains: string[]; skipProof: boolean; delayMs: number; timeoutMs: number; certMinDays: number;
+                                   privacyUrls?: URL[]; privacyMaxAgeDays?: number },
                              client: WebClient, now: Date): Promise<Result[]> {
   const out = new Emitter<C>("web", "web");
-  const c: Ctx = { client, delayMs: o.delayMs, timeoutMs: o.timeoutMs, last: new Map() };
+  const c: Ctx = { client, delayMs: o.delayMs, timeoutMs: o.timeoutMs, last: new Map(), robots: new Map() };
   const proven = new Set<string>();
   const prefix = o.skipProof ? "control not proven (dry run only): " : "";
-  for (const host of [...new Set(o.urls.map((u) => u.hostname))]) {
+  const privacy = o.privacyUrls ?? [];
+  for (const host of [...new Set([...o.urls, ...privacy].map((u) => u.hostname))]) {
     if (o.skipProof) { proven.add(host); continue; }
     const p = await prove(c, host, o.proofs.get(host));
     if (p.ok) proven.add(host);
-    else for (const u of o.urls.filter((x) => x.hostname === host)) out.skipAll(WEB_URL_CHECKS, p.why, `url ${u.href}`.slice(0, 300));
+    else {
+      for (const u of o.urls.filter((x) => x.hostname === host)) out.skipAll(WEB_URL_CHECKS, p.why, `url ${u.href}`.slice(0, 300));
+      for (const u of privacy.filter((x) => x.hostname === host)) out.skipAll(WEB_PRIVACY_CHECKS, p.why, `url ${u.href}`.slice(0, 300));
+    }
   }
   for (const u of o.urls) if (proven.has(u.hostname)) await urlChecks(c, out, u, prefix, o.certMinDays, now);
+  if (!privacy.length) out.skipAll(WEB_PRIVACY_CHECKS, "give --web-privacy-url <https URL of the privacy notice> to read the notice", "web privacy notice");
+  for (const u of privacy) if (proven.has(u.hostname)) await privacyChecks(c, out, u, prefix, o.privacyMaxAgeDays ?? DEFAULTS.privacyMaxAgeDays, now);
   const domains = [...new Set(o.mailDomains.length ? o.mailDomains : o.urls.map((u) => twoLabels(u.hostname)))];
   for (const d of domains) {
     // A mail domain is read only beside a proven host: the same domain, a parent, or a sibling under the same two labels.
@@ -476,6 +553,8 @@ export const web: Source = {
     "web-skip-proof": { type: "boolean", help: "run without proof of control; accepted only with --dry-run" },
     "web-delay-ms": { type: "string", help: `milliseconds between two requests to one host (default ${DEFAULTS.delayMs}, at least 200)` },
     "web-cert-min-days": { type: "string", help: `days a certificate must still be valid (default ${DEFAULTS.certMinDays})` },
+    "web-privacy-url": { type: "string", multiple: true, help: "https URL of the organization's privacy notice, on a proven host (repeatable: the English and the French notice)" },
+    "web-privacy-max-age-days": { type: "string", help: `days since the notice's "last updated" date before it fails (default ${DEFAULTS.privacyMaxAgeDays})` },
   },
   emits: WEB_CHECKS.map((c) => `web.${c}`),
   describe(opts) {
@@ -484,7 +563,7 @@ export const web: Source = {
   },
   validate(opts) {
     if (opts["web-skip-proof"] === true && opts["dry-run"] !== true) return "--web-skip-proof is accepted only with --dry-run: a push to sos-app needs proof that the organization controls each host.";
-    for (const raw of list(opts["web-url"])) { const u = parseWebUrl(raw); if (typeof u === "string") return u; }
+    for (const raw of [...list(opts["web-url"]), ...list(opts["web-privacy-url"])]) { const u = parseWebUrl(raw); if (typeof u === "string") return u; }
     const p = parseProofs(opts["web-proof"]);
     if (typeof p === "string") return p;
     for (const d of list(opts["web-mail-domain"])) if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(d)) return `--web-mail-domain ${d} is not a domain name`;
@@ -492,7 +571,8 @@ export const web: Source = {
   },
   async run(ctx: SourceContext) {
     const urls = list(ctx.opts["web-url"]).map(parseWebUrl).filter((u): u is URL => typeof u !== "string");
-    if (!urls.length) {
+    const privacyUrls = list(ctx.opts["web-privacy-url"]).map(parseWebUrl).filter((u): u is URL => typeof u !== "string");
+    if (!urls.length && !privacyUrls.length) {
       const out = new Emitter<C>("web", "web");
       out.skipAll(WEB_CHECKS, "give --web-url <https URL> (and --web-proof <host>=<token>)");
       return out.results;
@@ -501,7 +581,8 @@ export const web: Source = {
     const skipProof = ctx.opts["web-skip-proof"] === true && ctx.opts["dry-run"] === true;
     const n = (k: string, d: number, min = 0) => { const v = Number(ctx.opts[k]); return Number.isFinite(v) && typeof ctx.opts[k] === "string" ? Math.max(min, v) : d; };
     return runWeb({ urls, proofs: typeof proofs === "string" ? new Map() : proofs, mailDomains: list(ctx.opts["web-mail-domain"]).map((d) => d.toLowerCase()),
-                    skipProof, delayMs: n("web-delay-ms", DEFAULTS.delayMs, 200), timeoutMs: DEFAULTS.timeoutMs, certMinDays: n("web-cert-min-days", DEFAULTS.certMinDays) },
+                    skipProof, delayMs: n("web-delay-ms", DEFAULTS.delayMs, 200), timeoutMs: DEFAULTS.timeoutMs, certMinDays: n("web-cert-min-days", DEFAULTS.certMinDays),
+                    privacyUrls, privacyMaxAgeDays: n("web-privacy-max-age-days", DEFAULTS.privacyMaxAgeDays, 1) },
                   (ctx.clients.web as WebClient | undefined) ?? realWebClient(), ctx.now);
   },
 };

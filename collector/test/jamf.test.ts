@@ -7,12 +7,13 @@ import { contractSuite, daysAgo, fakeRest, of, res, runWith, type Contract, type
 
 const BASE = "https://acme.jamfcloud.com/api";
 const INV = "/v4/computers-inventory";
+const CMD = "/v2/mdm/commands";
 const ok = (b: unknown) => res(200, b);
 
 function computer(id: string, serial: string, over: { state?: string; version?: string; report?: string; managed?: boolean } = {}): Record<string, unknown> {
   return {
     id, udid: `UDID-${id}`,
-    general: { name: "Anna's MacBook Air", reportDate: over.report ?? daysAgo(1), lastContact: daysAgo(1), remoteManagement: { managed: over.managed ?? true },
+    general: { name: "Anna's MacBook Air", managementId: `mgmt-${id}`, reportDate: over.report ?? daysAgo(1), lastContact: daysAgo(1), remoteManagement: { managed: over.managed ?? true },
       lastLoggedInUsernameBinary: "achao" },
     diskEncryption: { fileVault2Enabled: true, fileVault2EnabledUserNames: ["achao"],
       bootPartitionEncryptionDetails: { partitionName: "Macintosh HD (Boot Partition)", partitionFileVault2State: over.state ?? "ENCRYPTED", partitionFileVault2Percent: 100 } },
@@ -21,7 +22,12 @@ function computer(id: string, serial: string, over: { state?: string; version?: 
   };
 }
 const inv = (results: unknown[], total = results.length) => ok({ totalCount: total, results });
-const strong = (): Routes => ({ [INV]: inv([computer("1", "C02TEST0001"), computer("2", "C02TEST0002")]) });
+/** One erase per row; the username and device name are there to prove they never reach a result. */
+const erase = (mgmt: string, state: string, sent: string) => ({ uuid: `u-${mgmt}`, dateSent: sent, dateCompleted: state === "ACKNOWLEDGED" ? sent : null,
+  client: { managementId: mgmt, clientType: "COMPUTER" }, commandState: state, commandType: "ERASE_DEVICE", username: "it.admin", deviceName: "Anna's MacBook Air" });
+const cmds = (rows: unknown[]) => ok({ totalCount: rows.length, results: rows });
+const strong = (): Routes => ({ [INV]: inv([computer("1", "C02TEST0001"), computer("2", "C02TEST0002")]),
+  [CMD]: cmds([erase("mgmt-2", "ACKNOWLEDGED", daysAgo(10)), erase("mgmt-gone", "ACKNOWLEDGED", daysAgo(60))]) });
 const withComputer = (over: Parameters<typeof computer>[2]): Routes => ({ [INV]: inv([computer("1", "C02TEST0001"), computer("2", "C02TEST0002", over)]) });
 
 const C: Contract = {
@@ -34,6 +40,7 @@ const C: Contract = {
     os_minimum: withComputer({ version: "13.6.9" }),
     last_inventory: withComputer({ report: daysAgo(30) }),
     managed: withComputer({ managed: false }),
+    device_wipe_recorded: { [CMD]: cmds([erase("mgmt-3", "ERROR", daysAgo(2))]) },
   },
 };
 
@@ -54,15 +61,16 @@ test("jamf: pages follow totalCount", async () => {
   const first = Array.from({ length: PAGE }, (_, i) => computer(String(i + 1), `SN${i + 1}`));
   const routes: Routes = { [INV]: (url) => (new URL(`https://x${url}`).searchParams.get("page") === "0" ? inv(first, PAGE + 1) : inv([computer("999", "SN999")], PAGE + 1)) };
   const rs = await runWith(C, fakeRest(BASE, routes, calls));
-  assert.equal(calls.length, 2);
-  assert.equal(new URL(`https://x${calls[1]}`).searchParams.get("page"), "1");
+  const inventory = calls.filter((c) => c.startsWith(INV));
+  assert.equal(inventory.length, 2);
+  assert.equal(new URL(`https://x${inventory[1]}`).searchParams.get("page"), "1");
   assert.equal(of(rs, "jamf.managed").length, PAGE + 1);
 });
 
 test("jamf: a server without v4 answers on the next older inventory version", async () => {
   const calls: string[] = [];
-  const rs = await runWith(C, fakeRest(BASE, { "/v3/computers-inventory": inv([computer("1", "C02TEST0001")]) }, calls));
-  assert.deepEqual(calls.map((c) => c.split("?")[0]), ["/v4/computers-inventory", "/v3/computers-inventory"]);
+  const rs = await runWith(C, fakeRest(BASE, { "/v3/computers-inventory": inv([computer("1", "C02TEST0001")]), [CMD]: cmds([erase("mgmt-1", "ACKNOWLEDGED", daysAgo(3))]) }, calls));
+  assert.deepEqual(calls.map((c) => c.split("?")[0]), ["/v4/computers-inventory", "/v3/computers-inventory", CMD]);
   assert.equal(calls[1], inventoryPath("v3", 0));
   assert.ok(rs.every((r) => r.result === "pass"));
   assert.match(of(rs, "jamf.filevault")[0].detail, /Jamf Pro API v3/);
@@ -83,8 +91,9 @@ test("jamf: missing evidence is skipped, never passed; no --jamf-min-os skips os
 });
 
 test("jamf: a rejected token is reported as an error (skipped, HTTP 401), never as a failing Mac", async () => {
-  const rs = await runWith(C, fakeRest(BASE, { [INV]: res(401, { httpStatus: 401, errors: [{ code: "INVALID_TOKEN", description: "Unauthorized" }] }) }));
-  assert.equal(rs.length, 4);
+  const denied = res(401, { httpStatus: 401, errors: [{ code: "INVALID_TOKEN", description: "Unauthorized" }] });
+  const rs = await runWith(C, fakeRest(BASE, { [INV]: denied, [CMD]: denied }));
+  assert.equal(rs.length, 5);
   for (const r of rs) { assert.equal(r.result, "skipped"); assert.match(r.detail, /HTTP 401/); }
 });
 
@@ -106,4 +115,17 @@ test("jamf: the real client gets a client-credentials token (falling back to /ap
   assert.equal(seen[2].init.method, "GET");
   assert.equal((seen[2].init.headers as Record<string, string>).authorization, "Bearer jat-0123456789");
   assert.equal(typeof jamfFromEnv({ JAMF_URL: "http://acme.jamfcloud.com", JAMF_CLIENT_ID: "a", JAMF_CLIENT_SECRET: "b" }), "string");
+});
+
+test("jamf.device_wipe_recorded: erases of the period, named by computer id and serial when the inventory has the management id", async () => {
+  const calls: string[] = [];
+  const rs = await runWith(C, fakeRest(BASE, strong(), calls));
+  const w = of(rs, "jamf.device_wipe_recorded");
+  assert.deepEqual(w.map((r) => [r.resource, r.result]), [["jamf computer 2 serial C02TEST0002", "pass"], ["jamf computer management id mgmt-gone", "pass"]]);
+  const q = new URL(`https://x${calls.find((c) => c.startsWith(CMD))!}`).searchParams;
+  assert.match(q.get("filter")!, /^command==ERASE_DEVICE;dateSent=ge=\d{4}-/);
+  assert.ok(!JSON.stringify(w).includes("it.admin") && !JSON.stringify(w).includes("Anna"));
+  // A pending erase older than the grace days fails; none in the period is skipped, never a pass.
+  assert.equal(of(await runWith(C, fakeRest(BASE, { ...strong(), [CMD]: cmds([erase("mgmt-1", "PENDING", daysAgo(20))]) })), "jamf.device_wipe_recorded")[0].result, "fail");
+  assert.deepEqual(of(await runWith(C, fakeRest(BASE, { ...strong(), [CMD]: cmds([]) })), "jamf.device_wipe_recorded").map((r) => r.result), ["skipped"]);
 });

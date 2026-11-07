@@ -3,10 +3,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { main, EXIT } from "../src/cli.ts";
 import { USER_AGENT, judgeCsp, judgeDmarc, judgeReferrer, judgeSpf, parseWebUrl, runWeb, web, type TlsInfo, type WebClient } from "../src/sources/web.ts";
+import { judgeConsent, judgeRequestChannel, noticeDate, noticeTopics, pageText, robotsAllows } from "../src/sources/web_privacy.ts";
 import { capture } from "./helpers.ts";
 
 const NOW = new Date("2026-10-18T12:00:00Z");
-const HOST = "app.example.ca", URL_ = `https://${HOST}/`, TOKEN = "a".repeat(40);
+const HOST = "app.example.ca", URL_ = `https://${HOST}/`, TOKEN = "a".repeat(40), PRIVACY = `https://${HOST}/privacy`;
+const HOME = `<html><head><script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"></script><script src="https://www.googletagmanager.com/gtm.js"></script></head><body>Hello</body></html>`;
+const NOTICE = `<html><head><title>Privacy notice | Example</title></head><body><h1>Privacy notice</h1><p>Last updated: March 4, 2026</p>
+<h2>Information we collect</h2><p>We collect your name.</p><h2>How we use it</h2><p>For the purposes of support.</p>
+<h2>Sharing</h2><p>We share with service providers.</p><h2>Retention</h2><p>We retain it for two years.</p>
+<h2>Your rights</h2><p>You may request access to your information or correct it.</p><p>You may withdraw your consent.</p>
+<p>Contact our privacy officer at <a href="mailto:privacy@example.ca">privacy@example.ca</a>.</p><script>var t="nothing here counts";</script></body></html>`;
 const GOOD_HEADERS = {
   "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
   "content-security-policy": "default-src 'self'; script-src 'self'; frame-ancestors 'none'",
@@ -20,7 +27,9 @@ interface Fake extends WebClient { calls: { url: string; method: string; headers
 
 function fake(o: { http?: Record<string, Reply>; tls?: Partial<Record<"modern" | "legacy", TlsInfo>>; txt?: Record<string, string[] | null>; caa?: Record<string, string[]> } = {}): Fake {
   const http: Record<string, Reply> = {
-    [URL_]: { status: 200, headers: GOOD_HEADERS, body: "<html>" },
+    [URL_]: { status: 200, headers: GOOD_HEADERS, body: HOME },
+    [`https://${HOST}/robots.txt`]: { status: 200, body: "User-agent: *\nDisallow: /admin/\n" },
+    [PRIVACY]: { status: 200, headers: { "content-type": "text/html; charset=utf-8" }, body: NOTICE },
     [`http://${HOST}/`]: { status: 301, headers: { location: URL_ } },
     [`https://${HOST}/.well-known/sagentix-collector.txt`]: { status: 404 },
     "https://cloudflare-dns.com/dns-query?name=example.ca&type=DS": { status: 200, headers: { "content-type": "application/dns-json" }, body: JSON.stringify({ Status: 0, AD: true, Answer: [{ type: 43, data: "1 13 2 ABC" }] }) },
@@ -57,7 +66,7 @@ function fake(o: { http?: Record<string, Reply>; tls?: Partial<Record<"modern" |
 }
 
 const opts = (over: Partial<Parameters<typeof runWeb>[0]> = {}) => ({
-  urls: [new URL(URL_)], proofs: new Map([[HOST, TOKEN]]), mailDomains: [] as string[], skipProof: false, delayMs: 1000, timeoutMs: 5000, certMinDays: 14, ...over,
+  urls: [new URL(URL_)], proofs: new Map([[HOST, TOKEN]]), mailDomains: [] as string[], skipProof: false, delayMs: 1000, timeoutMs: 5000, certMinDays: 14, privacyUrls: [new URL(PRIVACY)], ...over,
 });
 const by = (rs: Awaited<ReturnType<typeof runWeb>>) => Object.fromEntries(rs.map((r) => [r.check.replace("web.", ""), r]));
 
@@ -86,10 +95,10 @@ test("only GET, never a redirect followed, always the collector's User-Agent, an
     assert.equal(c.headers["user-agent"], USER_AGENT);
   }
   assert.match(USER_AGENT, /^sagentix-evidence-collector\/\d+\.\d+\.\d+ \(\+https:\/\/github\.com\//);
-  // Two TLS handshakes and two GETs to one host: three waits of up to 1000 ms between them.
-  assert.equal(f.sleeps.filter((ms) => ms === 1000).length, 3);
-  // Only the exact URL and its http:// form are read on the host: nothing is crawled.
-  assert.deepEqual(f.calls.filter((c) => c.url.includes(HOST)).map((c) => c.url).sort(), [`http://${HOST}/`, URL_].sort());
+  // Two TLS handshakes and four GETs to one host (http://, robots.txt, the page, the notice): five waits of up to 1000 ms.
+  assert.equal(f.sleeps.filter((ms) => ms === 1000).length, 5);
+  // Only the exact URLs given, their http:// form and robots.txt (once) are read on the host: nothing is crawled.
+  assert.deepEqual(f.calls.filter((c) => c.url.includes(HOST)).map((c) => c.url).sort(), [`http://${HOST}/`, URL_, `https://${HOST}/robots.txt`, PRIVACY].sort());
 });
 
 test("a host without --web-proof gets no request at all, and every check on it is skipped", async () => {
@@ -242,4 +251,90 @@ test("declared URLs: https only, default port, no user info, no IP address", () 
   }
   assert.match(web.validate!({ "web-proof": ["app.example.ca=short"] })!, /--web-proof takes <host>=<token>/);
   assert.equal(web.validate!({ "web-url": [URL_], "web-proof": [`${HOST}=${TOKEN}`] }), undefined);
+  assert.match(web.validate!({ "web-privacy-url": ["http://app.example.ca/privacy"] })!, /only https URLs/);
+});
+
+// ── Privacy notice, consent banner and robots.txt (added 2026-11-07) ───────────────────────────────
+
+const HTML = { "content-type": "text/html" };
+
+test("privacy: each notice check fails on what it reads, and only topics, a date, a vendor and a mail domain are reported", async () => {
+  const stale = NOTICE.replace("March 4, 2026", "January 2, 2024").replace(/<h2>Retention<\/h2><p>[^<]*<\/p>/, "").replace(/<a href="mailto:[^"]*">[^<]*<\/a>/, "our office");
+  const rs = by(await runWeb(opts(), fake({ http: { [PRIVACY]: { status: 200, headers: HTML, body: stale } } }), NOW));
+  assert.equal(rs.privacy_notice_published.result, "pass");
+  assert.equal(rs.privacy_notice_dated.result, "fail");
+  assert.match(rs.privacy_notice_dated.detail, /"last updated" 2024-01-02: 1020 day\(s\) old; at most 365 allowed/);
+  assert.equal(rs.privacy_notice_topics.result, "fail");
+  assert.match(rs.privacy_notice_topics.detail, /6 of 7 topics found; missing: how long it is kept/);
+  assert.equal(rs.privacy_request_channel.result, "fail");
+  const ok = by(await runWeb(opts(), fake(), NOW));
+  assert.match(ok.privacy_request_channel.detail, /1 privacy mailbox link\(s\) at example\.ca/);
+  assert.doesNotMatch(JSON.stringify(ok), /privacy@|We collect your name/);
+  assert.equal(ok.privacy_notice_published.resource, `url ${PRIVACY}`);
+});
+
+test("privacy: a 404, a redirect or a page that is not a notice fails published and skips the rest", async () => {
+  const cases: [Reply, RegExp][] = [[{ status: 404, headers: HTML }, /answered 404/], [{ status: 301, headers: { location: "https://x.example.ca/" } }, /a redirect \(not followed\)/],
+    [{ status: 200, headers: HTML, body: "<html><title>Home</title><h1>Welcome</h1></html>" }, /neither the title nor the first heading/]];
+  for (const [reply, want] of cases) {
+    const rs = by(await runWeb(opts(), fake({ http: { [PRIVACY]: reply } }), NOW));
+    assert.equal(rs.privacy_notice_published.result, "fail");
+    assert.match(rs.privacy_notice_published.detail, want);
+    if (!(reply instanceof Error) && reply.status !== 200) for (const k of ["privacy_notice_dated", "privacy_notice_topics", "privacy_request_channel"]) assert.equal(rs[k].result, "skipped");
+  }
+});
+
+test("privacy: a French notice is read in French; a link to a request form counts as a channel", async () => {
+  const fr = `<html><head><title>Politique de confidentialité</title></head><body><h1>Confidentialité</h1><p>Dernière mise à jour : 1er octobre 2026</p>
+    <p>Les renseignements que nous recueillons; à quelles fins nous les utilisons; nous les communiquons à des tiers; nous les conservons deux ans;
+    droit d'accès et rectification; nous joindre; retirer votre consentement.</p><a href="/demandes">Formulaire de demande d'accès</a></body></html>`;
+  const rs = by(await runWeb(opts(), fake({ http: { [PRIVACY]: { status: 200, headers: HTML, body: fr } } }), NOW));
+  for (const k of ["privacy_notice_published", "privacy_notice_dated", "privacy_notice_topics", "privacy_request_channel"]) assert.equal(rs[k].result, "pass", `${k}: ${rs[k].detail}`);
+  assert.match(rs.privacy_notice_dated.detail, /2026-10-01/);
+  assert.match(rs.privacy_request_channel.detail, /privacy-request form/);
+  const portal = NOTICE.replace(/<a href="mailto:[^"]*">[^<]*<\/a>/, `<a href="https://privacy.example.ca/form">Submit a privacy request</a>`);
+  const p = by(await runWeb(opts(), fake({ http: { [PRIVACY]: { status: 200, headers: HTML, body: portal } } }), NOW));
+  assert.match(p.privacy_request_channel.detail, /1 link\(s\) to a privacy-request form/);
+});
+
+test("consent banner: a known platform passes; third-party scripts without one fail; a page with no third-party script is skipped", async () => {
+  assert.match(by(await runWeb(opts(), fake(), NOW)).consent_banner.detail, /OneTrust/);
+  const none = by(await runWeb(opts(), fake({ http: { [URL_]: { status: 200, headers: GOOD_HEADERS, body: `<script src="https://www.googletagmanager.com/gtm.js"></script><script src="/app.js"></script>` } } }), NOW));
+  assert.equal(none.consent_banner.result, "fail");
+  assert.match(none.consent_banner.detail, /1 script host\(s\) from other sites \(www\.googletagmanager\.com\)/);
+  const own = by(await runWeb(opts(), fake({ http: { [URL_]: { status: 200, headers: GOOD_HEADERS, body: `<script src="/app.js"></script><script src="https://cdn.example.ca/x.js"></script>` } } }), NOW));
+  assert.equal(own.consent_banner.result, "skipped");
+});
+
+test("robots.txt: a disallowed page body is never read and the notice is never fetched; an unreachable robots.txt disallows; a missing one allows", async () => {
+  const f = fake({ http: { [`https://${HOST}/robots.txt`]: { status: 200, body: "User-agent: sagentix-evidence-collector\nDisallow: /\n\nUser-agent: *\nAllow: /\n" } } });
+  const rs = by(await runWeb(opts(), f, NOW));
+  assert.equal(rs.consent_banner.result, "skipped");
+  assert.equal(rs.privacy_notice_published.result, "skipped");
+  assert.match(rs.privacy_notice_published.detail, /robots\.txt on app\.example\.ca does not let this collector read \/privacy/);
+  assert.ok(!f.calls.some((c) => c.url === PRIVACY));
+  assert.equal(rs.hsts.result, "pass");   // the header checks still read the page's headers, as before
+  assert.equal(f.calls.filter((c) => c.url.endsWith("/robots.txt")).length, 1);
+  const g = fake({ http: { [`https://${HOST}/robots.txt`]: { status: 503 } } });
+  assert.equal(by(await runWeb(opts(), g, NOW)).privacy_notice_topics.result, "skipped");
+  const h = fake({ http: { [`https://${HOST}/robots.txt`]: { status: 404 } } });
+  assert.equal(by(await runWeb(opts(), h, NOW)).privacy_notice_topics.result, "pass");
+});
+
+test("judges: robots groups and longest match, dates, topics, page text, consent and request channel", () => {
+  const robots = "User-agent: *\nDisallow: /private\nAllow: /private/notice$\n\nUser-agent: other\nDisallow: /\n";
+  assert.equal(robotsAllows(robots, USER_AGENT, "/privacy"), true);
+  assert.equal(robotsAllows(robots, USER_AGENT, "/private/x"), false);
+  assert.equal(robotsAllows(robots, USER_AGENT, "/private/notice"), true);
+  assert.equal(robotsAllows("User-agent: *\nDisallow: /*.pdf$\n", USER_AGENT, "/a/b.pdf"), false);
+  assert.equal(robotsAllows("User-agent: *\nDisallow:\n", USER_AGENT, "/"), true);
+  assert.equal(noticeDate("privacy. last updated on 2025-12-31. hello")?.date, "2025-12-31");
+  assert.equal(noticeDate("effective date: 4 june 2026")?.date, "2026-06-04");
+  assert.equal(noticeDate("en vigueur le 15 février 2026")?.date, "2026-02-15");
+  assert.equal(noticeDate("revised: february 30, 2026"), undefined);
+  assert.equal(noticeDate("we updated nothing"), undefined);
+  assert.equal(pageText("<p>A</p><script>var x='<p>B</p>'</script><style>p{}</style><b>C</b>"), "a c");
+  assert.deepEqual(noticeTopics("").found, []);
+  assert.equal(judgeConsent(`<script>window.x='https://cmp.osano.com/abc/osano.js'</script>`, new URL(URL_)).vendors[0], "Osano");
+  assert.equal(judgeRequestChannel(`<a href="mailto:jane@example.ca">Jane</a>`, new URL(URL_)).pass, false);
 });

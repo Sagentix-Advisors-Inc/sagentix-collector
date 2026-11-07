@@ -21,6 +21,8 @@
 //   rds   DescribeDBInstances                                 rds:DescribeDBInstances
 //   kms   ListKeys, DescribeKey, GetKeyRotationStatus         kms:ListKeys, kms:DescribeKey, kms:GetKeyRotationStatus
 //   backup GET /backup/plans/ (ListBackupPlans)               backup:ListBackupPlans
+//   backup GET /backup-jobs/ (ListBackupJobs)                 backup:ListBackupJobs
+//   backup GET /restore-jobs/ (ListRestoreJobs)               backup:ListRestoreJobs
 //   access-analyzer GET /analyzer (ListAnalyzers)             access-analyzer:ListAnalyzers
 
 import type { Result } from "../../types.ts";
@@ -35,6 +37,7 @@ export const AWS_CHECKS = [
   "rds_encrypted", "rds_not_public", "rds_automated_backups", "sg_no_open_admin_ports", "kms_rotation",
   "backup_plans_exist", "vpc_flow_logs", "access_analyzer_enabled",
   "iam_users_inactive", "s3_bucket_not_public", "guardduty_malware_protection", "ssm_patch_compliance",
+  "backup_jobs_succeeded", "restore_tested",
 ] as const;
 export type AwsCheck = (typeof AWS_CHECKS)[number];
 
@@ -43,7 +46,12 @@ export const DEFAULT_KEY_MAX_AGE_DAYS = 90;
 export const DEFAULT_INACTIVE_DAYS = 90;
 export const MIN_PASSWORD_LENGTH = 14;
 
-export interface AwsOptions { regions: string[]; keyMaxAgeDays: number; inactiveDays: number; now: Date }
+/** Days of AWS Backup jobs read: a week of daily jobs. */
+export const DEFAULT_BACKUP_WINDOW_DAYS = 7;
+/** A restore test is expected at least once a year (NIST SP 800-53 Rev. 5 CP-4 and CP-9(1) leave the frequency to the organization). */
+export const DEFAULT_RESTORE_TEST_DAYS = 365;
+
+export interface AwsOptions { regions: string[]; keyMaxAgeDays: number; inactiveDays: number; now: Date; backupWindowDays: number; restoreTestDays: number }
 
 const IAM_V = "2010-05-08", EC2_V = "2016-11-15", RDS_V = "2014-10-31";
 const MAX_PAGES = 50;
@@ -71,6 +79,8 @@ export async function accountChecks(aws: Aws, account: string, o: AwsOptions): P
     await securityGroups(aws, out, rr, region);
     kmsSeen += await kms(aws, out, rr, region);
     await backupPlans(aws, out, rr, region);
+    await backupJobs(aws, out, rr, region, o);
+    await restoreJobs(aws, out, rr, region, o);
     await flowLogs(aws, out, rr, region);
     await accessAnalyzer(aws, out, rr, region);
     await patchCompliance(aws, out, rr, region);
@@ -540,6 +550,58 @@ async function backupPlans(aws: Aws, out: Out, rr: string, region: string) {
   }
   out.add("backup_plans_exist", rr, plans.length ? "pass" : "fail",
     `${plans.length} AWS Backup plan(s)${plans.length ? ` (${plans.slice(0, 10).map((x) => j(x.BackupPlanName)).join(", ")})` : ""}; at least one required`);
+}
+
+/** Every item of an AWS Backup list call (REST, NextToken), or why it could not be read. */
+async function backupList(aws: Aws, region: string, path: string, key: string, query: Record<string, string>): Promise<{ items: Record<string, unknown>[] } | { error: string }> {
+  const all: Record<string, unknown>[] = [];
+  let next: string | undefined;
+  for (let p = 0; p < MAX_PAGES; p++) {
+    const r = await aws.json(restReq("backup", region, `backup.${region}.amazonaws.com`, path, { maxResults: "1000", ...query, ...(next ? { nextToken: next } : {}) }));
+    if (!r.ok) return { error: awsWhy(r.r) };
+    all.push(...arr(r.o[key]).filter(isObj));
+    next = str(r.o.NextToken) || undefined;
+    if (!next) break;
+  }
+  return { items: all };
+}
+/** AWS Backup's REST JSON gives timestamps as epoch seconds; accept an ISO string too. */
+const epoch = (v: unknown): number | undefined => (typeof v === "number" ? v * 1000 : typeof v === "string" && Number.isFinite(Date.parse(v)) ? Date.parse(v) : undefined);
+const BAD_JOB = new Set(["FAILED", "ABORTED", "EXPIRED", "PARTIAL"]);
+
+// ListBackupJobs (GET /backup-jobs/?createdAfter=…, backup:ListBackupJobs): for each resource, the latest job in the
+// window must be COMPLETED. A failure followed by a completed job on the same resource is recovered, not failed.
+async function backupJobs(aws: Aws, out: Out, rr: string, region: string, o: AwsOptions) {
+  const since = new Date(o.now.getTime() - o.backupWindowDays * 86_400_000).toISOString();
+  const r = await backupList(aws, region, "/backup-jobs/", "BackupJobs", { createdAfter: since });
+  if ("error" in r) return out.skip("backup_jobs_succeeded", rr, `backup jobs not readable: ${r.error}`);
+  const latest = new Map<string, { state: string; at: number }>();
+  for (const job of r.items) {
+    const res = str(job.ResourceArn) ?? str(job.BackupJobId) ?? "?", at = epoch(job.CreationDate) ?? 0, state = String(job.State ?? "");
+    if (["CREATED", "PENDING", "RUNNING"].includes(state)) continue;
+    const had = latest.get(res);
+    if (!had || at > had.at) latest.set(res, { state, at });
+  }
+  if (!latest.size) return out.add("backup_jobs_succeeded", rr, "fail", `no finished AWS Backup job since ${since.slice(0, 10)} (${o.backupWindowDays} days); at least one completed job per protected resource required`);
+  const bad = [...latest.entries()].filter(([, v]) => BAD_JOB.has(v.state));
+  const counts = new Map<string, number>();
+  for (const v of latest.values()) counts.set(v.state, (counts.get(v.state) ?? 0) + 1);
+  out.add("backup_jobs_succeeded", rr, bad.length ? "fail" : "pass",
+    `${latest.size} resource(s) backed up since ${since.slice(0, 10)}; latest job by state: ${[...counts.entries()].map(([k, n]) => `${k} ${n}`).join(", ")}${bad.length ? `; not completed: ${bad.slice(0, 10).map(([k, v]) => `${k.split(":").slice(-2).join(":")} ${v.state}`).join(", ")}` : ""}; every resource's latest job COMPLETED required`);
+}
+
+// ListRestoreJobs (GET /restore-jobs/?createdAfter=…, backup:ListRestoreJobs): a restore that completed in the period is
+// a restore test on record. AWS Backup restore testing plans write restore jobs too, so both count.
+async function restoreJobs(aws: Aws, out: Out, rr: string, region: string, o: AwsOptions) {
+  const since = new Date(o.now.getTime() - o.restoreTestDays * 86_400_000).toISOString();
+  const r = await backupList(aws, region, "/restore-jobs/", "RestoreJobs", { createdAfter: since });
+  if ("error" in r) return out.skip("restore_tested", rr, `restore jobs not readable: ${r.error}`);
+  const done = r.items.filter((x) => x.Status === "COMPLETED");
+  const last = done.map((x) => epoch(x.CompletionDate) ?? epoch(x.CreationDate) ?? 0).sort((a, b) => b - a)[0];
+  const types = [...new Set(done.map((x) => j(x.ResourceType)).filter(Boolean))].slice(0, 10);
+  out.add("restore_tested", rr, done.length ? "pass" : "fail",
+    done.length ? `${done.length} completed restore job(s) since ${since.slice(0, 10)}${types.length ? ` (${types.join(", ")})` : ""}; latest ${last ? new Date(last).toISOString().slice(0, 10) : "undated"}; ${r.items.length - done.length} other(s)`
+      : `no completed restore job since ${since.slice(0, 10)} (${o.restoreTestDays} days; ${r.items.length} restore job(s) in other states); a restore test in the period required, or record one done outside AWS Backup`);
 }
 
 // ── Network ─────────────────────────────────────────────────────────────────────────────────────

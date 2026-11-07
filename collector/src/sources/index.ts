@@ -11,6 +11,8 @@ import { azure } from "./azure.ts";
 import { gcp } from "./gcp.ts";
 import { jira } from "./jira.ts";
 import { lms } from "./lms.ts";
+import { bamboohr } from "./bamboohr.ts";
+import { rippling } from "./rippling.ts";
 import { prowler } from "./prowler.ts";
 import { ENGINE_SOURCES } from "./engines.ts";
 import { DEVICE_SOURCES } from "./device_sources.ts";
@@ -23,6 +25,7 @@ export const SOURCES: readonly Source[] = [
   cloudflare,
   entra, okta, jumpcloud, googleWorkspace, github,
   aws, azure, gcp, vercel, jira, lms,
+  bamboohr, rippling,
   prowler,
   ...ENGINE_SOURCES,
   ...DEVICE_SOURCES,

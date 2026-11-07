@@ -35,6 +35,8 @@ const VULNS = `https://osconfig.googleapis.com/v1/projects/${P}/locations/us-cen
 const vulnReport = (id: string, sev: string, updated = daysAgo(1)) => ({ name: `projects/123/locations/us-central1-a/instances/${id}/vulnerabilityReport`, highestUpgradableCveSeverity: sev, vulnerabilities: [{}, {}], updateTime: updated });
 const NMCFG = `https://networkmanagement.googleapis.com/v1/projects/${P}/locations/global/vpcFlowLogsConfigs`;
 const NMORG = `${NMCFG}:queryOrgVpcFlowLogsConfigs`;
+const RUNS = `${SQL}/db1/backupRuns`;
+const LOGB = `https://logging.googleapis.com/v2/projects/${P}/locations/-/buckets`;
 
 type Route = unknown | ((url: string) => HttpReply);
 const ok = (json: unknown): HttpReply => ({ status: 200, headers: {}, body: JSON.stringify(json) });
@@ -56,6 +58,8 @@ function strong(): Record<string, Route> {
     [BUCKETS]: { items: [{ name: "acme-assets", iamConfiguration: { publicAccessPrevention: "inherited" } }] },
     [BIAM]: { bindings: [{ role: "roles/storage.objectViewer", members: ["serviceAccount:ci@acme-prod.iam.gserviceaccount.com"] }] },
     [SQL]: { items: [{ name: "db1", settings: { ipConfiguration: { ipv4Enabled: false, sslMode: "ENCRYPTED_ONLY", authorizedNetworks: [] } } }] },
+    [RUNS]: { items: [{ status: "FAILED", windowStartTime: daysAgo(2) }, { status: "SUCCESSFUL", windowStartTime: daysAgo(1) }, { status: "SUCCESSFUL", windowStartTime: daysAgo(30) }] },
+    [LOGB]: { buckets: [{ name: `projects/${P}/locations/global/buckets/_Required`, retentionDays: 400, locked: true }, { name: `projects/${P}/locations/global/buckets/_Default`, retentionDays: 400 }] },
     [FW]: { items: [{ name: "allow-https", direction: "INGRESS", sourceRanges: ["0.0.0.0/0"], allowed: [{ IPProtocol: "tcp", ports: ["443"] }] }, { name: "egress-all", direction: "EGRESS", destinationRanges: ["0.0.0.0/0"], allowed: [{ IPProtocol: "all" }] }] },
     [SU]: { name: "projects/123/services/securitycenter.googleapis.com", state: "ENABLED" },
     [LOCS]: { locations: [{ locationId: "us-central1", name: `projects/${P}/locations/us-central1` }] },
@@ -98,6 +102,8 @@ const FAILS: Record<string, Record<string, Route>> = {
   kms_rotation: { [CKEYS]: { cryptoKeys: [{ name: `${RING}/cryptoKeys/app`, purpose: "ENCRYPT_DECRYPT" }] } },
   vpc_flow_logs: { [SUBNETS]: { items: { "regions/us-central1": { subnetworks: [{ name: "app", region: "r/us-central1", logConfig: { enable: false } }] } } } },
   vm_os_vulnerabilities: { [VULNS]: { vulnerabilityReports: [vulnReport("4001", "CRITICAL")] } },
+  cloudsql_backup_runs_succeeded: { [RUNS]: { items: [{ status: "SUCCESSFUL", windowStartTime: daysAgo(3) }, { status: "FAILED", windowStartTime: daysAgo(1) }] } },
+  log_bucket_retention: { [LOGB]: { buckets: [{ name: `projects/${P}/locations/global/buckets/_Default`, retentionDays: 30 }] } },
 };
 
 test("data_access_audit_logs: DATA_READ and DATA_WRITE set at the folder or organization count for the project (the hierarchy's union)", async () => {

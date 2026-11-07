@@ -1,4 +1,4 @@
-// Iru Endpoint Management API (formerly Kandji; GET only), with a tenant API token whose permissions are the five GET
+// Iru Endpoint Management API (formerly Kandji; GET only), with a tenant API token whose permissions are the six GET
 // endpoints below and nothing else. The vendor renamed Kandji to Iru; its API hosts are still *.api.kandji.io.
 //
 // Endpoints and fields, from the Iru Endpoint Management API reference (api-docs.kandji.io, which now redirects to
@@ -25,9 +25,17 @@
 //        -> { data: [ { device_id, serial_number, sip, ssv, secure_boot_level, ... } ], cursor }
 //   Prism pages by cursor: an empty cursor parameter asks for the first one, and each response's cursor is passed back
 //   unchanged until it is null. limit has the same 300 upper bound.
+//   GET /api/v1/devices/{device_id}/commands?limit=300                                        Get Device Commands
+//        -> { device_id, commands: { count, next, previous, results: [ { uuid, command_type, request_type, status,
+//             date_requested, date_completed, user, ... } ] } }; status 1 pending, 2 running, 3 completed, 4 failed,
+//        5 "Not Now" (the endpoint's own "MDM Status Codes"). Read 2026-11-07, for device_wipe_recorded: request_type is
+//        Apple's MDM RequestType, and an erase is "EraseDevice" (Apple's device-management schema,
+//        https://github.com/apple/device-management/blob/release/mdm/commands/device.erase.yaml, read 2026-11-07). The
+//        reference shows no erase example, so that Iru reports it under that name is [Unverified] until a live tenant shows
+//        one. A Mac deleted from the tenant after its erase is no longer listed, so its erase is not seen here.
 // What a Prism category holds, from support.kandji.io/kb/prism (read 2026-10-20): Application Firewall is "the status
 // of the built-in macOS application firewall"; Startup Settings holds "System Integrity Protection (SIP) status".
-// Token permissions are granted per endpoint (path and method), as the audit log's api_token events show; the token
+// Token permissions are granted per endpoint (path and method; six GET endpoints since 2026-11-07), as the audit log's api_token events show; the token
 // is created under Settings > Access (support.kandji.io/kb/kandji-api, read 2026-10-20).
 //
 // Left out: the screen saver and lock settings. Prism's Desktop and Screensaver sample shows device fields only, no
@@ -38,19 +46,23 @@
 // result.
 
 import type { Result, Source, SourceContext } from "../types.ts";
-import { Emitter, enc, fetchRest, isObj, ok, realSleep, redact, str, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
-import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
+import { Emitter, enc, fetchRest, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
+import { WIPE_DEFAULTS, ageDays, cmpVersion, deviceResource, judgeWipes, label, minOsOption, posInt, showVersion, versionIn, type WipeAction } from "./device_common.ts";
 
 export const KANDJI_ENV = { url: "KANDJI_API_URL", token: "KANDJI_API_TOKEN" } as const;
-export const KANDJI_CHECKS = ["filevault", "os_minimum", "last_checkin", "managed", "library_items", "parameters", "firewall", "gatekeeper", "sip"] as const;
+export const KANDJI_CHECKS = ["filevault", "os_minimum", "last_checkin", "managed", "library_items", "parameters", "firewall", "gatekeeper", "sip", "device_wipe_recorded"] as const;
 type C = (typeof KANDJI_CHECKS)[number];
 
-export const DEFAULTS = { checkinDays: 14, maxDevices: 1000 } as const;
+export const DEFAULTS = { checkinDays: 14, maxDevices: 1000, wipeDays: WIPE_DEFAULTS.periodDays } as const;
 export const PAGE = 300;
 export const devicesPath = (offset: number, filevault?: boolean) =>
   `/v1/devices?platform=Mac${filevault === undefined ? "" : `&filevault_enabled=${filevault}`}&ordering=device_id&limit=${PAGE}&offset=${offset}`;
 export const prismPath = (category: string, cursor = "") => `/v1/prism/${category}?device_families=Mac&limit=${PAGE}&cursor=${enc(cursor)}`;
 export const statusPath = (id: string) => `/v1/devices/${enc(id)}/status`;
+export const commandsPath = (id: string) => `/v1/devices/${enc(id)}/commands?limit=${PAGE}`;
+const ERASE = "EraseDevice";
+const COMMAND_STATE: Record<string, WipeAction["state"]> = { "3": "done", "4": "failed", "1": "pending", "2": "pending", "5": "pending" };
+const COMMAND_STATE_NAME: Record<string, string> = { "1": "pending", "2": "running", "3": "completed", "4": "failed", "5": "Not Now" };
 
 /** An Iru Endpoint Management API client from KANDJI_* variables, or what is missing. */
 export function kandjiFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fetch): RestApi | string {
@@ -105,8 +117,9 @@ function judge(out: Emitter<C>, check: C, list: unknown, fail: Set<string>, pass
   else out.add(check, "skipped", `no ${what} has a pass or fail status yet (${items.length} listed)${where}`, res);
 }
 
-export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDays: number; maxDevices: number; minOs: Map<string, number[]> }, now: Date): Promise<Result[]> {
+export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDays: number; maxDevices: number; minOs: Map<string, number[]>; wipeDays?: number }, now: Date): Promise<Result[]> {
   const out = new Emitter<C>("kandji", `kandji ${tenant}`);
+  const wipeDays = o.wipeDays ?? DEFAULTS.wipeDays;
   const got = await listDevices(api, o.maxDevices);
   if ("error" in got) { for (const c of KANDJI_CHECKS) out.skip(c, got.error, "device list"); return out.results; }
   if (!got.items.length) { out.skipAll(KANDJI_CHECKS, "Iru Endpoint Management lists no Mac; nothing to judge"); return out.results; }
@@ -137,7 +150,8 @@ export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDay
     else prisms.set(check, p.rows);
   }
 
-  let statusDenied: HttpResponse | undefined;
+  let statusDenied: HttpResponse | undefined, commandsDenied: HttpResponse | undefined, commandsRead = 0;
+  const erases: WipeAction[] = [];
   for (const d of got.items) {
     const id = str(d.device_id) ?? "?";
     const res = deviceResource("kandji device", id, d.serial_number);
@@ -175,6 +189,19 @@ export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDay
       else out.add(check, "skipped", `${row ? `Prism ${what} not reported` : "no Prism row for this Mac"}${where}`, res);
     }
 
+    // Erase commands: one Get Device Commands call per Mac. A 401 or 403 stops the calls.
+    if (!commandsDenied) {
+      const c = await api.get(commandsPath(id));
+      const rows = ok(c) && isObj(c.body) && isObj(c.body.commands) && Array.isArray(c.body.commands.results) ? c.body.commands.results.filter(isObj) : undefined;
+      if (!rows) commandsDenied = c;
+      else {
+        commandsRead++;
+        for (const x of rows) if (str(x.request_type) === ERASE || str(x.command_type) === ERASE) erases.push({ resource: res, action: ERASE,
+          state: COMMAND_STATE[String(x.status)] ?? "pending", stateRaw: COMMAND_STATE_NAME[String(x.status)] ?? `status ${String(x.status)}`,
+          requested: String(x.date_requested ?? ""), completed: str(x.date_completed) });
+      }
+    }
+
     // Library items and parameters: one Get Device Status call per Mac. A 401 or 403 stops the calls.
     if (statusDenied) { out.skip("library_items", statusDenied, "device status", res); out.skip("parameters", statusDenied, "device status", res); continue; }
     const s = await api.get(statusPath(id));
@@ -186,6 +213,13 @@ export async function kandjiChecks(api: RestApi, tenant: string, o: { checkinDay
     judge(out, "library_items", s.body.library_items, FAIL_ITEM, PASS_ITEM, "library item(s)", res, where);
     judge(out, "parameters", s.body.parameters, FAIL_PARAM, PASS_PARAM, "parameter(s)", res, where);
   }
+  if (commandsDenied && !commandsRead) out.skip("device_wipe_recorded", commandsDenied, "device commands (GET /api/v1/devices/{device_id}/commands)");
+  else {
+    const n = judgeWipes(erases, { since: now.getTime() - wipeDays * 86_400_000, graceDays: WIPE_DEFAULTS.graceDays, now,
+      where: commandsDenied ? `; device commands stopped answering after ${commandsRead} Mac(s): ${why(commandsDenied)}` : "" },
+      (res, result, detail) => out.add("device_wipe_recorded", result, detail, res));
+    if (!n) out.add("device_wipe_recorded", "skipped", `no ${ERASE} command in the last ${wipeDays} days on the ${commandsRead} listed Mac(s) (--kandji-wipe-days); nothing to judge`);
+  }
   stampRead(out.results, from, listRead(got));   // a capped list leaves devices unseen: format 3 says so
   return out.results;
 }
@@ -195,6 +229,7 @@ export const kandji: Source = {
   options: {
     "kandji-checkin-days": { type: "string", help: `days since a Mac's last agent check-in before last_checkin fails (default ${DEFAULTS.checkinDays})` },
     "kandji-min-os": { type: "string", help: "minimum macOS version for os_minimum, e.g. 15.0 (without it the check is skipped)" },
+    "kandji-wipe-days": { type: "string", help: `days of EraseDevice commands judged by device_wipe_recorded (default ${DEFAULTS.wipeDays})` },
     "kandji-max-devices": { type: "string", help: `Macs read, at most (default ${DEFAULTS.maxDevices}); each costs one status call against the 10,000-an-hour limit` },
   },
   emits: KANDJI_CHECKS.map((c) => `kandji.${c}`),
@@ -213,6 +248,7 @@ export const kandji: Source = {
       checkinDays: posInt(ctx.opts["kandji-checkin-days"], DEFAULTS.checkinDays),
       maxDevices: posInt(ctx.opts["kandji-max-devices"], DEFAULTS.maxDevices),
       minOs: minOsOption(ctx.opts["kandji-min-os"]),
+      wipeDays: posInt(ctx.opts["kandji-wipe-days"], DEFAULTS.wipeDays),
     };
     return redact(await kandjiChecks(api, tenant, o, ctx.now), [ctx.env[KANDJI_ENV.token]]);
   },

@@ -38,6 +38,10 @@ export const API = {
   disks: "2023-10-02",
   recoveryServices: "2023-04-01",
   backup: "2023-04-01",
+  // Backup Jobs - List (learn.microsoft.com/rest/api/backup/backup-jobs/list, updated 2026-11-03, read 2026-11-07).
+  backupJobs: "2026-11-01",
+  // Workspaces (learn.microsoft.com/rest/api/loganalytics/workspaces, updated 2026-08-10, read 2026-11-07).
+  workspaces: "2026-03-01",
   // Resources - List (learn.microsoft.com/rest/api/resources/resources/list, read 2026-10-26).
   resources: "2021-04-01",
   // Virtual Machines - List All and Instance View (learn.microsoft.com/rest/api/compute/virtual-machines/, read 2026-10-26).

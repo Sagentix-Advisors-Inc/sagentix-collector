@@ -1,0 +1,40 @@
+{
+ "source": "bamboohr",
+ "title": "BambooHR (API v1, API key of a read-only user)",
+ "readScopes": [
+  "A BambooHR API key (made under the user's own account, My Account > API Keys) of a user whose access level reads, and edits nothing in, these fields: status, workEmail, hireDate, terminationDate, supervisorEId, jobTitle, and the acknowledgement and background-check date fields if named. BambooHR has no read-only key: the key carries that user's access. Used only with GET /api/v1/employees?filter[status]=active|inactive. The key is BAMBOOHR_API_KEY; the company subdomain is --bamboohr-company.",
+  "For the leaver check, the identity provider's own read-only credential, already granted to its source: Okta okta.users.read; Entra ID User.Read.All and AuditLog.Read.All; Google Workspace admin.directory.user.readonly and admin.reports.audit.readonly; JumpCloud users.readonly."
+ ],
+ "checks": [
+  {
+   "id": "bamboohr.leaver_access_removed",
+   "title": "Each person who left in the period lost identity-provider access within 24 hours of their last day",
+   "scope": "One result per BambooHR record whose employment ended in the period (--bamboohr-since, default 365 days), joined by work email with the identity provider named by --bamboohr-idp (Okta, Entra ID, Google Workspace or JumpCloud) through that provider's own read-only credential. A disable or delete time comes from Okta statusChanged, the Entra directory audit (kept 7 or 30 days) or deleted-items list (30 days), or Google suspensionTime and DELETE_USER events (6 months); JumpCloud records no time. Without a time, or with no account under the email, the pass is marked incomplete. The window is --bamboohr-access-hours.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "bamboohr.hire_acknowledgement",
+   "title": "Each person hired in the period has a recorded code of conduct or acceptable-use acknowledgement",
+   "scope": "One result per BambooHR record whose start date falls in the period, from the date field the customer names with --bamboohr-ack-field (for example a custom field such as \"Code of conduct signed\"); skipped when none is named. Shows a date was recorded, not what was signed.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "bamboohr.hire_training",
+   "title": "Each person hired in the period completed security awareness training within 30 days of starting",
+   "scope": "One result per hire in the period, joined by employee id or work email with the LMS export the lms source reads (--training-csv; course text --lms-awareness-course); the window is --bamboohr-training-days. Skipped without the export.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "bamboohr.hire_background_check",
+   "title": "Each person hired in the period has a background check recorded",
+   "scope": "One result per hire in the period, from the date field the customer names with --bamboohr-background-field (BambooHR has no standard one; usually a custom field or table); skipped when none is named, because which positions need a check is the organization's policy.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "bamboohr.org_chart_complete",
+   "title": "Each active person has a manager and a job title in the HR system",
+   "scope": "Every active BambooHR record: no manager (at most --bamboohr-max-without-manager, default 1, the top of the chart), a manager not in the HR system, or no job title fails. Shows reporting lines and titles exist, not that position descriptions carry security duties.",
+   "evidenceType": "Report"
+  }
+ ]
+}

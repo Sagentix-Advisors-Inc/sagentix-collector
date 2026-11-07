@@ -74,3 +74,50 @@ export const posInt = (v: unknown, dflt: number) => {
 
 /** Values of a repeatable string option. */
 export const many = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : typeof v === "string" ? [v] : []).flatMap((s) => s.split(",")).map((s) => s.trim()).filter(Boolean);
+
+// ── Wipe and retire records (2026-11-07; SOC 2 CC6.5, SP 800-53 mp-6 and sr-12): a device leaving service is wiped or
+// retired by a recorded MDM action that finished. Each source reads its own action log into WipeAction rows.
+export const WIPE_DEFAULTS = { periodDays: 365, graceDays: 7 } as const;
+export type WipeState = "done" | "failed" | "pending";
+export interface WipeAction {
+  /** The device's resource string (deviceResource). */
+  resource: string;
+  /** The action in the vendor's words (factoryReset, removeCompanyData, ERASE_DEVICE, EraseDevice). */
+  action: string;
+  /** An action that removes the device's record without wiping or retiring it (Intune "delete"). */
+  removalOnly?: boolean;
+  state: WipeState;
+  /** The vendor's own state value, quoted in the detail. */
+  stateRaw: string;
+  requested: string;
+  completed?: string;
+}
+
+/**
+ * One result per device with a wipe, retire or removal action in the period: pass when a wipe or retire finished; fail
+ * when it failed, stayed pending past the grace days, or the device was only removed from management with no wipe or
+ * retire recorded; skipped while a recent one is pending. Returns how many devices it judged.
+ */
+export function judgeWipes(actions: WipeAction[], o: { since: number; graceDays: number; now: Date; where: string },
+  add: (resource: string, result: "pass" | "fail" | "skipped", detail: string) => void): number {
+  const by = new Map<string, WipeAction[]>();
+  for (const a of actions) {
+    const t = Date.parse(a.requested);
+    if (!Number.isFinite(t) || t < o.since || t > o.now.getTime()) continue;
+    by.set(a.resource, [...(by.get(a.resource) ?? []), a]);
+  }
+  const show = (a: WipeAction) => `${a.action} ${a.stateRaw}, requested ${a.requested.slice(0, 10)}${a.completed ? `, completed ${a.completed.slice(0, 10)}` : ""}`;
+  for (const [res, xs] of by) {
+    xs.sort((a, b) => Date.parse(a.requested) - Date.parse(b.requested));
+    const wipes = xs.filter((a) => !a.removalOnly);
+    const done = wipes.find((a) => a.state === "done");
+    if (done) { add(res, "pass", `${show(done)}${o.where}`); continue; }
+    if (!wipes.length) { add(res, "fail", `removed from management (${xs.map(show).join("; ")}) with no wipe or retire recorded${o.where}`); continue; }
+    const last = wipes[wipes.length - 1];
+    if (last.state === "failed") { add(res, "fail", `${show(last)}; a finished wipe or retire is required${o.where}`); continue; }
+    const age = Math.floor((o.now.getTime() - Date.parse(last.requested)) / DAY_MS);
+    if (age > o.graceDays) add(res, "fail", `${show(last)}, not finished after ${age} days (at most ${o.graceDays} allowed)${o.where}`);
+    else add(res, "skipped", `${show(last)}, pending for ${age} day(s); judged once it finishes or ${o.graceDays} days pass${o.where}`);
+  }
+  return by.size;
+}

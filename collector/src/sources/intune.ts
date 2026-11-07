@@ -14,24 +14,41 @@
 // bitLockerEnabled (Windows), passwordRequired, passwordMinutesOfInactivityBeforeLock, osMinimumVersion.
 // The Graph API for Intune needs an active Intune licence on the tenant.
 //
+// Wipe and retire records (device_wipe_recorded, 2026-11-07): the remote action audit is in Graph beta only (the v1.0
+// page redirects there), so this one read leaves v1.0:
+//   GET https://graph.microsoft.com/beta/deviceManagement/remoteActionAudits                DeviceManagementManagedDevices.Read.All
+//   -> { value: [ { managedDeviceId, action, actionState, requestDateTime, ... } ], @odata.nextLink }
+// action (remoteAction) has no "wipe" or "retire" value: a wipe is factoryReset or factoryResetKeepEnrollmentData, a
+// retire is removeCompanyData ("remove company data from a device"), cleanWindowsDevice is a Fresh Start, and delete
+// removes the record without wiping. actionState is none, pending, canceled, active, done, failed or notSupported.
+// deviceDisplayName, userName, initiatedByUserPrincipalName and deviceOwnerUserPrincipalName are never read into a result.
+// https://learn.microsoft.com/en-us/graph/api/intune-devices-remoteactionaudit-list?view=graph-rest-beta
+// https://learn.microsoft.com/en-us/graph/api/resources/intune-devices-remoteactionaudit?view=graph-rest-beta
+// https://learn.microsoft.com/en-us/graph/api/resources/intune-devices-remoteaction?view=graph-rest-beta
+// https://learn.microsoft.com/en-us/graph/api/resources/intune-devices-actionstate?view=graph-rest-1.0 (all read 2026-11-07)
+//
 // Env: INTUNE_TENANT_ID, INTUNE_CLIENT_ID and INTUNE_CLIENT_SECRET or INTUNE_CLIENT_CERT_FILE; each
 // falls back to its ENTRA_* twin, so one app registration can serve both sources.
 
 import type { Result, Source, SourceContext } from "../types.ts";
 import { entraFromEnv } from "./entra.ts";
 import { Emitter, enc, getAll, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
-import { ageDays, cmpVersion, deviceResource, label, minOsOption, posInt, showVersion, versionIn } from "./device_common.ts";
+import { WIPE_DEFAULTS, ageDays, cmpVersion, deviceResource, judgeWipes, label, minOsOption, posInt, showVersion, versionIn, type WipeAction } from "./device_common.ts";
 
 export const INTUNE_ENV = { tenant: "INTUNE_TENANT_ID", client: "INTUNE_CLIENT_ID", secret: "INTUNE_CLIENT_SECRET", cert: "INTUNE_CLIENT_CERT_FILE" } as const;
 export const INTUNE_CHECKS = [
   "policy_requires_encryption", "policy_requires_screen_lock", "policy_min_os",
-  "device_compliant", "device_encrypted", "device_os_minimum", "device_last_sync",
+  "device_compliant", "device_encrypted", "device_os_minimum", "device_last_sync", "device_wipe_recorded",
 ] as const;
 type C = (typeof INTUNE_CHECKS)[number];
 const POLICY_CHECKS = ["policy_requires_encryption", "policy_requires_screen_lock", "policy_min_os"] as const;
 const DEVICE_CHECKS = ["device_compliant", "device_encrypted", "device_os_minimum", "device_last_sync"] as const;
 
-export const DEFAULTS = { syncDays: 14, maxLockMinutes: 15 } as const;
+export const DEFAULTS = { syncDays: 14, maxLockMinutes: 15, wipeDays: WIPE_DEFAULTS.periodDays } as const;
+export const REMOTE_ACTION_AUDITS = "https://graph.microsoft.com/beta/deviceManagement/remoteActionAudits";
+/** remoteAction values that wipe or retire a device (false), or only remove its record (true). */
+export const WIPE_ACTIONS: Record<string, boolean> = { factoryReset: false, factoryResetKeepEnrollmentData: false, removeCompanyData: false, cleanWindowsDevice: false, delete: true };
+const WIPE_STATE: Record<string, WipeAction["state"]> = { done: "done", failed: "failed", canceled: "failed", notSupported: "failed", pending: "pending", active: "pending", none: "pending" };
 export const DEVICE_SELECT = "id,serialNumber,operatingSystem,osVersion,complianceState,isEncrypted,lastSyncDateTime";
 
 /** The laptop platforms whose compliance policies are judged: policy @odata.type → managedDevice operatingSystem. */
@@ -52,7 +69,7 @@ export function intuneFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fe
   return entraFromEnv({ ENTRA_TENANT_ID: tenant, ENTRA_CLIENT_ID: client, ENTRA_CLIENT_SECRET: secret, ENTRA_CLIENT_CERT_FILE: cert }, fetchFn);
 }
 
-export interface IntuneOptions { syncDays: number; maxLockMinutes: number; minOs: Map<string, number[]> }
+export interface IntuneOptions { syncDays: number; maxLockMinutes: number; minOs: Map<string, number[]>; wipeDays?: number }
 
 const sameOs = (a: unknown, b: string) => String(a ?? "").toLowerCase() === b.toLowerCase();
 
@@ -109,6 +126,24 @@ export async function intuneChecks(api: RestApi, tenant: string, o: IntuneOption
     }
   }
 
+  // Wipe and retire actions of the period, from the remote action audit (Graph beta).
+  const wipeDays = o.wipeDays ?? DEFAULTS.wipeDays;
+  const auditR = await list(api, REMOTE_ACTION_AUDITS, 50);
+  if ("error" in auditR) out.skip("device_wipe_recorded", auditR.error, "remote action audit (Graph beta)");
+  else {
+    const serial = new Map((devices ?? []).map((d) => [String(d.id), d.serialNumber]));
+    const actions: WipeAction[] = auditR.items.filter(isObj).filter((a) => Object.hasOwn(WIPE_ACTIONS, String(a.action))).map((a) => ({
+      resource: deviceResource("intune device", a.managedDeviceId, serial.get(String(a.managedDeviceId))),
+      action: String(a.action), removalOnly: WIPE_ACTIONS[String(a.action)], state: WIPE_STATE[String(a.actionState)] ?? "pending",
+      stateRaw: String(a.actionState ?? "not reported"), requested: String(a.requestDateTime ?? ""),
+    }));
+    const from = out.results.length;
+    const n = judgeWipes(actions, { since: now.getTime() - wipeDays * 86_400_000, graceDays: WIPE_DEFAULTS.graceDays, now, where: "" },
+      (res, result, detail) => out.add("device_wipe_recorded", result, detail, res));
+    if (!n) out.add("device_wipe_recorded", "skipped", `no wipe, retire or delete action in the last ${wipeDays} days (--intune-wipe-days); nothing to judge`);
+    stampRead(out.results, from, listRead(auditR));
+  }
+
   // Each managed device.
   if (!devices) { for (const c of DEVICE_CHECKS) out.skip(c, (devR as { error: HttpResponse }).error, "managed devices"); return out.results; }
   if (!devices.length) { out.skipAll(DEVICE_CHECKS, "Intune lists no managed device; nothing to judge"); return out.results; }
@@ -150,6 +185,7 @@ export const intune: Source = {
   options: {
     "intune-sync-days": { type: "string", help: `days since a device's last Intune sync before device_last_sync fails (default ${DEFAULTS.syncDays})` },
     "intune-max-lock-minutes": { type: "string", help: `longest idle time before lock a compliance policy may allow (default ${DEFAULTS.maxLockMinutes})` },
+    "intune-wipe-days": { type: "string", help: `days of wipe, retire and delete actions judged by device_wipe_recorded (default ${DEFAULTS.wipeDays})` },
     "intune-min-os": { type: "string", multiple: true, help: "<operatingSystem>=<version> floor, e.g. Windows=10.0.22631 or macOS=14.0 (repeatable; default the assigned policies' osMinimumVersion)" },
   },
   emits: INTUNE_CHECKS.map((c) => `intune.${c}`),
@@ -168,6 +204,7 @@ export const intune: Source = {
       syncDays: posInt(ctx.opts["intune-sync-days"], DEFAULTS.syncDays),
       maxLockMinutes: posInt(ctx.opts["intune-max-lock-minutes"], DEFAULTS.maxLockMinutes),
       minOs: minOsOption(ctx.opts["intune-min-os"]),
+      wipeDays: posInt(ctx.opts["intune-wipe-days"], DEFAULTS.wipeDays),
     };
     return redact(await intuneChecks(api, tenant, o, ctx.now), [ctx.env[INTUNE_ENV.secret], ctx.env.ENTRA_CLIENT_SECRET]);
   },

@@ -59,6 +59,11 @@ function strong(): Record<string, Route> {
     [`${S}/providers/Microsoft.Compute/disks`]: list([{ id: `${RG}/providers/Microsoft.Compute/disks/os1`, name: "os1", properties: { encryption: { type: "EncryptionAtRestWithPlatformKey" } } }]),
     [`${S}/providers/Microsoft.RecoveryServices/vaults`]: list([{ id: `${RG}/providers/Microsoft.RecoveryServices/vaults/rsv`, name: "rsv" }]),
     [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupProtectedItems`]: list([{ name: "VM;iaasvmcontainerv2;prod;vm1" }]),
+    [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupJobs`]: list([
+      { name: "j1", properties: { operation: "Backup", status: "Failed", entityFriendlyName: "vm1", startTime: "2026-10-13T01:00:00Z" } },
+      { name: "j2", properties: { operation: "Backup", status: "Completed", entityFriendlyName: "vm1", startTime: "2026-10-14T01:00:00Z" } },
+      { name: "j3", properties: { operation: "Restore", status: "Completed", entityFriendlyName: "vm1", startTime: "2026-06-01T01:00:00Z" } }]),
+    [`${S}/providers/Microsoft.OperationalInsights/workspaces`]: list([{ id: `${RG}/providers/Microsoft.OperationalInsights/workspaces/law`, name: "law", properties: { retentionInDays: 730 } }]),
     [`${S}/resources`]: resources(["Microsoft.Compute/virtualMachines"]),
     [`${RG}/providers/Microsoft.Sql/servers/sql1/firewallRules`]: list([
       { name: "AllowAllWindowsAzureIps", properties: { startIpAddress: "0.0.0.0", endIpAddress: "0.0.0.0" } },
@@ -106,6 +111,9 @@ const FAILS: Record<string, Record<string, Route>> = {
   backup_protected_items: { [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupProtectedItems`]: list([]) },
   sql_firewall_not_open: { [`${RG}/providers/Microsoft.Sql/servers/sql1/firewallRules`]: list([{ name: "any", properties: { startIpAddress: "0.0.0.0", endIpAddress: "255.255.255.255" } }]) },
   vm_patches_current: { [`${VM}/instanceView`]: patchView({ ...goodPatch, criticalAndSecurityPatchCount: 4 }) },
+  backup_jobs_succeeded: { [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupJobs`]: list([{ name: "j1", properties: { operation: "Backup", status: "Failed", entityFriendlyName: "vm1", startTime: "2026-10-14T01:00:00Z" } }]) },
+  restore_tested: { [`${RG}/providers/Microsoft.RecoveryServices/vaults/rsv/backupJobs`]: list([{ name: "j2", properties: { operation: "Backup", status: "Completed", entityFriendlyName: "vm1", startTime: "2026-10-14T01:00:00Z" } }]) },
+  log_analytics_retention: { [`${S}/providers/Microsoft.OperationalInsights/workspaces`]: list([{ id: `${RG}/x/law`, name: "law", properties: { retentionInDays: 30 } }]) },
 };
 
 test("every check the source declares has a pass and a fail case here", () => {

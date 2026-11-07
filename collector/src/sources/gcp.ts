@@ -4,7 +4,7 @@
 import type { Source } from "../types.ts";
 import { Results, allSkipped, list, scrub } from "./shared-cloud.ts";
 import { GCP_KEY_ENV, GCP_TOKEN_ENV, Gcp, fetchGcpTransport, gcpKeyToken, type GcpTransport } from "./gcp/api.ts";
-import { DEFAULT_KEY_MAX_AGE_DAYS, DEFAULT_ORG_CONSTRAINTS, GCP_CHECKS, projectChecks, type GcpCheck } from "./gcp/project.ts";
+import { DEFAULT_BACKUP_WINDOW_DAYS, DEFAULT_KEY_MAX_AGE_DAYS, DEFAULT_LOG_RETENTION_DAYS, DEFAULT_ORG_CONSTRAINTS, GCP_CHECKS, projectChecks, type GcpCheck } from "./gcp/project.ts";
 
 export const gcp: Source = {
   name: "gcp",
@@ -12,6 +12,8 @@ export const gcp: Source = {
     "gcp-project": { type: "string", multiple: true, help: "GCP project id (repeatable or comma-separated); required" },
     "gcp-org-constraints": { type: "string", help: `boolean org policy constraints that must be enforced (default ${DEFAULT_ORG_CONSTRAINTS.join(",")})` },
     "gcp-key-max-age-days": { type: "string", help: `oldest a user-managed service account key may be (default ${DEFAULT_KEY_MAX_AGE_DAYS})` },
+    "gcp-backup-window-days": { type: "string", help: `days of Cloud SQL backup runs read; the latest must be SUCCESSFUL (default ${DEFAULT_BACKUP_WINDOW_DAYS})` },
+    "gcp-log-retention-days": { type: "string", help: `least log bucket retention accepted, in days (default ${DEFAULT_LOG_RETENTION_DAYS})` },
   },
   emits: GCP_CHECKS.map((c) => `gcp.${c}`),
   describe(opts) {
@@ -28,13 +30,14 @@ export const gcp: Source = {
     if (!t) return projects.flatMap((p) => allSkipped("gcp", GCP_CHECKS, `project ${p}`, typeof keyed === "string" ? keyed : `${GCP_TOKEN_ENV} or ${GCP_KEY_ENV} is not set`));
     const constraints = list(ctx.opts["gcp-org-constraints"]);
     const maxAge = Number(ctx.opts["gcp-key-max-age-days"] ?? DEFAULT_KEY_MAX_AGE_DAYS);
+    const days = (k: string, d: number) => { const n = Number(typeof ctx.opts[k] === "string" ? ctx.opts[k] : NaN); return Number.isFinite(n) && n > 0 ? n : d; };
     const api = new Gcp(t);
     const out = new Results<GcpCheck>("gcp");
     for (const p of projects) {
       await projectChecks(api, p, {
         orgConstraints: constraints.length ? constraints : DEFAULT_ORG_CONSTRAINTS,
         keyMaxAgeDays: Number.isFinite(maxAge) && maxAge > 0 ? maxAge : DEFAULT_KEY_MAX_AGE_DAYS,
-        now: ctx.now,
+        now: ctx.now, backupWindowDays: days("gcp-backup-window-days", DEFAULT_BACKUP_WINDOW_DAYS), logRetentionDays: days("gcp-log-retention-days", DEFAULT_LOG_RETENTION_DAYS),
       }, out);
     }
     return scrub(out.results, [token]);

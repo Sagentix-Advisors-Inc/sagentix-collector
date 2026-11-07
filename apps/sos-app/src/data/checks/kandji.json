@@ -2,7 +2,7 @@
  "source": "kandji",
  "title": "Iru Endpoint Management, formerly Kandji (Enterprise API, API token with GET permissions only)",
  "readScopes": [
-  "An Iru Endpoint Management API token (Settings > Access > Add API Token) whose permissions are these five GET endpoints only: GET /api/v1/devices (List Devices), GET /api/v1/devices/{device_id}/status (Get Device Status), GET /api/v1/prism/application_firewall, GET /api/v1/prism/gatekeeper_and_xprotect and GET /api/v1/prism/startup_settings. The token is KANDJI_API_TOKEN; the tenant API URL (https://<subdomain>.api.kandji.io, or .api.eu.kandji.io in the EU) is KANDJI_API_URL."
+  "An Iru Endpoint Management API token (Settings > Access > Add API Token) whose permissions are these six GET endpoints only: GET /api/v1/devices (List Devices), GET /api/v1/devices/{device_id}/status (Get Device Status), GET /api/v1/devices/{device_id}/commands (Get Device Commands, since 2026-11-07), GET /api/v1/prism/application_firewall, GET /api/v1/prism/gatekeeper_and_xprotect and GET /api/v1/prism/startup_settings. The token is KANDJI_API_TOKEN; the tenant API URL (https://<subdomain>.api.kandji.io, or .api.eu.kandji.io in the EU) is KANDJI_API_URL."
  ],
  "checks": [
   {
@@ -58,6 +58,12 @@
    "title": "System Integrity Protection is enabled",
    "scope": "Every Mac with a row in Prism's Startup settings category, from sip.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "kandji.device_wipe_recorded",
+   "title": "Each Mac erased in the period has a finished erase recorded",
+   "scope": "One result per listed Mac with an EraseDevice command requested within --kandji-wipe-days (default 365): completed passes; failed fails; pending, running or Not Now for more than 7 days fails. A Mac deleted from the tenant after its erase is no longer listed, so its erase is not seen.",
+   "evidenceType": "Audit Record"
   }
  ]
 }

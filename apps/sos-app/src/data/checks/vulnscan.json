@@ -1,0 +1,27 @@
+{
+ "source": "vulnscan",
+ "title": "Vulnerability scanner results (Tenable Nessus, Tenable Vulnerability Management, Qualys VMDR), held to the asset inventory",
+ "readScopes": [
+  "None for the collector: it reads export files. The exports need the scanner's read-only role: Tenable, 'at least the Basic [16] user permission' and 'Can View' on the assets; Qualys, the Reader role ('Scanners and Readers view VM scanned hosts')."
+ ],
+ "checks": [
+  {
+   "id": "vulnscan.authenticated_coverage",
+   "title": "Every asset in the inventory was scanned with working credentials (100% authenticated coverage)",
+   "scope": "Each inventory asset (--vulnscan-inventory: CSV, JSON or one per line) matched by name, short name or IP to a scanned host whose credential record says yes: plugin 19506 in a .nessus or Tenable export, last_authenticated_scan_date at the last scan in a Tenable asset export, or LAST_VM_AUTH_SCANNED_DATE at LAST_VM_SCANNED_DATE in a Qualys detection. Without an inventory the check is skipped.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "vulnscan.scan_recent",
+   "title": "Every asset was scanned within the scan period (default 30 days: monthly)",
+   "scope": "The last scan date of each inventory asset (or of each scanned host when no inventory is given): HOST_END in a .nessus file, plugin 19506's last_found or last_scan_time in a Tenable export, LAST_VM_SCANNED_DATE in a Qualys detection; --vulnscan-max-age-days sets the period.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "vulnscan.findings_within_sla",
+   "title": "No open vulnerability is older than its severity's remediation window (default 30 days critical and high, 90 medium, 180 low)",
+   "scope": "Open findings (Tenable state OPEN or REOPENED; Qualys confirmed detections not Fixed) aged from their first-found date against --vulnscan-sla. A .nessus file is one scan with no first-found date, so the check is skipped for it.",
+   "evidenceType": "Report"
+  }
+ ]
+}

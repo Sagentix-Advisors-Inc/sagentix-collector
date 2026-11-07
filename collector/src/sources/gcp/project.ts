@@ -15,6 +15,8 @@
 //   GET  storage v1 b?project={p}                                      roles/viewer (storage.buckets.list)
 //   GET  storage v1 b/{bucket}/iam                                     roles/iam.securityReviewer (storage.buckets.getIamPolicy)
 //   GET  sqladmin v1 projects/{p}/instances                            roles/viewer (cloudsql.instances.list)
+//   GET  sqladmin v1 projects/{p}/instances/{i}/backupRuns             roles/viewer (cloudsql.backupRuns.list)
+//   GET  logging v2 projects/{p}/locations/-/buckets                   roles/logging.viewer (logging.buckets.list)
 //   GET  compute v1 projects/{p}/global/firewalls                      roles/viewer (compute.firewalls.list)
 //   GET  compute v1 projects/{p}/aggregated/subnetworks                roles/viewer (compute.subnetworks.list)
 //   GET  serviceusage v1 projects/{p}/services/securitycenter.googleapis.com   roles/viewer (serviceusage.services.get)
@@ -26,7 +28,7 @@ import { Gcp, gWhy, okStatus, type GcpReply } from "./api.ts";
 export const GCP_CHECKS = [
   "data_access_audit_logs", "org_policy_enforced", "sa_keys_rotated", "bucket_not_public",
   "cloudsql_no_public_ip", "cloudsql_ssl_required", "firewall_no_open_admin_ports", "scc_api_enabled",
-  "kms_rotation", "vpc_flow_logs", "vm_os_vulnerabilities",
+  "kms_rotation", "vpc_flow_logs", "vm_os_vulnerabilities", "cloudsql_backup_runs_succeeded", "log_bucket_retention",
 ] as const;
 export type GcpCheck = (typeof GCP_CHECKS)[number];
 /** Oldest a VM's OS Config vulnerability report may be. */
@@ -49,12 +51,14 @@ const COMPUTE = "https://compute.googleapis.com/compute/v1";
 const SERVICEUSAGE = "https://serviceusage.googleapis.com/v1";
 const KMS = "https://cloudkms.googleapis.com/v1";
 const OSCONFIG = "https://osconfig.googleapis.com/v1";
+const LOGGING = "https://logging.googleapis.com/v2";
 
 const enc = encodeURIComponent;
 const OPEN = new Set(["0.0.0.0/0", "::/0"]);
 const PUBLIC_MEMBERS = new Set(["allUsers", "allAuthenticatedUsers"]);
 
-export interface ProjectOptions { orgConstraints: string[]; keyMaxAgeDays: number; now: Date }
+export const DEFAULT_BACKUP_WINDOW_DAYS = 7, DEFAULT_LOG_RETENTION_DAYS = 365;
+export interface ProjectOptions { orgConstraints: string[]; keyMaxAgeDays: number; now: Date; backupWindowDays: number; logRetentionDays: number }
 
 type Out = Results<GcpCheck>;
 const skipFor = (out: Out, check: GcpCheck, resource: string, what: string, r: GcpReply) =>
@@ -133,7 +137,8 @@ export async function projectChecks(api: Gcp, project: string, o: ProjectOptions
 
   await serviceAccountKeys(api, project, o, out);
   await buckets(api, project, out);
-  await cloudSql(api, project, out);
+  await cloudSql(api, project, o, out);
+  await logBuckets(api, project, o, out);
   await firewalls(api, project, out);
 
   const su = await api.get(`${SERVICEUSAGE}/${p}/services/securitycenter.googleapis.com`);
@@ -247,16 +252,18 @@ async function buckets(api: Gcp, project: string, out: Out): Promise<void> {
   }
 }
 
-async function cloudSql(api: Gcp, project: string, out: Out): Promise<void> {
+async function cloudSql(api: Gcp, project: string, o: ProjectOptions, out: Out): Promise<void> {
   const pr = `project ${project}`;
   const s = await api.getAll(`${SQL}/projects/${enc(project)}/instances`, "items");
   if ("error" in s) {
     skipFor(out, "cloudsql_no_public_ip", pr, "Cloud SQL instances", s.error);
+    skipFor(out, "cloudsql_backup_runs_succeeded", pr, "Cloud SQL instances", s.error);
     return skipFor(out, "cloudsql_ssl_required", pr, "Cloud SQL instances", s.error);
   }
   const list = s.items.filter(isObj);
   if (!list.length) {
     out.skip("cloudsql_no_public_ip", pr, "the project has no Cloud SQL instance");
+    out.skip("cloudsql_backup_runs_succeeded", pr, "the project has no Cloud SQL instance");
     return out.skip("cloudsql_ssl_required", pr, "the project has no Cloud SQL instance");
   }
   for (const i of list) {
@@ -270,6 +277,40 @@ async function cloudSql(api: Gcp, project: string, out: Out): Promise<void> {
     const enforced = mode ? ["ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"].includes(mode) : ip.requireSsl === true;
     out.add("cloudsql_ssl_required", res, enforced ? "pass" : "fail",
       `sslMode is ${j(mode ?? "unset")}, requireSsl is ${j(ip.requireSsl)}; ENCRYPTED_ONLY or TRUSTED_CLIENT_CERTIFICATE_REQUIRED (or requireSsl true when sslMode is unset) required`);
+    await backupRuns(api, project, String(i.name ?? ""), res, o, out);
+  }
+}
+
+// Cloud SQL Admin API v1 backupRuns.list (GET projects/{p}/instances/{i}/backupRuns; cloudsql.backupRuns.list, in
+// roles/cloudsql.viewer and roles/viewer): the latest finished run in the window must be SUCCESSFUL. A failed run
+// followed by a successful one is recovered.
+async function backupRuns(api: Gcp, project: string, instance: string, res: string, o: ProjectOptions, out: Out): Promise<void> {
+  const r = await api.getAll(`${SQL}/projects/${enc(project)}/instances/${enc(instance)}/backupRuns?maxResults=100`, "items", 3);
+  if ("error" in r) return skipFor(out, "cloudsql_backup_runs_succeeded", res, "backup runs", r.error);
+  const since = o.now.getTime() - o.backupWindowDays * 86_400_000;
+  const runs = r.items.filter(isObj).map((x) => ({ status: String(x.status ?? ""), at: Date.parse(String(x.windowStartTime ?? x.enqueuedTime ?? x.startTime ?? "")) || 0 }))
+    .filter((x) => x.at >= since && ["SUCCESSFUL", "FAILED", "SKIPPED", "DELETION_FAILED"].includes(x.status)).sort((a, b) => b.at - a.at);
+  if (!runs.length) return out.add("cloudsql_backup_runs_succeeded", res, "fail", `no finished backup run in the last ${o.backupWindowDays} days; a SUCCESSFUL latest run required (automated backups may be off: see cloudsql_instance_automated_backups)`);
+  const failed = runs.filter((x) => x.status !== "SUCCESSFUL").length;
+  out.add("cloudsql_backup_runs_succeeded", res, runs[0].status === "SUCCESSFUL" ? "pass" : "fail",
+    `${runs.length} run(s) in the last ${o.backupWindowDays} days, ${failed} not successful; latest ${runs[0].status} on ${new Date(runs[0].at).toISOString().slice(0, 10)}; latest SUCCESSFUL required`);
+}
+
+// Cloud Logging API v2 projects.locations.buckets.list (GET projects/{p}/locations/-/buckets; logging.buckets.list, in
+// roles/logging.viewer): each log bucket's retentionDays must reach the required period. _Required is fixed by Google
+// (400 days) and is reported, not judged; _Default and buckets the organization made are judged.
+async function logBuckets(api: Gcp, project: string, o: ProjectOptions, out: Out): Promise<void> {
+  const pr = `project ${project}`;
+  const r = await api.getAll(`${LOGGING}/projects/${enc(project)}/locations/-/buckets`, "buckets");
+  if ("error" in r) return skipFor(out, "log_bucket_retention", pr, "log buckets", r.error);
+  const judged = r.items.filter(isObj).filter((b) => !String(b.name ?? "").endsWith("/buckets/_Required") && b.lifecycleState !== "DELETE_REQUESTED");
+  if (!judged.length) return out.skip("log_bucket_retention", pr, "no log bucket other than _Required");
+  for (const b of judged) {
+    const name = String(b.name ?? "?").replace(/^projects\/[^/]+\//, "");
+    const days = Number(b.retentionDays);
+    if (!Number.isFinite(days)) { out.skip("log_bucket_retention", `log bucket ${project}/${name}`, "retentionDays not returned"); continue; }
+    out.add("log_bucket_retention", `log bucket ${project}/${name}`, days >= o.logRetentionDays ? "pass" : "fail",
+      `retentionDays ${days}${b.locked === true ? " (locked)" : ""}; at least ${o.logRetentionDays} required`);
   }
 }
 

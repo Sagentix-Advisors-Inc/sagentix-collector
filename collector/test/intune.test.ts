@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { GRAPH_BASE } from "../src/sources/entra.ts";
-import { DEVICE_SELECT, intune, intuneFromEnv } from "../src/sources/intune.ts";
+import { DEVICE_SELECT, REMOTE_ACTION_AUDITS, intune, intuneFromEnv } from "../src/sources/intune.ts";
 import { contractSuite, daysAgo, fakeRest, of, res, runWith, type Contract, type Routes } from "./rest_fakes.ts";
 
 const ok = (b: unknown) => res(200, b);
@@ -28,6 +28,18 @@ function devices(): Record<string, unknown>[] {
       deviceName: "Anna's MacBook Pro", userPrincipalName: "anna.chao@acme.example", userDisplayName: "Anna Chao" },
   ];
 }
+/** Remote action audit rows (Graph beta), with the person fields the source must never read into a result. */
+function audits(): Record<string, unknown>[] {
+  return [
+    { id: "ra1", managedDeviceId: "d-old-1", action: "factoryReset", actionState: "done", requestDateTime: daysAgo(20), deviceDisplayName: "Carol's Surface", userName: "carol@acme.example",
+      initiatedByUserPrincipalName: "it.admin@acme.example", deviceOwnerUserPrincipalName: "carol@acme.example" },
+    { id: "ra2", managedDeviceId: "d-old-2", action: "removeCompanyData", actionState: "done", requestDateTime: daysAgo(40) },
+    { id: "ra3", managedDeviceId: "d-old-2", action: "delete", actionState: "done", requestDateTime: daysAgo(39) },
+    { id: "ra4", managedDeviceId: "d-win-1", action: "syncDevice", actionState: "done", requestDateTime: daysAgo(1) },
+    { id: "ra5", managedDeviceId: "d-ancient", action: "delete", actionState: "done", requestDateTime: daysAgo(500) },
+  ];
+}
+const withAudit = (change: (a: Record<string, unknown>[]) => void): Routes => { const a = audits(); change(a); return { [REMOTE_ACTION_AUDITS]: page(a) }; };
 const assigned = ok({ value: [{ id: "a1", target: { "@odata.type": "#microsoft.graph.allDevicesAssignmentTarget" } }] });
 
 function strong(): Routes {
@@ -36,6 +48,7 @@ function strong(): Routes {
     [P]: page([winPolicy(), macPolicy(), { "@odata.type": "#microsoft.graph.iosCompliancePolicy", id: "pi", displayName: "Phones" }]),
     [`${P}/pw/assignments`]: assigned,
     [`${P}/pm/assignments`]: assigned,
+    [REMOTE_ACTION_AUDITS]: page(audits()),
   };
 }
 const withPolicy = (which: "pw" | "pm", change: (p: Record<string, unknown>) => void): Routes => {
@@ -61,6 +74,7 @@ const C: Contract = {
     device_encrypted: withDevice(1, (d) => { d.isEncrypted = false; }),
     device_os_minimum: withDevice(1, (d) => { d.osVersion = "13.6.1"; }),
     device_last_sync: withDevice(0, (d) => { d.lastSyncDateTime = daysAgo(40); }),
+    device_wipe_recorded: withAudit((a) => { a.push({ id: "ra6", managedDeviceId: "d-lost", action: "delete", actionState: "done", requestDateTime: daysAgo(3) }); }),
   },
 };
 
@@ -120,8 +134,9 @@ test("intune: a token or licence refusal is reported as an error (skipped), neve
   const rs = await runWith(C, fakeRest(GRAPH_BASE, {
     [D]: res(401, { error: { code: "InvalidAuthenticationToken", message: "Access token has expired." } }),
     [P]: res(403, { error: { code: "Forbidden", message: "Application is not authorized to perform this operation." } }),
+    [REMOTE_ACTION_AUDITS]: res(403, { error: { code: "Forbidden", message: "Application is not authorized to perform this operation." } }),
   }));
-  assert.equal(rs.length, 7);
+  assert.equal(rs.length, 8);
   for (const r of rs) { assert.equal(r.result, "skipped"); assert.match(r.detail, /HTTP 40[13]/); }
 });
 
@@ -140,4 +155,22 @@ test("intune: credentials come from INTUNE_* or fall back to ENTRA_*; the token 
   assert.equal(seen[1].url, `${GRAPH_BASE}${D}`);
   assert.equal(seen[1].init.method, "GET");
   assert.equal((seen[1].init.headers as Record<string, string>).authorization, "Bearer at-0123456789");
+});
+
+test("intune.device_wipe_recorded: one result per device with a wipe, retire or delete in the period; names stay out", async () => {
+  const rs = await runWith(C, fakeRest(GRAPH_BASE, strong()));
+  const w = of(rs, "intune.device_wipe_recorded");
+  assert.deepEqual(w.map((r) => [r.resource, r.result]), [["intune device d-old-1", "pass"], ["intune device d-old-2", "pass"]]);
+  assert.match(w[0].detail, /factoryReset done/);
+  const all = JSON.stringify(w);
+  for (const s of ["Carol", "carol@", "it.admin"]) assert.ok(!all.includes(s), `${s} leaked`);
+  // A failed wipe fails; a recent pending one waits; an old pending one fails.
+  const one = async (state: string, age: number) => of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(),
+    [REMOTE_ACTION_AUDITS]: page([{ managedDeviceId: "d-x", action: "factoryReset", actionState: state, requestDateTime: daysAgo(age) }]) })), "intune.device_wipe_recorded")[0].result;
+  assert.equal(await one("failed", 2), "fail");
+  assert.equal(await one("pending", 2), "skipped");
+  assert.equal(await one("pending", 30), "fail");
+  // Nothing in the period: skipped, never pass.
+  const none = of(await runWith(C, fakeRest(GRAPH_BASE, { ...strong(), [REMOTE_ACTION_AUDITS]: page([]) })), "intune.device_wipe_recorded");
+  assert.deepEqual(none.map((r) => r.result), ["skipped"]);
 });

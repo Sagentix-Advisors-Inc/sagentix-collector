@@ -1,0 +1,40 @@
+{
+ "source": "rippling",
+ "title": "Rippling (REST API, API token with workers.read)",
+ "readScopes": [
+  "A Rippling API token made under Developer > API credentials (https://app.rippling.com/api-tokens/tokens) with the single scope workers.read, used only with GET https://rest.ripplingapis.com/workers/. The token is RIPPLING_API_TOKEN. Rippling revokes a token after 30 days unused or when its owner leaves, so the collector runs at least monthly.",
+  "For the leaver check, the identity provider's own read-only credential, already granted to its source: Okta okta.users.read; Entra ID User.Read.All and AuditLog.Read.All; Google Workspace admin.directory.user.readonly and admin.reports.audit.readonly; JumpCloud users.readonly."
+ ],
+ "checks": [
+  {
+   "id": "rippling.leaver_access_removed",
+   "title": "Each person who left in the period lost identity-provider access within 24 hours of their last day",
+   "scope": "One result per Rippling worker record whose employment ended in the period (--rippling-since, default 365 days), joined by work email with the identity provider named by --rippling-idp (Okta, Entra ID, Google Workspace or JumpCloud) through that provider's own read-only credential. A disable or delete time comes from Okta statusChanged, the Entra directory audit (kept 7 or 30 days) or deleted-items list (30 days), or Google suspensionTime and DELETE_USER events (6 months); JumpCloud records no time. Without a time, or with no account under the email, the pass is marked incomplete. The window is --rippling-access-hours.",
+   "evidenceType": "Audit Record"
+  },
+  {
+   "id": "rippling.hire_acknowledgement",
+   "title": "Each person hired in the period has a recorded code of conduct or acceptable-use acknowledgement",
+   "scope": "One result per Rippling worker record whose start date falls in the period, from the date field the customer names with --rippling-ack-field (a Rippling custom field holding the date); skipped when none is named. Shows a date was recorded, not what was signed.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "rippling.hire_training",
+   "title": "Each person hired in the period completed security awareness training within 30 days of starting",
+   "scope": "One result per hire in the period, joined by employee id or work email with the LMS export the lms source reads (--training-csv; course text --lms-awareness-course); the window is --rippling-training-days. Skipped without the export.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "rippling.hire_background_check",
+   "title": "Each person hired in the period has a background check recorded",
+   "scope": "One result per hire in the period, from the date field the customer names with --rippling-background-field (a Rippling custom field holding the date); skipped when none is named, because which positions need a check is the organization's policy.",
+   "evidenceType": "Report"
+  },
+  {
+   "id": "rippling.org_chart_complete",
+   "title": "Each active person has a manager and a job title in the HR system",
+   "scope": "Every active Rippling worker record: no manager (at most --rippling-max-without-manager, default 1, the top of the chart), a manager not in the HR system, or no job title fails. Shows reporting lines and titles exist, not that position descriptions carry security duties.",
+   "evidenceType": "Report"
+  }
+ ]
+}

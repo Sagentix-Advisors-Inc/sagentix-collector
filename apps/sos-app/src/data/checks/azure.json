@@ -89,6 +89,24 @@
    "title": "Each running virtual machine has a recent patch assessment with no critical or security update pending",
    "scope": "Running Azure VMs, from the instance view's patchStatus.availablePatchSummary (criticalAndSecurityPatchCount, status, lastModifiedTime; Virtual Machines - Instance View, read 2026-10-26). Fails when the VM has no assessment, the last one is older than 7 days or did not succeed, or a critical or security patch is pending; stopped VMs are skipped. The patch mode is reported. Arc-enabled servers and scale-set instances are not read.",
    "evidenceType": "Report"
+  },
+  {
+   "id": "azure.backup_jobs_succeeded",
+   "title": "Each protected item's latest Azure Backup job in the window completed",
+   "scope": "Backup Jobs - List on each Recovery Services vault (GET {vault}/backupJobs with a startTime and endTime $filter, Reader or Backup Reader), over --azure-backup-window-days (default 7): the latest Backup operation per item must be Completed (CompletedWithWarnings counts, and is noted); Failed or Cancelled fails, and no finished job fails.",
+   "evidenceType": "Log"
+  },
+  {
+   "id": "azure.restore_tested",
+   "title": "A restore from Azure Backup completed within the restore-test period (default one year)",
+   "scope": "The same Backup Jobs - List read, across the subscription's vaults: at least one Restore operation with status Completed within --azure-restore-test-days (default 365). A restore test done another way is recorded with the restore-test record.",
+   "evidenceType": "Log"
+  },
+  {
+   "id": "azure.log_analytics_retention",
+   "title": "Each Log Analytics workspace keeps logs for at least the required period (default 365 days)",
+   "scope": "Workspaces - List (GET /providers/Microsoft.OperationalInsights/workspaces, Reader): properties.retentionInDays against --azure-log-retention-days (default 365). Tables that set their own retention, and long-term (archive) retention, are not read. Microsoft Sentinel keeps its data in such a workspace, so this check covers it.",
+   "evidenceType": "Configuration"
   }
  ]
 }

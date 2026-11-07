@@ -74,6 +74,18 @@
    "title": "Each running Compute Engine VM has a recent OS Config vulnerability report with no high or critical CVE left unpatched",
    "scope": "Running VMs of the project (compute aggregated/instances), against OS Config vulnerabilityReports per zone (OS Config API v1, read 2026-10-26): fails when highestUpgradableCveSeverity is HIGH or CRITICAL (a fix exists and is not installed), when the report is older than 7 days, or when the VM has none (no OS Config agent reporting, or VM Manager off). Needs roles/osconfig.vulnerabilityReportViewer. GKE nodes, containers and VMs whose OS VM Manager does not support are seen only as having no report. Prowler has no equivalent check.",
    "evidenceType": "Report"
+  },
+  {
+   "id": "gcp.cloudsql_backup_runs_succeeded",
+   "title": "Each Cloud SQL instance's latest backup run in the window succeeded",
+   "scope": "Cloud SQL Admin API backupRuns.list per instance (cloudsql.backupRuns.list, in roles/viewer), over --gcp-backup-window-days (default 7): the latest finished run must be SUCCESSFUL. Whether automated backups are configured is Prowler's cloudsql_instance_automated_backups; Backup and DR Service jobs are not read (no public job list endpoint was found on 2026-11-07).",
+   "evidenceType": "Log"
+  },
+  {
+   "id": "gcp.log_bucket_retention",
+   "title": "Each Cloud Logging bucket keeps logs for at least the required period (default 365 days)",
+   "scope": "Cloud Logging API projects.locations.buckets.list (logging.buckets.list, in roles/logging.viewer): retentionDays of _Default and of every bucket the organization created, against --gcp-log-retention-days (default 365). _Required is fixed by Google and not judged.",
+   "evidenceType": "Configuration"
   }
  ]
 }

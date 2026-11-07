@@ -1,6 +1,6 @@
 {
  "source": "web",
- "title": "Websites and APIs by URL (passive GET, TLS handshake and DNS, for hosts the organization proved it controls)",
+ "title": "Websites and APIs by URL (passive GET, TLS handshake and DNS, for hosts the organization proved it controls), including its privacy notice and consent banner",
  "readScopes": [
   "None: the collector reads what any browser sees. Each host must first be proven: a TXT record at _sagentix-collector.<host> holding sagentix-collector-verification=<token>, or https://<host>/.well-known/sagentix-collector.txt holding that line, with the token sos-app issued."
  ],
@@ -81,6 +81,36 @@
    "id": "web.caa",
    "title": "The domain limits which certificate authorities may issue for it (CAA); recommended",
    "scope": "The CAA record set at the domain or its nearest parent that has one (RFC 8659 section 3).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.consent_banner",
+   "title": "The declared page loads a consent-management platform before its third-party scripts can track visitors",
+   "scope": "One GET of each declared URL, where robots.txt allows: the page's HTML is searched for the script host each vendor's installation guide names (OneTrust, Osano, Cookiebot, Usercentrics, TrustArc, Termly, iubenda, Didomi, CookieYes, Transcend). A page with no script from another site is skipped; a banner a tag manager loads later is not seen.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.privacy_notice_published",
+   "title": "A privacy notice is published and reachable at the address the organization declared",
+   "scope": "GET of each --web-privacy-url on a proven host, where robots.txt allows: HTTP 200, an HTML page, and a title or first heading that names privacy or personal information (English or French). Redirects are not followed.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.privacy_notice_dated",
+   "title": "The privacy notice shows a last-updated or effective date within the review period (default one year)",
+   "scope": "The first date that follows a label such as 'Last updated', 'Effective date' or 'Dernière mise à jour' in the notice's text; --web-privacy-max-age-days sets the period (default 365).",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.privacy_notice_topics",
+   "title": "The privacy notice covers what is collected, why, who receives it, how long it is kept, access and correction, whom to contact, and consent",
+   "scope": "Seven topics, each a set of English and French phrases, searched in the notice's text (NIST SP 800-53 Rev. 5 PT-5; PIPEDA Schedule 1 Principles 4.5 and 4.8; OPC Guidelines for obtaining meaningful consent). A phrase found is a clue: a person confirms the wording.",
+   "evidenceType": "Configuration"
+  },
+  {
+   "id": "web.privacy_request_channel",
+   "title": "The privacy notice tells people how to ask for, correct or delete their personal information (a privacy mailbox or a request form)",
+   "scope": "Links on the notice: a mailto to a privacy-named mailbox (privacy@, dpo@, ...) or a link whose address or text names a privacy or access request. Only the mail domain is kept, never the mailbox.",
    "evidenceType": "Configuration"
   }
  ]

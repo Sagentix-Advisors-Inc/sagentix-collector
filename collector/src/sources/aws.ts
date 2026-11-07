@@ -4,7 +4,7 @@
 
 import type { OptionValue, Result, Source } from "../types.ts";
 import { AWS_SECRET_ENVS, Aws, assumeRole, callerAccount, envCredentials, fetchAwsTransport, type AwsTransport } from "./aws/api.ts";
-import { AWS_CHECKS, DEFAULT_INACTIVE_DAYS, DEFAULT_KEY_MAX_AGE_DAYS, accountChecks } from "./aws/checks.ts";
+import { AWS_CHECKS, DEFAULT_BACKUP_WINDOW_DAYS, DEFAULT_INACTIVE_DAYS, DEFAULT_KEY_MAX_AGE_DAYS, DEFAULT_RESTORE_TEST_DAYS, accountChecks } from "./aws/checks.ts";
 import { allSkipped, list, scrub } from "./shared-cloud.ts";
 
 export const DEFAULT_AWS_REGION = "us-east-1";
@@ -14,6 +14,9 @@ const regionsOf = (opts: Record<string, OptionValue>, env: NodeJS.ProcessEnv) =>
   return r.length ? r : [env.AWS_REGION || env.AWS_DEFAULT_REGION || DEFAULT_AWS_REGION];
 };
 
+/** A positive number of days from an option, or the default. */
+const posDays = (v: unknown, d: number) => { const n = Number(typeof v === "string" ? v : NaN); return Number.isFinite(n) && n > 0 ? n : d; };
+
 export const aws: Source = {
   name: "aws",
   options: {
@@ -22,6 +25,8 @@ export const aws: Source = {
     "aws-external-id": { type: "string", help: "external id for --aws-role-arn" },
     "aws-key-max-age-days": { type: "string", help: `oldest an active IAM access key may be (default ${DEFAULT_KEY_MAX_AGE_DAYS})` },
     "aws-inactive-days": { type: "string", help: `days an IAM user's password and active keys may go unused (default ${DEFAULT_INACTIVE_DAYS})` },
+    "aws-backup-window-days": { type: "string", help: `days of AWS Backup jobs read; each resource's latest must be COMPLETED (default ${DEFAULT_BACKUP_WINDOW_DAYS})` },
+    "aws-restore-test-days": { type: "string", help: `days within which a completed restore job must exist (default ${DEFAULT_RESTORE_TEST_DAYS})` },
   },
   emits: AWS_CHECKS.map((c) => `aws.${c}`),
   describe(opts) {
@@ -59,6 +64,7 @@ export const aws: Source = {
     const results = await accountChecks(api, who.account, {
       regions, keyMaxAgeDays: Number.isFinite(days) && days > 0 ? days : DEFAULT_KEY_MAX_AGE_DAYS,
       inactiveDays: Number.isFinite(idle) && idle > 0 ? idle : DEFAULT_INACTIVE_DAYS, now: ctx.now,
+      backupWindowDays: posDays(ctx.opts["aws-backup-window-days"], DEFAULT_BACKUP_WINDOW_DAYS), restoreTestDays: posDays(ctx.opts["aws-restore-test-days"], DEFAULT_RESTORE_TEST_DAYS),
     });
     return scrub(results, secrets);
   },

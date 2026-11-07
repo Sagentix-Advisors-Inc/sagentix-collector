@@ -1,8 +1,8 @@
 {
  "source": "jamf",
- "title": "Jamf Pro (Jamf Pro API, API client with Read Computers)",
+ "title": "Jamf Pro (Jamf Pro API, API client with Read Computers and View MDM command information)",
  "readScopes": [
-  "A Jamf Pro API client whose only API role holds the single privilege \"Read Computers\" (GET /api/v4/computers-inventory, falling back to v3, v2 or v1); its client id and secret are JAMF_CLIENT_ID and JAMF_CLIENT_SECRET, exchanged at POST /api/v1/oauth/token."
+  "A Jamf Pro API client whose only API role holds two privileges: \"Read Computers\" (GET /api/v4/computers-inventory, falling back to v3, v2 or v1) and, since 2026-11-07, \"View MDM command information in Jamf Pro API\" (GET /api/v2/mdm/commands); its client id and secret are JAMF_CLIENT_ID and JAMF_CLIENT_SECRET, exchanged at POST /api/v1/oauth/token."
  ],
  "checks": [
   {
@@ -28,6 +28,12 @@
    "title": "Each Mac is under Jamf Pro remote management",
    "scope": "Every computer, from general.remoteManagement.managed.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "jamf.device_wipe_recorded",
+   "title": "Each Mac or mobile device erased in the period has a finished erase recorded",
+   "scope": "One result per device with an ERASE_DEVICE command sent within --jamf-wipe-days (default 365): ACKNOWLEDGED passes; ERROR or COMMAND_FORMAT_ERROR fails; PENDING or NOT_NOW for more than 7 days fails. A computer is named by its Jamf id and serial when the inventory carries its management id. A device retired without an erase is not seen.",
+   "evidenceType": "Audit Record"
   }
  ]
 }

@@ -11,7 +11,7 @@ const ok = (b: unknown) => res(200, b);
 const q = (url: string) => new URL(`https://x${url}`).searchParams;
 
 interface Over { version?: string; checkin?: string; mdm?: boolean; filevault?: boolean; firewall?: boolean; gatekeeper?: boolean; sip?: boolean;
-  item?: string; param?: string }
+  item?: string; param?: string; erase?: number }
 
 function mac(id: string, serial: string, o: Over = {}): Record<string, unknown> {
   return {
@@ -34,6 +34,13 @@ const status = (o: Over = {}) => ok({
   parameters: [{ status: o.param ?? "PASS", item_id: "p-1", name: "Disable the \"root\" user", category: "User Accounts & Authentication", subcategory: "User Accounts" }],
 });
 
+/** Get Device Commands: one routine command, and an EraseDevice with the given MDM status code when asked. */
+const commands = (o: Over = {}) => ok({ device_id: "x", commands: { count: 2, next: null, previous: null, results: [
+  { uuid: "c-1", error_chain: [], command_type: "DeviceInformation", request_type: "DeviceInformation", status: 3, date_requested: daysAgo(1), date_completed: daysAgo(1), user: null },
+  ...(o.erase !== undefined ? [{ uuid: "c-2", error_chain: [], command_type: "EraseDevice", request_type: "EraseDevice", status: o.erase, attempts: 1,
+    date_requested: daysAgo(15), date_completed: o.erase === 3 ? daysAgo(15) : null, user: { email: "it@acme.example", name: "IT Admin" } }] : []),
+] } });
+
 /** Routes for a fleet of Macs: the device list (filtered by filevault_enabled when asked), Prism categories, statuses. */
 function fleet(macs: { id: string; serial: string; o?: Over }[]): Routes {
   const list: Route = (url) => {
@@ -49,10 +56,10 @@ function fleet(macs: { id: string; serial: string; o?: Over }[]): Routes {
     "/v1/prism/gatekeeper_and_xprotect": prism("gatekeeper", "gatekeeper_status"),
     "/v1/prism/startup_settings": prism("sip", "sip"),
   };
-  for (const m of macs) r[`${DEV}/${m.id}/status`] = status(m.o);
+  for (const m of macs) { r[`${DEV}/${m.id}/status`] = status(m.o); r[`${DEV}/${m.id}/commands`] = commands(m.o); }
   return r;
 }
-const strong = () => fleet([{ id: "d-1", serial: "C02TEST0001" }, { id: "d-2", serial: "C02TEST0002" }]);
+const strong = () => fleet([{ id: "d-1", serial: "C02TEST0001" }, { id: "d-2", serial: "C02TEST0002", o: { erase: 3 } }]);
 const weak = (o: Over) => fleet([{ id: "d-1", serial: "C02TEST0001" }, { id: "d-2", serial: "C02TEST0002", o }]);
 
 const C: Contract = {
@@ -70,20 +77,22 @@ const C: Contract = {
     firewall: weak({ firewall: false }),
     gatekeeper: weak({ gatekeeper: false }),
     sip: weak({ sip: false }),
+    device_wipe_recorded: weak({ erase: 4 }),
   },
 };
 
 contractSuite(C);
 
-test("kandji: GET only Macs and the five documented endpoints; no device name, user or log reaches a result", async () => {
+test("kandji: GET only Macs and the six documented endpoints; no device name, user or log reaches a result", async () => {
   const calls: string[] = [];
   const rs = await runWith(C, fakeRest(BASE, strong(), calls));
   assert.ok(calls.filter((c) => c.startsWith(`${DEV}?`)).every((c) => q(c).get("platform") === "Mac" && q(c).get("limit") === String(PAGE)));
   assert.deepEqual([...new Set(calls.map((c) => c.split("?")[0].replace(/d-\d/, "{id}")))].sort(),
-    [DEV, `${DEV}/{id}/status`, "/v1/prism/application_firewall", "/v1/prism/gatekeeper_and_xprotect", "/v1/prism/startup_settings"].sort());
+    [DEV, `${DEV}/{id}/status`, `${DEV}/{id}/commands`, "/v1/prism/application_firewall", "/v1/prism/gatekeeper_and_xprotect", "/v1/prism/startup_settings"].sort());
   assert.deepEqual(calls.filter((c) => c.startsWith(`${DEV}?`)).map((c) => q(c).get("filevault_enabled")), [null, "true", "false"]);
   const all = JSON.stringify(rs);
-  for (const s of ["Anna", "anna@", "achao", "MacBook"]) assert.ok(!all.includes(s), `${s} leaked`);
+  for (const s of ["Anna", "anna@", "achao", "MacBook", "it@acme", "IT Admin"]) assert.ok(!all.includes(s), `${s} leaked`);
+  assert.deepEqual(of(rs, "kandji.device_wipe_recorded").map((r) => [r.resource, r.result]), [["kandji device d-2 serial C02TEST0002", "pass"]]);
   assert.deepEqual(of(rs, "kandji.sip").map((r) => r.resource), ["kandji device d-1 serial C02TEST0001", "kandji device d-2 serial C02TEST0002"]);
 });
 
@@ -153,7 +162,7 @@ test("kandji: a token without one Prism permission skips that check only; a 403 
 
 test("kandji: a rejected token is reported as an error (skipped, HTTP 401), never as a failing Mac", async () => {
   const rs = await runWith(C, fakeRest(BASE, { [DEV]: res(401, { detail: "Invalid token." }) }));
-  assert.equal(rs.length, 9);
+  assert.equal(rs.length, 10);
   for (const r of rs) { assert.equal(r.result, "skipped"); assert.match(r.detail, /HTTP 401/); }
 });
 
@@ -168,4 +177,18 @@ test("kandji: the real client sends GET with the Bearer token to the tenant API 
   assert.equal((seen[0].init.headers as Record<string, string>).authorization, "Bearer tok-0123456789");
   assert.equal(typeof kandjiFromEnv({ KANDJI_API_URL: "http://acme.api.kandji.io", KANDJI_API_TOKEN: "a" }), "string");
   assert.equal(typeof kandjiFromEnv({ KANDJI_API_URL: "https://acme.api.kandji.io" }), "string");
+});
+
+test("kandji.device_wipe_recorded: a recent pending erase waits, none in the period is skipped, a 403 skips once and stops calling", async () => {
+  const pending = of(await runWith(C, fakeRest(BASE, fleet([{ id: "d-1", serial: "C02TEST0001", o: { erase: 1 } }]))), "kandji.device_wipe_recorded");
+  assert.equal(pending[0].result, "fail");   // requested 15 days ago, past the 7-day grace
+  const none = of(await runWith(C, fakeRest(BASE, fleet([{ id: "d-1", serial: "C02TEST0001" }]))), "kandji.device_wipe_recorded");
+  assert.deepEqual(none.map((r) => r.result), ["skipped"]);
+  const calls: string[] = [];
+  const routes = strong();
+  routes[`${DEV}/d-1/commands`] = res(403, { detail: "You do not have permission to perform this action." });
+  const denied = of(await runWith(C, fakeRest(BASE, routes, calls)), "kandji.device_wipe_recorded");
+  assert.deepEqual(denied.map((r) => r.result), ["skipped"]);
+  assert.match(denied[0].detail, /HTTP 403/);
+  assert.equal(calls.filter((c) => c.includes("/commands")).length, 1);
 });

@@ -318,6 +318,8 @@ node src/cli.ts run --source aws --aws-regions us-east-1,ca-central-1 \
 | `s3_bucket_not_public` | No bucket is public through its policy (`GetBucketPolicyStatus`) or ACL (`GetBucketAcl`), unless Block Public Access already restricts both |
 | `guardduty_malware_protection` | An enabled GuardDuty detector has `EBS_MALWARE_PROTECTION` on in the region |
 | `ssm_patch_compliance` | Each running EC2 instance is `COMPLIANT` in Patch Manager (`ListResourceComplianceSummaries`, ComplianceType Patch); no Patch summary fails |
+| `backup_jobs_succeeded` | Each resource's latest AWS Backup job in the last `--aws-backup-window-days` (default 7) is `COMPLETED` (`ListBackupJobs`, `backup:ListBackupJobs`); no finished job fails |
+| `restore_tested` | At least one `COMPLETED` restore job in the last `--aws-restore-test-days` (default 365) (`ListRestoreJobs`, `backup:ListRestoreJobs`; restore testing plans write these too) |
 
 The four checks added on 2026-10-26 need no new permission: SecurityAudit (policy v94) grants `s3:GetBucket*`, `ec2:Describe*` and `ssm:ListResourceComplianceSummaries`. `iam_users_inactive`, `s3_bucket_not_public` and `ssm_patch_compliance` overlap Prowler checks on purpose: they serve a client whose role stays at SecurityAudit alone, without the runner image or Prowler's extra read policy.
 
@@ -350,6 +352,9 @@ node src/cli.ts run --source azure --azure-subscription 00000000-0000-0000-0000-
 | `backup_protected_items` | Each Recovery Services vault protects at least one item, and the subscription has a vault |
 | `sql_firewall_not_open` | No Azure SQL server-level firewall rule spans more than a /8, unless public network access is Disabled; Allow Azure services is reported |
 | `vm_patches_current` | Each running VM's last patch assessment (instance view `patchStatus`) succeeded within 7 days with 0 critical or security patches pending |
+| `backup_jobs_succeeded` | Each protected item's latest Backup job in a vault (Backup Jobs - List, last `--azure-backup-window-days`, default 7) is `Completed` or `CompletedWithWarnings` |
+| `restore_tested` | A `Restore` job with status `Completed` in any vault within `--azure-restore-test-days` (default 365) |
+| `log_analytics_retention` | Each Log Analytics workspace's `retentionInDays` is at least `--azure-log-retention-days` (default 365; Microsoft Sentinel keeps its data there) |
 
 The 2026-10-26 additions read `/resources` (filtered by type), `Microsoft.Sql/servers/{s}/firewallRules`, `Microsoft.Compute/virtualMachines` and `{vm}/instanceView`, all GETs that Reader grants; no role changes.
 
@@ -379,6 +384,8 @@ node src/cli.ts run --source gcp --gcp-project acme-prod \
 | `kms_rotation` | Each symmetric Cloud KMS key rotates automatically every 365 days or less |
 | `vpc_flow_logs` | Each private subnetwork has VPC flow logs on, in its own `logConfig` or through a Network Management API configuration for it, its network or the organization |
 | `vm_os_vulnerabilities` | Each running Compute Engine VM has an OS Config vulnerability report under 7 days old whose `highestUpgradableCveSeverity` is below HIGH; no report fails |
+| `cloudsql_backup_runs_succeeded` | Each Cloud SQL instance's latest backup run in the last `--gcp-backup-window-days` (default 7) is `SUCCESSFUL` (`backupRuns.list`, `cloudsql.backupRuns.list`) |
+| `log_bucket_retention` | `_Default` and every bucket the organization made keep logs at least `--gcp-log-retention-days` (default 365) (`locations/-/buckets`, `logging.buckets.list` in `roles/logging.viewer`); `_Required` is not judged |
 
 ### Jira
 
@@ -418,6 +425,52 @@ node src/cli.ts run --source lms --training-csv lms-export.csv --roster-csv rost
 | --- | --- |
 | `security_awareness_current` | Everyone on the roster completed security awareness training within 12 months |
 | `role_based_training_current` | People in privileged roles completed role-based training within 12 months |
+
+### HR systems: BambooHR and Rippling
+
+Two sources read joiners, leavers and the org chart from the HR system (2026-11-07), and one shared module judges both (`src/sources/hris_common.ts`): one result per person in the period, named by the HR system's employee id, so an auditor's population of leavers or hires is the list of results. Names, photos and compensation are never asked for; the work email is used only to look the person up in the identity provider and in the LMS export.
+
+The leaver check joins each person who left with the identity provider named by `--bamboohr-idp` or `--rippling-idp` (`okta`, `entra`, `google_workspace` or `jumpcloud`), through `src/sources/directory.ts` and that provider's own read-only variables, so it adds no permission and no second copy of the identity checks. Okta's `statusChanged`, Google's `suspensionTime`, the Entra directory audit (7 or 30 days) and deleted-items list (30 days), and Google's `DELETE_USER` events (6 months) date the removal; JumpCloud records no time. A removal without a time, or no account under the email, passes marked incomplete (`complete: false`), which sos-app does not count as a pass.
+
+**BambooHR.** An API key the customer makes under a user whose access level reads, and edits nothing in, the fields below (BambooHR has no read-only key; the key carries its user's access). `BAMBOOHR_API_KEY`; `--bamboohr-company` is the subdomain. Reads `GET https://<company>.bamboohr.com/api/v1/employees?filter[status]=active|inactive&fields=workEmail,hireDate,terminationDate,supervisorEId,jobTitle[,<ack field>,<background field>]`, following `_links.next`. A field the key's user cannot read (`_restrictedFields`) is reported as unreadable. Docs read 2026-11-07: https://documentation.bamboohr.com/docs/api-details, https://documentation.bamboohr.com/docs/getting-started, https://documentation.bamboohr.com/reference/list-employees, https://documentation.bamboohr.com/docs/list-of-field-names.
+
+**Rippling.** An API token made under Developer > API credentials with the single scope `workers.read` (`RIPPLING_API_TOKEN`). Reads `GET https://rest.ripplingapis.com/workers/?limit=100`, following `next_link`. Rippling revokes a token unused for 30 days. Docs read 2026-11-07: https://developer.rippling.com/documentation/rest-api/essentials/api-tokens, https://developer.rippling.com/documentation/rest-api/reference/list-workers.md, https://developer.rippling.com/documentation/rest-api/essentials/pagination, https://developer.rippling.com/documentation/rest-api/essentials/api-limits.
+
+**Options** (`bamboohr-` or `rippling-` prefix): `-idp`, `-since` (default 365 days ago), `-access-hours` (default 24), `-training-days` (default 30; reads the `lms` source's `--training-csv`), `-max-without-manager` (default 1), `-ack-field` and `-background-field` (the date fields that record the code of conduct or acceptable-use acknowledgement and a background check; without one, its check is skipped).
+
+```sh
+node src/cli.ts run --source bamboohr,lms --bamboohr-company acme --bamboohr-idp okta --bamboohr-ack-field customCodeOfConduct \
+  --training-csv lms-export.csv --roster-csv roster.csv --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
+```
+
+| Check (`bamboohr.` or `rippling.`…) | What passes |
+| --- | --- |
+| `leaver_access_removed` | Each leaver of the period lost identity-provider access within `-access-hours` of the end of the last day |
+| `hire_acknowledgement` | Each hire of the period has the acknowledgement date recorded |
+| `hire_training` | Each hire completed a security awareness course within `-training-days` of starting |
+| `hire_background_check` | Each hire has the background-check date recorded |
+| `org_chart_complete` | Every active person has a manager in the HR system and a job title; at most `-max-without-manager` have none |
+
+Workday and ADP are not sources yet. ADP's Workforce Now API needs a paid API Central subscription and a certificate (https://apps.adp.com/en-US/apps/410612/adp-api-central-for-adp-workforce-now/features, read 2026-11-07). Workday's public workers API documents no hire or termination date and needs an API client registered for an Integration System User; whether a customer without Workday Extend can register one was not confirmed (https://developer.workday.com/doc/dan1370797991225.md, read 2026-11-07).
+
+### Vulnerability scanner results (`vulnscan`)
+
+Reads export files the customer's scanner already wrote; it never runs a scan and holds no scanner credential. Formats: a `.nessus` file (NessusClientData_v2), a Tenable Vulnerability Management vulnerability or asset export chunk (`.json`), or a Qualys VMDR host list detection (`.xml`). The exports need the scanner's read-only role: Tenable, "at least the Basic [16] user permission" with "Can View" on the assets; Qualys, Reader. Wiz is not read: its documentation sits behind a sign-in (2026-11-07).
+
+**Options:** `--vulnscan-report <file>` (repeatable), `--vulnscan-inventory <file>` (CSV with a hostname, fqdn, name, ip or address column; a JSON array; or one name per line), `--vulnscan-max-age-days` (default 30: monthly, as FedRAMP's Continuous Monitoring Playbook asks), `--vulnscan-sla critical=30,high=30,medium=90,low=180` (the default, FedRAMP's POA&M windows; FedRAMP's 2026 Vulnerability Detection and Response rules replace them with impact-based timeframes, so set yours).
+
+```sh
+node src/cli.ts run --source vulnscan --vulnscan-report scans/monthly.nessus --vulnscan-report scans/assets.json \
+  --vulnscan-inventory cmdb.csv --endpoint https://<sos-app host> --key-id <key id> --key sagentix-collector.pem --dry-run
+```
+
+| Check (`vulnscan.`…) | What passes |
+| --- | --- |
+| `authenticated_coverage` | Every inventory asset appears in a scan whose credentials worked (plugin 19506, `last_authenticated_scan_date` at the last scan, or Qualys `LAST_VM_AUTH_SCANNED_DATE` at `LAST_VM_SCANNED_DATE`); skipped without an inventory |
+| `scan_recent` | Every asset (the inventory's, else every scanned host) was scanned within `--vulnscan-max-age-days` |
+| `findings_within_sla` | No open finding (Tenable OPEN or REOPENED, Qualys confirmed and not Fixed) older than its severity's window since first found; skipped for a `.nessus` file, which has no first-found date |
+
+[Unverified] The `.nessus` tags `host-ip`, `host-fqdn` and `HOST_END_TIMESTAMP`, and plugin 19506's output line `Credentialed checks : yes`, are read but are not shown in Tenable's public documents (read 2026-11-07); a host without a credential record counts as not covered. Results carry counts, ages, severities and plugin or QID numbers, never a finding's output; inventory names appear only for the assets that fail.
 
 ### Stripe
 
@@ -682,16 +735,19 @@ Screen lock, OS currency, firewall and EDR come from the customer's own Fleet po
 | `device_encrypted` | `isEncrypted` is true |
 | `device_os_minimum` | `osVersion` meets `--intune-min-os`, or else the highest `osMinimumVersion` among the platform's assigned policies |
 | `device_last_sync` | `lastSyncDateTime` within `--intune-sync-days` |
+| `device_wipe_recorded` | Each device with a wipe, retire or delete in the remote action audit within `--intune-wipe-days` (default 365) has a `done` wipe or retire; `failed`, `canceled`, `notSupported`, pending over 7 days, or a `delete` alone fails |
+
+`device_wipe_recorded` reads `GET /beta/deviceManagement/remoteActionAudits` (Graph beta only; the v1.0 page redirects there) with the same `DeviceManagementManagedDevices.Read.All`, read 2026-11-07 in https://learn.microsoft.com/en-us/graph/api/intune-devices-remoteactionaudit-list?view=graph-rest-beta. A wipe is `factoryReset` or `factoryResetKeepEnrollmentData`, a retire `removeCompanyData`, a Fresh Start `cleanWindowsDevice`. Device names and user principal names in the audit are never read into a result.
 
 Policy results report once per platform (`intune tenant <id> Windows`). Settings pushed by configuration profiles instead of compliance policies are not read.
 
 ### Jamf Pro
 
-**Create:** in Jamf Pro, an API role holding the single privilege **Read Computers**, and an API client with only that role. The collector exchanges its id and secret at `POST /api/v1/oauth/token` (then `/api/oauth/token` on a server that answers 404) and reads `GET /api/v4/computers-inventory` with the `GENERAL`, `DISK_ENCRYPTION`, `OPERATING_SYSTEM` and `HARDWARE` sections. Jamf marks v1, v2 and v3 of that endpoint deprecated; a server without v4 answers on the next older one.
+**Create:** in Jamf Pro, an API role holding two privileges, **Read Computers** and **View MDM command information in Jamf Pro API** (the second since 2026-11-07, for `device_wipe_recorded`), and an API client with only that role. The collector exchanges its id and secret at `POST /api/v1/oauth/token` (then `/api/oauth/token` on a server that answers 404) and reads `GET /api/v4/computers-inventory` with the `GENERAL`, `DISK_ENCRYPTION`, `OPERATING_SYSTEM` and `HARDWARE` sections. Jamf marks v1, v2 and v3 of that endpoint deprecated; a server without v4 answers on the next older one.
 
 **Env:** `JAMF_URL` (https only, e.g. `https://acme.jamfcloud.com`), `JAMF_CLIENT_ID`, `JAMF_CLIENT_SECRET`.
 
-**Options:** `--jamf-min-os` (e.g. `15.0`; without it `os_minimum` is skipped), `--jamf-inventory-days` (default 14), `--jamf-max-computers` (default 5000).
+**Options:** `--jamf-min-os` (e.g. `15.0`; without it `os_minimum` is skipped), `--jamf-inventory-days` (default 14), `--jamf-max-computers` (default 5000), `--jamf-wipe-days` (default 365).
 
 | Check (`jamf.`…) | What passes |
 | --- | --- |
@@ -699,18 +755,21 @@ Policy results report once per platform (`intune tenant <id> Windows`). Settings
 | `os_minimum` | `operatingSystem.version` at or above `--jamf-min-os` |
 | `last_inventory` | `general.reportDate` within `--jamf-inventory-days` |
 | `managed` | `general.remoteManagement.managed` is true |
+| `device_wipe_recorded` | Each device with an `ERASE_DEVICE` command sent within `--jamf-wipe-days` has it `ACKNOWLEDGED`; `ERROR`, `COMMAND_FORMAT_ERROR`, or `PENDING`/`NOT_NOW` over 7 days fails |
+
+`device_wipe_recorded` reads `GET /api/v2/mdm/commands?filter=command==ERASE_DEVICE;dateSent=ge=<start>` (https://developer.jamf.com/jamf-pro/reference/get_v2-mdm-commands, read 2026-11-07). Jamf Pro has no unmanage command type, so a Mac taken out of management without an erase is the `managed` check's to find.
 
 ### Iru Endpoint Management (formerly Kandji)
 
 Kandji renamed itself Iru; the API reference is now titled "Iru Endpoint Management API" (https://api-docs.kandji.io/ redirects to https://api-docs.iru.com/), while tenant API hosts stay on kandji.io. Endpoints and fields below were read in that reference on 2026-10-20, Prism category meanings in https://support.kandji.io/kb/prism and token creation in https://support.kandji.io/kb/kandji-api, same date.
 
-**Create:** under Settings → Access, an API token (Add API Token) whose permissions are these five GET endpoints and nothing else: `GET /api/v1/devices` (List Devices), `GET /api/v1/devices/{device_id}/status` (Get Device Status), and the Prism categories `GET /api/v1/prism/application_firewall`, `/gatekeeper_and_xprotect` and `/startup_settings`. Token permissions are granted per endpoint and method. A permission left off skips only the checks that read it: without `startup_settings`, `sip` reports one `skipped` result naming HTTP 403. The token belongs to the admin who made it and is removed with that admin.
+**Create:** under Settings → Access, an API token (Add API Token) whose permissions are these six GET endpoints and nothing else: `GET /api/v1/devices` (List Devices), `GET /api/v1/devices/{device_id}/status` (Get Device Status), `GET /api/v1/devices/{device_id}/commands` (Get Device Commands, since 2026-11-07), and the Prism categories `GET /api/v1/prism/application_firewall`, `/gatekeeper_and_xprotect` and `/startup_settings`. Token permissions are granted per endpoint and method. A permission left off skips only the checks that read it: without `startup_settings`, `sip` reports one `skipped` result naming HTTP 403. The token belongs to the admin who made it and is removed with that admin.
 
 **Env:** `KANDJI_API_URL`, the tenant's API URL from the same page (https only: `https://<subdomain>.api.kandji.io` in the US, `https://<subdomain>.api.eu.kandji.io` in the EU), and `KANDJI_API_TOKEN`.
 
-**Options:** `--kandji-min-os` (e.g. `15.0`; without it `os_minimum` is skipped), `--kandji-checkin-days` (default 14), `--kandji-max-devices` (default 1000).
+**Options:** `--kandji-min-os` (e.g. `15.0`; without it `os_minimum` is skipped), `--kandji-checkin-days` (default 14), `--kandji-max-devices` (default 1000), `--kandji-wipe-days` (default 365).
 
-Only Macs are read (`platform=Mac`, Prism `device_families=Mac`). List Devices pages by `limit=300` and `offset`, ordered by `device_id`; Prism pages by its opaque `cursor`, starting from an empty one and stopping when the answer's cursor is null. The tenant may make 10,000 requests an hour, and each Mac costs one Get Device Status call, so 1,000 Macs take about 1,010 requests. The screen saver and lock settings are left out: Prism's Desktop and Screensaver category documents no idle-time or password field. Device names, assigned users, Prism's `device__user_*` fields and library item logs are never read into a result.
+Only Macs are read (`platform=Mac`, Prism `device_families=Mac`). List Devices pages by `limit=300` and `offset`, ordered by `device_id`; Prism pages by its opaque `cursor`, starting from an empty one and stopping when the answer's cursor is null. The tenant may make 10,000 requests an hour, and each Mac costs one Get Device Status call, so 1,000 Macs take about 1,010 requests (about 2,010 with Get Device Commands). The screen saver and lock settings are left out: Prism's Desktop and Screensaver category documents no idle-time or password field. Device names, assigned users, Prism's `device__user_*` fields and library item logs are never read into a result.
 
 | Check (`kandji.`…) | What passes |
 | --- | --- |
@@ -723,6 +782,7 @@ Only Macs are read (`platform=Mac`, Prism `device_families=Mac`). List Devices p
 | `firewall` | Prism Application firewall `status` is true |
 | `gatekeeper` | Prism Gatekeeper and XProtect `gatekeeper_status` is true |
 | `sip` | Prism Startup settings `sip` is true |
+| `device_wipe_recorded` | Each listed Mac with an `EraseDevice` command (Apple's request type) within `--kandji-wipe-days` has it completed (status 3); failed (4), or pending, running or Not Now over 7 days, fails |
 
 ```sh
 node src/cli.ts run --source fleet --fleet-min-os darwin=15.0 \
@@ -926,7 +986,7 @@ sos-app's "Connect your environment" screen generates `sagentix-collector.ps1` a
 
 ## Websites and APIs by URL (`web`)
 
-The `web` source looks at a site the way a browser does, for URLs the organization declared and proved it controls. It reads only the exact URLs it is given: no crawling, no link or redirect followed, no form, no POST, no vulnerability probe. Each URL gets two TLS handshakes to port 443, one GET of the URL and one GET of its `http://` form; each mail domain gets DNS lookups and one DNS-over-HTTPS query. Requests to one host are at least a second apart by default, each times out after 15 s, and each carries the User-Agent `sagentix-evidence-collector/<version> (+https://github.com/Sagentix-Advisors-Inc/sagentix-collector)`.
+The `web` source looks at a site the way a browser does, for URLs the organization declared and proved it controls. It reads only the exact URLs it is given: no crawling, no link or redirect followed, no form, no POST, no vulnerability probe. Each URL gets two TLS handshakes to port 443, one GET of the URL and one GET of its `http://` form, and each host one GET of `robots.txt`; each mail domain gets DNS lookups and one DNS-over-HTTPS query. Requests to one host are at least a second apart by default, each times out after 15 s, and each carries the User-Agent `sagentix-evidence-collector/<version> (+https://github.com/Sagentix-Advisors-Inc/sagentix-collector)`.
 
 **Prove control first.** sos-app issues a token per host when the URL is declared. Publish it one of two ways:
 
@@ -934,7 +994,7 @@ The `web` source looks at a site the way a browser does, for URLs the organizati
 _sagentix-collector.www.example.ca.  TXT  "sagentix-collector-verification=<token>"
 ```
 
-or serve `https://www.example.ca/.well-known/sagentix-collector.txt` with the line `sagentix-collector-verification=<token>`. Then pass `--web-proof www.example.ca=<token>`. The collector checks the proof itself before anything else goes to the host. A host with no `--web-proof` gets no request at all, and all nine URL checks come back `skipped` with the record to publish; a wrong token costs one TXT lookup and one GET of the well-known file (redirect not followed, first 4 KB read). `--web-skip-proof` runs the checks without proof, every detail then starts "control not proven (dry run only)", and the CLI accepts it only with `--dry-run`, which sends nothing.
+or serve `https://www.example.ca/.well-known/sagentix-collector.txt` with the line `sagentix-collector-verification=<token>`. Then pass `--web-proof www.example.ca=<token>`. The collector checks the proof itself before anything else goes to the host. A host with no `--web-proof` gets no request at all, and all ten URL checks come back `skipped` with the record to publish; a wrong token costs one TXT lookup and one GET of the well-known file (redirect not followed, first 4 KB read). `--web-skip-proof` runs the checks without proof, every detail then starts "control not proven (dry run only)", and the CLI accepts it only with `--dry-run`, which sends nothing.
 
 **Accepted URLs:** https only, the default port, no user name or password, a host name rather than an IP address (an IP cannot be proven by DNS).
 
@@ -964,6 +1024,13 @@ Each check was written against a page read on 2026-10-18: CCCS ITSP.40.062 v3 (J
 | `dmarc` | `_dmarc` of the domain, or else of its parents down to two labels, has `p`, `sp` and `np` each `quarantine` or `reject` (RFC 9989 §4.7; `sp` and `np` default to `p`, `t=y` lowers each a level), and pct 100; a parent's record governs the domain by its `sp` |
 | `dnssec` | A DS record exists for the domain (recommended) |
 | `caa` | A CAA record set at the domain or its nearest parent (recommended) |
+| `consent_banner` | The declared page loads a known consent-management platform (OneTrust, Osano, Cookiebot, Usercentrics, TrustArc, Termly, iubenda, Didomi, CookieYes, Transcend, by the script host each vendor's install page names); a page with no script from another site is skipped |
+| `privacy_notice_published` | `--web-privacy-url` answers 200 with an HTML page whose title or first heading names privacy or personal information |
+| `privacy_notice_dated` | A "Last updated", "Effective date" or "Dernière mise à jour" date at most `--web-privacy-max-age-days` old (default 365) |
+| `privacy_notice_topics` | Seven topics found, in English or French: what is collected, purposes, disclosure, retention, access and correction, contact, consent and withdrawal |
+| `privacy_request_channel` | A privacy mailbox (privacy@, dpo@, …) or a link to a privacy-request form on the notice; only the mail domain is reported |
+
+**Privacy notice and consent (2026-11-07).** `--web-privacy-url <https URL>` (repeatable, on a proven host) names the notice; `--web-privacy-max-age-days` sets its review period. The page bodies these checks need (the declared page for `consent_banner`, the notice for the others) are read only where the host's `robots.txt` lets this User-Agent read them (RFC 9309: the group naming `sagentix-evidence-collector` wins over `*`, the longest rule wins; a 4xx means no rule, a 5xx or network failure means do not read). `robots.txt` is fetched once per host, and each body is cut at 2 MB. The topic list follows NIST SP 800-53 Rev. 5 PT-5, PIPEDA Schedule 1 clauses 4.5 and 4.8.2 and the Office of the Privacy Commissioner of Canada's Guidelines for obtaining meaningful consent; the citations sit in `src/sources/web_privacy.ts`.
 
 A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, gives `skipped`, never a pass. The certificate handshake reads the certificate without trusting it (`rejectUnauthorized: false`) and judges the verification result itself; nothing is sent on that connection. The DMARC walk approximates RFC 7489's Organizational Domain without the Public Suffix List. A result names the URL or the domain, header values, protocol versions and dates; never page content, a cookie or a person.
 
@@ -979,6 +1046,7 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 - `src/sources/cloudflare.ts` and `src/sources/cloudflare/`: the API client (GET only), zone and account checks, and the OPA sub-source.
 - `src/sources/entra.ts`, `okta.ts`, `jumpcloud.ts`, `google_workspace.ts`, `github.ts`: the identity and code sources (JumpCloud also reads devices, with `device_common.ts`); `readonly_http.ts` (GET-only client, retry, pagination, redaction) serves all five and `oauth.ts` (token requests) serves Entra ID and Google; `google_oauth.ts` and `src/google_login.ts` are Google's browser sign-in and its token file (`test/google_oauth.test.ts`). Their tests are `test/{entra,okta,jumpcloud,google_workspace,github}.test.ts` over the fakes and shared contract suite in `test/rest_fakes.ts`.
 - `src/sources/fleet.ts`, `intune.ts`, `jamf.ts`, `kandji.ts`, `defender_endpoint.ts`, `workspace_one.ts`, `configmgr.ts`, `google_endpoints.ts`, `ivanti_mdm.ts`, `ninjaone.ts`, `endpoint_central.ts`: the device sources, listed through `device_sources.ts`, with helpers in `device_common.ts`; tests in `test/{fleet,intune,jamf,kandji,defender_endpoint,workspace_one,configmgr,google_endpoints,ivanti_mdm,ninjaone,endpoint_central}.test.ts`.
+- `src/sources/bamboohr.ts` and `rippling.ts`: the HR sources, judged by `hris_common.ts` and joined with an identity provider through `directory.ts`; tests in `test/hris.test.ts`.
 - `src/sources/macos.ts` and `windows.ts`: the Mac or Windows PC the collector runs on, read with the operating system's own tools through an injectable command runner; also listed through `device_sources.ts`, tested in `test/{macos,windows}.test.ts` with fake runners.
 - `src/v1/`: the v1 FedRAMP push behind `--fedramp-target`.
 - `src/sources/prowler.ts` and `runner/`: Prowler as an engine (`--source prowler`) and the container that runs it; see `runner/README.md`. More than 5,000 results (or 4 MB) go out as several signed pushes, each with its own nonce.

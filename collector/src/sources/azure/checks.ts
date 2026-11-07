@@ -14,6 +14,8 @@
 //   GET /providers/Microsoft.Authorization/policyAssignments       Reader
 //   GET /providers/Microsoft.Compute/disks                         Reader
 //   GET /providers/Microsoft.RecoveryServices/vaults, {vault}/backupProtectedItems   Reader
+//   GET {vault}/backupJobs?$filter=startTime eq … and endTime eq …       Reader (or Backup Reader)
+//   GET /providers/Microsoft.OperationalInsights/workspaces             Reader
 //   GET /resources?$filter=resourceType eq '<type>'                Reader (which Defender plans the subscription needs)
 //   GET {sql server}/firewallRules                                 Reader
 //   GET /providers/Microsoft.Compute/virtualMachines, {vm}/instanceView   Reader
@@ -25,7 +27,7 @@ export const AZURE_CHECKS = [
   "defender_plans", "secure_score", "activity_log_export", "keyvault_recoverable",
   "storage_secure_transfer", "storage_no_public_blob", "storage_min_tls", "sql_tde",
   "nsg_no_open_admin_ports", "policy_assignments", "disk_encryption", "backup_protected_items",
-  "sql_firewall_not_open", "vm_patches_current",
+  "sql_firewall_not_open", "vm_patches_current", "backup_jobs_succeeded", "restore_tested", "log_analytics_retention",
 ] as const;
 /** Oldest a VM's patch assessment may be (Azure Update Manager's periodic assessment runs every 24 hours). */
 export const MAX_ASSESSMENT_DAYS = 7;
@@ -38,7 +40,8 @@ const OPEN_SOURCES = new Set(["*", "internet", "any", "0.0.0.0/0", "0.0.0.0", ":
 const TLS_OK = new Set(["TLS1_2", "TLS1_3"]);
 const DISK_ENCRYPTION_TYPES = new Set(["EncryptionAtRestWithPlatformKey", "EncryptionAtRestWithCustomerKey", "EncryptionAtRestWithPlatformAndCustomerKeys"]);
 
-export interface AzureOptions { minSecureScore: number; now: Date }
+export const DEFAULT_BACKUP_WINDOW_DAYS = 7, DEFAULT_RESTORE_TEST_DAYS = 365, DEFAULT_LOG_RETENTION_DAYS = 365;
+export interface AzureOptions { minSecureScore: number; now: Date; backupWindowDays: number; restoreTestDays: number; logRetentionDays: number }
 
 // Which resource types each Defender for Cloud plan protects, so a plan is demanded only where the subscription has
 // something for it to protect (Stéphane, 2026-10-26). Plan names are the pricings API's (Pricings - List,
@@ -247,8 +250,73 @@ export async function subscriptionChecks(t: AzureTransport, sub: string, o: Azur
     if ("error" in items) { out.skip("backup_protected_items", res, `protected items not readable: ${why(items.error)}`); continue; }
     out.add("backup_protected_items", res, items.items.length ? "pass" : "fail", `${items.items.length} protected item(s); at least one required`);
   }
+  if ("error" in rv) for (const c of ["backup_jobs_succeeded", "restore_tested"] as const) out.skip(c, subRes, `Recovery Services vaults not readable: ${why(rv.error)}`);
+  else await backupJobs(t, rv.items, subRes, o, out);
+  await logRetention(t, S, subRes, o, out);
 
   return out.results;
+}
+
+/** Azure Backup's job filter takes times as "yyyy-MM-dd hh:mm:ss AM" [Unverified: the Backup Jobs - List page read
+ *  2026-11-07 shows the $filter parameter but no time format; a refused filter gives "skipped", never "pass"]. */
+export const jobTime = (d: Date) => {
+  const h = d.getUTCHours(), p = (n: number) => String(n).padStart(2, "0");
+  return `${d.toISOString().slice(0, 10)} ${p(h % 12 || 12)}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} ${h < 12 ? "AM" : "PM"}`;
+};
+const JOB_OK = new Set(["Completed", "CompletedWithWarnings"]);
+const JOB_BAD = new Set(["Failed", "Cancelled"]);
+
+// Backup Jobs - List (GET {vault}/backupJobs, Reader or Backup Reader): per vault, each protected item's latest backup
+// job in the window must have completed; across vaults, a restore job that completed within the restore-test period
+// is a restore test on record. One read per vault over the longer of the two windows serves both checks. Status values:
+// the page's samples show Completed and InProgress; Failed, Cancelled and CompletedWithWarnings are read as well
+// [Unverified]: any other value is neither a success nor a failure. Backup Reader ("Can view backup services, but can't
+// make changes", built-in roles, 2026-07-01) or Reader suffices.
+async function backupJobs(t: AzureTransport, vaults: Obj[], subRes: string, o: AzureOptions, out: Results<AzureCheck>): Promise<void> {
+  if (!vaults.length) { out.skip("backup_jobs_succeeded", subRes, "no Recovery Services vault"); out.skip("restore_tested", subRes, "no Recovery Services vault"); return; }
+  const backupSince = o.now.getTime() - o.backupWindowDays * 86_400_000, restoreSince = o.now.getTime() - o.restoreTestDays * 86_400_000;
+  const from = new Date(Math.min(backupSince, restoreSince));
+  const filter = encodeURIComponent(`startTime eq '${jobTime(from)}' and endTime eq '${jobTime(o.now)}'`);
+  let restores = 0, read = 0, lastRestore = 0;
+  for (const v of vaults) {
+    const res = `recovery vault ${rgName(v.id, v.name)}`;
+    if (typeof v.id !== "string") continue;
+    const jobs = await listAll(t, `${ARM}${v.id}/backupJobs?api-version=${API.backupJobs}&$filter=${filter}`);
+    if ("error" in jobs) { out.skip("backup_jobs_succeeded", res, `backup jobs not readable: ${why(jobs.error)}`); continue; }
+    read++;
+    const latest = new Map<string, { status: string; at: number }>();
+    for (const jb of jobs.items) {
+      const p = isObj(jb.properties) ? jb.properties : {};
+      const at = Date.parse(String(p.startTime ?? "")) || 0, status = String(p.status ?? ""), op = String(p.operation ?? "");
+      if (op === "Restore" && status === "Completed" && at >= restoreSince) { restores++; lastRestore = Math.max(lastRestore, at); }
+      if (op !== "Backup" || at < backupSince || !(JOB_OK.has(status) || JOB_BAD.has(status))) continue;
+      const item = String(p.entityFriendlyName ?? jb.name ?? "?"), had = latest.get(item);
+      if (!had || at > had.at) latest.set(item, { status, at });
+    }
+    if (!latest.size) { out.add("backup_jobs_succeeded", res, "fail", `no finished backup job in the last ${o.backupWindowDays} days; each protected item's latest job Completed required`); continue; }
+    const bad = [...latest.entries()].filter(([, x]) => JOB_BAD.has(x.status));
+    const warn = [...latest.values()].filter((x) => x.status === "CompletedWithWarnings").length;
+    out.add("backup_jobs_succeeded", res, bad.length ? "fail" : "pass",
+      `${latest.size} item(s) backed up in the last ${o.backupWindowDays} days; ${latest.size - bad.length} latest job(s) completed${warn ? ` (${warn} with warnings)` : ""}${bad.length ? `; not completed: ${bad.slice(0, 10).map(([k, x]) => `${k} ${x.status}`).join(", ")}` : ""}; every item's latest job Completed required`);
+  }
+  if (!read) out.skip("restore_tested", subRes, "no vault's backup jobs could be read");
+  else out.add("restore_tested", subRes, restores ? "pass" : "fail", restores
+    ? `${restores} completed restore job(s) in ${read} vault(s) within ${o.restoreTestDays} days; latest ${new Date(lastRestore).toISOString().slice(0, 10)}`
+    : `no completed restore job in ${read} vault(s) within ${o.restoreTestDays} days; a restore test in the period required, or record one done outside Azure Backup`);
+}
+
+// Workspaces - List (GET /providers/Microsoft.OperationalInsights/workspaces, Reader): properties.retentionInDays, the
+// interactive retention of the workspace's tables by default, must reach the required period.
+async function logRetention(t: AzureTransport, S: string, subRes: string, o: AzureOptions, out: Results<AzureCheck>): Promise<void> {
+  const ws = await listAll(t, `${S}/providers/Microsoft.OperationalInsights/workspaces?api-version=${API.workspaces}`);
+  if ("error" in ws) return out.skip("log_analytics_retention", subRes, `Log Analytics workspaces not readable: ${why(ws.error)}`);
+  if (!ws.items.length) return out.skip("log_analytics_retention", subRes, "the subscription has no Log Analytics workspace");
+  for (const w of ws.items) {
+    const p = isObj(w.properties) ? w.properties : {}, days = Number(p.retentionInDays);
+    const res = `log analytics workspace ${rgName(w.id, w.name)}`;
+    if (!Number.isFinite(days)) { out.skip("log_analytics_retention", res, "retentionInDays not returned"); continue; }
+    out.add("log_analytics_retention", res, days >= o.logRetentionDays ? "pass" : "fail", `retentionInDays ${days}; at least ${o.logRetentionDays} required (a table may set its own retention; tables are not read)`);
+  }
 }
 
 async function sqlTde(t: AzureTransport, S: string, subRes: string, out: Results<AzureCheck>): Promise<void> {

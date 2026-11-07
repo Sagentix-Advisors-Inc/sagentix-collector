@@ -4,7 +4,7 @@
 
 import type { Result, Source } from "../types.ts";
 import { API, ARM, CREDENTIAL_ENVS, fetchAzure, listAll, armMessage, tokenFromEnv, type AzureTransport } from "./azure/api.ts";
-import { AZURE_CHECKS, subscriptionChecks } from "./azure/checks.ts";
+import { AZURE_CHECKS, DEFAULT_BACKUP_WINDOW_DAYS, DEFAULT_LOG_RETENTION_DAYS, DEFAULT_RESTORE_TEST_DAYS, subscriptionChecks } from "./azure/checks.ts";
 import { allSkipped, httpWhy, list, scrub, str } from "./shared-cloud.ts";
 
 export const DEFAULT_MIN_SECURE_SCORE = 0;
@@ -14,6 +14,9 @@ export const azure: Source = {
   options: {
     "azure-subscription": { type: "string", multiple: true, help: "Azure subscription id; default: every subscription the identity can list" },
     "azure-min-secure-score": { type: "string", help: `lowest Defender for Cloud secure score accepted, in percent (default ${DEFAULT_MIN_SECURE_SCORE})` },
+    "azure-backup-window-days": { type: "string", help: `days of Azure Backup jobs read; each item's latest must have completed (default ${DEFAULT_BACKUP_WINDOW_DAYS})` },
+    "azure-restore-test-days": { type: "string", help: `days within which a completed restore job must exist (default ${DEFAULT_RESTORE_TEST_DAYS})` },
+    "azure-log-retention-days": { type: "string", help: `least Log Analytics workspace retention accepted, in days (default ${DEFAULT_LOG_RETENTION_DAYS})` },
   },
   emits: AZURE_CHECKS.map((c) => `azure.${c}`),
   describe(opts) {
@@ -46,7 +49,10 @@ export const azure: Source = {
       if (!subs.length) return allSkipped("azure", AZURE_CHECKS, "subscription (list)", "the identity can list no enabled subscription; give --azure-subscription");
     }
     const min = Number(ctx.opts["azure-min-secure-score"] ?? DEFAULT_MIN_SECURE_SCORE);
-    for (const s of [...new Set(subs)]) out.push(...(await subscriptionChecks(t, s, { minSecureScore: Number.isFinite(min) ? min : DEFAULT_MIN_SECURE_SCORE, now: ctx.now })));
+    const days = (k: string, d: number) => { const n = Number(typeof ctx.opts[k] === "string" ? ctx.opts[k] : NaN); return Number.isFinite(n) && n > 0 ? n : d; };
+    const o = { minSecureScore: Number.isFinite(min) ? min : DEFAULT_MIN_SECURE_SCORE, now: ctx.now, backupWindowDays: days("azure-backup-window-days", DEFAULT_BACKUP_WINDOW_DAYS),
+                restoreTestDays: days("azure-restore-test-days", DEFAULT_RESTORE_TEST_DAYS), logRetentionDays: days("azure-log-retention-days", DEFAULT_LOG_RETENTION_DAYS) };
+    for (const s of [...new Set(subs)]) out.push(...(await subscriptionChecks(t, s, o)));
     return scrub(out, secrets);
   },
 };

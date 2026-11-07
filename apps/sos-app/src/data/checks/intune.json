@@ -2,7 +2,7 @@
  "source": "intune",
  "title": "Microsoft Intune (Microsoft Graph v1.0, read-only application permissions)",
  "readScopes": [
-  "Microsoft Graph application permission DeviceManagementManagedDevices.Read.All (GET /deviceManagement/managedDevices), with admin consent.",
+  "Microsoft Graph application permission DeviceManagementManagedDevices.Read.All (GET /deviceManagement/managedDevices, and since 2026-11-07 GET /beta/deviceManagement/remoteActionAudits), with admin consent.",
   "Microsoft Graph application permission DeviceManagementConfiguration.Read.All (GET /deviceManagement/deviceCompliancePolicies and its /assignments), with admin consent."
  ],
  "checks": [
@@ -47,6 +47,12 @@
    "title": "Each managed device has synced with Intune within the last 14 days",
    "scope": "Every Intune managed device, from lastSyncDateTime; the window is --intune-sync-days.",
    "evidenceType": "Configuration"
+  },
+  {
+   "id": "intune.device_wipe_recorded",
+   "title": "Each device wiped, retired or deleted in the period has a finished wipe or retire recorded",
+   "scope": "One result per device with a factoryReset, factoryResetKeepEnrollmentData, removeCompanyData, cleanWindowsDevice or delete action in the remote action audit within --intune-wipe-days (default 365): a done wipe or retire passes; failed, canceled or not supported fails; pending for more than 7 days fails; a delete with no wipe or retire fails. A device removed with no recorded action is not seen.",
+   "evidenceType": "Audit Record"
   }
  ]
 }
