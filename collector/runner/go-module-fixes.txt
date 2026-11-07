@@ -21,9 +21,10 @@ kubescape go.opentelemetry.io/otel/exporters/stdout/stdoutlog v0.23.0 companion-
 kubescape go.opentelemetry.io/otel/log v1.47.0 companion-of-go.opentelemetry.io/otel/sdk/log
 kubescape go.opentelemetry.io/otel/sdk/log v1.47.0 CVE-2026-81872
 kubescape golang.org/x/image v0.45.0 CVE-2026-46603
-kubescape golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032
+kubescape golang.org/x/net v0.62.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78661 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032 CVE-2026-97045
 opa golang.org/x/crypto v0.56.0 CVE-2026-56855 CVE-2026-78662
-opa golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032
+opa golang.org/x/net v0.62.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78661 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032 CVE-2026-97045
 scorecard github.com/go-jose/go-jose/v4 v4.1.6 CVE-2026-116587
+scorecard golang.org/x/net v0.62.0 CVE-2026-78661 CVE-2026-97045
 trivy github.com/go-jose/go-jose/v4 v4.1.6 CVE-2026-116587
-trivy golang.org/x/net v0.60.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032
+trivy golang.org/x/net v0.62.0 CVE-2026-78659 CVE-2026-78660 CVE-2026-78661 CVE-2026-78663 CVE-2026-78669 CVE-2026-97032 CVE-2026-97045
