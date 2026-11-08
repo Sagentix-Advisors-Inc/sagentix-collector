@@ -108,7 +108,8 @@ test("e2e: a real push signs each body, and the signature verifies over the exac
     const h = post.init.headers as Record<string, string>;
     assert.equal(h["x-sagentix-key-id"], "k-e2e");
     const body = post.init.body as Uint8Array<ArrayBuffer>;
-    assert.ok(await crypto.subtle.verify({ name: "Ed25519" }, key, Buffer.from(h["x-sagentix-signature"], "base64"), body), "signature verifies");
+    assert.ok(await crypto.subtle.verify({ name: "Ed25519" }, key, Buffer.from(h["x-sagentix-content-signature"], "base64"), body), "signature verifies");
+    assert.equal(h["x-sagentix-sig-version"], "2");
     const p = JSON.parse(new TextDecoder().decode(body));
     assert.equal(p.format, FORMAT);
     n += p.results.length;

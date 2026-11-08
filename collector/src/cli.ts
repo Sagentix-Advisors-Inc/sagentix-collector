@@ -12,6 +12,7 @@
 //   collector google-login --client <client JSON> [--token <file>]   one-time Google Workspace sign-in
 //   collector policies --config collector.config.json   pushes the policy folders for sos-app to match (src/policies.ts)
 //   collector doctor --config collector.config.json [--source x]   credentials and permissions per source; sends nothing (src/doctor.ts)
+//   collector rotate-key --config collector.config.json   a new key pair for the same key id (src/rotate.ts)
 //   run options for every source: --concurrency <n> (default 4), --http-timeout <s> (default 60), --verbose, --debug
 //   collector run --endpoint <url> --key-id <id> [--key <pem> | env SAGENTIX_COLLECTOR_KEY]
 //                 --source cloudflare[,...] [source options] [--catalog <dir>] [--dry-run] [--out <file>]
@@ -25,7 +26,8 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { DEFAULT_CATALOG_DIR, loadCatalog } from "./catalog.ts";
-import { publicKeyFromPrivate, signBody, writeNewKey } from "./keys.ts";
+import { publicKeyFromPrivate, signBody, signRequest, writeNewKey } from "./keys.ts";
+import { prunePreviousKey, rotateKey } from "./rotate.ts";
 import { MAX_RESULTS, buildPayload, splitResults, vet } from "./payload.ts";
 import { SOURCES } from "./sources/index.ts";
 import { CONFIG_SCHEMA, loadConfig } from "./config.ts";
@@ -36,6 +38,8 @@ import { CLASSES, type FedClass } from "./v1/rules.ts";
 import { EXIT_UPDATE, checkin, detectRunner, modeOf, type Channel } from "./channel.ts";
 import { RunRecorder, buildReport, deliverReport, envSecrets, scrubText, type CallEvent, type RetryEvent, type SourceReport, type SourceStats } from "./report.ts";
 import { pool } from "./pool.ts";
+import { OWNER, classify, diagnosticLine } from "./diagnostics.ts";
+import { noteCheckin, noteRun, observeDate, readHealth, sourceHealth } from "./health.ts";
 import { PROBES, doctorHint, type Check } from "./doctor.ts";
 import { agent } from "./agent.ts";
 import { VAULT_FILE, Vault, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
@@ -61,6 +65,8 @@ export interface Deps {
   clients: Clients;
   sources: readonly Source[];
   env: NodeJS.ProcessEnv;
+  /** The sos-app channel public keys answers must verify against (src/channel_keys.ts); tests give their own. */
+  channelKeys?: readonly string[];
   /** Where the vault key is (src/vault.ts); default the strongest place this computer offers. Tests give their own. */
   vaultKey?: (dir: string, keyId: string) => KeyHolder;
   now: () => Date;
@@ -123,6 +129,7 @@ function usage(sources: readonly Source[]): string {
   collector config-schema
   collector google-login --client <Desktop app client JSON> [--token sagentix-google-token.json] [--port <n>] [--login-hint <email>] [--no-browser]
   collector doctor --config collector.config.json [--source <name>]   checks each source's credentials and permissions; collects and sends nothing
+  collector rotate-key --config collector.config.json   a new key pair for the same key id, registered with the current key's signature
   collector run --endpoint <url> --key-id <id> [--key <pem file>] --source ${sources.map((s) => s.name).join("|")}[,...]
                 [source options] [--catalog <checks dir>] [--dry-run] [--out <file>]
                 [--concurrency <1-${MAX_CONCURRENCY}, default ${DEFAULT_CONCURRENCY}>] [--http-timeout <seconds, default ${DEFAULT_HTTP_TIMEOUT_S}>] [--verbose] [--debug]
@@ -233,7 +240,7 @@ export function problemLines(results: readonly Result[], max = 20): string[] {
     const k = `${r.check}|${st}`;
     if (seen.has(k)) continue;
     seen.add(k);
-    if (out.length < max) out.push(`  ${r.check} [${r.resource}]: HTTP ${st}${st === 401 ? " (credential refused)" : " (permission missing)"}; fix: ${doctorHint(source)}`);
+    if (out.length < max) out.push(`  ${r.check} [${r.resource}]: HTTP ${st}${st === 401 ? " (credential refused, AUTH_REFUSED)" : " (permission missing, PERMISSION_MISSING)"}; fix: ${doctorHint(source)}`);
   }
   if (seen.size > max) out.push(`  … and ${seen.size - max} more`);
   return out;
@@ -319,7 +326,8 @@ export async function doctorCommand(argv: string[], deps: Deps): Promise<number>
     }));
     for (const [i, o] of outcomes.entries()) {
       const v = o.status === "fulfilled" ? o.value : { error: o.reason, value: undefined };
-      results.push({ source: names[i], checks: v.value ?? [{ what: "self-test", verdict: "fail", detail: `the probe failed: ${String((v.error as Error)?.message ?? v.error)}`, fix: "report this to Sagentix with the line above" }] });
+      results.push({ source: names[i], checks: v.value ?? [{ what: "self-test", verdict: "fail", detail: `the probe failed: ${String((v.error as Error)?.message ?? v.error)}`,
+        fix: "report this to Sagentix with the line above", code: classify(v.error, { source: names[i] }).code }] });
     }
   } finally { release(); cleanup(); }
   let failed = 0, passed = 0, skipped = 0;
@@ -331,6 +339,7 @@ export async function doctorCommand(argv: string[], deps: Deps): Promise<number>
       if (c.verdict === "pass") passed++; else if (c.verdict === "fail") failed++; else skipped++;
       out(`  ${c.verdict.toUpperCase().padEnd(4)}  ${c.what.padEnd(w)}  ${c.detail}`);
       if (c.fix && c.verdict !== "pass") out(`        fix: ${c.fix}`);
+      if (c.code && c.verdict === "fail") out(`        code: ${c.code} (${OWNER[c.code] === "customer" ? "yours to fix" : OWNER[c.code] === "sagentix" ? "Sagentix fixes it" : "transient"})`);
     }
   }
   out(`doctor: ${passed} passed, ${failed} failed, ${skipped} skipped${failed ? "; fix the lines marked FAIL, then run the doctor again" : "; ready for `collector run`"}`);
@@ -387,6 +396,8 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   let pem: string | undefined;
   if (typeof values.key === "string") {
     try { pem = readFileSync(values.key, "utf8"); } catch (e) { deps.err(`cannot read --key ${values.key}: ${(e as NodeJS.ErrnoException).code ?? String(e)}`); return EXIT.error; }
+    // `rotate-key` kept the replaced key beside it for the 7-day overlap; once that has passed, it goes.
+    if (prunePreviousKey(resolve(values.key), deps.now())) deps.err(`removed ${values.key}.previous: sos-app no longer accepts that key`);
   } else if (deps.env[KEY_ENV]) pem = deps.env[KEY_ENV];
   const keyId = typeof values["key-id"] === "string" ? values["key-id"] : undefined;
   if (!dry && (!pem || !keyId)) { deps.err(`--key-id and --key (or ${KEY_ENV}) are required unless --dry-run.`); return EXIT.usage; }
@@ -397,7 +408,7 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   const runner = detectRunner(deps.env), mode = modeOf(deps.env);
   const dir = configPath ? dirname(resolve(configPath)) : (deps.cwd ?? process.cwd());
   const channel: Channel | undefined = pem && keyId
-    ? { origin: new URL(url).origin, keyId, pem, fetch: deps.channel ?? deps.fetch, dir, runner, mode, env: deps.env, now: deps.now }
+    ? { origin: new URL(url).origin, keyId, pem, fetch: observeDate(deps.channel ?? deps.fetch, deps.now), dir, runner, mode, env: deps.env, now: deps.now, ...(deps.channelKeys ? { answerKeys: deps.channelKeys } : {}) }
     : undefined;
   // A connector test asked from sos-app runs that connector dry: no check-in, and no run report, so the last real run's
   // report beside the config stays what sos-app shows.
@@ -406,7 +417,9 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
   else if (channel) {
     const vault = configPath && keyId ? vaultBridge({ configPath: resolve(configPath), keyId, now: deps.now, log: deps.err,
       holder: deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner }) }) : undefined;
-    rec.note("checkin", (await checkin(channel, { write: !dry, log: deps.err, vault })).warnings);
+    const outcome = await checkin(channel, { write: !dry, log: deps.err, vault, sources: chosen.map((s) => s.name) });
+    noteCheckin(dir, outcome, deps.now(), !dry);
+    rec.note("checkin", outcome.warnings);
   }
   else deps.err("check-in skipped: a dry run without a key cannot sign one.");
   const { env, cleanup, secrets: vaultSecrets } = await vaultEnv({ configPath, keyId, dir, runner, deps, note: (w) => rec.note("vault", w) });
@@ -419,13 +432,18 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     deps.err(`collector error: ${String((e as Error)?.message ?? e)}`);
     code = EXIT.error;
   } finally { cleanup(); }
-  // The closing table (stderr only), and the refused calls with what to grant.
+  // Each source's health (src/health.ts): its status and diagnostics go into the report, and beside it for the check-ins.
+  const health = sourceHealth(rec, chosen.map((s) => s.name), judged, deps.now(), readHealth(dir, deps.now()).connectors);
+  if (!dry) noteRun(dir, health, deps.now(), deps.err);
+  // The closing table (stderr only), the refused calls with what to grant, and the faults that are not the customer's.
   const ran = rec.sources.filter((r) => chosen.some((s) => s.name === r.name));
   if (ran.length) {
     rawErr(`\nsummary (${ran.length} source(s), up to ${concurrency} at once):`);
     for (const l of summaryTable(ran, rec.stats)) rawErr(l);
     const problems = problemLines(judged);
     if (problems.length) { rawErr("refused calls (their checks were sent as skipped):"); for (const l of problems) rawErr(scrubText(l, lineSecrets)); }
+    const others = ran.flatMap((r) => (r.diagnostics ?? []).filter((d) => !(d.check && (d.code === "AUTH_REFUSED" || d.code === "PERMISSION_MISSING"))));
+    if (others.length) { rawErr("diagnostics (sent to sos-app with the report; never a provider's own text):"); for (const d of others) rawErr(scrubText(diagnosticLine(d), lineSecrets)); }
   }
   // The report is scrubbed of every value in the run's environment, the vault's included.
   if (connectorTest) return code;
@@ -530,7 +548,13 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
       const which = pushes.length > 1 ? ` (push ${i + 1} of ${pushes.length}${i ? `; pushes 1 to ${i} were accepted` : ""})` : "";
       let res: Response;
       try {
-        res = await deps.fetch(url, { method: "POST", headers: { "content-type": "application/json", "x-sagentix-key-id": keyId!, "x-sagentix-signature": p.signature! }, body: p.body });
+        // Signature v2 for the push (section 10 of the channel contract); the FedRAMP v1 door keeps the body signature and
+        // its own nonce. x-sagentix-content-signature is the body signature an assessor checks the evidence against.
+        const headers: Record<string, string> = v1Target
+          ? { "content-type": "application/json", "x-sagentix-key-id": keyId!, "x-sagentix-signature": p.signature! }
+          : { "content-type": "application/json", ...signRequest(pem!, keyId!, "POST", new URL(url).pathname, p.body, deps.now().getTime()).headers,
+              "x-sagentix-content-signature": p.signature! };
+        res = await deps.fetch(url, { method: "POST", headers, body: p.body });
       } catch (e) {
         deps.err(`POST ${url} failed${which}: ${String(e)}`);
         rec.pushes.push({ status: 0, error: String((e as Error)?.message ?? e) });
@@ -591,6 +615,7 @@ export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<
     if (cmd === "google-login") return await googleLogin(rest, deps);
     if (cmd === "policies") return await policiesCommand(rest, deps);
     if (cmd === "doctor" || cmd === "selftest") return await doctorCommand(rest, deps);
+    if (cmd === "rotate-key") return await rotateKey(rest, deps);
   } catch (e) {
     deps.err(String((e as Error).message ?? e));
     return EXIT.error;

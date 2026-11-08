@@ -12,9 +12,11 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { CONNECT_PATH, EXIT_UPDATE, MODE_ENV, checkin, collectorInfo, detectRunner, type Channel } from "./channel.ts";
 import { loadConfig } from "./config.ts";
+import { noteCheckin, observeDate } from "./health.ts";
 import { vaultBridge, type TestOutcome } from "./deliveries.ts";
 import { keyHolderFor } from "./vault.ts";
-import { signBody } from "./keys.ts";
+import { CONNECT_V2, checkAnswer, newNonce, signBody } from "./keys.ts";
+import { CHANNEL_PUBLIC_KEYS } from "./channel_keys.ts";
 import type { Deps } from "./cli.ts";
 
 export const PING_MS = 50_000;
@@ -27,15 +29,24 @@ const CLI_PATH = fileURLToPath(new URL(`./cli${extname(fileURLToPath(import.meta
 /** The next reconnect delay: 1 s doubling to 5 min. */
 export const nextBackoff = (ms: number) => Math.min(BACKOFF_MAX_MS, Math.max(BACKOFF_MIN_MS, ms * 2));
 
-/** wss://<origin>/api/collect/connect?key=&ts=&sig= with sig the base64url Ed25519 signature over "sagentix-connect/1\n<key id>\n<ts>". */
-export function connectUrl(endpoint: string, keyId: string, pem: string, nowMs: number): string {
+/** wss://<origin>/api/collect/connect?key=<key id>: the key id only, never a credential (section 10). The socket is
+ *  authenticated by its first frame, authFrame(). */
+export function connectUrl(endpoint: string, keyId: string): string {
   const u = new URL(CONNECT_PATH, new URL(endpoint).origin);
   u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
-  const ts = String(Math.floor(nowMs));
-  const sig = Buffer.from(signBody(pem, new TextEncoder().encode(`sagentix-connect/1\n${keyId}\n${ts}`)), "base64").toString("base64url");
-  u.search = new URLSearchParams({ key: keyId, ts, sig }).toString();
+  u.search = new URLSearchParams({ key: keyId }).toString();
   return u.toString();
 }
+
+/** The first frame on the socket: {"type":"auth", keyId, ts, nonce, sig} with sig over "sagentix-connect/2\n<keyId>\n<ts>\n<nonce>". */
+export function authFrame(keyId: string, pem: string, nowMs: number, nonce = newNonce()): { frame: string; nonce: string } {
+  const ts = String(Math.floor(nowMs));
+  const sig = signBody(pem, new TextEncoder().encode(`${CONNECT_V2}\n${keyId}\n${ts}\n${nonce}`));
+  return { frame: JSON.stringify({ type: "auth", keyId, ts, nonce, sig }), nonce };
+}
+
+/** The text the hub's ack signs (sagentix-answer/1 over the connect path and the auth frame's nonce). */
+export const ACK_BODY = '{"type":"ack"}';
 
 /** A run the agent started: its exit code (null when it died on a signal) and a way to stop it. */
 export interface ChildRun { exit: Promise<number | null>; kill(): void }
@@ -49,6 +60,12 @@ export interface SessionHooks {
   hello: { version: string; commit: string; runner: string };
   /** Called when a run has ended and none is going. */
   onIdle?(): void;
+  /** The signed first frame (section 10), sent before hello; absent, none is sent. */
+  auth?(): { frame: string; nonce: string };
+  /** The pinned sos-app channel keys the hub's ack must verify against. */
+  answerKeys?: readonly string[];
+  /** Closes the socket (an ack that does not verify). */
+  close?(code: number, reason: string): void;
 }
 
 /** The agent's side of the protocol, without a socket: what to send for each message received. */
@@ -62,7 +79,11 @@ export class AgentSession {
 
   get running(): string | undefined { return this.busy?.id; }
 
+  /** The nonce of the auth frame this socket opened with: the hub's ack repeats it in its signature. */
+  private authNonce: string | undefined;
+
   onOpen(): void {
+    if (this.h.auth) { const a = this.h.auth(); this.authNonce = a.nonce; this.h.send(a.frame); }
     this.h.send(JSON.stringify({ type: "hello", ...this.h.hello }));
     if (this.unsent && this.h.send(this.unsent)) this.unsent = undefined;
   }
@@ -73,12 +94,24 @@ export class AgentSession {
     try { m = JSON.parse(data); } catch { this.h.log("agent: ignored a message that is not JSON"); return; }
     if (typeof m !== "object" || m === null) { this.h.log("agent: ignored a message that is not an object"); return; }
     switch (m.type) {
+      case "ack": this.ack((m as { signature?: unknown }).signature); return;
       case "ping": this.h.send(JSON.stringify({ type: "pong" })); return;
       case "pong": return;   // the answer to our own ping
       case "checkin": this.h.checkin().catch((e) => this.h.log(`agent: check-in failed: ${String((e as Error)?.message ?? e)}`)); return;
       case "run": this.run(m.id); return;
       default: this.h.log(`agent: ignored a message of type ${JSON.stringify(String(m.type ?? "")).slice(0, 60)}`);
     }
+  }
+
+  /** The hub accepted the auth frame. Its signature proves the socket reached sos-app: one that does not verify closes it
+   *  (the agent reconnects with backoff); an unsigned one (no channel key on that sos-app yet) is logged and kept, since
+   *  the socket carries no action the collector takes on trust (a run is the scheduled run, a checkin's answer is signed). */
+  private ack(signature: unknown): void {
+    const check = checkAnswer(this.h.answerKeys ?? CHANNEL_PUBLIC_KEYS, CONNECT_PATH, this.authNonce ?? "", ACK_BODY, typeof signature === "string" ? signature : null);
+    if (check === "valid") return;
+    if (check === "unsigned") { this.h.log("agent: warning: sos-app did not sign the connection's ack (its channel key is not set up yet)"); return; }
+    this.h.log("agent: the connection's ack does not verify against a pinned sos-app channel key; disconnecting");
+    this.h.close?.(1008, "ack signature");
   }
 
   private status(id: string, state: "started" | "done" | "failed", exitCode: number | null): void {
@@ -221,7 +254,10 @@ export async function agent(argv: string[], deps: Deps, io: AgentIo = realAgentI
   } catch (e) { deps.err((e as Error).message); return 2; }
 
   const runner = detectRunner(deps.env);
-  const channel: Channel = { origin, keyId, pem, fetch: deps.channel ?? deps.fetch, dir: dirname(configPath), runner, mode: "agent", env: deps.env, now: deps.now };
+  const channel: Channel = { origin, keyId, pem, fetch: observeDate(deps.channel ?? deps.fetch, deps.now), dir: dirname(configPath), runner, mode: "agent", env: deps.env, now: deps.now,
+                             ...(deps.channelKeys ? { answerKeys: deps.channelKeys } : {}) };
+  // The connectors the config names, for the check-in's health (src/health.ts): each with its last run's state.
+  const sources = ((c.values.source as string[] | undefined) ?? []).flatMap((s) => s.split(",")).map((s) => s.trim()).filter(Boolean);
   const log = (s: string) => { try { deps.err(s); } catch { /* never let logging end the agent */ } };
   // A signed update written by a check-in ends the agent with 75 once no run is going: Docker's wrapper loop restarts
   // the container on the new digest, a service manager restarts the script, which checks out the ref on start.
@@ -229,9 +265,18 @@ export async function agent(argv: string[], deps: Deps, io: AgentIo = realAgentI
   const dir = dirname(configPath);
   const vault = vaultBridge({ configPath, keyId, now: deps.now, log, test: (sources) => testRun(configPath, deps.env, sources),
                               holder: deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner: detectRunner(deps.env) }) });
+  // `collector rotate-key` replaces the key file while the agent runs: read it again before each check-in and connection,
+  // so the agent moves to the new key well before sos-app retires the old one (7 days).
+  const keyPath = typeof c.values.key === "string" ? resolve(c.values.key) : null;
+  const freshKey = () => {
+    if (!keyPath) return;
+    try { const p = readFileSync(keyPath, "utf8"); if (p !== pem) { pem = p; channel.pem = p; log("agent: the key file changed; using the new key"); } } catch { /* keep the key in memory */ }
+  };
   const doCheckin = async () => {
+    freshKey();
     try {
-      const out = await checkin(channel, { write: true, log, vault });
+      const out = await checkin(channel, { write: true, log, vault, sources });
+      noteCheckin(dir, out, deps.now());
       if (out.wrote && !restartPending) {
         restartPending = true;
         log(`agent: exiting with ${EXIT_UPDATE} to restart on the update${session.running ? ` once run ${session.running} ends` : ""}`);
@@ -249,13 +294,17 @@ export async function agent(argv: string[], deps: Deps, io: AgentIo = realAgentI
     log,
     hello: { ...collectorInfo(deps.env), runner },
     onIdle: () => { if (restartPending) finish(EXIT_UPDATE); },
+    auth: () => authFrame(keyId, pem!, deps.now().getTime()),
+    answerKeys: deps.channelKeys,
+    close: (code, reason) => { try { ws?.close(code, reason); } catch { /* already closed */ } },
   });
 
   const connect = () => {
     retry = undefined;
     if (stopping) return;
     let s: SocketLike;
-    try { s = io.socket(connectUrl(origin, keyId, pem!, deps.now().getTime())); } catch (e) { log(`agent: cannot connect: ${String((e as Error)?.message ?? e)}`); return later(); }
+    freshKey();
+    try { s = io.socket(connectUrl(origin, keyId)); } catch (e) { log(`agent: cannot connect: ${String((e as Error)?.message ?? e)}`); return later(); }
     ws = s;
     s.onopen = () => {
       log(`agent: connected to ${origin}`);

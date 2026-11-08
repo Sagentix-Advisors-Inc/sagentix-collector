@@ -183,7 +183,7 @@ test("--verbose logs each call by its shape (no query), the table closes the run
     assert.match(r.stderr, /\[okta\] GET acme\.okta\.com\/api\/v1\/logs -> 403 in \d+ ms/);
     assert.doesNotMatch(r.stderr, /\?|limit=|filter=/, "no query string in the call log");
     assert.match(r.stderr, /summary \(1 source\(s\), up to 4 at once\):\nsource +results +pass +fail +skipped +calls +retries +http errors +time +source status/);
-    assert.match(r.stderr, /refused calls \(their checks were sent as skipped\):\n  okta\.system_log_available \[[^\]]+\]: HTTP 403 \(permission missing\); fix: run `collector doctor --config <file> --source okta`/);
+    assert.match(r.stderr, /refused calls \(their checks were sent as skipped\):\n  okta\.system_log_available \[[^\]]+\]: HTTP 403 \(permission missing, PERMISSION_MISSING\); fix: run `collector doctor --config <file> --source okta`/);
   } finally { net.restore(); }
 });
 
@@ -309,7 +309,7 @@ test("the closing table and the refused-call lines", () => {
     { check: "okta.d", resource: "r", result: "pass", detail: "" },
   ]);
   assert.equal(lines.length, 2);
-  assert.match(lines[1], /okta\.b \[r\]: HTTP 401 \(credential refused\)/);
+  assert.match(lines[1], /okta\.b \[r\]: HTTP 401 \(credential refused, AUTH_REFUSED\)/);
 });
 
 test("the recorder counts calls per source when sources overlap, and only while they run", async () => {

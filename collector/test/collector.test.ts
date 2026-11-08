@@ -12,7 +12,7 @@ import { SOURCES } from "../src/sources/index.ts";
 import type { Source } from "../src/types.ts";
 import { sdrValidator } from "../src/v1/payload.ts";
 import { loadRules } from "../src/v1/rules.ts";
-import { ACCOUNT, ZONE, capture, errBody, fakeCloudflare, missingOpa, NO_MAPPINGS } from "./helpers.ts";
+import { ACCOUNT, ZONE, capture, errBody, fakeCloudflare, missingOpa, NO_MAPPINGS, verifiesV2 } from "./helpers.ts";
 
 const catalog = loadCatalog();
 const dir = mkdtempSync(join(tmpdir(), "collector-test-"));
@@ -124,10 +124,15 @@ test("a run POSTs to /api/collect with the key id and a signature over the exact
   assert.equal(h["content-type"], "application/json");
   assert.equal(h["x-sagentix-key-id"], "k-1");
   const body = init.body as Uint8Array<ArrayBuffer>;
-  assert.ok(await verify(publicKey, h["x-sagentix-signature"], body));
-  // One byte off and it no longer verifies.
+  // Signature v2 (method, path, time, nonce, the body's hash) for sos-app; the content signature over the body alone for the assessor.
+  assert.ok(verifiesV2(publicKey, h, "POST", "/api/collect", body), "signature v2 over method, path, time, nonce and the body hash");
+  assert.equal(verifiesV2(publicKey, h, "POST", "/api/collect/report", body), false, "bound to the path");
+  assert.match(h["x-sagentix-nonce"], /^[A-Za-z0-9_-]{16,128}$/);
+  assert.ok(await verify(publicKey, h["x-sagentix-content-signature"], body));
+  // One byte off and neither verifies.
   const tampered = new Uint8Array(body); tampered[tampered.length - 2] ^= 1;
-  assert.equal(await verify(publicKey, h["x-sagentix-signature"], tampered), false);
+  assert.equal(await verify(publicKey, h["x-sagentix-content-signature"], tampered), false);
+  assert.equal(verifiesV2(publicKey, h, "POST", "/api/collect", tampered), false);
   assert.equal(JSON.parse(new TextDecoder().decode(body)).format, "sagentix-collect/3");
 });
 
@@ -148,7 +153,7 @@ test("the key may come from SAGENTIX_COLLECTOR_KEY", async () => {
   const args = base.filter((a, i) => a !== "--key" && base[i - 1] !== "--key");
   assert.equal(await main(args, c.deps), EXIT.ok, c.stderr.join("\n"));
   const h = c.posts[0].init.headers as Record<string, string>;
-  assert.ok(await verify(publicKey, h["x-sagentix-signature"], c.posts[0].init.body as Uint8Array<ArrayBuffer>));
+  assert.ok(await verify(publicKey, h["x-sagentix-content-signature"], c.posts[0].init.body as Uint8Array<ArrayBuffer>));
 });
 
 // ── Exit codes ────────────────────────────────────────────────────────────────────────────────────

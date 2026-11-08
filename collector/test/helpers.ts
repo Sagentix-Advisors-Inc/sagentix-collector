@@ -6,6 +6,35 @@ import type { CloudflareApi, CfResponse } from "../src/sources/cloudflare/api.ts
 import type { OpaRunner } from "../src/sources/cloudflare/opa.ts";
 import type { Deps } from "../src/cli.ts";
 import { SOURCES } from "../src/sources/index.ts";
+import { answerMessage, generateKeyPair, sha256Hex, signBody, verifyWithAny } from "../src/keys.ts";
+
+/** A channel key for the fake sos-apps (the real one's public half is pinned in src/channel_keys.ts). */
+export const TEST_CHANNEL = generateKeyPair();
+
+/** The headers of a fetch call, whatever shape the caller gave them in. */
+const headerOf = (init: RequestInit | undefined, name: string) => new Headers(init?.headers as HeadersInit | undefined).get(name);
+
+/** True when the request's headers carry a valid signature v2 by `publicKey` over method, path, ts, nonce and the hash
+ *  of `signed` (apps/sos-app/docs/COLLECTOR_CHANNEL.md, section 10). */
+export function verifiesV2(publicKey: string, headers: unknown, method: string, path: string, signed: Uint8Array): boolean {
+  const h = new Headers(headers as HeadersInit);
+  if (h.get("x-sagentix-sig-version") !== "2") return false;
+  const msg = `sagentix-sig/2\n${method}\n${path}\n${h.get("x-sagentix-ts")}\n${h.get("x-sagentix-nonce")}\n${sha256Hex(signed)}`;
+  return verifyWithAny([publicKey], h.get("x-sagentix-signature") ?? "", new TextEncoder().encode(msg));
+}
+
+/** Wraps a fake sos-app so each answer carries x-sagentix-answer-signature for the request's path and nonce, as sos-app
+ *  does with its channel key. `key` another key (a forged answer); null leaves answers unsigned (no channel key yet). */
+export function signedAnswers(f: typeof fetch, key: string | null = TEST_CHANNEL.privatePem): typeof fetch {
+  return (async (url: string | URL | Request, init?: RequestInit) => {
+    const res = await f(url, init);
+    const text = await res.text();
+    const headers = new Headers(res.headers);
+    const nonce = headerOf(init, "x-sagentix-nonce");
+    if (key && nonce) headers.set("x-sagentix-answer-signature", signBody(key, answerMessage(new URL(String(url)).pathname, nonce, text)));
+    return new Response(text, { status: res.status, headers });
+  }) as typeof fetch;
+}
 
 /** False in the public mirror, whose catalogues carry no control mappings (scripts/public-catalogue.mjs). */
 export const MAPPED = JSON.parse(readFileSync(new URL("../../apps/sos-app/src/data/checks/cloudflare.json", import.meta.url), "utf8")).checks[0].hub !== undefined;
@@ -113,7 +142,10 @@ export function capture(over: Partial<Deps> = {}, reply: { status: number; body:
     now: () => NOW,
     out: (s) => stdout.push(s),
     err: (s) => stderr.push(s),
+    channelKeys: [TEST_CHANNEL.publicKey],
     ...over,
   };
+  // The fake sos-app signs its answers with the test channel key, as the real one does (a test's own channel fake too).
+  if (deps.channel) deps.channel = signedAnswers(deps.channel);
   return { deps, stdout, stderr, posts, channel, dir };
 }

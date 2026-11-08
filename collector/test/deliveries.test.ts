@@ -11,6 +11,7 @@ import { DOCKER_SECRET, Vault, keyHolderFor, runEnv } from "../src/vault.ts";
 import { checkin, type Channel } from "../src/channel.ts";
 import { generateKeyPair } from "../src/keys.ts";
 import { sealInBrowser } from "./seal.ts";
+import { signedAnswers, TEST_CHANNEL } from "./helpers.ts";
 
 const CREDS: Record<string, Credential> = {
   jamf: { sources: ["jamf"], secrets: ["JAMF_CLIENT_SECRET"], settings: ["JAMF_URL", "JAMF_CLIENT_ID"] },
@@ -114,13 +115,24 @@ test("runs a connector test only in resident mode, and cuts the vault's values f
 
 test("the check-in reports the vault, applies the answer's deliveries and acknowledges them, signed; a dry run applies nothing", async () => {
   const t = setup(), { privatePem } = generateKeyPair(), posted: { path: string; body: Record<string, unknown> }[] = [];
-  const fetch = (async (url: string, init: RequestInit) => {
+  const answers = (async (url: string, init: RequestInit) => {
     const path = new URL(url).pathname, body = JSON.parse(new TextDecoder().decode(init.body as Uint8Array));
     posted.push({ path, body });
     if (path === "/api/collect/checkin") return new Response(JSON.stringify({ action: "none", deliveries: [{ id: "d1", op: "set", name: "JAMF_URL", kind: "setting", value: "https://acme.jamfcloud.com" }] }));
     return new Response("{}");
   }) as typeof globalThis.fetch;
-  const c: Channel = { origin: "https://sos.example.test", keyId: "k-1", pem: privatePem, fetch, dir: t.dir, runner: "server", mode: "run", env: {}, now };
+  // An unsigned answer (an sos-app without its channel key) or one signed by another key delivers nothing.
+  for (const [key, warning] of [[null, /did not sign its answer/], [generateKeyPair().privatePem, /does not verify/]] as const) {
+    const logs: string[] = [];
+    const u: Channel = { origin: "https://sos.example.test", keyId: "k-1", pem: privatePem, fetch: signedAnswers(answers, key), dir: t.dir, runner: "server", mode: "run", env: {}, now,
+                         answerKeys: [TEST_CHANNEL.publicKey] };
+    await checkin(u, { write: true, log: (s) => logs.push(s), vault: t.b });
+    assert.equal(t.vault().list().length, 0);
+    assert.match(logs.join("\n"), warning);
+  }
+  posted.length = 0;
+  const c: Channel = { origin: "https://sos.example.test", keyId: "k-1", pem: privatePem, fetch: signedAnswers(answers), dir: t.dir, runner: "server", mode: "run", env: {}, now,
+                       answerKeys: [TEST_CHANNEL.publicKey] };
   await checkin(c, { write: false, log: () => {}, vault: t.b });
   assert.equal(t.vault().list().length, 0, "dry run");
   await checkin(c, { write: true, log: () => {}, vault: t.b });

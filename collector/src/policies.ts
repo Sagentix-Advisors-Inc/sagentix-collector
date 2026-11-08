@@ -12,7 +12,7 @@
 import { createHash } from "node:crypto";
 import { constants as fsConstants, copyFileSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
-import { signBody } from "./keys.ts";
+import { signBody, signRequest } from "./keys.ts";
 
 export const DOCUMENTS_KEY_ENV = "SAGENTIX_DOCUMENTS_KEY";
 export const DOCUMENT_PATH = "/api/collect/document";
@@ -71,8 +71,11 @@ export async function pushPolicies(o: { endpoint: string; organization: string; 
     const mBytes = new TextEncoder().encode(JSON.stringify(manifest));
     let res: Response;
     try {
-      res = await o.fetch(url, { method: "POST", body: bytes, headers: { "content-type": f.type, "x-sagentix-key-id": o.keyId,
-        "x-sagentix-signature": signBody(o.pem, mBytes), "x-sagentix-document": b64url(mBytes) } });
+      // Signature v2 over the manifest's hash (the manifest names the file's SHA-256); the manifest's own signature goes
+      // beside it as x-sagentix-content-signature, the one sos-app keeps for the assessor.
+      res = await o.fetch(url, { method: "POST", body: bytes, headers: { "content-type": f.type,
+        ...signRequest(o.pem, o.keyId, "POST", DOCUMENT_PATH, mBytes, o.now().getTime()).headers,
+        "x-sagentix-content-signature": signBody(o.pem, mBytes), "x-sagentix-document": b64url(mBytes) } });
     } catch (e) { results.push({ file: f.name, status: 0, outcome: "refused", detail: String((e as Error)?.message ?? e) }); continue; }
     const text = await res.text();
     let j: Record<string, unknown> = {};
@@ -95,8 +98,8 @@ export interface ApprovedPolicy { family: string; title: string; version: number
 /** The organization's approved policies, read with the documents key (sos-app src/routes/documents.ts pullApprovedPolicies). */
 export async function pullApproved(o: { endpoint: string; organization: string; keyId: string; pem: string; fetch: typeof fetch; now: () => Date }): Promise<ApprovedPolicy[]> {
   const m = new TextEncoder().encode(JSON.stringify({ format: "sagentix-policies-pull/1", issuedAt: o.now().toISOString(), organization: o.organization }));
-  const res = await o.fetch(new URL(PULL_PATH, o.endpoint).toString(), { method: "POST", headers: { "x-sagentix-key-id": o.keyId,
-    "x-sagentix-signature": signBody(o.pem, m), "x-sagentix-document": b64url(m) } });
+  const res = await o.fetch(new URL(PULL_PATH, o.endpoint).toString(), { method: "POST", headers: {
+    ...signRequest(o.pem, o.keyId, "POST", PULL_PATH, m, o.now().getTime()).headers, "x-sagentix-document": b64url(m) } });
   const text = await res.text();
   if (!res.ok) throw new Error(`sos-app answered HTTP ${res.status} for the approved policies: ${text.slice(0, 200)}`);
   return (JSON.parse(text) as { policies: ApprovedPolicy[] }).policies;

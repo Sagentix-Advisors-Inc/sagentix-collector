@@ -7,14 +7,14 @@ import { generateKeyPairSync, sign } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { main, EXIT } from "../src/cli.ts";
-import { generateKeyPair } from "../src/keys.ts";
+import { answerMessage, generateKeyPair, signBody } from "../src/keys.ts";
 import { COLLECTOR_VERSION } from "../src/payload.ts";
 import { IMAGE_FILE, REF_FILE, checkin, detectRunner, releaseMessage, verifyTarget, type Channel, type Target } from "../src/channel.ts";
 import { MAX_LOG_LINES, PENDING_FILE, REPORT_FILE, RunRecorder, buildReport, envSecrets, scrubText, templatePath, trimReport } from "../src/report.ts";
-import { AgentSession, BACKOFF_MAX_MS, PING_MS, agent, connectUrl, nextBackoff, type AgentIo, type ChildRun, type SocketLike } from "../src/agent.ts";
+import { AgentSession, BACKOFF_MAX_MS, PING_MS, agent, authFrame, connectUrl, nextBackoff, type AgentIo, type ChildRun, type SocketLike } from "../src/agent.ts";
 import { RELEASE_PUBLIC_KEYS } from "../src/release_keys.ts";
 import type { Source } from "../src/types.ts";
-import { capture, fakeCloudflare, missingOpa, NOW } from "./helpers.ts";
+import { capture, fakeCloudflare, missingOpa, NOW, signedAnswers, TEST_CHANNEL, verifiesV2 } from "./helpers.ts";
 import { cloudflare } from "../src/sources/cloudflare.ts";
 
 const dir = mkdtempSync(join(tmpdir(), "collector-channel-"));
@@ -97,12 +97,12 @@ test("the report is signed, sent to /api/collect/report, and the same bytes are 
   assert.equal(r.url, "https://sos.example.test/api/collect/report");
   const h = r.init.headers as Record<string, string>;
   assert.equal(h["x-sagentix-key-id"], "k-1");
-  assert.ok(await verify(publicKey, h["x-sagentix-signature"], r.init.body as Uint8Array));
+  assert.ok(verifiesV2(publicKey, h, "POST", "/api/collect/report", r.init.body as Uint8Array), "signature v2 over method, path, time, nonce and the body hash");
   const file = join(c.dir, REPORT_FILE);
   assert.equal(readFileSync(file, "utf8"), new TextDecoder().decode(r.init.body as Uint8Array));
   if (process.platform !== "win32") assert.equal(statSync(file).mode & 0o777, 0o600);
   const rep = bodyOf(r);
-  assert.equal(rep.format, "sagentix-run-report/1");
+  assert.equal(rep.format, "sagentix-run-report/2");
   assert.equal(rep.late, false);
   assert.equal(rep.collector.version, COLLECTOR_VERSION);
   assert.match(rep.collector.commit, /^([0-9a-f]{40}|unknown)$/);
@@ -277,8 +277,8 @@ function chan(answer: unknown, over: Partial<Channel> = {}, status = 200): Chann
   const sent: unknown[] = [];
   return {
     origin: "https://sos.example.test", keyId: "k-1", pem: privatePem, dir: d, runner: "server", mode: "run", env: {}, now: () => NOW,
-    fetch: (async (_u: string, init: RequestInit) => { sent.push(JSON.parse(new TextDecoder().decode(init.body as Uint8Array))); return new Response(JSON.stringify(answer), { status }); }) as unknown as typeof fetch,
-    sent, ...over,
+    fetch: signedAnswers((async (_u: string, init: RequestInit) => { sent.push(JSON.parse(new TextDecoder().decode(init.body as Uint8Array))); return new Response(JSON.stringify(answer), { status }); }) as unknown as typeof fetch),
+    answerKeys: [TEST_CHANNEL.publicKey], sent, ...over,
   };
 }
 const quiet = () => {};
@@ -287,9 +287,9 @@ test("the check-in body names the collector, the runner and the mode", async () 
   const c = chan({ action: "none", target: null, reason: "" });
   await checkin(c, { write: true, log: quiet, keys: [releasePub] });
   const b = c.sent[0] as Record<string, unknown>;
-  assert.equal(b.format, "sagentix-checkin/1");
+  assert.equal(b.format, "sagentix-checkin/2");
   assert.equal(b.issuedAt, NOW.toISOString());
-  assert.deepEqual(Object.keys(b).sort(), ["collector", "format", "issuedAt", "mode", "node", "os", "runner"]);
+  assert.deepEqual(Object.keys(b).sort(), ["agent", "collector", "connectors", "format", "issuedAt", "mode", "node", "os", "runner"]);
   assert.equal((b.collector as { version: string }).version, COLLECTOR_VERSION);
 });
 
@@ -449,16 +449,20 @@ test("agent session: hello on open, pong for ping, one run at a time with its st
   assert.equal(JSON.parse(sent.at(-1)!).id, "u-4");
 });
 
-test("the connect URL is signed over sagentix-connect/1, key id and ts, base64url, on wss", async () => {
-  const u = new URL(connectUrl("https://sos.example.test/api/collect", "k-1", privatePem, 1_761_652_800_000));
+test("the connect URL carries the key id only, on wss; the first frame is auth, signed over sagentix-connect/2", async () => {
+  const u = new URL(connectUrl("https://sos.example.test/api/collect", "k-1"));
   assert.equal(u.protocol, "wss:");
   assert.equal(u.pathname, "/api/collect/connect");
+  assert.deepEqual([...u.searchParams.keys()], ["key"]);
   assert.equal(u.searchParams.get("key"), "k-1");
-  assert.equal(u.searchParams.get("ts"), "1761652800000");
-  const sig = u.searchParams.get("sig")!;
-  assert.match(sig, /^[A-Za-z0-9_-]+$/);
-  assert.ok(await verify(publicKey, Buffer.from(sig, "base64url").toString("base64"), new TextEncoder().encode("sagentix-connect/1\nk-1\n1761652800000")));
-  assert.equal(new URL(connectUrl("http://localhost:8787", "k", privatePem, 1)).protocol, "ws:");
+  assert.equal(new URL(connectUrl("http://localhost:8787", "k")).protocol, "ws:");
+  const a = authFrame("k-1", privatePem, 1_761_652_800_000, "n".repeat(24));
+  const f = JSON.parse(a.frame);
+  assert.deepEqual(Object.keys(f), ["type", "keyId", "ts", "nonce", "sig"]);
+  assert.equal(f.ts, "1761652800000");
+  assert.equal(a.nonce, "n".repeat(24));
+  assert.ok(await verify(publicKey, f.sig, new TextEncoder().encode(`sagentix-connect/2\nk-1\n1761652800000\n${"n".repeat(24)}`)));
+  assert.notEqual(authFrame("k-1", privatePem, 1).nonce, authFrame("k-1", privatePem, 1).nonce, "a fresh nonce each time");
 });
 
 test("backoff: 1 s doubling to 5 min", () => {
@@ -505,11 +509,15 @@ test("agent loop: connects, says hello, checks in, pings, runs on request, recon
   const done = agent(["--config", cfg], c.deps, io);
   await tick();
   assert.equal(sockets.length, 1);
-  assert.match(sockets[0].url, /^wss:\/\/sos\.example\.test\/api\/collect\/connect\?key=k-1&ts=\d+&sig=/);
+  assert.equal(sockets[0].url, "wss://sos.example.test/api/collect/connect?key=k-1", "no credential in the URL");
   const s = sockets[0];
   s.readyState = 1; s.onopen!({});
   await tick();
-  assert.equal(JSON.parse(s.sent[0]).type, "hello");
+  // The signed auth frame first (section 10), then hello.
+  const auth = JSON.parse(s.sent[0]);
+  assert.equal(auth.type, "auth");
+  assert.ok(await verify(publicKey, auth.sig, new TextEncoder().encode(`sagentix-connect/2\nk-1\n${auth.ts}\n${auth.nonce}`)));
+  assert.equal(JSON.parse(s.sent[1]).type, "hello");
   assert.equal(c.channel.filter((p) => p.url.endsWith("/checkin")).length, 1, "check-in on connect");
   const ping = timers.find((t) => t.kind === "interval" && t.ms === PING_MS)!;
   ping.f();
@@ -638,4 +646,58 @@ test("agent: a run from sos-app goes through the generated script beside the con
   const bare = runCommand("/w/sagentix-collector.config.json", () => false, "linux");
   assert.equal(bare[0], process.execPath);
   assert.deepEqual(bare[1].slice(-3), ["run", "--config", "/w/sagentix-collector.config.json"]);
+});
+
+// ── 10. Channel security: the ack, the key file read again, signed answers on the check-in ───────
+
+test("agent: the hub's ack is checked against the pinned channel key; a forged one disconnects; a changed key file is used on reconnect", async () => {
+  const cfgDir = mkdtempSync(join(tmpdir(), "collector-agent-rot-"));
+  const kp = join(cfgDir, "k.pem");
+  writeFileSync(kp, privatePem, { mode: 0o600 });
+  const cfg = join(cfgDir, "sagentix-collector.config.json");
+  writeFileSync(cfg, JSON.stringify({ endpoint: "https://sos.example.test", keyId: "k-1", keyFile: kp, sources: { cloudflare: {} } }));
+  const { io, sockets, timers, stop } = fakeIo();
+  const c = capture();
+  const done = agent(["--config", cfg], c.deps, io);
+  await tick();
+  const s = sockets[0];
+  s.readyState = 1; s.onopen!({});
+  await tick();
+  const nonce = JSON.parse(s.sent[0]).nonce as string;
+  const ack = (key: string | null) => JSON.stringify({ type: "ack", signature: key ? signBody(key, answerMessage("/api/collect/connect", nonce, '{"type":"ack"}')) : null });
+  s.onmessage!({ data: ack(TEST_CHANNEL.privatePem) });
+  assert.equal(s.readyState, 1, "a valid ack keeps the socket");
+  s.onmessage!({ data: ack(null) });
+  assert.match(c.stderr.join("\n"), /did not sign the connection's ack/);
+  assert.equal(s.readyState, 1, "an unsigned ack is logged, not fatal");
+  s.onmessage!({ data: ack(generateKeyPair().privatePem) });
+  assert.match(c.stderr.join("\n"), /does not verify against a pinned sos-app channel key; disconnecting/);
+  assert.equal(s.readyState, 3, "a forged ack closes the socket");
+  // `collector rotate-key` replaced the key file: the next connection signs its auth frame with the new key.
+  const next = generateKeyPair();
+  writeFileSync(kp, next.privatePem, { mode: 0o600 });
+  s.onclose!({ code: 1008 });
+  timers.filter((t) => t.kind === "timeout" && t.live).at(-1)!.f();
+  const s2 = sockets[1];
+  s2.readyState = 1; s2.onopen!({});
+  await tick();
+  const auth = JSON.parse(s2.sent[0]);
+  assert.ok(await verify(next.publicKey, auth.sig, new TextEncoder().encode(`sagentix-connect/2\nk-1\n${auth.ts}\n${auth.nonce}`)));
+  assert.match(c.stderr.join("\n"), /the key file changed; using the new key/);
+  stop();
+  assert.equal(await done, 0);
+});
+
+test("the check-in takes an update only from an answer signed for this request; unsigned is no action, mis-signed is a failure", async () => {
+  for (const [key, action, warning] of [[null, "none", /did not sign its answer/], [generateKeyPair().privatePem, "failed", /does not verify/]] as const) {
+    const c = chan({ action: "update", target, reason: "stable is 0.3.1" });
+    const raw = (async () => new Response(JSON.stringify({ action: "update", target }))) as unknown as typeof fetch;
+    const out = await checkin({ ...c, fetch: signedAnswers(raw, key) }, { write: true, log: quiet, keys: [releasePub] });
+    assert.equal(out.action, action);
+    assert.match(out.warnings.join("\n"), warning);
+    assert.equal(existsSync(join(c.dir, REF_FILE)), false, "nothing written");
+  }
+  // A notify needs no signature: it only logs.
+  const n = chan({ action: "notify", target: null, reason: "workflow" }, { fetch: (async () => new Response(JSON.stringify({ action: "notify", reason: "w" }))) as unknown as typeof fetch });
+  assert.equal((await checkin(n, { write: true, log: quiet })).action, "notify");
 });

@@ -11,6 +11,8 @@
 import { accessSync, constants, statSync } from "node:fs";
 import { delimiter, isAbsolute, join } from "node:path";
 import type { OptionValue, SourceContext } from "./types.ts";
+import { codeForStatus, setPermissionLookup, type Code } from "./diagnostics.ts";
+import { templatePath } from "./report.ts";
 import { isObj, realSleep, why, withRetry, type HttpResponse, type RestApi, type Sleep } from "./sources/readonly_http.ts";
 import { oktaFromEnv, OKTA_ENV } from "./sources/okta.ts";
 import { entraFromEnv, ENTRA_ENV } from "./sources/entra.ts";
@@ -42,8 +44,9 @@ import { Gcp, GCP_KEY_ENV, GCP_TOKEN_ENV, fetchGcpTransport, gcpKeyToken, type G
 import { fetchJira, JIRA_ENV, type JiraTransport } from "./sources/jira.ts";
 
 export type Verdict = "pass" | "fail" | "skip";
-/** One line of the doctor's answer. `fix` says what to change when it is not a pass. */
-export interface Check { what: string; verdict: Verdict; detail: string; fix?: string }
+/** One line of the doctor's answer. `fix` says what to change when it is not a pass; `code` is the run's diagnostic
+ *  code for the same answer (src/diagnostics.ts), so the doctor and sos-app name a fault the same way. */
+export interface Check { what: string; verdict: Verdict; detail: string; fix?: string; code?: Code }
 export type Probe = (ctx: SourceContext) => Promise<Check[]>;
 
 const one = (v: OptionValue): string | undefined => (typeof v === "string" ? v : Array.isArray(v) ? v[0] : undefined);
@@ -55,22 +58,25 @@ const sleepOf = (ctx: SourceContext) => (ctx.clients.sleep as Sleep | undefined)
 export function judge(label: string, call: string, r: { status: number; message: string }, creds: string, permission: string): Check {
   const what = call;
   if (r.status >= 200 && r.status < 300) return { what, verdict: "pass", detail: `HTTP ${r.status} (needs ${label})` };
-  const detail = r.message;
-  if (r.status === 401) return { what, verdict: "fail", detail, fix: `the credential was refused: check ${creds} (expired, revoked, or for another tenant)` };
-  if (r.status === 403) return { what, verdict: "fail", detail, fix: `grant ${permission}` };
-  if (r.status === 404) return { what, verdict: "fail", detail, fix: `not found: check the organization, team, project or URL given (or the feature is not on this plan); needs ${permission}` };
-  if (r.status === 429) return { what, verdict: "fail", detail, fix: "rate limited even after retries: run the doctor again in a few minutes" };
-  if (r.status === 0) return { what, verdict: "fail", detail, fix: "no answer: check the network path from this runner (proxy, firewall, DNS) and the URL in the credentials" };
-  return { what, verdict: "fail", detail, fix: `the provider answered HTTP ${r.status}; try again later, then check its status page` };
+  const detail = r.message, code = codeForStatus(r.status);
+  if (r.status === 401) return { what, verdict: "fail", detail, code, fix: `the credential was refused: check ${creds} (expired, revoked, or for another tenant)` };
+  if (r.status === 403) return { what, verdict: "fail", detail, code, fix: `grant ${permission}` };
+  if (r.status === 404) return { what, verdict: "fail", detail, code, fix: `not found: check the organization, team, project or URL given (or the feature is not on this plan); needs ${permission}` };
+  if (r.status === 429) return { what, verdict: "fail", detail, code, fix: "rate limited even after retries: run the doctor again in a few minutes" };
+  if (r.status === 0) return { what, verdict: "fail", detail, code, fix: "no answer: check the network path from this runner (proxy, firewall, DNS) and the URL in the credentials" };
+  return { what, verdict: "fail", detail, code, fix: `the provider answered HTTP ${r.status}; try again later, then check its status page` };
 }
 
 const credsCheck = (ok: boolean, creds: string, why?: string): Check =>
   ok ? { what: "credentials", verdict: "pass", detail: `${creds}: present` }
     : { what: "credentials", verdict: "fail", detail: why ?? `${creds}: not set`, fix: `set ${creds} (in the vault, the CI secrets or the environment)` };
 
+/** Each REST probe's [path, permission] list, for a run's PERMISSION_MISSING hint (permissionFor below). */
+const CALLS = new Map<Probe, (ctx: SourceContext) => [string, string][]>();
+
 /** A REST source: the client the source builds (or the one injected), then one GET per [path, permission]. */
 function rest(o: { key: string; creds: string; build: (ctx: SourceContext) => RestApi | string; calls: (ctx: SourceContext) => [string, string][] }): Probe {
-  return async (ctx) => {
+  const probe: Probe = async (ctx) => {
     const given = ctx.clients[o.key] as RestApi | null | undefined;
     const built = given !== undefined ? (given ?? "no client") : o.build(ctx);
     if (typeof built === "string") return [credsCheck(false, o.creds, built)];
@@ -85,6 +91,8 @@ function rest(o: { key: string; creds: string; build: (ctx: SourceContext) => Re
     }
     return out;
   };
+  CALLS.set(probe, o.calls);
+  return probe;
 }
 
 /** Each named file is there and readable. `need` lists options of which one must be given. */
@@ -341,3 +349,18 @@ export const PROBES: Record<string, Probe> = {
 
 /** The fix for a source's refused call, for the run's own messages (cli.ts): "check it with collector doctor". */
 export const doctorHint = (source: string) => `run \`collector doctor --config <file> --source ${source}\` to see which permission is missing`;
+
+/**
+ * The permission the doctor names for a refused call of a run (a 403's hint, src/diagnostics.ts): the REST probe's entry
+ * whose path, templated, is the call's. Probes that need the run's options to name their paths answer only for the
+ * paths they name without them.
+ */
+export function permissionFor(source: string, path: string): string | undefined {
+  const calls = CALLS.get(PROBES[source]);
+  if (!calls) return undefined;
+  let list: [string, string][];
+  try { list = calls({ opts: {}, env: {}, clients: {}, now: new Date(0), warn: () => {} }); } catch { return undefined; }
+  const want = templatePath(path);
+  return list.find(([p]) => templatePath(new URL(p, "https://x.invalid").pathname) === want)?.[1];
+}
+setPermissionLookup(permissionFor);

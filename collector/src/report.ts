@@ -11,8 +11,10 @@ import { subscribe, unsubscribe } from "node:diagnostics_channel";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { REPORT_PATH, collectorInfo, osInfo, signedPost, writePrivate, type Channel, type Mode, type Runner } from "./channel.ts";
+import type { Diagnostic } from "./diagnostics.ts";
 
-export const REPORT_FORMAT = "sagentix-run-report/1";
+// Version 2 (collector 0.5.0) adds each source's health: status, calls, retries, HTTP errors by status and diagnostics.
+export const REPORT_FORMAT = "sagentix-run-report/2";
 export const REPORT_FILE = "sagentix-run-report.json";
 export const PENDING_FILE = "sagentix-pending-report.json";
 export const MAX_REPORT_BYTES = 512 * 1024;
@@ -20,10 +22,17 @@ export const MAX_LOG_LINES = 1000;
 export const MAX_LINE = 500;
 export const MAX_WARNINGS = 50;
 
+export type ConnectorStatus = "healthy" | "degraded" | "failing" | "unconfigured" | "skipped";
 export interface SourceReport {
   name: string; ms: number; pass: number; fail: number; skipped: number;
   error: { message: string; stack: string } | null;
   warnings: string[];
+  // Version 2: what the end-of-run table and the diagnostics block print (src/health.ts).
+  status?: ConnectorStatus;
+  calls?: number;
+  retries?: number;
+  httpErrors?: Record<string, number>;
+  diagnostics?: Diagnostic[];
 }
 /** `deprecation` and `sunset` are the provider's own warning that an endpoint is going (RFC 9745 Deprecation, RFC 8594
  *  Sunset, 2026-10-28): the live API often says so before its documentation does, so the report carries them. */
@@ -103,8 +112,13 @@ export function templatePath(path: string): string {
 export const RETRY_CHANNEL = "sagentix:collector:retry";
 export interface RetryEvent { status: number; waitMs: number; attempt: number }
 
-/** Per source, for the end-of-run table (kept out of the report, whose format sos-app reads). */
-export interface SourceStats { calls: number; retries: number; httpErrors: number }
+/** Per source, for the end-of-run table and the source's health (src/health.ts). `byStatus` counts the failed calls
+ *  per HTTP status ("0": no answer). */
+export interface SourceStats { calls: number; retries: number; httpErrors: number; byStatus?: Record<string, number> }
+
+/** A call that failed or warned, by its shape only, for the source's diagnostics (src/health.ts). */
+export interface CallFailure { method: string; url: string; status: number; timedOut: boolean; deprecated: boolean }
+export const MAX_FAILURES = 50;
 
 /** What --verbose prints for one call: its shape only (method, host, templated path), never a query, header or body. */
 export interface CallEvent { source: string; method: string; host: string; path: string; status: number; ms: number; error?: string }
@@ -123,6 +137,10 @@ export class RunRecorder {
   readonly pushes: PushReport[] = [];
   readonly log: string[] = [];
   readonly stats = new Map<string, SourceStats>();
+  /** Per source: the calls that failed (4xx, 5xx, no answer) or carried Deprecation or Sunset, at most MAX_FAILURES. */
+  readonly failures = new Map<string, CallFailure[]>();
+  /** Per source: what it threw, kept whole so its class, code and stack can be classified (src/diagnostics.ts). */
+  readonly thrown = new Map<string, unknown>();
   private readonly calls = new Map<string, CallReport>();
   /** The source whose work is running, across awaits: sources may run side by side (cli.ts --concurrency). */
   private readonly current = new AsyncLocalStorage<SourceReport>();
@@ -153,7 +171,7 @@ export class RunRecorder {
   /** The counters of one source, made on first use. */
   statsOf(name: string): SourceStats {
     let st = this.stats.get(name);
-    if (!st) { st = { calls: 0, retries: 0, httpErrors: 0 }; this.stats.set(name, st); }
+    if (!st) { st = { calls: 0, retries: 0, httpErrors: 0, byStatus: {} }; this.stats.set(name, st); }
     return st;
   }
 
@@ -194,6 +212,7 @@ export class RunRecorder {
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e));
       report.error = { message: err.message, stack: err.stack ?? "" };
+      this.thrown.set(name, e);
       return { error: e, report };
     } finally {
       release();
@@ -207,7 +226,7 @@ export class RunRecorder {
   }
 
   /** One outbound call, by its shape only. */
-  call(source: string, method: string, url: string, status: number, ms: number, headers?: Headers, error?: string): void {
+  call(source: string, method: string, url: string, status: number, ms: number, headers?: Headers, error?: string, timedOut = false): void {
     let host = "", path = "";
     try { const u = new URL(url); host = u.host; path = templatePath(u.pathname); } catch { host = "(not a URL)"; }
     const key = `${source}\n${method}\n${host}\n${path}\n${status}`;
@@ -220,7 +239,17 @@ export class RunRecorder {
     this.calls.set(key, c);
     const st = this.statsOf(source);
     st.calls++;
-    if (status === 0 || status >= 400) st.httpErrors++;
+    const failed = status === 0 || status >= 400;
+    if (failed) {
+      st.httpErrors++;
+      const by = (st.byStatus ??= {});
+      by[String(status)] = (by[String(status)] ?? 0) + 1;
+    }
+    if (failed || dep || sun) {
+      const list = this.failures.get(source) ?? [];
+      if (list.length < MAX_FAILURES) list.push({ method, url, status, timedOut, deprecated: !!(dep || sun) });
+      this.failures.set(source, list);
+    }
     this.options.onCall?.({ source, method, host, path, status, ms: Math.round(ms), ...(error ? { error } : {}) });
   }
 
@@ -267,7 +296,7 @@ export class RunRecorder {
         let host = "";
         try { host = new URL(url).host; } catch { /* not a URL */ }
         const why = timedOut ? `no answer from ${host} within ${Math.round(timeoutMs / 1000)} s (--http-timeout)` : String((e as Error)?.message ?? e);
-        rec.call(cur.name, method, url, 0, rec.clock() - t0, undefined, why);
+        rec.call(cur.name, method, url, 0, rec.clock() - t0, undefined, why, timedOut);
         if (timedOut) throw new Error(why, { cause: e });
         throw e;
       }

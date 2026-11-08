@@ -218,7 +218,7 @@ test("more than 5,000 results go out as several signed pushes, each with its own
   let total = 0;
   for (const p of c.posts) {
     const body = p.init.body as Uint8Array<ArrayBuffer>;
-    assert.ok(await verify((p.init.headers as Record<string, string>)["x-sagentix-signature"], body));
+    assert.ok(await verify((p.init.headers as Record<string, string>)["x-sagentix-content-signature"], body));
     const payload = JSON.parse(new TextDecoder().decode(body));
     assert.ok(payload.results.length <= MAX_RESULTS);
     nonces.add(payload.nonce);

@@ -8,6 +8,10 @@ Releases come from the public mirror `Sagentix-Advisors-Inc/sagentix-collector`,
 
 A collector that sends a new format waits for sos-app to accept it everywhere it pushes. Format `sagentix-collect/3` (2026-10-23) is taken by sos-app from the release that carries migration 0040; dev and demo get it on the push to `rnd`, staging and prod through `scripts/release.py`. sos-app keeps taking format 2, so older collectors go on working.
 
+## Release order for 0.5.0 (signature v2, signed answers)
+
+sos-app goes first, with its channel key set as a Worker secret in every environment (`COLLECTOR_CHANNEL_SIGNING_KEY`, `apps/sos-app/docs/COLLECTOR_CHANNEL.md` section 10.2): a 0.5.0 collector takes no update and no vault delivery from an unsigned answer. The key's public half is pinned in `src/channel_keys.ts`; changing the channel key means pinning the new public key in a collector release first, then switching the secret, then dropping the old key in a later release. sos-app keeps accepting signature v1 until `COLLECTOR_SIG_V1=refuse` is set, which waits until every collector checks in at 0.5.0 or later (`GET /api/internal/collector/errors` lists check-ins per version).
+
 ## The security gate
 
 Every change to the collector is scanned, and nothing ships without a pass (Sagentix, 2026-10-17). `.github/workflows/collector-security.yml` runs on each push and pull request that touches `collector/` or the catalogues, every Monday, and inside each release:

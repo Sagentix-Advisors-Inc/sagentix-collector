@@ -11,14 +11,17 @@ import { arch, platform, release } from "node:os";
 import { dirname, join } from "node:path";
 import { createPublicKey, verify } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { signBody } from "./keys.ts";
+import { checkAnswer, signRequest, type AnswerCheck } from "./keys.ts";
 import { COLLECTOR_VERSION } from "./payload.ts";
 import { RELEASE_PUBLIC_KEYS } from "./release_keys.ts";
+import { CHANNEL_PUBLIC_KEYS } from "./channel_keys.ts";
 import { ack, type Bridge, type VaultSummary } from "./deliveries.ts";
+import { CHECKIN_FORMAT, checkinHealth, vaultState } from "./health.ts";
 
 export const CHECKIN_PATH = "/api/collect/checkin";
 export const REPORT_PATH = "/api/collect/report";
 export const CONNECT_PATH = "/api/collect/connect";
+export const ROTATE_PATH = "/api/collect/rotate";
 export const REF_FILE = "sagentix-collector.ref";
 export const IMAGE_FILE = "sagentix-collector.image";
 /** The agent's exit code after it wrote a signed update: the wrapper loop (Docker) or the service manager restarts it
@@ -93,17 +96,21 @@ export interface Channel {
   mode: Mode;
   env: NodeJS.ProcessEnv;
   now: () => Date;
+  /** The sos-app channel public keys answers must verify against; default the pinned CHANNEL_PUBLIC_KEYS (tests give their own). */
+  answerKeys?: readonly string[];
 }
 
-/** POSTs exact bytes signed with the collector's key, as a push to /api/collect is. Throws on a network failure. */
-export async function signedPost(c: Pick<Channel, "origin" | "keyId" | "pem" | "fetch">, path: string, body: Uint8Array<ArrayBuffer>): Promise<{ status: number; text: string }> {
-  const res = await c.fetch(new URL(path, c.origin).toString(), {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-sagentix-key-id": c.keyId, "x-sagentix-signature": signBody(c.pem, body) },
-    body,
-  });
-  return { status: res.status, text: await res.text() };
+/** POSTs exact bytes signed v2 with the collector's key (section 10: method, path, time, a fresh nonce, the body's hash).
+ *  Throws on a network failure. `answer` says whether sos-app's answer carries a valid channel signature for this request. */
+export async function signedPost(c: Pick<Channel, "origin" | "keyId" | "pem" | "fetch" | "answerKeys"> & { now?: () => Date }, path: string, body: Uint8Array<ArrayBuffer>):
+    Promise<{ status: number; text: string; nonce: string; answer: AnswerCheck }> {
+  const s = signRequest(c.pem, c.keyId, "POST", path, body, (c.now?.() ?? new Date()).getTime());
+  const res = await c.fetch(new URL(path, c.origin).toString(), { method: "POST", headers: { "content-type": "application/json", ...s.headers }, body });
+  const text = await res.text();
+  return { status: res.status, text, nonce: s.nonce, answer: checkAnswer(c.answerKeys ?? CHANNEL_PUBLIC_KEYS, path, s.nonce, text, res.headers?.get?.(ANSWER_HEADER) ?? null) };
 }
+
+export const ANSWER_HEADER = "x-sagentix-answer-signature";
 
 /** Writes a file only its owner can read, also when it already existed with a wider mode. */
 export function writePrivate(path: string, text: string): void {
@@ -157,17 +164,19 @@ export interface CheckinOutcome {
  * from an sos-app older than this collector or a malformed answer is a warning. `write: false` (a dry run) reads the
  * answer and writes nothing.
  */
-export async function checkin(c: Channel, o: { write: boolean; keys?: readonly string[]; log: (s: string) => void; vault?: Bridge }): Promise<CheckinOutcome> {
+export async function checkin(c: Channel, o: { write: boolean; keys?: readonly string[]; log: (s: string) => void; vault?: Bridge; sources?: readonly string[] }): Promise<CheckinOutcome> {
   const warnings: string[] = [];
   const warn = (s: string) => { warnings.push(s); o.log(`warning: check-in: ${s}`); };
   // The vault's names, kinds, dates and sealing key (section 8): never a value.
   let vault: VaultSummary | undefined;
   try { vault = o.vault?.summary(); } catch (e) { warn(`the vault summary failed: ${String((e as Error)?.message ?? e)}`); }
+  // Version 2 (collector 0.5.0, section 3): the agent's own health and each configured connector's last state (src/health.ts).
+  const health = checkinHealth({ dir: c.dir, env: c.env, mode: c.mode, runner: c.runner, now: c.now(), vault: vaultState(!!o.vault, vault), sources: o.sources });
   const body = new TextEncoder().encode(JSON.stringify({
-    format: "sagentix-checkin/1", issuedAt: c.now().toISOString(), collector: collectorInfo(c.env),
-    runner: c.runner, mode: c.mode, os: osInfo(), node: process.version, ...(vault ? { vault } : {}),
+    format: CHECKIN_FORMAT, issuedAt: c.now().toISOString(), collector: collectorInfo(c.env),
+    runner: c.runner, mode: c.mode, os: osInfo(), node: process.version, ...(vault ? { vault } : {}), ...health,
   }));
-  let res: { status: number; text: string };
+  let res: Awaited<ReturnType<typeof signedPost>>;
   try { res = await signedPost(c, CHECKIN_PATH, body); } catch (e) { warn(`POST ${CHECKIN_PATH} failed: ${String((e as Error)?.message ?? e)}; the run goes on`); return { action: "failed", warnings }; }
   if (res.status !== 200) {
     warn(`HTTP ${res.status}${res.status === 404 ? " (this sos-app does not take check-ins yet)" : ""}; the run goes on`);
@@ -175,6 +184,14 @@ export async function checkin(c: Channel, o: { write: boolean; keys?: readonly s
   }
   let a: { action?: unknown; target?: unknown; reason?: unknown; deliveries?: unknown };
   try { a = JSON.parse(res.text); } catch { warn("the answer is not JSON"); return { action: "failed", warnings }; }
+  // Section 10: an answer that names an update or a delivery is taken only when sos-app's channel signature verifies for
+  // this very request. Unsigned (sos-app has no channel key yet): treated as naming neither, with a warning.
+  const acts = a.action === "update" || (Array.isArray(a.deliveries) && a.deliveries.length > 0);
+  if (acts && res.answer === "invalid") { warn("the answer's signature does not verify against a pinned sos-app channel key; its update and deliveries are not taken"); return { action: "failed", warnings }; }
+  if (acts && res.answer === "unsigned") {
+    warn("sos-app did not sign its answer (its channel key is not set up yet); its update and deliveries are not taken");
+    a = { action: "none", reason: a.reason };
+  }
   // Values sent to the vault from sos-app (section 8), whatever the update answer. A dry run applies nothing.
   if (o.vault && o.write && Array.isArray(a.deliveries) && a.deliveries.length) {
     try {
