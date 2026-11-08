@@ -30,6 +30,7 @@ Node 24 or later. The source is TypeScript run by Node's type stripping, so ther
 cd collector
 npm ci            # ajv 8.20.0 and ajv-formats 3.0.1 (v1 SDR validation); typescript 5.9.3, @types/node 24.13.6
 npm test          # node:test, fakes only, no network
+npm run coverage  # the same, with coverage floors
 ```
 
 The OPA sub-source needs `opa` on PATH (`brew install opa`, or the `open-policy-agent/setup-opa` action) and OpenTofu 1.8 or later to produce the state.
@@ -90,6 +91,38 @@ node src/cli.ts run --source cloudflare \
 - `--catalog <dir>`: the check catalogue (default `../apps/sos-app/src/data/checks`). A check id not in it is dropped with a warning, because sos-app would refuse the whole push.
 
 Exit codes: 0 sent (or dry run); 1 error (unreadable key, network failure, or a source that failed: its checks went as `skipped` and everything else was still pushed and reported); 2 usage; 3 nothing to send, because every check was skipped; 4 sos-app refused the push, with its message printed (401 bad signature or revoked key, 409 replay, 400 unknown check or stale `issuedAt`); 75 `agent` only, after it wrote a signed update (below). `run` never exits 75.
+
+### Check the setup first: `collector doctor` (0.4.1)
+
+Run the doctor before the first real run, and again whenever a source starts coming back `skipped`. It reads the same config file and options as `run`, and the same vault, then for each source checks that its credentials are there and makes one read per permission the source needs. It collects nothing, signs nothing and sends nothing to sos-app: no check-in, no push, no run report.
+
+```sh
+node src/cli.ts doctor --config sagentix-collector.config.json            # every source in the file
+node src/cli.ts doctor --config sagentix-collector.config.json --source okta
+```
+
+Each line is `PASS`, `FAIL` or `SKIP`, and a `FAIL` carries its fix:
+
+```
+okta
+  PASS  credentials        OKTA_DOMAIN with OKTA_API_TOKEN (a Read-Only Administrator's token) or OKTA_ACCESS_TOKEN: present
+  PASS  GET /api/v1/users  HTTP 200 (needs okta.users.read)
+  FAIL  GET /api/v1/logs   HTTP 403: The access token provided does not contain the required scopes.
+        fix: grant okta.logs.read
+doctor: 6 passed, 1 failed, 1 skipped; fix the lines marked FAIL, then run the doctor again
+```
+
+A 403 names the scope, role or permission to grant, as the source's own header cites it from the provider's documentation; a 401 names the variables that hold the credential; a 404 asks to check the organization, team, project or URL given. Every read is one the source itself makes, on the same path, with a page size of 1 where the API takes one, so a pass means the run's call will be allowed too. The reads are GET only, except Google Cloud's `:getIamPolicy`, which the GCP source also sends as a POST and which reads. A source that reads a file checks the file is there and readable; Prowler and Cinc Auditor check their executable is on `PATH` without running it; the `macos` and `windows` sources check the platform; `web` checks each URL has its proof token. The collector key is parsed locally and its public key shown, never used. The doctor exits 0 when nothing failed and 1 otherwise, so a workflow can run it as a step (`collector selftest` is the same command).
+
+### Speed, timeouts and what a run prints (0.4.1)
+
+Sources run side by side since 0.4.1, four at once by default; `--concurrency 1` restores the old order of one after another, and up to 16 are allowed. The results are taken in the order the sources were named, so the payload and its signature are byte for byte those of a serial run (`test/e2e.test.ts` holds a golden copy recorded before the change). On the recorded replies of every source, with 20 ms added to each call to stand in for a provider's round trip, a full dry run took 6.6 s one source at a time and 1.7 s four at a time (`node test/bench.ts --latency-ms 20`, 2026-11-07). Prowler runs up to two providers at once, and its OCSF output is now read as a stream, one finding at a time, so a file larger than what one string can hold (about 512 MiB in Node) no longer fails.
+
+Within one run, Entra ID, Intune and an HR source joined with Entra ID share one token request per app and scope (they used to make three), the Google Workspace source and the HR join share theirs, and BambooHR and Rippling look each leaver up in the identity provider once.
+
+Every call a source makes is abandoned after `--http-timeout` seconds (default 60; 0 never). A 429 is retried up to four times; a 502, 503 or 504, a network failure or a timeout up to twice more; each wait follows the answer's `Retry-After` when it has one, else it doubles from 1 second (0.5 second for the clouds, Jira and LMS), capped at 60 seconds (20 for those). The Cloudflare client retries too since 0.4.1, and cuts the token out of any answer that echoes it, as the other clients already did.
+
+`--verbose` prints one line per outbound call (`[okta] GET acme.okta.com/api/v1/logs -> 403 in 85 ms`): the method, the host and the path with ids replaced by `:id`, never a query string, a header or a body, and each retry with its wait. `--debug` adds the stack of a source that failed. Every run, verbose or not, ends its stderr with a table, one row per source: results, pass, fail and skipped counts, outbound calls, retries, answers that were errors, and time. Below it, each check skipped because a call was refused (HTTP 401 or 403) is listed with its source, its check, the status and the doctor command that names the missing permission. Neither the call log nor the table goes into the run report, which already holds every call by its shape and every source's counts and time; both pass through the same scrubbing as the report.
 
 ### Run report, check-in and resident mode (0.3.0)
 
@@ -1052,3 +1085,6 @@ A TLS 1.1 probe that this machine's OpenSSL cannot make, or a network failure, g
 - `src/sources/prowler.ts` and `runner/`: Prowler as an engine (`--source prowler`) and the container that runs it; see `runner/README.md`. More than 5,000 results (or 4 MB) go out as several signed pushes, each with its own nonce.
 - `src/sources/stig.ts`, `kubescape.ts`, `checkov.ts`: Cinc Auditor with MITRE's DISA STIG profiles (`--source stig`, which runs `cinc-auditor` over SSH or WinRM, or reads an InSpec report), and the Kubescape and Checkov report readers; listed through `engines.ts`, documented in `runner/README.md`, tested in `test/host_iac_engines.test.ts` with hand-built reports. Their catalogues (`stig_<profile>.json`, `kubescape.json`, `checkov.json`) come from `apps/sos-app/scripts/build_{stig,kubescape,checkov}_catalog.py`.
 - `test/`: node:test suites with a fake Cloudflare API, a fake `opa` and a fake sos-app; one suite runs the real `opa` when it is installed.
+- `src/doctor.ts`: `collector doctor`, one self-test per source (a test fails when a source has none); `src/pool.ts`: the bounded pool behind `--concurrency`.
+- `test/e2e.test.ts` and `test/e2e_fixtures.ts`: every source in one run against recorded replies, no network: the payload's shape, the signature over the exact bytes, and the results against the golden file `test/fixtures/e2e/golden-results.jsonl` (`UPDATE_GOLDEN=1 node --test test/e2e.test.ts` rewrites it after a deliberate change). The replies are the ones each source's own suite uses, kept in `test/fixtures/rest/`, `cloud/` and `local/`. `test/run_qa.test.ts` covers concurrency, retries, timeouts, the call log, the doctor, and a check that no known secret reaches stdout, stderr, the payload or the run report even when a provider echoes it. `node test/bench.ts --latency-ms 20` times a full dry run.
+- `npm run coverage` runs every suite with Node's coverage and fails below 98% of lines, 82% of branches or 94% of functions (the level of 2026-11-07); `.github/workflows/collector-qa.yml` runs it, the doctor, a dry run as a process and the timing on every push that touches the collector.

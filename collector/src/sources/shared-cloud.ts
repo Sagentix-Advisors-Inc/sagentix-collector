@@ -2,7 +2,7 @@
 // throttling, a result builder, and a scrubber that keeps secret values out of every detail.
 
 import type { OptionValue, Outcome, Result } from "../types.ts";
-import { redact } from "./readonly_http.ts";
+import { TRANSIENT_RETRIES, TRANSIENT_STATUS, announceRetry, redact } from "./readonly_http.ts";
 
 export type Obj = Record<string, unknown>;
 export const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -41,18 +41,26 @@ export function retryAfterMs(headers: Record<string, string>, now = Date.now()):
 
 /**
  * Calls `send` until it gives a reply that is not throttled, or the attempts run out (then the last
- * throttled reply is returned, and the caller turns it into "skipped"). A thrown error is a reply
- * with status 0.
+ * throttled reply is returned, and the caller turns it into "skipped"). A transient failure (502 or 504,
+ * or a thrown network error or timeout) is tried again up to TRANSIENT_RETRIES times within the same
+ * attempts. A thrown error is a reply with status 0.
  */
 export async function withRetry(send: () => Promise<HttpReply>, o: RetryOptions = {}): Promise<HttpReply> {
   const attempts = o.attempts ?? 5, base = o.baseMs ?? 500, max = o.maxMs ?? 20_000;
   const sleep = o.sleep ?? realSleep;
   const throttled = o.throttled ?? ((r: HttpReply) => r.status === 429 || r.status === 503);
   let last: HttpReply = { status: 0, headers: {}, body: "" };
+  let transient = 0;
   for (let i = 0; i < attempts; i++) {
-    try { last = await send(); } catch (e) { last = { status: 0, headers: {}, body: `request failed: ${String(e)}` }; }
-    if (!throttled(last)) return last;
-    if (i < attempts - 1) await sleep(Math.min(max, retryAfterMs(last.headers) ?? base * 2 ** i));
+    let thrown = false;
+    try { last = await send(); } catch (e) { last = { status: 0, headers: {}, body: `request failed: ${String(e)}` }; thrown = true; }
+    const again = throttled(last) || ((thrown || TRANSIENT_STATUS.has(last.status)) && transient++ < TRANSIENT_RETRIES);
+    if (!again) return last;
+    if (i < attempts - 1) {
+      const wait = Math.min(max, retryAfterMs(last.headers) ?? base * 2 ** i);
+      announceRetry(last.status, wait, i + 1);
+      await sleep(wait);
+    }
   }
   return last;
 }

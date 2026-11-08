@@ -20,7 +20,7 @@
 import { randomBytes, createHash } from "node:crypto";
 import { closeSync, fstatSync, openSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { cachedToken, tokenRequest } from "./oauth.ts";
+import { cachedToken, sharedToken, tokenRequest } from "./oauth.ts";
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -98,7 +98,7 @@ export function googleOAuthFromEnv(env: NodeJS.ProcessEnv, scopes: string[], fet
   if (typeof client === "string") return client;
   const refresh = readTokenFile(tokenPath(env), client, scopes);
   if (typeof refresh !== "string") return refresh.error;
-  return cachedToken(async () => {
+  return sharedToken(fetchFn, ["google-user", clientFile, client.clientId, refresh, ...scopes], () => cachedToken(async () => {
     try {
       return await tokenRequest(GOOGLE_TOKEN_URL, {
         grant_type: "refresh_token", refresh_token: refresh, client_id: client.clientId,
@@ -109,5 +109,5 @@ export function googleOAuthFromEnv(env: NodeJS.ProcessEnv, scopes: string[], fet
       // invalid_grant: revoked, unused for six months, or pushed out by newer tokens; only a new sign-in mends it.
       throw new Error(/invalid_grant/.test(m) ? `${m}: the sign-in was revoked or has expired; run \`collector google-login\` again` : m);
     }
-  });
+  }));
 }

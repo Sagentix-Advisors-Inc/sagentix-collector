@@ -18,6 +18,8 @@ Every change to the collector is scanned, and nothing ships without a pass (Sage
 | `trivy` | a MEDIUM or worse known vulnerability in the lockfile, a secret in the code, a MEDIUM or worse Dockerfile misconfiguration |
 | `codeql` | any CodeQL `security-extended` result in `collector/src` or `collector/scripts`, unless `collector/security/accepted-findings.json` lists its rule and file with a reason |
 
+Beside the gate, `.github/workflows/collector-qa.yml` (2026-11-07) runs on the same pushes: the typecheck, every suite with coverage floors (`npm run coverage`: 98% of lines, 82% of branches, 94% of functions, never lowered), the end-to-end run of every source against recorded replies with its golden results, `collector doctor` and a `--dry-run` as processes, and the timing of a full dry run in the job summary. `collector-release.yml` calls it as its `qa` job, and the npm and runner jobs need both `security` and `qa`: no release without a green QA run on that commit. The mirror gets it with the other two workflows.
+
 `collector-release.yml` calls the gate first and its jobs `need` it; the runner job also scans the built image with Trivy before it can push. `collector/scripts/sync-public-repo.sh` refuses uncommitted collector changes and any commit the gate has not passed on GitHub.
 
 ## The mirror

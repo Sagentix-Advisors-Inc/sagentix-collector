@@ -6,6 +6,8 @@
 // Written beside the config as sagentix-run-report.json before it is sent, so the client can read exactly what
 // leaves. A send that fails leaves sagentix-pending-report.json, sent first ("late": true) by the next run.
 
+import { AsyncLocalStorage } from "node:async_hooks";
+import { subscribe, unsubscribe } from "node:diagnostics_channel";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { REPORT_PATH, collectorInfo, osInfo, signedPost, writePrivate, type Channel, type Mode, type Runner } from "./channel.ts";
@@ -96,29 +98,87 @@ export function templatePath(path: string): string {
 
 // ── Recording ─────────────────────────────────────────────────────────────────────────────────────
 
+/** Where the HTTP helpers announce a retry (readonly_http.ts, shared-cloud.ts, cloudflare/api.ts); the recorder counts it
+ *  against the source whose call it was. diagnostics_channel publishes synchronously, so the source is still current. */
+export const RETRY_CHANNEL = "sagentix:collector:retry";
+export interface RetryEvent { status: number; waitMs: number; attempt: number }
+
+/** Per source, for the end-of-run table (kept out of the report, whose format sos-app reads). */
+export interface SourceStats { calls: number; retries: number; httpErrors: number }
+
+/** What --verbose prints for one call: its shape only (method, host, templated path), never a query, header or body. */
+export interface CallEvent { source: string; method: string; host: string; path: string; status: number; ms: number; error?: string }
+
+export interface RecorderOptions {
+  /** Each outbound call made while a source runs is abandoned after this many ms (0: never). */
+  timeoutMs?: number;
+  onCall?: (c: CallEvent) => void;
+  onRetry?: (source: string, e: RetryEvent) => void;
+}
+
 /** Everything one run does that goes into its report. */
 export class RunRecorder {
   readonly startedAt: Date;
   readonly sources: SourceReport[] = [];
   readonly pushes: PushReport[] = [];
   readonly log: string[] = [];
+  readonly stats = new Map<string, SourceStats>();
   private readonly calls = new Map<string, CallReport>();
-  private current: SourceReport | undefined;
+  /** The source whose work is running, across awaits: sources may run side by side (cli.ts --concurrency). */
+  private readonly current = new AsyncLocalStorage<SourceReport>();
   private readonly clock: () => number;
+  /** Set once the options are parsed (cli.ts): the timeout and the --verbose hooks. */
+  options: RecorderOptions;
+  private holds = 0;
+  private release: (() => void) | undefined;
 
-  constructor(now: () => Date, clock: () => number = () => performance.now()) {
+  constructor(now: () => Date, clock: () => number = () => performance.now(), opts: RecorderOptions = {}) {
     this.startedAt = now();
     this.clock = clock;
+    this.options = opts;
   }
 
   /** An err() that also records each line (and, while a source runs, counts it as that source's warning). */
   tee(err: (s: string) => void): (s: string) => void {
     return (s: string) => {
+      const cur = this.current.getStore();
       for (const line of String(s).split("\n")) {
         this.log.push(line);
-        if (this.current && this.current.warnings.length < MAX_WARNINGS) this.current.warnings.push(line);
+        if (cur && cur.warnings.length < MAX_WARNINGS) cur.warnings.push(line);
       }
       err(s);
+    };
+  }
+
+  /** The counters of one source, made on first use. */
+  statsOf(name: string): SourceStats {
+    let st = this.stats.get(name);
+    if (!st) { st = { calls: 0, retries: 0, httpErrors: 0 }; this.stats.set(name, st); }
+    return st;
+  }
+
+  /**
+   * Keeps the fetch instrumentation and the retry counter in place until the returned function is called. Nested holds
+   * share one wrapper, so every client built during a run, by any source, sees the same `fetch` (oauth.ts shares a
+   * token per fetch function).
+   */
+  hold(): () => void {
+    if (this.holds++ === 0) {
+      const restoreFetch = this.instrumentFetch();
+      const onRetry = (m: unknown) => {
+        const cur = this.current.getStore();
+        if (!cur) return;
+        this.statsOf(cur.name).retries++;
+        this.options.onRetry?.(cur.name, m as RetryEvent);
+      };
+      subscribe(RETRY_CHANNEL, onRetry);
+      this.release = () => { restoreFetch(); unsubscribe(RETRY_CHANNEL, onRetry); };
+    }
+    let done = false;
+    return () => {
+      if (done) return;
+      done = true;
+      if (--this.holds === 0) { this.release?.(); this.release = undefined; }
     };
   }
 
@@ -126,19 +186,18 @@ export class RunRecorder {
   async source<T>(name: string, work: () => Promise<T>): Promise<{ value?: T; error?: unknown; report: SourceReport }> {
     const report: SourceReport = { name, ms: 0, pass: 0, fail: 0, skipped: 0, error: null, warnings: [] };
     this.sources.push(report);
-    this.current = report;
+    this.statsOf(name);
     const t0 = this.clock();
-    const restore = this.instrumentFetch(name);
+    const release = this.hold();
     try {
-      return { value: await work(), report };
+      return { value: await this.current.run(report, work), report };
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e));
       report.error = { message: err.message, stack: err.stack ?? "" };
       return { error: e, report };
     } finally {
-      restore();
+      release();
       report.ms = Math.round(this.clock() - t0);
-      this.current = undefined;
     }
   }
 
@@ -148,7 +207,7 @@ export class RunRecorder {
   }
 
   /** One outbound call, by its shape only. */
-  call(source: string, method: string, url: string, status: number, ms: number, headers?: Headers): void {
+  call(source: string, method: string, url: string, status: number, ms: number, headers?: Headers, error?: string): void {
     let host = "", path = "";
     try { const u = new URL(url); host = u.host; path = templatePath(u.pathname); } catch { host = "(not a URL)"; }
     const key = `${source}\n${method}\n${host}\n${path}\n${status}`;
@@ -159,6 +218,10 @@ export class RunRecorder {
     if (dep) c.deprecation = dep.slice(0, 64);
     if (sun) c.sunset = sun.slice(0, 64);
     this.calls.set(key, c);
+    const st = this.statsOf(source);
+    st.calls++;
+    if (status === 0 || status >= 400) st.httpErrors++;
+    this.options.onCall?.({ source, method, host, path, status, ms: Math.round(ms), ...(error ? { error } : {}) });
   }
 
   callList(): CallReport[] { return [...this.calls.values()]; }
@@ -176,25 +239,36 @@ export class RunRecorder {
 
   /**
    * Every source reaches the network through the global fetch (the default `fetchFn` of each client, read when the
-   * client is built), so wrapping it while one source runs counts that source's calls, and only them.
+   * client is built), so one wrapper in place while sources run counts each call against the source whose work made
+   * it (AsyncLocalStorage), and abandons it after `timeoutMs`. A call made outside any source passes through untouched.
    */
-  private instrumentFetch(source: string): () => void {
+  private instrumentFetch(): () => void {
     const original = globalThis.fetch;
     if (typeof original !== "function") return () => {};
     const rec = this;
+    const timeoutMs = this.options.timeoutMs ?? 0;
     const wrapped = async function (input: string | URL | Request, init?: RequestInit): Promise<Response> {
+      const cur = rec.current.getStore();
+      if (!cur) return original(input, init);
       const url = input instanceof Request ? input.url : String(input);
       const method = (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
+      let signal = init?.signal ?? undefined;
+      if (timeoutMs > 0) signal = signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs);
       const t0 = rec.clock();
       try {
-        const res = await original(input, init);
-        rec.call(source, method, url, res.status, rec.clock() - t0, res.headers);
+        const res = await original(input, signal ? { ...init, signal } : init);
+        rec.call(cur.name, method, url, res.status, rec.clock() - t0, res.headers);
         if (res.headers?.get("deprecation") || res.headers?.get("sunset") || res.status === 410) {
-          rec.deprecated(source, method, url, res.status, res.headers?.get("sunset") ?? null);
+          rec.deprecated(cur.name, method, url, res.status, res.headers?.get("sunset") ?? null);
         }
         return res;
       } catch (e) {
-        rec.call(source, method, url, 0, rec.clock() - t0);
+        const timedOut = (e as Error)?.name === "TimeoutError";
+        let host = "";
+        try { host = new URL(url).host; } catch { /* not a URL */ }
+        const why = timedOut ? `no answer from ${host} within ${Math.round(timeoutMs / 1000)} s (--http-timeout)` : String((e as Error)?.message ?? e);
+        rec.call(cur.name, method, url, 0, rec.clock() - t0, undefined, why);
+        if (timedOut) throw new Error(why, { cause: e });
         throw e;
       }
     };

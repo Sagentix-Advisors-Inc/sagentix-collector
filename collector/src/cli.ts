@@ -11,6 +11,8 @@
 //   collector config-schema                  prints the JSON schema of the config file
 //   collector google-login --client <client JSON> [--token <file>]   one-time Google Workspace sign-in
 //   collector policies --config collector.config.json   pushes the policy folders for sos-app to match (src/policies.ts)
+//   collector doctor --config collector.config.json [--source x]   credentials and permissions per source; sends nothing (src/doctor.ts)
+//   run options for every source: --concurrency <n> (default 4), --http-timeout <s> (default 60), --verbose, --debug
 //   collector run --endpoint <url> --key-id <id> [--key <pem> | env SAGENTIX_COLLECTOR_KEY]
 //                 --source cloudflare[,...] [source options] [--catalog <dir>] [--dry-run] [--out <file>]
 //                 [--fedramp-target <id> [--class A|B|C|D]]
@@ -32,7 +34,9 @@ import type { Clients, OptionValue, Result, Source } from "./types.ts";
 import { V1_COLLECT_PATH, v1Payload } from "./v1/index.ts";
 import { CLASSES, type FedClass } from "./v1/rules.ts";
 import { EXIT_UPDATE, checkin, detectRunner, modeOf, type Channel } from "./channel.ts";
-import { RunRecorder, buildReport, deliverReport } from "./report.ts";
+import { RunRecorder, buildReport, deliverReport, envSecrets, scrubText, type CallEvent, type RetryEvent, type SourceReport, type SourceStats } from "./report.ts";
+import { pool } from "./pool.ts";
+import { PROBES, doctorHint, type Check } from "./doctor.ts";
 import { agent } from "./agent.ts";
 import { VAULT_FILE, Vault, keyHolderFor, runEnv, type KeyHolder } from "./vault.ts";
 import { applyRefs } from "./refs.ts";
@@ -88,7 +92,26 @@ const COMMON_OPTIONS = {
   class: { type: "string" },
   "cpo-uri": { type: "string" },
   config: { type: "string" },
+  concurrency: { type: "string" },
+  "http-timeout": { type: "string" },
+  verbose: { type: "boolean" },
+  debug: { type: "boolean" },
 } as const;
+
+/** Sources run side by side, at most this many at once (--concurrency; 1 is the old one-after-another). */
+export const DEFAULT_CONCURRENCY = 4;
+export const MAX_CONCURRENCY = 16;
+/** Seconds before an outbound call made by a source is abandoned (--http-timeout; 0 never). */
+export const DEFAULT_HTTP_TIMEOUT_S = 60;
+
+/** --concurrency and --http-timeout, or why they are wrong. */
+export function runTuning(values: Record<string, OptionValue>): { concurrency: number; timeoutMs: number } | string {
+  const c = values.concurrency === undefined ? DEFAULT_CONCURRENCY : Number(values.concurrency);
+  if (!Number.isInteger(c) || c < 1 || c > MAX_CONCURRENCY) return `--concurrency must be a whole number from 1 to ${MAX_CONCURRENCY}.`;
+  const t = values["http-timeout"] === undefined ? DEFAULT_HTTP_TIMEOUT_S : Number(values["http-timeout"]);
+  if (!Number.isFinite(t) || t < 0 || t > 3600) return "--http-timeout must be a number of seconds from 0 (never) to 3600.";
+  return { concurrency: c, timeoutMs: Math.round(t * 1000) };
+}
 
 function usage(sources: readonly Source[]): string {
   const opts = sources.flatMap((s) => Object.entries(s.options).map(([n, o]) =>
@@ -99,10 +122,14 @@ function usage(sources: readonly Source[]): string {
   collector agent --config collector.config.json   (stays connected to sos-app; runs when it asks)
   collector config-schema
   collector google-login --client <Desktop app client JSON> [--token sagentix-google-token.json] [--port <n>] [--login-hint <email>] [--no-browser]
+  collector doctor --config collector.config.json [--source <name>]   checks each source's credentials and permissions; collects and sends nothing
   collector run --endpoint <url> --key-id <id> [--key <pem file>] --source ${sources.map((s) => s.name).join("|")}[,...]
                 [source options] [--catalog <checks dir>] [--dry-run] [--out <file>]
+                [--concurrency <1-${MAX_CONCURRENCY}, default ${DEFAULT_CONCURRENCY}>] [--http-timeout <seconds, default ${DEFAULT_HTTP_TIMEOUT_S}>] [--verbose] [--debug]
                 [--fedramp-target <id> [--class A|B|C|D] [--cpo-uri <url>]]
   The private key may come from ${KEY_ENV} (PEM text) instead of --key.
+  --verbose prints each outbound call (method, host, path with ids as :id; never a query, header or body) and each retry;
+  --debug also prints a failed source's stack. A table of every source (checks, calls, retries, time) ends each run.
   Source options:
 ${opts.join("\n")}
   Every run checks in first (an update sos-app names is taken only with a valid Sagentix release signature, and only
@@ -147,10 +174,73 @@ function serverMessage(text: string): string {
   }
 }
 
-export async function run(argv: string[], deps: Deps): Promise<number> {
-  // Every line the run writes to stderr also goes into its report (scrubbed there).
-  const rec = new RunRecorder(deps.now);
-  deps = { ...deps, err: rec.tee(deps.err) };
+/**
+ * The connectors' secrets and settings, set in sos-app and sealed for this collector (src/vault.ts), when the run has a
+ * config and a key id. A vault that cannot be opened is a warning: the sources that need its values fail on their own.
+ */
+async function vaultEnv(o: { configPath?: string; keyId?: string; dir: string; runner: ReturnType<typeof detectRunner>; deps: Deps; note: (w: string[]) => void }):
+  Promise<{ env: NodeJS.ProcessEnv; cleanup: () => void; secrets: string[] }> {
+  const { configPath, keyId, dir, runner, deps } = o;
+  if (!configPath || !keyId) return { env: deps.env, cleanup: () => {}, secrets: [] };
+  try {
+    const creds = credentialsIn(resolve(configPath));
+    const holder = deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner });
+    const r = runEnv(dir, holder, deps.env, (name) => settingsOf(creds, name));
+    // Connectors read from the client's own vault (src/refs.ts) take all their names from there, after the local vault.
+    const refs = existsSync(join(dir, VAULT_FILE)) ? new Vault(dir, holder).refs() : {};
+    const f = Object.keys(refs).length ? await applyRefs(dir, refs, creds, r.env, deps.channel ?? deps.fetch) : null;
+    const used = r.used.length + (f?.used.length ?? 0), warnings = [...r.warnings, ...(f?.warnings ?? [])];
+    if (used) deps.err(`vault: ${used} value(s) from ${VAULT_FILE}${f ? " and your own vault" : ""}`);
+    for (const w of warnings) deps.err(`warning: vault: ${w}`);
+    if (warnings.length) o.note(warnings);
+    return { env: f?.env ?? r.env, cleanup: () => { r.cleanup(); f?.cleanup(); }, secrets: [...r.secrets, ...(f?.secrets ?? [])] };
+  } catch (e) {
+    const w = `the vault could not be opened: ${String((e as Error)?.message ?? e)}`;
+    deps.err(w);
+    o.note([w]);
+    return { env: deps.env, cleanup: () => {}, secrets: [] };
+  }
+}
+
+/** One line of the --verbose call log: the call's shape, scrubbed of the run's secrets. */
+function callLine(c: CallEvent, secrets: readonly string[]): string {
+  return scrubText(`[${c.source}] ${c.method} ${c.host}${c.path} -> ${c.status || "no answer"} in ${c.ms} ms${c.error ? ` (${c.error})` : ""}`, secrets);
+}
+
+/** The end-of-run table, one row per source: what it judged, what it called, how long it took. */
+export function summaryTable(reports: readonly SourceReport[], stats: ReadonlyMap<string, SourceStats>): string[] {
+  const rows = reports.map((r) => {
+    const st = stats.get(r.name) ?? { calls: 0, retries: 0, httpErrors: 0 };
+    return [r.name, String(r.pass + r.fail + r.skipped), String(r.pass), String(r.fail), String(r.skipped), String(st.calls), String(st.retries), String(st.httpErrors),
+      `${(r.ms / 1000).toFixed(1)} s`, r.error ? "ERROR" : r.pass + r.fail ? "read" : "nothing read"];
+  });
+  const head = ["source", "results", "pass", "fail", "skipped", "calls", "retries", "http errors", "time", "source status"];
+  const total = rows.length > 1 ? [["total", ...[1, 2, 3, 4, 5, 6, 7].map((i) => String(rows.reduce((a, r) => a + Number(r[i]), 0))),
+    `${(reports.reduce((a, r) => Math.max(a, r.ms), 0) / 1000).toFixed(1)} s max`, ""]] : [];
+  const all = [head, ...rows, ...total];
+  const w = head.map((_, i) => Math.max(...all.map((r) => r[i].length)));
+  const line = (r: string[]) => r.map((c, i) => (i === 0 || i === r.length - 1 ? c.padEnd(w[i]) : c.padStart(w[i]))).join("  ").trimEnd();
+  return [line(head), w.map((n) => "-".repeat(n)).join("  "), ...rows.map(line), ...(total.length ? [w.map((n) => "-".repeat(n)).join("  "), line(total[0])] : [])];
+}
+
+/** A short fix for each refused call in the results: source, check, HTTP status and what to grant (src/doctor.ts). */
+export function problemLines(results: readonly Result[], max = 20): string[] {
+  const seen = new Set<string>(), out: string[] = [];
+  for (const r of results) {
+    const st = r.apiError?.status;
+    if (r.result !== "skipped" || st === undefined || (st !== 401 && st !== 403)) continue;
+    const source = r.check.split(".")[0];
+    const k = `${r.check}|${st}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    if (out.length < max) out.push(`  ${r.check} [${r.resource}]: HTTP ${st}${st === 401 ? " (credential refused)" : " (permission missing)"}; fix: ${doctorHint(source)}`);
+  }
+  if (seen.size > max) out.push(`  … and ${seen.size - max} more`);
+  return out;
+}
+
+/** The run's options: the command line over the config file (--source adds to the file's), or the usage exit code. */
+function parseRunArgs(argv: string[], deps: Deps): { values: Record<string, OptionValue>; configPath?: string } | number {
   const sourceOptions: Record<string, { type: "string" | "boolean"; multiple?: boolean }> = {};
   for (const s of deps.sources) {
     for (const [n, o] of Object.entries(s.options)) {
@@ -174,8 +264,105 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     const src = [...((c.values.source as string[] | undefined) ?? []), ...((given.source as string[] | undefined) ?? [])];
     values = { ...c.values, ...given, source: src };
   }
+  return { values, configPath };
+}
+
+/**
+ * `collector doctor`: per configured source, its credentials and one cheap read per permission it needs (src/doctor.ts),
+ * printed as pass or fail with the fix. Nothing is collected, signed or sent: no check-in, no push, no run report.
+ * With --config, --source narrows the file's sources to those named. Exit 0 when every check passes, 1 otherwise.
+ */
+export async function doctorCommand(argv: string[], deps: Deps): Promise<number> {
+  const parsed = parseRunArgs(argv, deps);
+  if (typeof parsed === "number") return parsed;
+  const { values, configPath } = parsed;
+  const tuning = runTuning(values);
+  if (typeof tuning === "string") { deps.err(tuning); return EXIT.usage; }
+  // From the config, --source picks among the file's sources rather than adding to them.
+  const cli = argv.flatMap((a, i) => (a === "--source" ? [argv[i + 1]] : a.startsWith("--source=") ? [a.slice(9)] : [])).flatMap((s) => (s ?? "").split(",")).map((s) => s.trim()).filter(Boolean);
+  const all = ((values.source as string[] | undefined) ?? []).flatMap((s) => s.split(",")).map((s) => s.trim()).filter(Boolean);
+  const names = [...new Set(configPath && cli.length ? cli : all)];
+  if (!names.length) { deps.err(`doctor: name the sources (--config with a "sources" block, or --source ${deps.sources.map((s) => s.name).join("|")}).`); return EXIT.usage; }
+  const unknown = names.filter((n) => !deps.sources.some((s) => s.name === n));
+  if (unknown.length) { deps.err(`unknown source ${unknown.join(", ")}; known: ${deps.sources.map((x) => x.name).join(", ")}.`); return EXIT.usage; }
+  const keyId = typeof values["key-id"] === "string" ? values["key-id"] : undefined;
+  const dir = configPath ? dirname(resolve(configPath)) : (deps.cwd ?? process.cwd());
+  const runner = detectRunner(deps.env);
+  const lines: string[] = [];
+  const out = (s: string) => lines.push(s);
+  // The collector key, read and parsed locally; it is not used to sign anything here.
+  const keyChecks: Check[] = [];
+  let pem: string | undefined;
+  if (typeof values.key === "string") {
+    try { pem = readFileSync(values.key, "utf8"); } catch (e) { keyChecks.push({ what: "collector key", verdict: "fail", detail: `${values.key}: ${(e as NodeJS.ErrnoException).code ?? String(e)}`, fix: "point keyFile (or --key) at the PEM `collector keygen` wrote" }); }
+  } else pem = deps.env[KEY_ENV];
+  if (pem) {
+    try { keyChecks.push({ what: "collector key", verdict: "pass", detail: `Ed25519 public key ${publicKeyFromPrivate(pem).slice(0, 12)}…${keyId ? `, key id ${keyId}` : " (no keyId: only --dry-run runs)"}` }); }
+    catch { keyChecks.push({ what: "collector key", verdict: "fail", detail: "not an Ed25519 private key", fix: "use the PEM `collector keygen` wrote" }); }
+  } else if (!keyChecks.length) keyChecks.push({ what: "collector key", verdict: "skip", detail: `no --key and no ${KEY_ENV}: only --dry-run runs` });
+  if (typeof values.endpoint === "string") {
+    try { collectUrl(values.endpoint); keyChecks.push({ what: "endpoint", verdict: "pass", detail: new URL(values.endpoint).origin }); }
+    catch (e) { keyChecks.push({ what: "endpoint", verdict: "fail", detail: (e as Error).message, fix: "set endpoint to your sos-app origin, https://…" }); }
+  }
+  const { env, cleanup, secrets } = await vaultEnv({ configPath, keyId, dir, runner, deps, note: () => {} });
+  const scrub = [...new Set([...envSecrets(env), ...secrets.filter((v) => v.length >= 6)])].sort((a, b) => b.length - a.length);
+  const results: { source: string; checks: Check[] }[] = [{ source: "collector", checks: keyChecks }];
+  const now = deps.now();
+  // One wrapper around fetch, with the run's timeout, so a probe that hangs ends like a run's call would.
+  const rec = new RunRecorder(deps.now, undefined, { timeoutMs: tuning.timeoutMs });
+  const release = rec.hold();
+  try {
+    const outcomes = await pool(names, tuning.concurrency, (name) => rec.source(name, async () => {
+      const probe = PROBES[name];
+      if (!probe) return [{ what: "self-test", verdict: "skip" as const, detail: "this source has no self-test; try `collector run --dry-run --source " + name + "`" }];
+      return probe({ opts: values, env, clients: deps.clients, now, warn: () => {} });
+    }));
+    for (const [i, o] of outcomes.entries()) {
+      const v = o.status === "fulfilled" ? o.value : { error: o.reason, value: undefined };
+      results.push({ source: names[i], checks: v.value ?? [{ what: "self-test", verdict: "fail", detail: `the probe failed: ${String((v.error as Error)?.message ?? v.error)}`, fix: "report this to Sagentix with the line above" }] });
+    }
+  } finally { release(); cleanup(); }
+  let failed = 0, passed = 0, skipped = 0;
+  out(`collector doctor: ${names.length} source(s); read-only checks, nothing collected or sent`);
+  for (const r of results) {
+    out(r.source);
+    const w = Math.min(44, Math.max(...r.checks.map((c) => c.what.length), 8));
+    for (const c of r.checks) {
+      if (c.verdict === "pass") passed++; else if (c.verdict === "fail") failed++; else skipped++;
+      out(`  ${c.verdict.toUpperCase().padEnd(4)}  ${c.what.padEnd(w)}  ${c.detail}`);
+      if (c.fix && c.verdict !== "pass") out(`        fix: ${c.fix}`);
+    }
+  }
+  out(`doctor: ${passed} passed, ${failed} failed, ${skipped} skipped${failed ? "; fix the lines marked FAIL, then run the doctor again" : "; ready for `collector run`"}`);
+  for (const l of lines) deps.out(scrubText(l, scrub));
+  return failed ? EXIT.error : EXIT.ok;
+}
+
+export async function run(argv: string[], deps: Deps): Promise<number> {
+  // Every line the run writes to stderr also goes into its report (scrubbed there); the --verbose call log and the
+  // closing table go to stderr only (the report already holds every call, and every source's counts and time).
+  const rec = new RunRecorder(deps.now);
+  const rawErr = deps.err;
+  deps = { ...deps, err: rec.tee(deps.err) };
+  const parsed = parseRunArgs(argv, deps);
+  if (typeof parsed === "number") return parsed;
+  let { values } = parsed;
+  const { configPath } = parsed;
   const dry = values["dry-run"] === true;
   const v1Target = typeof values["fedramp-target"] === "string" ? values["fedramp-target"] : undefined;
+  const tuning = runTuning(values);
+  if (typeof tuning === "string") { deps.err(tuning); return EXIT.usage; }
+  const { concurrency } = tuning;
+  const verbose = values.verbose === true || values.debug === true, debug = values.debug === true;
+  // Read when a line is printed, by then holding the vault's values too.
+  let lineSecrets: readonly string[] = envSecrets(deps.env);
+  rec.options = {
+    timeoutMs: tuning.timeoutMs,
+    ...(verbose ? {
+      onCall: (c: CallEvent) => rawErr(callLine(c, lineSecrets)),
+      onRetry: (source: string, e: RetryEvent) => rawErr(scrubText(`[${source}] retry ${e.attempt} after ${e.status ? `HTTP ${e.status}` : "no answer"}, waiting ${e.waitMs} ms`, lineSecrets)),
+    } : {}),
+  };
 
   const names = ((values.source as string[] | undefined) ?? []).flatMap((s) => s.split(",")).map((s) => s.trim()).filter(Boolean);
   if (!names.length) { deps.err(`--source is required (${deps.sources.map((s) => s.name).join(", ")}).`); return EXIT.usage; }
@@ -222,37 +409,24 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     rec.note("checkin", (await checkin(channel, { write: !dry, log: deps.err, vault })).warnings);
   }
   else deps.err("check-in skipped: a dry run without a key cannot sign one.");
-  // The connectors' secrets and settings, set in sos-app and sealed for this collector (src/vault.ts), when the run has a config and a key id.
-  // A vault that cannot be opened is a warning: the sources that need its values fail on their own, the run goes on.
-  let env = deps.env, cleanup = () => {}, vaultSecrets: string[] = [];
-  if (configPath && keyId) {
-    try {
-      const creds = credentialsIn(resolve(configPath));
-      const holder = deps.vaultKey?.(dir, keyId) ?? keyHolderFor(dir, keyId, { env: deps.env, platform: process.platform, runner });
-      const r = runEnv(dir, holder, deps.env, (name) => settingsOf(creds, name));
-      // Connectors read from the client's own vault (src/refs.ts) take all their names from there, after the local vault.
-      const refs = existsSync(join(dir, VAULT_FILE)) ? new Vault(dir, holder).refs() : {};
-      const f = Object.keys(refs).length ? await applyRefs(dir, refs, creds, r.env, deps.channel ?? deps.fetch) : null;
-      env = f?.env ?? r.env;
-      cleanup = () => { r.cleanup(); f?.cleanup(); };
-      vaultSecrets = [...r.secrets, ...(f?.secrets ?? [])];
-      const used = r.used.length + (f?.used.length ?? 0), warnings = [...r.warnings, ...(f?.warnings ?? [])];
-      if (used) deps.err(`vault: ${used} value(s) from ${VAULT_FILE}${f ? " and your own vault" : ""}`);
-      for (const w of warnings) deps.err(`warning: vault: ${w}`);
-      if (warnings.length) rec.note("vault", warnings);
-    } catch (e) {
-      const w = `the vault could not be opened: ${String((e as Error)?.message ?? e)}`;
-      deps.err(w);
-      rec.note("vault", [w]);
-    }
-  }
+  const { env, cleanup, secrets: vaultSecrets } = await vaultEnv({ configPath, keyId, dir, runner, deps, note: (w) => rec.note("vault", w) });
+  lineSecrets = [...new Set([...envSecrets(env), ...vaultSecrets.filter((v) => v.length >= 6)])].sort((a, b) => b.length - a.length);
   let code: number;
+  let judged: Result[] = [];
   try {
     code = await collect();
   } catch (e) {
     deps.err(`collector error: ${String((e as Error)?.message ?? e)}`);
     code = EXIT.error;
   } finally { cleanup(); }
+  // The closing table (stderr only), and the refused calls with what to grant.
+  const ran = rec.sources.filter((r) => chosen.some((s) => s.name === r.name));
+  if (ran.length) {
+    rawErr(`\nsummary (${ran.length} source(s), up to ${concurrency} at once):`);
+    for (const l of summaryTable(ran, rec.stats)) rawErr(l);
+    const problems = problemLines(judged);
+    if (problems.length) { rawErr("refused calls (their checks were sent as skipped):"); for (const l of problems) rawErr(scrubText(l, lineSecrets)); }
+  }
   // The report is scrubbed of every value in the run's environment, the vault's included.
   if (connectorTest) return code;
   await deliverReport(buildReport(rec, { now: deps.now(), exitCode: code, runner, mode, env, secrets: vaultSecrets }), { dry, channel, dir, log: deps.err });
@@ -264,13 +438,28 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
     const now = deps.now();
     const raw: Result[] = [];
     const failed: string[] = [];
-    for (const s of chosen) {
-      const { value, error, report } = await rec.source(s.name, () => s.run({ opts: values, env, clients: deps.clients, now, warn: deps.err }));
+    // The sources run side by side, at most --concurrency at once, under one fetch wrapper (src/report.ts) that counts each
+    // call against its source. Their outcomes are then taken in the order the sources were named, so the results, and
+    // the bytes signed, are those of a run one source after another (test/e2e.test.ts holds a golden copy).
+    const release = rec.hold();
+    let outcomes: Awaited<ReturnType<typeof rec.source<Result[]>>>[];
+    try {
+      outcomes = (await pool(chosen, concurrency, (s) => rec.source(s.name, () => s.run({ opts: values, env, clients: deps.clients, now, warn: deps.err }))))
+        .map((o) => (o.status === "fulfilled" ? o.value : { error: o.reason, report: { name: "?", ms: 0, pass: 0, fail: 0, skipped: 0, error: null, warnings: [] } }));
+    } finally { release(); }
+    // The report lists the sources in the order named, not the order they finished.
+    const order = new Map(chosen.map((s, i) => [s.name, i]));
+    const ranked = rec.sources.filter((r) => order.has(r.name)).sort((a, b) => order.get(a.name)! - order.get(b.name)!);
+    let k = 0;
+    for (let i = 0; i < rec.sources.length; i++) if (order.has(rec.sources[i].name)) rec.sources[i] = ranked[k++];
+    for (const [i, s] of chosen.entries()) {
+      const { value, error, report } = outcomes[i];
       let got: Result[];
       if (error !== undefined || !Array.isArray(value)) {
         const message = error !== undefined ? String((error as Error)?.message ?? error) : "the source returned no list of results";
         if (!report.error) report.error = { message, stack: "" };
-        deps.err(`error in source ${s.name}: ${message}; its ${s.emits.length} checks are sent as skipped and the run goes on.`);
+        deps.err(`error in source ${s.name}: ${message}; its ${s.emits.length} checks are sent as skipped and the run goes on. To see why: ${doctorHint(s.name)}.`);
+        if (debug && report.error.stack) rawErr(scrubText(report.error.stack, lineSecrets));
         failed.push(s.name);
         got = s.emits.map((check) => ({ check, resource: `the ${s.name} source`, result: "skipped" as const, detail: `collector error in ${s.name}: ${message}` }));
       } else got = value;
@@ -279,6 +468,7 @@ export async function run(argv: string[], deps: Deps): Promise<number> {
       for (const r of got) report[r.result === "pass" ? "pass" : r.result === "fail" ? "fail" : "skipped"]++;
       raw.push(...got);
     }
+    judged = raw;
     // A failed source makes the run exit 1 once everything else is done, as a failed engine run always has.
     const done = (c: number) => (c === EXIT.ok || c === EXIT.nothing) && failed.length ? EXIT.error : c;
     const vetted = vet(raw, catalog);
@@ -400,6 +590,7 @@ export async function main(argv: string[], deps: Deps = defaultDeps()): Promise<
     if (cmd === "config-schema") { deps.out(JSON.stringify(CONFIG_SCHEMA, null, 2)); return EXIT.ok; }
     if (cmd === "google-login") return await googleLogin(rest, deps);
     if (cmd === "policies") return await policiesCommand(rest, deps);
+    if (cmd === "doctor" || cmd === "selftest") return await doctorCommand(rest, deps);
   } catch (e) {
     deps.err(String((e as Error).message ?? e));
     return EXIT.error;

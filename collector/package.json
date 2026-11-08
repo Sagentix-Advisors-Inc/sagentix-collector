@@ -1,6 +1,6 @@
 {
   "name": "@sagentix-inc/evidence-collector",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Customer-side evidence collector: reads systems read-only, runs checks, signs the results and pushes them outbound to sos-app.",
   "license": "Apache-2.0",
@@ -14,6 +14,9 @@
   "scripts": {
     "collector": "node src/cli.ts",
     "test": "node --test \"test/*.test.ts\"",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-lines=98 --test-coverage-branches=82 --test-coverage-functions=94 \"test/*.test.ts\"",
+    "e2e": "node --test test/e2e.test.ts",
+    "bench": "node test/bench.ts",
     "typecheck": "tsc -p tsconfig.json",
     "build": "node scripts/stage-package.mjs"
   },

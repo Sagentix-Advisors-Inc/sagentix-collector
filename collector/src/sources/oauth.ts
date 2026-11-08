@@ -81,3 +81,24 @@ export function cachedToken(fetchToken: () => Promise<{ token: string; expiresAt
     return cur.token;
   };
 }
+
+// One token per credential and scope for the whole run, whichever source asks first (2026-11-07): Entra ID, Intune and
+// an HR source joined with Entra ID used to make three identical client-credentials requests. Keyed by the fetch
+// function the clients share (one per run, src/report.ts hold()) and a SHA-256 of the credential's parts, so no secret
+// is kept as a key and a test's fake fetch never sees another test's token.
+const shared = new WeakMap<object, Map<string, () => Promise<string>>>();
+
+/** The token getter for these credential parts, made once per fetch function by `make`. */
+export function sharedToken(fetchFn: typeof fetch, parts: readonly string[], make: () => () => Promise<string>): () => Promise<string> {
+  let byKey = shared.get(fetchFn);
+  if (!byKey) { byKey = new Map(); shared.set(fetchFn, byKey); }
+  const key = createHash("sha256").update(parts.join("\u0000")).digest("hex");
+  let t = byKey.get(key);
+  if (!t) {
+    const getter = make();
+    // A failed request is not kept: the next source asks again (and says why on its own).
+    t = () => getter().catch((e) => { byKey!.delete(key); throw e; });
+    byKey.set(key, t);
+  }
+  return t;
+}

@@ -36,6 +36,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # QA (collector-qa.yml: coverage floors, the doctor, a dry run, timings) runs beside the gate on this exact commit.
+  qa:
+    uses: ./.github/workflows/collector-qa.yml
+    permissions:
+      contents: read
+
   # The security gate (collector-security.yml) runs first, on this exact commit; nothing below starts unless it passes.
   security:
     uses: ./.github/workflows/collector-security.yml
@@ -45,7 +51,7 @@ jobs:
       actions: read
 
   npm:
-    needs: security
+    needs: [security, qa]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: npm   # a maintainer may add a required reviewer to this environment (Settings -> Environments)
@@ -116,7 +122,7 @@ jobs:
           echo "::notice::Staged on npm. A maintainer approves it with 2FA: npm stage list @sagentix-inc/evidence-collector, then npm stage approve <id> (collector/RELEASING.md, step 6)."
 
   runner:
-    needs: security
+    needs: [security, qa]
     runs-on: ubuntu-latest
     # The Go engines build from source (about 25 minutes on a hosted runner, 2026-10-26); the push build reuses the
     # scan build's layers through the Actions cache, so 90 minutes leaves room.

@@ -143,12 +143,12 @@ test("the subprocess path runs prowler read-only into a temp directory and reads
 });
 
 test("several providers run in one source; one that fails leaves the others' results and says so (2026-11-01)", async () => {
-  // A stand-in that fails for github (no token) and writes the AWS fixture otherwise, noting the token Prowler would read.
+  // A stand-in that fails for github (no token) and writes the AWS fixture otherwise, noting (per provider: the two run side by side) the token Prowler would read.
   const bin = join(dir, "prowler-two.mjs"), seen = join(dir, "seen.json");
   writeFileSync(bin, `#!/usr/bin/env node
 import { copyFileSync, writeFileSync } from "node:fs";
 const a = process.argv.slice(2);
-writeFileSync(${JSON.stringify(seen)}, JSON.stringify({ provider: a[0], pat: process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? null }));
+writeFileSync(${JSON.stringify(seen)}.replace(".json", "-" + a[0] + ".json"), JSON.stringify({ provider: a[0], pat: process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? null }));
 if (a[0] === "github") { process.stderr.write("github: bad credentials\\n"); process.exit(1); }
 copyFileSync(${JSON.stringify(FIXTURE)}, a[a.indexOf("--output-directory") + 1] + "/" + a[a.indexOf("--output-filename") + 1] + ".ocsf.json");
 `);
@@ -158,7 +158,7 @@ copyFileSync(${JSON.stringify(FIXTURE)}, a[a.indexOf("--output-directory") + 1] 
   assert.equal(await main(args, c.deps), EXIT.ok, c.stderr.join("\n"));
   assert.equal(JSON.parse(c.stdout.join("\n")).payload.results.length, 7);
   assert.match(c.stderr.join("\n"), /prowler: github did not run \(.*github exited 1: github: bad credentials\); its controls keep their other ways/);
-  assert.deepEqual(JSON.parse(readFileSync(seen, "utf8")), { provider: "github", pat: "github_pat_example" });   // the collector's token, under Prowler's name
+  assert.deepEqual(JSON.parse(readFileSync(seen.replace(".json", "-github.json"), "utf8")), { provider: "github", pat: "github_pat_example" });   // the collector's token, under Prowler's name
 });
 
 test("the collector's credential names are copied to Prowler's, never over one already set", () => {

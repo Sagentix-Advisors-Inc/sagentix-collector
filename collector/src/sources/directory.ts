@@ -134,8 +134,43 @@ export function jumpcloudDirectory(api: RestApi): Directory {
   };
 }
 
+// One directory per identity provider for the whole run (2026-11-07): BambooHR and Rippling joined with the same provider
+// share it, and a leaver both name is looked up once. Keyed by the run's clients object, which every source of one run
+// shares (cli.ts) and each test builds afresh.
+const directories = new WeakMap<object, Map<string, Directory | string>>();
+
+/** A directory whose answers are kept per email for the rest of the run; an error is not kept, so the next asker tries again. */
+export function memoDirectory(d: Directory): Directory {
+  const seen = new Map<string, Promise<Account>>();
+  return {
+    idp: d.idp,
+    lookup(email) {
+      const k = email.toLowerCase();
+      let p = seen.get(k);
+      if (!p) {
+        p = d.lookup(email).then((a) => { if (a.state === "error") seen.delete(k); return a; });
+        seen.set(k, p);
+      }
+      return p;
+    },
+  };
+}
+
 /** The directory for an identity provider, built from the client a test injected or that provider's own variables; else why not. */
 export function directoryFor(idp: string, ctx: SourceContext): Directory | string {
+  const key = `${idp}\n${String(ctx.opts["jumpcloud-region"] ?? "")}\n${String(ctx.opts["jumpcloud-org-id"] ?? "")}`;
+  let byIdp = directories.get(ctx.clients);
+  if (!byIdp) { byIdp = new Map(); directories.set(ctx.clients, byIdp); }
+  let d = byIdp.get(key);
+  if (d === undefined) {
+    d = buildDirectory(idp, ctx);
+    if (typeof d !== "string") d = memoDirectory(d);
+    byIdp.set(key, d);
+  }
+  return d;
+}
+
+function buildDirectory(idp: string, ctx: SourceContext): Directory | string {
   const sleep = (ctx.clients.sleep as Sleep | undefined) ?? realSleep;
   const pick = (key: string, build: () => RestApi | string): RestApi | string => {
     const given = ctx.clients[key] as RestApi | null | undefined;

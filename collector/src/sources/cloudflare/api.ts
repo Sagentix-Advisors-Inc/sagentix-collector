@@ -1,6 +1,8 @@
 // Read-only Cloudflare API v4 client. It has a GET method and nothing else, so a bug here cannot
 // change the customer's account. Tests pass a fake client; nothing in tests touches the network.
 
+import { realSleep, withRetry, type RestApi, type Sleep } from "../readonly_http.ts";
+
 export interface CfResponse {
   status: number;
   body: unknown;
@@ -13,13 +15,31 @@ export interface CloudflareApi {
 export const CF_API_BASE = "https://api.cloudflare.com/client/v4";
 export const TOKEN_ENV = "CLOUDFLARE_API_TOKEN_READONLY";
 
-export function fetchCloudflareApi(token: string, fetchFn: typeof fetch = fetch, base = CF_API_BASE): CloudflareApi {
-  return {
+/**
+ * GET only. A 429 is retried up to 4 times and a 502, 503, 504 or network failure up to twice, waiting Retry-After
+ * when given (Cloudflare's rate limit is 1,200 requests per five minutes per user,
+ * https://developers.cloudflare.com/fundamentals/api/reference/limits/, read 2026-11-07), else 1 s doubling.
+ */
+export function fetchCloudflareApi(token: string, fetchFn: typeof fetch = fetch, base = CF_API_BASE, sleep: Sleep = realSleep): CloudflareApi {
+  const raw: RestApi = {
     async get(path: string) {
       const res = await fetchFn(`${base}${path}`, { method: "GET", headers: { authorization: `Bearer ${token}`, accept: "application/json" } });
+      const headers: Record<string, string> = {};
+      res.headers?.forEach((v, k) => { headers[k.toLowerCase()] = v; });
+      // Should an answer ever echo the token, it is cut out before anything reads it (as fetchRest does).
+      const text = token.length >= 8 ? (await res.text()).split(token).join("[redacted]") : await res.text();
       let body: unknown = null;
-      try { body = await res.json(); } catch { body = null; }
-      return { status: res.status, body };
+      try { body = text ? JSON.parse(text) : null; } catch { body = null; }
+      return { status: res.status, headers, body };
+    },
+  };
+  const api = withRetry(raw, sleep);
+  return {
+    async get(path: string) {
+      const r = await api.get(path);
+      // A thrown failure comes back as status 0, in the shape safeGet gives it.
+      if (r.status === 0 && isObj(r.body) && typeof r.body.message === "string") return { status: 0, body: { success: false, errors: [{ message: r.body.message }] } };
+      return { status: r.status, body: r.body };
     },
   };
 }

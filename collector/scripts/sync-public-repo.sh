@@ -10,7 +10,7 @@ dst="${1:?path to the public mirror checkout}"
 
 # The security gate first (collector-security.yml, Sagentix 2026-10-17): only a committed, pushed collector
 # that passed the gate on GitHub may reach the mirror.
-shipped=(collector apps/sos-app/src/data/checks apps/sos-app/src/data/fedramp_rules.json .github/workflows/collector-security.yml .github/workflows/collector-release.yml)
+shipped=(collector apps/sos-app/src/data/checks apps/sos-app/src/data/fedramp_rules.json .github/workflows/collector-security.yml .github/workflows/collector-release.yml .github/workflows/collector-qa.yml)
 if [ -n "$(git -C "$src" status --porcelain -- "${shipped[@]}")" ]; then
   echo "refusing: uncommitted changes in the collector; commit and push them so the security gate can scan them" >&2; exit 1
 fi
@@ -36,7 +36,7 @@ rm -rf "$dst/apps/sos-app/src/data/checks" "$dst/iac" "$dst/collector/docs"
 node "$src/collector/scripts/public-catalogue.mjs" "$src/apps/sos-app/src/data/checks" "$dst/apps/sos-app/src/data/checks"
 mkdir -p "$dst/apps/sos-app/src/data" "$dst/.github/workflows"
 cp "$src/apps/sos-app/src/data/fedramp_rules.json" "$dst/apps/sos-app/src/data/"
-cp "$src/.github/workflows/collector-release.yml" "$src/.github/workflows/collector-security.yml" "$dst/.github/workflows/"
+cp "$src/.github/workflows/collector-release.yml" "$src/.github/workflows/collector-security.yml" "$src/.github/workflows/collector-qa.yml" "$dst/.github/workflows/"
 rsync -a "$src/collector/public-repo/" "$dst/"
 cp "$src/collector/LICENSE" "$src/collector/NOTICE" "$dst/"
 for doc in collector/README.md collector/runner/README.md; do node "$src/collector/scripts/public-docs.mjs" "$src/$doc" "$dst/$doc"; done

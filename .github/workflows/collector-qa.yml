@@ -1,0 +1,102 @@
+# Collector QA (Stéphane, 2026-11-07: "improving the collector (for efficiency - debugging - smoke test - QA, test.)").
+# On every push and pull request that touches the collector or what it reads:
+#
+#   test    typecheck, then every node:test suite with coverage; the run fails below the floors set on 2026-11-07
+#           (lines 98, branches 82, functions 94: the level measured that day, never lowered). The suites include the
+#           end-to-end run of every source against recorded replies (test/e2e.test.ts), with its golden results.
+#   smoke   the CLI as a customer runs it, as a process: `collector doctor` and a `--dry-run` over the recorded
+#           engine outputs in collector/test/fixtures, then the timing of a full dry run, written to the job summary.
+#
+# No network beyond the npm registry, no secret, nothing deployed or published. collector-security.yml stays the
+# release gate (npm audit, Trivy, CodeQL); this workflow is the functional one.
+name: collector-qa
+
+on:
+  push:
+    branches: [rnd, main]
+    paths:
+      - "collector/**"
+      - "apps/sos-app/src/data/checks/**"
+      - "apps/sos-app/src/data/fedramp_rules.json"
+      - ".github/workflows/collector-qa.yml"
+  pull_request:
+    paths:
+      - "collector/**"
+      - "apps/sos-app/src/data/checks/**"
+      - ".github/workflows/collector-qa.yml"
+  workflow_dispatch: {}
+  # collector-release.yml calls it, so no release starts without a green QA run on that exact commit.
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collector-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: collector
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: collector/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - name: Tests with coverage (fails below the floors)
+        run: npm run coverage
+
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: collector
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: collector/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: collector doctor over the recorded engine outputs (exit 0 means every check passed)
+        run: |
+          node src/cli.ts doctor --source prowler,scubagoggles,scubagear \
+            --prowler-provider aws --prowler-output test/fixtures/prowler/prowler_aws.ocsf.json \
+            --scubagoggles-results test/fixtures/scubagoggles_ScubaResults.json --scubagear-results test/fixtures/scubagear_ScubaResults.json
+      - name: collector doctor names the fix for a missing credential (exit 1 expected)
+        run: |
+          set +e
+          out="$(node src/cli.ts doctor --source okta 2>&1)"; code=$?
+          echo "$out"
+          [ "$code" = 1 ] && grep -q "fix: set OKTA_DOMAIN" <<<"$out"
+      - name: A dry run of the same files, as a process (stdout is the payload, stderr ends with the table)
+        run: |
+          node src/cli.ts run --endpoint https://sos.example.test --dry-run --source prowler,scubagoggles,scubagear \
+            --prowler-provider aws --prowler-output test/fixtures/prowler/prowler_aws.ocsf.json \
+            --scubagoggles-results test/fixtures/scubagoggles_ScubaResults.json --scubagoggles-max-age-days 3650 \
+            --scubagear-results test/fixtures/scubagear_ScubaResults.json --scubagear-max-age-days 3650 \
+            > "$RUNNER_TEMP/dry.json" 2> "$RUNNER_TEMP/dry.err"
+          cat "$RUNNER_TEMP/dry.err"
+          node -e 'const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); if(!j.dryRun||!j.payload.results.length) process.exit(1); console.log(j.summary)' "$RUNNER_TEMP/dry.json"
+          grep -q "^summary (3 source(s)" "$RUNNER_TEMP/dry.err"
+      - name: End-to-end fixtures, and the timing of a full dry run (job summary)
+        run: |
+          node --test test/e2e.test.ts
+          {
+            echo "### Collector dry run of every source, recorded replies"
+            echo '```'
+            node test/bench.ts --runs 3
+            node test/bench.ts --runs 3 --latency-ms 20 -- --concurrency 1
+            node test/bench.ts --runs 3 --latency-ms 20
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

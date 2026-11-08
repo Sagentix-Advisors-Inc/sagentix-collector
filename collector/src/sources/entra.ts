@@ -82,7 +82,7 @@
 
 import { readFileSync } from "node:fs";
 import type { Result, Source, SourceContext } from "../types.ts";
-import { cachedToken, entraClientAssertion, tokenRequest } from "./oauth.ts";
+import { cachedToken, entraClientAssertion, sharedToken, tokenRequest } from "./oauth.ts";
 import { DAY_MS, Emitter, arr, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead } from "./readonly_http.ts";
 
 export const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
@@ -118,14 +118,15 @@ export function entraFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fet
   const tenant = env[ENTRA_ENV.tenant], client = env[ENTRA_ENV.client], secret = env[ENTRA_ENV.secret], certFile = env[ENTRA_ENV.cert];
   if (!tenant || !client || (!secret && !certFile)) return `${ENTRA_ENV.tenant}, ${ENTRA_ENV.client} and ${ENTRA_ENV.secret} or ${ENTRA_ENV.cert} are not all set`;
   const url = `https://login.microsoftonline.com/${enc(tenant)}/oauth2/v2.0/token`;
-  const token = cachedToken(() => {
+  // Shared with every other client of this app and scope in the run (Intune, the HR leaver join): one token request.
+  const token = sharedToken(fetchFn, ["entra", tenant, client, target.scope, secret ?? "", certFile ?? ""], () => cachedToken(() => {
     const form: Record<string, string> = { grant_type: "client_credentials", client_id: client, scope: target.scope };
     if (certFile) {
       form.client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
       form.client_assertion = entraClientAssertion(readFileSync(certFile, "utf8"), tenant, client, Math.floor(Date.now() / 1000));
     } else form.client_secret = secret!;
     return tokenRequest(url, form, fetchFn);
-  });
+  }));
   return fetchRest({ base: target.base, fetchFn, headers: async () => ({ authorization: `Bearer ${await token()}` }) });
 }
 

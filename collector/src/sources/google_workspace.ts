@@ -24,7 +24,7 @@
 
 import { readFileSync } from "node:fs";
 import type { Result, Source, SourceContext } from "../types.ts";
-import { cachedToken, googleAssertion, tokenRequest } from "./oauth.ts";
+import { cachedToken, googleAssertion, sharedToken, tokenRequest } from "./oauth.ts";
 import { OAUTH_ENV, googleOAuthFromEnv } from "./google_oauth.ts";
 import { DAY_MS, Emitter, enc, fetchRest, firstIds, getAll, intOpt, isObj, ok, realSleep, redact, str, why, withRetry, type HttpResponse, type Obj, type RestApi, type Sleep, listRead, stampRead } from "./readonly_http.ts";
 
@@ -68,10 +68,11 @@ export function googleFromEnv(env: NodeJS.ProcessEnv, fetchFn: typeof fetch = fe
   const tokenUri = key.token_uri ?? "https://oauth2.googleapis.com/token";
   // The key file names its own token endpoint; a tampered file could send the signed assertion elsewhere.
   if (!isGoogleTokenUri(tokenUri)) return `${GOOGLE_ENV.keyFile} names a token_uri outside googleapis.com over HTTPS`;
-  const token = cachedToken(() => tokenRequest(tokenUri, {
+  // Shared with the HR leaver join, which builds this same client (directory.ts): one token request per run.
+  const token = sharedToken(fetchFn, ["google-sa", tokenUri, key.client_email, admin, ...GOOGLE_SCOPES], () => cachedToken(() => tokenRequest(tokenUri, {
     grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
     assertion: googleAssertion(key, admin, GOOGLE_SCOPES, Math.floor(Date.now() / 1000)),
-  }, fetchFn));
+  }, fetchFn)));
   return fetchRest({ base: ADMIN_BASE, fetchFn, headers: async () => ({ authorization: `Bearer ${await token()}` }) });
 }
 

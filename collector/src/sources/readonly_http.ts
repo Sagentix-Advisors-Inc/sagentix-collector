@@ -3,7 +3,20 @@
 // redaction. The only non-GET request any of these sources makes is the OAuth token request in
 // oauth.ts, to the identity provider's token endpoint.
 
+import { channel } from "node:diagnostics_channel";
 import type { Outcome, Read, Result } from "../types.ts";
+
+/** The recorder (src/report.ts RETRY_CHANNEL) counts retries per source from here; a plain string, so this file needs no import of it. */
+const retries = channel("sagentix:collector:retry");
+/** Tells the run's recorder that a call is about to be retried (a no-op when nothing listens). */
+export function announceRetry(status: number, waitMs: number, attempt: number): void {
+  if (retries.hasSubscribers) retries.publish({ status, waitMs, attempt });
+}
+
+/** Gateway and availability errors worth one or two more tries; a 500 is usually the request itself and is not retried. */
+export const TRANSIENT_STATUS: ReadonlySet<number> = new Set([502, 503, 504]);
+/** Retries after a transient error (a 502/503/504 or a network failure), on top of the rate-limit retries. */
+export const TRANSIENT_RETRIES = 2;
 
 export interface HttpResponse {
   status: number;
@@ -79,15 +92,23 @@ export function retryDelayMs(h: Record<string, string>, attempt: number, nowMs: 
   return Math.min(cap, 1000 * 2 ** attempt);
 }
 
-/** Retries a rate-limited GET up to `max` times; a thrown network error becomes status 0. */
+/**
+ * Retries a rate-limited GET up to `max` times, and a transient failure (502, 503, 504, or a thrown network error or
+ * timeout) up to TRANSIENT_RETRIES times, waiting Retry-After when the answer gives one. A thrown error becomes status 0.
+ */
 export function withRetry(api: RestApi, sleep: Sleep = realSleep, max = 4, now: () => number = Date.now): RestApi {
   return {
     async get(url: string) {
+      let transient = 0;
       for (let attempt = 0; ; attempt++) {
-        let r: HttpResponse;
-        try { r = await api.get(url); } catch (e) { r = { status: 0, headers: {}, body: { message: `request failed: ${String(e)}` } }; }
-        if (!isRateLimited(r) || attempt >= max) return r;
-        await sleep(retryDelayMs(r.headers, attempt, now()));
+        let r: HttpResponse, thrown = false;
+        try { r = await api.get(url); } catch (e) { r = { status: 0, headers: {}, body: { message: `request failed: ${String(e)}` } }; thrown = true; }
+        const rate = isRateLimited(r);
+        const again = rate ? attempt < max : (thrown || TRANSIENT_STATUS.has(r.status)) && transient++ < TRANSIENT_RETRIES;
+        if (!again) return r;
+        const wait = retryDelayMs(r.headers, rate ? attempt : transient - 1, now());
+        announceRetry(r.status, wait, attempt + 1);
+        await sleep(wait);
       }
     },
   };
@@ -117,7 +138,8 @@ export function why(r: HttpResponse): string {
   msg = msg.replace(/\s+/g, " ").trim().slice(0, 300);
   const hint = r.status === 401 || r.status === 403
     ? " (the credential may lack the read permission for this call, or the feature is not licensed)"
-    : r.status === 429 ? " (rate limited; retries exhausted)" : "";
+    : r.status === 429 ? " (rate limited; retries exhausted)"
+    : TRANSIENT_STATUS.has(r.status) ? " (the provider is unavailable; retried, try the run again later)" : "";
   return `HTTP ${r.status}${msg ? `: ${msg}` : ""}${hint}`;
 }
 
