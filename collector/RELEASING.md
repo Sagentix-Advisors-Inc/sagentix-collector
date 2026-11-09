@@ -49,6 +49,20 @@ The script refuses to finish if the gate has not passed, or if it finds a contro
 
 Bump `version` in `collector/package.json` before each release; npm refuses a version twice.
 
+## Signing the channel target in CI (2026-11-08)
+
+The workflow's third job, `channel`, ends the release: it signs the release target with a second release key and posts it to each sos-app environment, which makes it the candidate for Sagentix's own organizations; the canary analysis then promotes it (10%, 50%, stable) or halts it (`apps/sos-app/docs/COLLECTOR_CHANNEL.md`, section 14). It runs only when `post_channel` and `publish` are ticked, after the `npm` and `runner` jobs, in the protected environment `release`. No model and no AI key take part. Until the steps below are done it says so in a notice and ends green, and the release Mac's Keychain path (`apps/sos-app/scripts/collector-channel.mjs`, section 6 of the channel contract) remains; it stays the backup afterwards.
+
+Set up once, by Stéphane:
+
+1. Make the second key on the release Mac: `node apps/sos-app/scripts/collector-release-key.mjs`. It writes the private key to `~/.sagentix/collector-release-signing-key.b64` (mode 0600, never overwritten, never inside the repository) and prints only the public key.
+2. Pin that public key in both lists, `collector/src/release_keys.ts` and `apps/sos-app/src/collector/release-keys.ts` (a test fails when they differ), and ship it in a collector release signed the old way: a collector verifies an update only against the keys it already carries, and `scripts/post-release-target.mjs` refuses to sign with a key that is not pinned.
+3. In the release repository: Settings → Environments → New environment `release`, required reviewer Stéphane, deployment branches limited to the default branch. Its secrets: `COLLECTOR_RELEASE_SIGNING_KEY` (`gh secret set COLLECTOR_RELEASE_SIGNING_KEY --env release --repo Sagentix-Advisors-Inc/sagentix-collector < ~/.sagentix/collector-release-signing-key.b64`) and `COLLECTOR_RELEASE_POST_TOKEN` (a random value, for example `openssl rand -base64 32`). Its variable: `SOS_APP_RELEASE_ENDPOINTS`, the sos-app origins to post to, space separated (each environment keeps its own channel).
+4. Give each of those sos-app environments the same token as a Worker secret, from `apps/sos-app`: `npx wrangler versions secret put COLLECTOR_RELEASE_POST_TOKEN -c wrangler.sos-app.jsonc --env <env>` (staged with the next release; `secret put` deploys at once). Optionally set the Worker variable `COLLECTOR_CANARY_ORGS` (organization ids); unset, the canaries are Sagentix's staff organizations.
+5. Then delete the key file, or keep it offline only.
+
+Each release: tick `post_channel`, and put in `fixes` the error signature ids this release fixes (the fix brief's release steps give them). The job also reads the head commit's `Fixes-Signature:` trailers, so carry the trailer from the private commit into the mirror commit message. Approve the `release` environment when GitHub asks; the job prints each environment's answer. A `409 already published` from an environment is not an error.
+
 ## Runner image on GHCR
 
 Run the workflow with `push_image` ticked. It builds `collector/runner/Dockerfile` for `linux/amd64` only (on arm64 the Prowler install needs a compiler the slim base lacks; `runner/README.md`, Build) and pushes `ghcr.io/<owner>/sagentix-collector-runner:<version>` and `:sha-<commit>`. BuildKit attaches SLSA provenance (`mode=max`) and an SBOM to the image index in every case; check them with `docker buildx imagetools inspect ghcr.io/<owner>/sagentix-collector-runner:<version> --format '{{json .Provenance}}'`. The GitHub attestation step (`actions/attest-build-provenance`) runs only from a public repository; verify it with `gh attestation verify oci://ghcr.io/<owner>/sagentix-collector-runner:<version> --owner <owner>`.

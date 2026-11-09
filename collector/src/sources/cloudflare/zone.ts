@@ -257,8 +257,17 @@ async function usesTunnel(api: CloudflareApi, zp: string): Promise<boolean> {
   return ok(r) && Array.isArray(resultOf(r)) && (resultOf(r) as unknown[]).length > 0;
 }
 
+/** The numeric codes in a Cloudflare error answer ({errors: [{code, message}]}). */
+function cfErrorCodes(r: CfResponse): number[] {
+  const b = r.body;
+  return isObj(b) && Array.isArray(b.errors) ? b.errors.filter(isObj).map((e) => Number(e.code)).filter(Number.isFinite) : [];
+}
+
 async function customHostnames(api: CloudflareApi, zoneId: string, out: Out, zoneMinTls: unknown): Promise<void> {
   const hs = await getAll(api, `/zones/${enc(zoneId)}/custom_hostnames`, 50, 40);
+  // Cloudflare error 1404, "No quota has been allocated for this zone or for this account": the zone is not on Cloudflare
+  // for SaaS, so it has no custom hostnames to judge (sagentix-ops.com, 2026-11-09). Not applicable, not a refusal.
+  if ("error" in hs && cfErrorCodes(hs.error).includes(1404)) return out.add("custom_hostname_min_tls", "skipped", "not applicable: the zone does not use Cloudflare for SaaS, so it has no custom hostnames");
   if ("error" in hs) return out.skip("custom_hostname_min_tls", hs.error, "custom hostnames (Cloudflare for SaaS)");
   const list = hs.items.filter(isObj);
   if (!list.length) return out.add("custom_hostname_min_tls", "skipped", "the zone has no custom hostnames");

@@ -132,6 +132,8 @@ Since 0.5.0 every fault a source meets becomes a diagnostic with a code from a c
 | --- | --- | --- |
 | `AUTH_REFUSED` | you | HTTP 401, a revoked Google sign-in, a refused OAuth token request |
 | `PERMISSION_MISSING` | you | HTTP 403; the hint names the grant the doctor names for that path |
+| `LICENSE_REQUIRED` | you | HTTP 403 where the provider says a licence or plan is missing; buy it, or leave the check skipped |
+| `FEATURE_NOT_ENABLED` | you | HTTP 403 where the provider says the feature or API is off; turn it on, or leave the check skipped |
 | `CONFIG_INVALID` | you | a missing option, file, binary or credential; a source that read nothing and was refused nothing |
 | `RATE_LIMITED`, `PROVIDER_5XX`, `TIMEOUT`, `NETWORK` | nobody (transient) | HTTP 429, 5xx, `--http-timeout`, no answer |
 | `API_CHANGED` | Sagentix | HTTP 404, 410, 400, 422, a `Deprecation` or `Sunset` header |

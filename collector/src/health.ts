@@ -113,7 +113,7 @@ export function diagnosticsOf(rec: RunRecorder, report: SourceReport, results: r
     if (!r.apiError || !r.check.startsWith(`${source}.`)) continue;
     const st = r.apiError.status;
     const call = fails.find((f) => f.status === st);
-    out.push(classify(undefined, { source, check: r.check, status: st, ...(call ? { method: call.method, url: call.url, timedOut: call.timedOut } : {}) }));
+    out.push(classify(undefined, { source, check: r.check, status: st, message: r.apiError.message, ...(call ? { method: call.method, url: call.url, timedOut: call.timedOut } : {}) }));
   }
   for (const f of fails) {
     if (f.deprecated || f.status === 410) out.push(classify(undefined, { source, method: f.method, url: f.url, status: f.status, ...(f.deprecated ? { headers: { deprecation: "1" } } : {}) }));

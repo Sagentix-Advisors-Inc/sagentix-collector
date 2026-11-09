@@ -3,6 +3,7 @@
 // customer the fix and send Sagentix the bugs without anyone reading a log.
 //
 //   code    AUTH_REFUSED, PERMISSION_MISSING, CONFIG_INVALID       owner "customer"  (the doctor's fix is the hint)
+//           LICENSE_REQUIRED, FEATURE_NOT_ENABLED                  owner "customer"  (a purchase or a setting, not a grant)
 //           API_CHANGED, PARSE_ERROR, INTERNAL                      owner "sagentix"  (the fix loop's input)
 //           RATE_LIMITED, PROVIDER_5XX, TIMEOUT, NETWORK            owner "provider"  (transient: retried next run)
 //
@@ -14,19 +15,19 @@ import { dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { templatePath } from "./report.ts";
 
-export const CODES = ["AUTH_REFUSED", "PERMISSION_MISSING", "CONFIG_INVALID", "RATE_LIMITED", "TIMEOUT", "NETWORK", "PROVIDER_5XX",
+export const CODES = ["AUTH_REFUSED", "PERMISSION_MISSING", "LICENSE_REQUIRED", "FEATURE_NOT_ENABLED", "CONFIG_INVALID", "RATE_LIMITED", "TIMEOUT", "NETWORK", "PROVIDER_5XX",
   "API_CHANGED", "PARSE_ERROR", "INTERNAL"] as const;
 export type Code = (typeof CODES)[number];
 export type Owner = "customer" | "sagentix" | "provider";
 
 export const OWNER: Record<Code, Owner> = {
-  AUTH_REFUSED: "customer", PERMISSION_MISSING: "customer", CONFIG_INVALID: "customer",
+  AUTH_REFUSED: "customer", PERMISSION_MISSING: "customer", LICENSE_REQUIRED: "customer", FEATURE_NOT_ENABLED: "customer", CONFIG_INVALID: "customer",
   API_CHANGED: "sagentix", PARSE_ERROR: "sagentix", INTERNAL: "sagentix",
   RATE_LIMITED: "provider", PROVIDER_5XX: "provider", TIMEOUT: "provider", NETWORK: "provider",
 };
 
 /** The order in which a source's diagnostics are shown: the one a person can act on first. */
-export const SEVERITY: readonly Code[] = ["AUTH_REFUSED", "PERMISSION_MISSING", "CONFIG_INVALID", "API_CHANGED", "PARSE_ERROR", "INTERNAL",
+export const SEVERITY: readonly Code[] = ["AUTH_REFUSED", "PERMISSION_MISSING", "LICENSE_REQUIRED", "FEATURE_NOT_ENABLED", "CONFIG_INVALID", "API_CHANGED", "PARSE_ERROR", "INTERNAL",
   "PROVIDER_5XX", "RATE_LIMITED", "TIMEOUT", "NETWORK"];
 
 export interface Diagnostic {
@@ -57,6 +58,9 @@ export interface CallInfo {
   providerDoc?: string;
   /** A call with no answer (status 0) that was abandoned for --http-timeout, rather than refused by the network. */
   timedOut?: boolean;
+  /** The provider's error text for a refused call: read here to tell a missing licence or a feature that is off from a
+   *  missing grant, and never copied into the diagnostic. */
+  message?: string;
 }
 
 /** Thrown by a source for a fault in what the customer gave it (an option, a file, a credential that is not there). */
@@ -99,6 +103,22 @@ const header = (h: CallInfo["headers"], name: string): boolean => {
   if (typeof (h as Headers).get === "function") return !!(h as Headers).get(name);
   return Object.entries(h as Record<string, string>).some(([k, v]) => k.toLowerCase() === name && !!v);
 };
+
+// A 403 is not always a missing grant (Sagentix's own collector, 2026-11-09: Entra answered "Tenant is not a B2C tenant
+// and doesn't have premium license", GitHub "Code scanning is not enabled for this repository", Google Cloud "Compute
+// Engine API has not been used in project … or it is disabled"). The provider's words decide; they are never sent.
+const LICENSE_TEXT = /premium licen[cs]e|not licensed|licen[cs]e (is )?required|requires? (an? )?(Microsoft )?Entra ID P[12]|Advanced Security must be (enabled|purchased)|requires GitHub (Advanced Security|Code Security|Secret Protection)/i;
+const FEATURE_OFF_TEXT = /is not enabled for this (repository|organization|account|zone|tenant)|has not been used in project \S+ before or it is disabled|API (is )?disabled|feature is (not enabled|disabled)/i;
+
+/** The code for a refused call from the provider's own words, when they say it is a licence or a setting. */
+export function codeForRefusal(status: number, message: string | undefined): Code | undefined {
+  if (status !== 403 || !message) return undefined;
+  // Our own words that src/sources/readonly_http.ts adds to every 403 ("… or the feature is not licensed") say nothing.
+  message = message.replace(/ \(the credential may lack the read permission for this call, or the feature is not licensed\)/g, "");
+  if (LICENSE_TEXT.test(message)) return "LICENSE_REQUIRED";
+  if (FEATURE_OFF_TEXT.test(message)) return "FEATURE_NOT_ENABLED";
+  return undefined;
+}
 
 /** The code for an HTTP status alone (0: no answer). */
 export function codeForStatus(status: number, timedOut = false): Code {
@@ -152,6 +172,8 @@ export function hintFor(code: Code, source: string, o: { permission?: string; st
   switch (code) {
     case "AUTH_REFUSED": return `The ${source} credential was refused (expired, revoked, or for another tenant): renew it in the vault or the environment, ${doctor}.`;
     case "PERMISSION_MISSING": return o.permission ? `Grant ${o.permission}, ${doctor}.` : `A permission is missing for ${source}: run \`collector doctor --config <file> --source ${source}\` to see which one.`;
+    case "LICENSE_REQUIRED": return `${source} refused the call because the account lacks the licence or plan the feature needs; no permission will fix it. Buy the licence, or leave the check skipped (it counts neither way), ${doctor}.`;
+    case "FEATURE_NOT_ENABLED": return `${source} refused the call because the feature is turned off (or not available on this plan); turn it on in ${source}, or leave the check skipped (it counts neither way), ${doctor}.`;
     case "CONFIG_INVALID": return `The ${source} connector is not set up completely (a credential, option or file is missing or wrong): fix it in Connect your environment, ${doctor}.`;
     case "RATE_LIMITED": return `${source} limited the collector's calls even after retries; the next run tries again. Nothing to do unless it repeats.`;
     case "PROVIDER_5XX": return `${source} answered with a server error${o.status ? ` (HTTP ${o.status})` : ""}; the next run tries again. Check the provider's status page if it repeats.`;
@@ -178,7 +200,7 @@ export function classify(error: unknown, call: CallInfo = {}): Diagnostic {
   let code: Code;
   if (header(call.headers, "deprecation") || header(call.headers, "sunset")) code = "API_CHANGED";
   // A status of 0 is a call that got no answer: abandoned for the timeout, or refused on the way.
-  else if (status !== undefined && (status === 0 || status >= 400)) code = codeForStatus(status, timedOut);
+  else if (status !== undefined && (status === 0 || status >= 400)) code = codeForRefusal(status, call.message) ?? codeForStatus(status, timedOut);
   else code = error === undefined || error === null ? "INTERNAL" : codeForError(error);
   const endpoint = endpointOf(call.method, call.url);
   let permission: string | undefined;

@@ -1,10 +1,12 @@
-# Collector release, BY HAND ONLY (Sagentix, 2026-10-15). Two jobs, each switched on separately:
+# Collector release, BY HAND ONLY (Sagentix, 2026-10-15). Three jobs, each switched on separately:
 #
 #   npm      tests, builds the package (collector/scripts/stage-package.mjs), writes a CycloneDX SBOM, then
 #            `npm stage publish --provenance` through npm trusted publishing (OIDC; no npm token is stored); the
 #            version goes live only when a maintainer approves it with 2FA (`npm stage approve`, collector/RELEASING.md).
 #   runner   builds collector/runner/Dockerfile for linux/amd64 and pushes it to GHCR with
 #            BuildKit's SLSA provenance (mode=max) and SBOM attached, plus a GitHub build attestation.
+#   channel  (post_channel) signs the release target with the `release` environment's key and posts it to sos-app,
+#            which makes it the candidate for its canary organizations (the job's own comment, below).
 #
 # Nothing here deploys sos-app, and no step reads CLOUDFLARE_API_TOKEN or CLOUDFLARE_API_TOKEN_SOS_APP.
 #
@@ -27,6 +29,14 @@ on:
         description: "Push the runner image to GHCR"
         type: boolean
         default: false
+      post_channel:
+        description: "Sign the release target and post it to sos-app's channel (needs publish; the release environment approves it)"
+        type: boolean
+        default: false
+      fixes:
+        description: "Error signature ids this release fixes (64 hex, space separated), beside the head commit's Fixes-Signature trailers"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -127,6 +137,10 @@ jobs:
     # The Go engines build from source (about 25 minutes on a hosted runner, 2026-10-26); the push build reuses the
     # scan build's layers through the Actions cache, so 90 minutes leaves room.
     timeout-minutes: 90
+    # For the channel job: the pushed image's name and digest (empty when push_image is off).
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
     permissions:
       contents: read
       packages: write        # push to ghcr.io/<owner>/sagentix-collector-runner (only with push_image)
@@ -228,3 +242,57 @@ jobs:
             [ "$PRIVATE_REPO" = "true" ] && echo "GitHub attestation skipped: private repository (needs a public repo or GitHub Enterprise Cloud)."
             true
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # The release target, signed and posted to sos-app's channel (2026-11-08; apps/sos-app/docs/COLLECTOR_CHANNEL.md,
+  # section 14). Optional: only with post_channel ticked, and only after the npm and runner jobs. It runs in the
+  # protected environment `release`, whose required reviewer (Stéphane) approves it, and reads two environment secrets:
+  #   COLLECTOR_RELEASE_SIGNING_KEY   the second release key (Ed25519, PKCS#8 DER, base64), whose public half is pinned in
+  #                                   collector/src/release_keys.ts; the script refuses a key that is not pinned
+  #   COLLECTOR_RELEASE_POST_TOKEN    the bearer secret each sos-app environment holds as a Worker secret
+  # and the environment variable SOS_APP_RELEASE_ENDPOINTS (sos-app origins, space separated). Without them the job
+  # says so and ends green, and the Mac Keychain path (apps/sos-app/scripts/collector-channel.mjs) remains. No model and
+  # no AI key here. The post names the error signatures this release fixes: the `fixes` input and the head commit's
+  # `Fixes-Signature:` trailers.
+  channel:
+    needs: [npm, runner]
+    if: inputs.post_channel && inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: release
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+      - name: Are the release key, the token and the endpoints set?
+        id: ready
+        env:
+          KEY: ${{ secrets.COLLECTOR_RELEASE_SIGNING_KEY }}
+          TOKEN: ${{ secrets.COLLECTOR_RELEASE_POST_TOKEN }}
+          ENDPOINTS: ${{ vars.SOS_APP_RELEASE_ENDPOINTS }}
+        run: |
+          if [ -z "$KEY" ] || [ -z "$TOKEN" ] || [ -z "$ENDPOINTS" ]; then
+            echo "::notice::The release environment has no COLLECTOR_RELEASE_SIGNING_KEY, COLLECTOR_RELEASE_POST_TOKEN or SOS_APP_RELEASE_ENDPOINTS: nothing posted. Sign the target on the release Mac (apps/sos-app/scripts/collector-channel.mjs, collector/RELEASING.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Sign the release target and post it
+        if: steps.ready.outputs.ready == 'true'
+        working-directory: collector
+        env:
+          COLLECTOR_RELEASE_SIGNING_KEY: ${{ secrets.COLLECTOR_RELEASE_SIGNING_KEY }}
+          COLLECTOR_RELEASE_POST_TOKEN: ${{ secrets.COLLECTOR_RELEASE_POST_TOKEN }}
+          SOS_APP_ENDPOINTS: ${{ vars.SOS_APP_RELEASE_ENDPOINTS }}
+          IMAGE: ${{ needs.runner.outputs.image }}
+          DIGEST: ${{ needs.runner.outputs.digest }}
+          PUSHED: ${{ inputs.push_image }}
+          FIXES_INPUT: ${{ inputs.fixes }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          trailers="$(git log -1 --format='%(trailers:key=Fixes-Signature,valueonly)')"
+          image=""
+          if [ "$PUSHED" = "true" ] && [ -n "$DIGEST" ]; then image="$IMAGE:$version@$DIGEST"; fi
+          node scripts/post-release-target.mjs --version "$version" --commit "$GITHUB_SHA" --image "$image" --fixes "$FIXES_INPUT $trailers"

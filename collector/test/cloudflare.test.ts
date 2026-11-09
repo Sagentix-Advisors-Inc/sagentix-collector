@@ -325,3 +325,16 @@ test("gateway_antivirus: download scanning without TLS decryption fails; an unre
   const denied = (await runCf(fakeCloudflare({ [`${A}/gateway/configuration`]: errBody(403) }))).filter((r) => r.check === "cloudflare.gateway_antivirus");
   assert.equal(denied[0].result, "skipped");
 });
+
+test("custom hostnames on a zone without Cloudflare for SaaS (error 1404) are not applicable, not a refusal", async () => {
+  const Zp = `/zones/${ZONE}`;
+  const noQuota: CfResponse = { status: 403, body: { success: false, errors: [{ code: 1404, message: "No quota has been allocated for this zone or for this account." }], messages: [], result: null } };
+  const rs = of(await runCf(fakeCloudflare({ [`${Zp}/custom_hostnames`]: noQuota })), "custom_hostname_min_tls");
+  assert.equal(rs.length, 1);
+  assert.equal(rs[0].result, "skipped");
+  assert.match(rs[0].detail, /^not applicable: the zone does not use Cloudflare for SaaS/);
+  assert.equal(rs[0].apiError, undefined);
+  // Any other 403 is still a refused call.
+  const other = of(await runCf(fakeCloudflare({ [`${Zp}/custom_hostnames`]: errBody(403, "Unauthorized to access requested resource") })), "custom_hostname_min_tls");
+  assert.equal(other[0].apiError?.status, 403);
+});

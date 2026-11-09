@@ -43,6 +43,11 @@ test("every code, from a status, a thrown error or a header; each with its owner
     ["AUTH_REFUSED", classify(new Error("invalid_grant: Token has been expired or revoked."), { source: "google_workspace" })],
     ["AUTH_REFUSED", classify(new Error("token request to login.microsoftonline.com failed: HTTP 401 invalid_client"), { source: "entra" })],
     ["PERMISSION_MISSING", classify(undefined, { source: "okta", status: 403 })],
+    // The provider's words tell a licence or a switched-off feature from a missing grant (2026-11-09, Sagentix's own run).
+    ["LICENSE_REQUIRED", classify(undefined, { source: "entra", status: 403, message: "HTTP 403: Tenant is not a B2C tenant and doesn't have premium license" })],
+    ["FEATURE_NOT_ENABLED", classify(undefined, { source: "github", status: 403, message: "HTTP 403: Code scanning is not enabled for this repository. Please enable code scanning in the repository settings." })],
+    ["FEATURE_NOT_ENABLED", classify(undefined, { source: "gcp", status: 403, message: "HTTP 403: Compute Engine API has not been used in project p-1 before or it is disabled." })],
+    ["PERMISSION_MISSING", classify(undefined, { source: "okta", status: 403, message: "HTTP 403: You do not have permission to perform the requested action" })],
     ["CONFIG_INVALID", classify(new ConfigError("anything"), { source: "web" })],
     ["CONFIG_INVALID", classify(new Error("give --checkov-report <file>; run checkov first."), { source: "checkov" })],
     ["CONFIG_INVALID", classify(new Error("--prowler-provider is required: one or more of aws"), { source: "prowler" })],

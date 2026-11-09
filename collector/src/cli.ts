@@ -38,7 +38,7 @@ import { CLASSES, type FedClass } from "./v1/rules.ts";
 import { EXIT_UPDATE, checkin, detectRunner, modeOf, type Channel } from "./channel.ts";
 import { RunRecorder, buildReport, deliverReport, envSecrets, scrubText, type CallEvent, type RetryEvent, type SourceReport, type SourceStats } from "./report.ts";
 import { pool } from "./pool.ts";
-import { OWNER, classify, diagnosticLine } from "./diagnostics.ts";
+import { OWNER, classify, codeForRefusal, diagnosticLine, hintFor } from "./diagnostics.ts";
 import { noteCheckin, noteRun, observeDate, readHealth, sourceHealth } from "./health.ts";
 import { PROBES, doctorHint, type Check } from "./doctor.ts";
 import { agent } from "./agent.ts";
@@ -240,7 +240,9 @@ export function problemLines(results: readonly Result[], max = 20): string[] {
     const k = `${r.check}|${st}`;
     if (seen.has(k)) continue;
     seen.add(k);
-    if (out.length < max) out.push(`  ${r.check} [${r.resource}]: HTTP ${st}${st === 401 ? " (credential refused, AUTH_REFUSED)" : " (permission missing, PERMISSION_MISSING)"}; fix: ${doctorHint(source)}`);
+    const code = st === 401 ? "AUTH_REFUSED" : codeForRefusal(st, r.apiError?.message) ?? "PERMISSION_MISSING";
+    const label = code === "AUTH_REFUSED" ? "credential refused" : code === "LICENSE_REQUIRED" ? "licence or plan required" : code === "FEATURE_NOT_ENABLED" ? "feature turned off" : "permission missing";
+    if (out.length < max) out.push(`  ${r.check} [${r.resource}]: HTTP ${st} (${label}, ${code}); fix: ${code === "PERMISSION_MISSING" || code === "AUTH_REFUSED" ? doctorHint(source) : hintFor(code, source)}`);
   }
   if (seen.size > max) out.push(`  … and ${seen.size - max} more`);
   return out;
